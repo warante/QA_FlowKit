@@ -1,12 +1,12 @@
 # Summary
 
-This PR adds QA test design and automation coverage for <Jira Story / RF>.
+This PR adds QA test design and automation coverage for <Requirement / RF>.
 
 ## Sources
 
-- Jira Story:
+- Requirement source:
 - PRD:
-- Confluence:
+- Supporting documentation:
 - Attachments:
 
 ## Test Design
@@ -15,7 +15,7 @@ Added feature files:
 
 - 
 
-## TestRail
+## Test Management
 
 Created cases:
 

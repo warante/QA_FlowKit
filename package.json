@@ -9,7 +9,9 @@
     "qa:doctor": "node .qa-ai/scripts/doctor.mjs",
     "qa:clean": "node .qa-ai/scripts/clean.mjs",
     "qa:validate-features": "node .qa-ai/scripts/validate-features.mjs",
-    "qa:sync-adapters": "node .qa-ai/scripts/sync-agent-adapters.mjs"
+    "qa:sync-adapters": "node .qa-ai/scripts/sync-agent-adapters.mjs",
+    "qa:smoke": "node .qa-ai/scripts/smoke-test.mjs",
+    "validate:oss-extraction": "node .qa-ai/scripts/doctor.mjs && node .qa-ai/scripts/validate-features.mjs --allow-empty && node .qa-ai/scripts/smoke-test.mjs"
   },
   "keywords": [
     "qa",

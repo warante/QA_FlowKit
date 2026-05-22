@@ -1,10 +1,10 @@
-# TestRail Sync Workflow
+# Test Management Sync Workflow
 
-Produce a TestRail sync plan. Do not write externally in the MVP.
+Produce a sync plan for the configured test management tool. Do not write externally in the MVP.
 
 ## Inputs
 
-- Target TestRail project.
+- Target test management project/suite.
 - Approved `.feature` files.
 - Existing case search results when available.
 - Traceability matrix.
@@ -20,4 +20,4 @@ Update `docs/qa/testrail-sync-plan.md` with:
 - Potential duplicates or overlaps.
 - Cases requiring user decision.
 
-Any future TestRail write integration must be approval-gated and proposal-first.
+Any future test management write integration must be approval-gated and proposal-first.

@@ -11,8 +11,8 @@ Implement only approved automation changes using repository conventions.
 
 ## During coding
 
-- Prefer WebdriverIO for configured UI/E2E coverage.
-- Prefer Playwright API for configured API/integration coverage.
+- Use the configured UI/E2E framework for UI coverage.
+- Use the configured API/integration framework for API coverage.
 - Reuse existing selectors, clients, fixtures and schemas when possible.
 - Keep tests deterministic and isolated.
 - Do not add dependencies without approval.

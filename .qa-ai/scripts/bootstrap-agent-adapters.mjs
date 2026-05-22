@@ -116,7 +116,7 @@ async function main() {
   if (manifest) console.log(`updated ${relativeTo(cwd, manifestPath(cwd))}`);
 
   console.log('\nNext: open Claude Code or OpenCode in this repository and run:');
-  console.log('/qa-init --preset webdriverio-playwright-api --adapters claude,opencode');
+  console.log('/qa-init --preset webdriverio-playwright-api --interface-language en --gherkin-language en --adapters claude,opencode');
   console.log('\nUse --preset manual-only if this repository should generate QA artifacts without automation folders.');
 }
 

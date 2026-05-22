@@ -1,6 +1,7 @@
-# TestRail Rules
+# Test Management Rules
 
-- Ask the user for the target TestRail project.
+- Use the configured test management tool from `qa-ai.config.yaml` (`tools.testManagement`).
+- Ask the user for the target project/suite when needed.
 - Search existing cases before proposing new cases.
 - Detect duplicates and potential overlaps.
 - Create new sections only after informing the user.

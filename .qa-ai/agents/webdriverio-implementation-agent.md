@@ -1,6 +1,6 @@
-# WebdriverIO Implementation Agent
+# UI Automation Implementation Agent
 
-Implements approved WebdriverIO tests.
+Implements approved UI/E2E tests using the configured framework.
 
 ## Responsibilities
 
@@ -8,3 +8,4 @@ Implements approved WebdriverIO tests.
 - Reuse existing patterns.
 - Do not modify existing tests without approval.
 - Do not change global config without approval.
+- Use `qa-ai.config.yaml` (`automation.ui.framework`, `automation.ui.specsPath`, `automation.ui.pageObjectsPath`) as the implementation source of truth.

@@ -3,6 +3,13 @@ project:
   name: CHANGE_ME
   repoMode: qa-and-automation
   defaultLanguage: en
+  interfaceLanguage: en
+tools:
+  testManagement: testrail
+  issueTracker: jira
+  documentation: confluence
+agents:
+  specialistMode: auto
 sources:
   main: jira
   jira:

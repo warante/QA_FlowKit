@@ -144,6 +144,23 @@ export function resolveInsideCwd(cwd, relativePath) {
   return { resolved, inside };
 }
 
+export function resolveRepoPath(cwd, relativePath, { label = 'path', allowRoot = false } = {}) {
+  const value = String(relativePath || '').trim();
+  if (!value) {
+    throw new Error(`Invalid ${label}: path is empty.`);
+  }
+  if (path.isAbsolute(value)) {
+    throw new Error(`Invalid ${label}: absolute paths are not allowed (${value}).`);
+  }
+
+  const root = path.resolve(cwd);
+  const target = resolveInsideCwd(cwd, value);
+  if (!target.inside || (!allowRoot && target.resolved === root)) {
+    throw new Error(`Invalid ${label}: path must stay inside the repository (${value}).`);
+  }
+  return target.resolved;
+}
+
 export async function hashFile(filePath) {
   const data = await fs.readFile(filePath);
   return crypto.createHash('sha256').update(data).digest('hex');
