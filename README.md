@@ -1,42 +1,63 @@
 # QA AI Starter
 
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Node.js 20+](https://img.shields.io/badge/node.js-20%2B-339933.svg)](package.json)
+[![Status: MVP](https://img.shields.io/badge/status-MVP-blue.svg)](ROADMAP.md)
+[![Workflow: QA AI](https://img.shields.io/badge/workflow-QA%20AI-6f42c1.svg)](docs/qa-ai/workflow.md)
+
 Portable open-source starter kit for adding an AI-assisted QA workflow to an existing QA or automation repository.
 
-The MVP is intentionally copy-folder based: copy `.qa-ai/` into a target repository, run the local Node scripts, and the target repo receives configuration, agent instructions, workflow docs, validation scripts, templates and adapters for common coding-agent tools.
+Language: **English** | [Español](README.es.md)
 
-## Workflow
+## Table of Contents
+
+- [What It Does](#what-it-does)
+- [Quick Start](#quick-start)
+- [Agent-First Bootstrap](#agent-first-bootstrap)
+- [Commands](#commands)
+- [Presets](#presets)
+- [Adapters](#adapters)
+- [Generated Structure](#generated-structure)
+- [Gherkin Rules](#gherkin-rules)
+- [Cleanup](#cleanup)
+- [Documentation](#documentation)
+- [License](#license)
+
+## What It Does
+
+The MVP is intentionally copy-folder based: copy `.qa-ai/` into a target repository, run the local Node.js scripts, and the target repo receives configuration, agent instructions, workflow docs, validation scripts, templates and adapters for common coding-agent tools.
+
+The starter does **not** perform external writes to configured tools in the MVP. It creates proposal-first artifacts and local repo files only.
+
+| Area | Included |
+|---|---|
+| Framework | Portable `.qa-ai/` folder |
+| Scripts | `bootstrap-agent-adapters`, `init`, `doctor`, `clean`, `validate-features`, `smoke-test`, `sync-agent-adapters` |
+| Rules | Approval, Gherkin, test management, automation, UI automation and API testing |
+| Agents | Phase agents plus active specialists from `.qa-ai/agents/specialists/active.md` |
+| Templates | Requirement analysis, test design, traceability, automation planning and PR summary |
+| Adapters | AGENTS.md, Claude Code, Codex, OpenCode, Cline, Continue, Aider and Goose |
 
 ```text
-Requirements / Jira / Confluence / Markdown
+Requirements
   -> requirement intake
   -> official RF + acceptance criteria validation
-  -> TestRail coverage analysis
+  -> test management coverage analysis
   -> Gherkin test design
-  -> TestRail sync plan
+  -> test management sync plan
   -> traceability matrix
   -> automation feasibility
-  -> WebdriverIO / Playwright API implementation plan
+  -> configured-framework implementation plan
   -> PR-ready summary
 ```
 
-## MVP scope
+## Quick Start
 
-The starter does not perform external writes to Jira, Confluence, TestRail or GitHub. It creates proposal-first artifacts and local repo files only.
-
-Included:
-
-- Portable `.qa-ai/` framework folder.
-- Local scripts: `bootstrap-agent-adapters`, `init`, `doctor`, `clean`, `validate-features`, `sync-agent-adapters`.
-- Presets for WebdriverIO + Playwright API, Selenium/Jest/BrowserStack and manual-only QA.
-- Rules for approval, Gherkin, TestRail, automation, WebdriverIO and API testing.
-- Templates for generated QA artifacts.
-- Adapters for AGENTS.md, Claude Code, Codex, OpenCode, Cline, Continue, Aider and Goose.
-
-## Quick start in a target repo
+Run this from the target repository where you want to install the starter:
 
 ```bash
 cp -R /path/to/qa-ai-starter/.qa-ai .qa-ai
-node .qa-ai/scripts/init.mjs --preset webdriverio-playwright-api
+node .qa-ai/scripts/init.mjs --preset webdriverio-playwright-api --interface-language en --gherkin-language en
 node .qa-ai/scripts/doctor.mjs
 ```
 
@@ -46,76 +67,106 @@ Then open the repository with your AI coding tool and start with:
 Read AGENTS.md, qa-ai.config.yaml and .qa-ai/workflows/full-flow.md. Follow .qa-ai/rules/ before making changes.
 ```
 
-## Agent-first bootstrap
+Framework and path flags are advanced overrides. When a preset already defines the frameworks you want, omit those flags so the preset paths are preserved.
 
-If you want to initialize through Claude Code or OpenCode with `/qa-init`, copy only `.qa-ai/`, run the bootstrap script once, then open the agent.
+## Agent-First Bootstrap
 
-Unix/macOS:
+Use this flow when Claude Code or OpenCode should initialize the repo through `/qa-init`.
+
+| Platform | Command |
+|---|---|
+| Unix/macOS | `cp -R /path/to/qa-ai-starter/.qa-ai .qa-ai` |
+| PowerShell | `Copy-Item -Recurse -LiteralPath C:\path\to\qa-ai-starter\.qa-ai -Destination .\.qa-ai` |
+
+Then run:
 
 ```bash
-cp -R /path/to/qa-ai-starter/.qa-ai .qa-ai
 node .qa-ai/scripts/bootstrap-agent-adapters.mjs --agents claude,opencode
-claude
 ```
 
-PowerShell:
-
-```powershell
-Copy-Item -Recurse -LiteralPath C:\path\to\qa-ai-starter\.qa-ai -Destination .\.qa-ai
-node .qa-ai/scripts/bootstrap-agent-adapters.mjs --agents claude,opencode
-claude
-```
-
-Then run inside Claude Code:
+Open Claude Code or OpenCode in the target repository and run:
 
 ```text
 /qa-init
 ```
 
-The command will ask for the preset, adapters and whether overwriting is allowed. You can still pass flags directly for advanced use.
-
-For OpenCode, use the same bootstrap command and open OpenCode instead:
-
-```bash
-cp -R /path/to/qa-ai-starter/.qa-ai .qa-ai
-node .qa-ai/scripts/bootstrap-agent-adapters.mjs --agents opencode,claude
-opencode
-```
-
-Then run inside OpenCode:
-
-```text
-/qa-init
-```
-
-Use `/qa-init` rather than `/init`; both Claude Code and OpenCode have their own built-in `/init` commands. The guided `/qa-init` command asks for required information and then runs `node .qa-ai/scripts/init.mjs` from the repository root. After it finishes, restart the agent if newly generated commands such as `/qa-full-flow`, `/qa-doctor`, `/qa-clean` or `/qa-validate-features` do not appear immediately.
+Use `/qa-init` rather than `/init`; both Claude Code and OpenCode have their own built-in `/init` commands. The guided command asks for language, preset, adapters, optional framework overrides and overwrite behavior.
 
 Advanced direct form:
 
 ```text
-/qa-init --preset webdriverio-playwright-api --adapters claude,opencode
+/qa-init --preset webdriverio-playwright-api --interface-language es --gherkin-language en --adapters claude,opencode
 ```
-
-The other slash commands are guided too:
-
-- `/qa-full-flow` asks for the requirement source, official RF ID, TestRail project and whether to stop at proposals.
-- `/qa-clean` runs a dry-run first, then asks what scope to clean before using `--force`.
-- `/qa-validate-features` runs against the configured feature path by default and asks only if you want a custom path.
-- `/qa-doctor` needs no input; it runs setup checks and explains the result.
 
 ## Commands
 
-```bash
-node .qa-ai/scripts/bootstrap-agent-adapters.mjs --agents claude,opencode
-node .qa-ai/scripts/init.mjs --preset webdriverio-playwright-api
-node .qa-ai/scripts/init.mjs --preset manual-only --adapters generic,codex
-node .qa-ai/scripts/sync-agent-adapters.mjs --adapters all
-node .qa-ai/scripts/doctor.mjs
-node .qa-ai/scripts/validate-features.mjs
-node .qa-ai/scripts/clean.mjs
+| Command | Purpose |
+|---|---|
+| `node .qa-ai/scripts/bootstrap-agent-adapters.mjs --agents claude,opencode` | Copy minimal root slash commands for agent-first setup |
+| `node .qa-ai/scripts/init.mjs --preset webdriverio-playwright-api --interface-language en --gherkin-language en` | Generate config, folders, docs and adapters |
+| `node .qa-ai/scripts/sync-agent-adapters.mjs --adapters all` | Sync selected adapter templates |
+| `node .qa-ai/scripts/doctor.mjs` | Check setup health |
+| `node .qa-ai/scripts/validate-features.mjs` | Validate generated `.feature` files |
+| `node .qa-ai/scripts/smoke-test.mjs` | Run maintainer smoke checks |
+| `node .qa-ai/scripts/clean.mjs` | Preview cleanup of generated artifacts |
+
+`init.mjs` never overwrites existing files unless `--force` is passed. `validate-features.mjs` fails when no `.feature` files are found; use `--allow-empty` only for source-repo smoke checks or other cases where an empty feature folder is expected.
+
+## Presets
+
+| Preset | Best For | Default Automation |
+|---|---|---|
+| `webdriverio-playwright-api` | QA + automation repositories | WebdriverIO UI/E2E and Playwright API |
+| `selenium-jest-browserstack` | Selenium-style UI automation | Selenium/Jest/BrowserStack folders |
+| `manual-only` | QA design without automation folders | None |
+
+## Adapters
+
+| Adapter | Generated Path | Notes |
+|---|---|---|
+| Generic | `AGENTS.md` | Cross-agent behavior and safety rules |
+| Claude Code | `.claude/` | Slash commands including `/qa-init` |
+| Codex | `.codex/` | Codex onboarding prompts |
+| OpenCode | `.opencode/` | Slash commands including `/qa-init` |
+| Cline | `.clinerules`, `.cline/` | Cline behavior and docs |
+| Continue | `.continue/` | Review/check guidance |
+| Aider | `.aider.conf.yml`, `.aider/` | Read list and command notes |
+| Goose | `.goose/` | Workflow recipe |
+
+## Generated Structure
+
+```text
+qa-ai.config.yaml
+AGENTS.md
+.claude/
+.codex/
+.opencode/
+.cline/
+.clinerules
+.continue/
+.aider.conf.yml
+.aider/
+.goose/
+docs/qa/
+features/
+tests/
 ```
 
-`init.mjs` never overwrites existing files unless `--force` is passed. It always creates `AGENTS.md` when adapters are enabled, because that file is the generic compatibility layer.
+The exact `tests/` subfolders are config-aware. Init creates configured UI/API paths when frameworks are set, and skips automation folders when frameworks are `none` or `undecided`.
+
+When `project.interfaceLanguage` is `es`, init localizes the generated QA Markdown artifact headings. Gherkin language remains controlled separately by `gherkin.language`.
+
+## Gherkin Rules
+
+| Rule | Requirement |
+|---|---|
+| Language | English (`en`) or Spanish (`es`) from `qa-ai.config.yaml` |
+| Spanish directive | Spanish `.feature` files must include `# language: es` |
+| File model | One `.feature` file per test case |
+| Scenario model | One configured scenario keyword per file |
+| Acceptance criteria | `Acceptance Criteria:` for English or `Criterios de aceptación:` for Spanish |
+| Required tags | `@priority:<value>`, `@type:<value>`, `@manual:<value>` |
+| Scope | Manual tests have `.feature` files; unit tests are out of scope |
 
 ## Cleanup
 
@@ -125,9 +176,7 @@ node .qa-ai/scripts/clean.mjs
 .qa-ai/state/init-manifest.json
 ```
 
-The manifest records only files and directories that the framework actually created or overwrote. `clean.mjs` uses that manifest so cleanup does not guess.
-
-By default, cleanup is a dry-run:
+Cleanup is a dry-run by default:
 
 ```bash
 node .qa-ai/scripts/clean.mjs
@@ -149,41 +198,18 @@ Safety rules:
 - Directories are removed only when tracked and empty.
 - The copied `.qa-ai/` framework folder is not removed by clean.
 
-## Generated target structure
+## Documentation
 
-```text
-qa-ai.config.yaml
-AGENTS.md
-.claude/
-.codex/
-.opencode/
-.cline/
-.clinerules
-.continue/
-.aider.conf.yml
-.aider/
-.goose/
-docs/qa/
-features/
-tests/
-```
-
-The exact `tests/` subfolders are preset-aware. WebdriverIO presets create `tests/wdio/`, Playwright API presets create `tests/api/`, and manual-only presets skip automation folders.
-
-## Gherkin conventions
-
-- Tests are written in English.
-- One `.feature` file per test case.
-- One `Scenario:` or `Scenario Outline:` per file.
-- Every `.feature` file includes `Acceptance Criteria:`.
-- Required default tags: `@priority:`, `@type:`, `@manual:`.
-- Manual tests also have `.feature` files.
-- Unit tests are out of scope for generated QA cases.
-
-## Repository mode
-
-This project assumes a single QA + automation repository where Gherkin features, traceability docs, WebdriverIO tests and API tests can coexist.
+| Document | Purpose |
+|---|---|
+| [Architecture](docs/qa-ai/architecture.md) | Framework structure and safety model |
+| [Workflow](docs/qa-ai/workflow.md) | End-to-end QA flow |
+| [Agent compatibility](docs/qa-ai/agent-compatibility.md) | Adapter behavior and command discovery |
+| [Cleanup](docs/qa-ai/cleanup.md) | Manifest-based cleanup details |
+| [Roadmap](ROADMAP.md) | Product direction |
+| [Contributing](CONTRIBUTING.md) | Contribution guidelines |
+| [Security](SECURITY.md) | Vulnerability and secret-handling policy |
 
 ## License
 
-MIT. See [LICENSE](./LICENSE).
+MIT. See [LICENSE](LICENSE).

@@ -20,13 +20,14 @@ You are the implementation agent for an open-source QA AI workflow starter. You 
 10. Aider receives `.aider.conf.yml` plus documentation.
 11. Goose receives a recipe file.
 12. All destructive or external write actions must be proposal-first and approval-gated.
-13. The starter must not require real Jira, Confluence or TestRail credentials in the MVP.
-14. Generated test cases must be written in English.
-15. Manual tests must also have `.feature` files.
-16. Unit tests are out of scope.
-17. Agent-first initialization uses `/qa-init`, not `/init`, to avoid overriding native agent commands.
-18. Claude Code bootstrap commands live in `.claude/commands/`.
-19. OpenCode bootstrap commands live in `.opencode/commands/`.
+13. The starter must not require real external tool credentials in the MVP.
+14. Specialist agents live under `.qa-ai/agents/specialists/available/`; `init.mjs` generates `.qa-ai/agents/specialists/active.md` from config.
+15. Generated test cases must be written in the configured Gherkin language: English (`en`) or Spanish (`es`).
+16. Manual tests must also have `.feature` files.
+17. Unit tests are out of scope.
+18. Agent-first initialization uses `/qa-init`, not `/init`, to avoid overriding native agent commands.
+19. Claude Code bootstrap commands live in `.claude/commands/`.
+20. OpenCode bootstrap commands live in `.opencode/commands/`.
 
 ## Target project structure
 
@@ -71,6 +72,7 @@ Required scripts:
 - `.qa-ai/scripts/doctor.mjs`
 - `.qa-ai/scripts/clean.mjs`
 - `.qa-ai/scripts/validate-features.mjs`
+- `.qa-ai/scripts/smoke-test.mjs`
 - `.qa-ai/scripts/sync-agent-adapters.mjs`
 
 Scripts must be dependency-light and runnable with Node.js 20+.
@@ -84,12 +86,13 @@ The script must:
 3. Generate `qa-ai.config.yaml` if it does not exist.
 4. Create `docs/qa/`.
 5. Create `features/` subfolders.
-6. Create `tests/wdio/` if UI framework is WebdriverIO.
-7. Create `tests/api/` if API framework is Playwright API.
+6. Create configured UI test folders when `automation.ui.framework` is not `none` or `undecided`.
+7. Create configured API test folders when `automation.api.framework` is not `none` or `undecided`.
 8. Generate `AGENTS.md` if it does not exist.
 9. Generate `.claude/`, `.codex/`, `.opencode/`, `.cline/`, `.continue/`, `.goose/` adapter docs when requested.
 10. Never overwrite existing files unless `--force` is passed.
 11. Support agent-first bootstrapping through `/qa-init`, which delegates to this script.
+12. Reject configured output paths that are absolute or resolve outside the target repository.
 
 ### Step 4 - Implement agent bootstrap
 
@@ -131,11 +134,21 @@ The script must:
 
 The script must scan `.feature` files and validate:
 
-- One `Scenario:` per file.
-- `Acceptance Criteria:` exists.
+- One configured scenario keyword per file.
+- The configured acceptance criteria label exists: `Acceptance Criteria:` for English or `Criterios de aceptación:` for Spanish.
 - Required tags exist: `@priority:`, `@type:`, `@manual:`.
+- Required tags include values, for example `@priority:high`.
+- Spanish Gherkin files include `# language: es`.
 - Feature title contains an RF-like identifier.
 - Scenario title contains an RF-like identifier.
+
+### Step 7a - Implement smoke tests
+
+The script `.qa-ai/scripts/smoke-test.mjs` must use native Node.js APIs to verify:
+
+- Init preserves preset paths when framework flags match the preset defaults.
+- Generated files are not overwritten without `--force`.
+- Unsafe configured paths outside the repository are rejected.
 
 ### Step 8 - Implement adapter sync
 
@@ -175,11 +188,12 @@ Whenever code changes, update:
 
 - A user can copy `.qa-ai/` into a new repository.
 - A user can run `node .qa-ai/scripts/bootstrap-agent-adapters.mjs --agents claude,opencode` and then use `/qa-init` in Claude Code or OpenCode.
-- A user can run `node .qa-ai/scripts/init.mjs --preset webdriverio-playwright-api`.
+- A user can run `node .qa-ai/scripts/init.mjs --preset webdriverio-playwright-api --interface-language en --gherkin-language en`.
 - The target repository receives `qa-ai.config.yaml`, `AGENTS.md`, docs folders, feature folders and adapter files.
 - A user can run `node .qa-ai/scripts/doctor.mjs` and receive a meaningful report.
 - A user can run `node .qa-ai/scripts/clean.mjs` and receive a safe dry-run cleanup plan.
 - A user can run `node .qa-ai/scripts/validate-features.mjs` and receive validation results.
+- A maintainer can run `node .qa-ai/scripts/smoke-test.mjs` for core regression checks.
 - Existing files are not overwritten by default.
 - The project is ready to publish publicly on GitHub.
 

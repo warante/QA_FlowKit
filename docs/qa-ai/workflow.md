@@ -4,10 +4,10 @@
 
 Inputs:
 
-- Jira story.
-- Confluence page.
+- Configured requirement source.
+- Configured documentation source.
 - Markdown PRD/RF.
-- Jira attachments.
+- Requirement attachments.
 
 Outputs:
 
@@ -15,7 +15,7 @@ Outputs:
 
 Requirements:
 
-- Jira story is the main source when available.
+- The configured requirement source is the main source when available.
 - Extract RFs and Acceptance Criteria.
 - Detect ambiguity.
 - Proposed inferred CA must be approved before use.
@@ -28,7 +28,7 @@ Requirements:
 - If missing, ask the user.
 - Do not generate final tests without the official ID.
 
-## Step 3 - TestRail coverage analysis
+## Step 3 - Test management coverage analysis
 
 Outputs:
 
@@ -36,7 +36,7 @@ Outputs:
 
 Requirements:
 
-- Ask for the TestRail project.
+- Ask for the configured test management project/suite.
 - Search existing tests.
 - Detect duplicates.
 - Compare existing coverage against RF/CA.
@@ -50,13 +50,14 @@ Outputs:
 
 Requirements:
 
-- English only.
+- Use the configured Gherkin language: English (`en`) or Spanish (`es`).
+- Spanish `.feature` files include `# language: es`.
 - One scenario per file.
-- Acceptance Criteria after the Feature narrative.
+- Configured acceptance criteria label after the Feature narrative.
 - Manual tests also have feature files.
 - Unit tests are excluded.
 
-## Step 5 - TestRail sync plan
+## Step 5 - Test management sync plan
 
 Outputs:
 
@@ -78,7 +79,7 @@ Outputs:
 Required mapping:
 
 ```text
-Jira Story -> RF -> CA -> Feature -> TestRail Case ID -> Automation Status -> Automation File
+Requirement Source -> RF -> CA -> Feature -> Test Management Case ID -> Automation Status -> Automation File
 ```
 
 ## Step 7 - Automation feasibility
@@ -91,8 +92,8 @@ Requirements:
 
 - Analyze repo conventions.
 - Decide what is automatable.
-- UI/E2E default: WebdriverIO.
-- API/integration default: Playwright API.
+- UI/E2E framework: use `automation.ui.framework` from `qa-ai.config.yaml`.
+- API/integration framework: use `automation.api.framework` from `qa-ai.config.yaml`.
 - Provide technical proposal before coding.
 
 ## Step 8 - Implementation and validation
@@ -104,11 +105,11 @@ Requirements:
 - Execute tests if possible.
 - If not executable, mark first execution as manual.
 
-## Step 9 - Jira task and PR
+## Step 9 - Issue task and PR
 
 Requirements:
 
-- Create Jira task if automation is pending and cannot be completed.
+- Create configured issue tracker task draft if automation is pending and cannot be completed.
 - Open PR or prepare PR-ready branch.
 - Include traceability and execution status.
 

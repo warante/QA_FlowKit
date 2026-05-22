@@ -8,25 +8,27 @@ Build an open-source, portable QA AI workflow starter. The first version is a fo
 
 ## Primary goal
 
-Implement and maintain a reusable repo-first workflow that helps QA teams move from requirements to Gherkin tests, TestRail planning, automation feasibility, WebdriverIO/Playwright API implementation plans and PR-ready outputs.
+Implement and maintain a reusable repo-first workflow that helps QA teams move from requirements to Gherkin tests, test-management planning, automation feasibility, configured-framework implementation plans and PR-ready outputs.
 
 ## Mandatory behavior
 
 - Read this file before making changes.
 - Read `qa-ai.config.yaml` when present.
 - Read `.qa-ai/rules/` before changing workflow behavior.
+- Read `.qa-ai/agents/README.md` before QA workflow work; then load the matching phase agent and active specialists listed in `.qa-ai/agents/specialists/active.md`.
 - Present a plan before modifying files.
 - Do not overwrite existing files unless explicitly approved or `--force` behavior is requested by the user.
-- Do not create external writes to Jira, Confluence, TestRail or GitHub in the MVP.
+- Do not create external writes to configured external tools in the MVP.
 - Never store secrets in repository files.
 - Keep the project open-source ready.
 
 ## QA rules
 
-- Tests are written in English.
+- Tests are written in the configured Gherkin language from `qa-ai.config.yaml` (`gherkin.language`): English (`en`) or Spanish (`es`).
+- Spanish `.feature` files must include `# language: es`.
 - One `.feature` file per test case.
 - Manual tests also have `.feature` files.
-- Every `.feature` must include `Acceptance Criteria:`.
+- Every `.feature` must include the configured acceptance criteria label: `Acceptance Criteria:` for English or `Criterios de aceptación:` for Spanish.
 - Required tags: `@priority:`, `@type:`, `@manual:`.
 - Unit tests are out of scope for generated QA test cases.
 - The official RF ID is required before final test generation.
@@ -74,7 +76,7 @@ A target user must be able to:
 ```bash
 cp -R qa-ai-starter/.qa-ai ./target-repo/.qa-ai
 cd ./target-repo
-node .qa-ai/scripts/init.mjs --preset webdriverio-playwright-api
+node .qa-ai/scripts/init.mjs --preset webdriverio-playwright-api --interface-language en --gherkin-language en
 node .qa-ai/scripts/doctor.mjs
 ```
 

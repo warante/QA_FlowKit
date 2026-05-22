@@ -101,4 +101,4 @@ The cleanup command does not:
 - Delete untracked user files.
 - Delete non-empty directories.
 - Revert Git changes.
-- Clean external Jira, Confluence, TestRail or GitHub data.
+- Clean configured external tool data.
