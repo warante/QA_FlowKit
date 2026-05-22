@@ -1,0 +1,39 @@
+# Cursor IDE (local)
+.cursor/
+
+# Secrets and local env
+.env
+.env.*
+!.env.example
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Logs
+*.log
+logs/
+
+# QA AI init output (dogfooding / local init on this repo)
+qa-ai.config.yaml
+.qa-ai/state/
+docs/qa/
+features/
+tests/
+
+# Test runners (when automation is added)
+test-results/
+playwright-report/
+blob-report/
+allure-results/
+allure-report/
+coverage/
+.nyc_output/

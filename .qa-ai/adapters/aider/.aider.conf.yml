@@ -1,0 +1,6 @@
+read:
+  - AGENTS.md
+  - README.md
+  - qa-ai.config.yaml
+  - .qa-ai/rules/approval.rules.md
+  - .qa-ai/rules/gherkin.rules.md

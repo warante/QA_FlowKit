@@ -1,0 +1,67 @@
+version: 1
+project:
+  name: CHANGE_ME
+  repoMode: qa-and-automation
+  defaultLanguage: en
+sources:
+  main: jira
+  jira:
+    enabled: true
+    projectKey: CHANGE_ME
+    storyIsSourceOfTruth: true
+    readAttachments: true
+  confluence:
+    enabled: true
+  markdown:
+    enabled: true
+    paths:
+      - docs/PRD
+      - docs/RF
+requirements:
+  requireOfficialRfId: true
+  allowInferredAcceptanceCriteria: true
+  requireApprovalForInferredCriteria: true
+gherkin:
+  language: en
+  oneScenarioPerFile: true
+  requireAcceptanceCriteria: true
+  manualTestsNeedFeatureFile: true
+  featurePath: features
+  tags:
+    required:
+      - priority
+      - type
+      - manual
+testrail:
+  enabled: true
+  projectName: CHANGE_ME
+  allowCreateSections: true
+  allowCreateCases: true
+  allowUpdateCases: approval-only
+  allowDeleteCases: never
+  mappingFile: docs/qa/testrail-mapping.json
+automation:
+  ui:
+    framework: webdriverio
+    specsPath: tests/wdio/specs
+    pageObjectsPath: tests/wdio/pageobjects
+  api:
+    framework: playwright-api
+    specsPath: tests/api/specs
+  strategy:
+    automateAllTechnicallyPossible: true
+    requireProposalBeforeImplementation: true
+    allowModifyExistingTests: approval-only
+traceability:
+  matrixPath: docs/qa/traceability-matrix.md
+approval:
+  beforeExternalWrite: true
+  beforeExistingFileModification: true
+  beforeTestRailSync: true
+  beforeJiraTaskCreation: true
+  beforePullRequest: true
+commands:
+  lint: npm run lint
+  testApi: npm run test:api
+  testE2E: npm run test:e2e
+  testQA: npm run test:qa

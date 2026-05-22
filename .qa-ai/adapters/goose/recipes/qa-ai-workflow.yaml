@@ -1,0 +1,20 @@
+version: 1
+name: qa-ai-workflow
+description: Run the QA AI workflow for requirements-to-tests-to-automation.
+instructions: |
+  Read AGENTS.md, qa-ai.config.yaml and .qa-ai/rules/ before acting.
+  Produce a plan before modifying files.
+  Do not overwrite or externally write without approval.
+steps:
+  - name: health-check
+    prompt: Run node .qa-ai/scripts/doctor.mjs and summarize required failures or warnings.
+  - name: intake
+    prompt: Read the requirement source and produce docs/qa/requirement-analysis.md.
+  - name: design
+    prompt: Produce a test design proposal and generate approved Gherkin feature files. Run node .qa-ai/scripts/validate-features.mjs after feature changes.
+  - name: automation
+    prompt: Analyze automation feasibility and produce an implementation plan.
+  - name: pr
+    prompt: Prepare a PR summary with traceability and execution status.
+  - name: cleanup-preview
+    prompt: Run node .qa-ai/scripts/clean.mjs only as a dry-run when generated artifact cleanup is requested.

@@ -1,0 +1,9 @@
+You are working on a QA AI Starter repository.
+
+Read AGENTS.md first.
+Read qa-ai.config.yaml when present.
+Follow .qa-ai/rules/approval.rules.md before modifying files.
+Do not overwrite existing files unless explicitly approved.
+Keep all generated QA tests in English.
+Manual tests must also have .feature files.
+Unit tests are out of scope.

@@ -1,0 +1,49 @@
+version: 1
+project:
+  name: CHANGE_ME
+  repoMode: qa-design-only
+  defaultLanguage: en
+sources:
+  main: markdown
+requirements:
+  requireOfficialRfId: true
+  allowInferredAcceptanceCriteria: true
+  requireApprovalForInferredCriteria: true
+gherkin:
+  language: en
+  oneScenarioPerFile: true
+  requireAcceptanceCriteria: true
+  manualTestsNeedFeatureFile: true
+  featurePath: features
+  tags:
+    required:
+      - priority
+      - type
+      - manual
+testrail:
+  enabled: true
+  projectName: CHANGE_ME
+  allowCreateSections: true
+  allowCreateCases: true
+  allowUpdateCases: approval-only
+  allowDeleteCases: never
+  mappingFile: docs/qa/testrail-mapping.json
+automation:
+  ui:
+    framework: none
+  api:
+    framework: none
+  strategy:
+    automateAllTechnicallyPossible: false
+    requireProposalBeforeImplementation: true
+    allowModifyExistingTests: approval-only
+traceability:
+  matrixPath: docs/qa/traceability-matrix.md
+approval:
+  beforeExternalWrite: true
+  beforeExistingFileModification: true
+  beforeTestRailSync: true
+  beforeJiraTaskCreation: true
+  beforePullRequest: true
+commands:
+  testQA: node .qa-ai/scripts/validate-features.mjs

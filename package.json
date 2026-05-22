@@ -1,0 +1,29 @@
+{
+  "name": "qa-ai-starter",
+  "version": "0.1.0",
+  "description": "Portable open-source starter for AI-assisted QA workflows.",
+  "type": "module",
+  "scripts": {
+    "qa:init": "node .qa-ai/scripts/init.mjs",
+    "qa:bootstrap": "node .qa-ai/scripts/bootstrap-agent-adapters.mjs",
+    "qa:doctor": "node .qa-ai/scripts/doctor.mjs",
+    "qa:clean": "node .qa-ai/scripts/clean.mjs",
+    "qa:validate-features": "node .qa-ai/scripts/validate-features.mjs",
+    "qa:sync-adapters": "node .qa-ai/scripts/sync-agent-adapters.mjs"
+  },
+  "keywords": [
+    "qa",
+    "testing",
+    "ai-agents",
+    "gherkin",
+    "testrail",
+    "webdriverio",
+    "playwright",
+    "codex",
+    "claude-code"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  }
+}
