@@ -1,9 +1,11 @@
 ---
-description: Guided manifest-based QA AI cleanup
+description: Guided manifest-based QA AI cleanup / Limpieza guiada de QA AI Starter
 argument-hint: [optional clean flags]
 ---
 
 Preview or execute cleanup for generated QA AI Starter artifacts.
+
+Read `qa-ai.config.yaml` when present and use its configured interface language (`project.interfaceLanguage` / `project.defaultLanguage`, `en` or `es`) for questions, descriptions and summaries.
 
 If `$ARGUMENTS` is empty, run the safe dry-run first:
 
