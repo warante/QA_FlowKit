@@ -1,6 +1,6 @@
 {
   "name": "qa-ai-starter",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Portable open-source starter for AI-assisted QA workflows.",
   "type": "module",
   "scripts": {
