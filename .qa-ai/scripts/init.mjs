@@ -2,6 +2,12 @@
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import {
+  activeSpecialistsContent,
+  configuredDirs,
+  isConfiguredFramework,
+  slug
+} from './lib/project-config.mjs';
+import {
   commaList,
   ensureDir,
   getConfigValue,
@@ -28,6 +34,7 @@ const withTestManagementMapping = Boolean(args['with-test-management-mapping'] |
 const presetName = args.preset || 'webdriverio-playwright-api';
 const interfaceLanguage = normalizeLanguage(args['interface-language'] || args.interfaceLanguage || 'en', 'interface language');
 const gherkinLanguage = normalizeLanguage(args['gherkin-language'] || args.gherkinLanguage || args.gherkin || 'en', 'Gherkin language');
+let validatedQaContextPath = null;
 const qaAiDir = path.join(cwd, '.qa-ai');
 const presetsDir = path.join(qaAiDir, 'presets');
 const presetPath = path.join(qaAiDir, 'presets', `${presetName}.yaml`);
@@ -42,6 +49,7 @@ Options:
   --requirements-source <name> Primary requirement source, for example markdown, jira, confluence
   --test-management-tool <name> Test management tool, for example none, testrail, zephyr, xray
   --issue-tracker <name>   Issue tracker, for example none, jira, github
+  --qa-context <path>      Repo-local folder with QA working-practice docs for agent-assisted init
   --ui-framework <name>    UI/E2E framework, or none/undecided
   --api-framework <name>   API/integration framework, or none/undecided
   --ui-specs-path <path>   UI/E2E specs directory
@@ -76,22 +84,19 @@ function normalizeLanguage(value, label = 'language') {
   process.exit(1);
 }
 
-function slug(value) {
-  return String(value || '')
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '') || 'custom';
-}
-
-function isConfiguredFramework(value) {
-  const normalized = String(value || '').trim().toLowerCase();
-  return Boolean(normalized) && !['none', 'undecided', 'manual', 'n/a', 'na'].includes(normalized);
-}
-
 function scalarOverrideValue(value) {
   if (value === undefined || value === null || value === false) return null;
   return yamlScalar(String(value));
+}
+
+function selectedQaContextPath() {
+  const values = commaList(args['qa-context'] || args.qaContext || args['qa-context-path'] || args.qaContextPath);
+  if (values.length === 0) return null;
+  if (values.length > 1) {
+    console.error('Only one --qa-context folder is supported in the MVP.');
+    process.exit(1);
+  }
+  return values[0];
 }
 
 function setSimpleYamlScalar(content, keyPath, value) {
@@ -156,6 +161,8 @@ function configOverrides() {
     ['project.defaultLanguage', interfaceLanguage],
     ['project.interfaceLanguage', interfaceLanguage],
     ['gherkin.language', gherkinLanguage],
+    ['knowledge.enabled', validatedQaContextPath ? 'true' : undefined],
+    ['knowledge.sourcePath', validatedQaContextPath],
     ['sources.main', args['requirements-source'] || args.requirementsSource],
     ['tools.testManagement', testManagementTool],
     ['tools.issueTracker', args['issue-tracker'] || args.issueTracker],
@@ -212,48 +219,6 @@ function selectedAdapters() {
   return requested.includes('generic') ? requested : ['generic', ...requested];
 }
 
-function addCommonDirs(dirs, config) {
-  const featureRoot = getConfigValue(config, 'gherkin.featurePath', 'features');
-  const featureTypes = ['functional', 'integration', 'e2e', 'api', 'accessibility', 'manual'];
-
-  dirs.add('qa-ai-output');
-  dirs.add(featureRoot);
-  for (const type of featureTypes) dirs.add(path.join(featureRoot, type));
-
-  const matrixPath = getConfigValue(config, 'traceability.matrixPath', 'qa-ai-output/traceability-matrix.md');
-  if (matrixPath) dirs.add(path.dirname(matrixPath));
-
-  const mappingFile = getConfigValue(config, 'testrail.mappingFile', 'qa-ai-output/test-management-mapping.json');
-  if (mappingFile) dirs.add(path.dirname(mappingFile));
-}
-
-function addUiDirs(dirs, config) {
-  const framework = String(getConfigValue(config, 'automation.ui.framework', 'none')).toLowerCase();
-  const specsPath = getConfigValue(config, 'automation.ui.specsPath', '');
-  const pageObjectsPath = getConfigValue(config, 'automation.ui.pageObjectsPath', '');
-
-  if (isConfiguredFramework(framework)) {
-    const base = specsPath ? path.dirname(specsPath) : path.join('tests', slug(framework));
-    dirs.add(specsPath || path.join(base, 'specs'));
-    if (pageObjectsPath || framework !== 'api') dirs.add(pageObjectsPath || path.join(base, 'pageobjects'));
-    dirs.add(path.join(base, 'helpers'));
-    dirs.add(path.join(base, 'fixtures'));
-  }
-}
-
-function addApiDirs(dirs, config) {
-  const framework = String(getConfigValue(config, 'automation.api.framework', 'none')).toLowerCase();
-  const specsPath = getConfigValue(config, 'automation.api.specsPath', '');
-  if (!isConfiguredFramework(framework)) return;
-
-  const base = specsPath ? path.dirname(specsPath) : path.join('tests', slug(framework));
-  dirs.add(specsPath || path.join(base, 'specs'));
-  dirs.add(path.join(base, 'clients'));
-  dirs.add(path.join(base, 'fixtures'));
-  dirs.add(path.join(base, 'schemas'));
-  dirs.add(path.join(base, 'helpers'));
-}
-
 function generatedDocs() {
   return [
     ['templates/requirement-analysis.template.md', 'qa-ai-output/requirement-analysis.md'],
@@ -308,120 +273,6 @@ function localizeTemplate(content, language) {
   return updated.replaceAll('Do you approve generating the proposed `.feature` files?', 'Apruebas generar los archivos `.feature` propuestos?');
 }
 
-const specialistCatalog = {
-  'playwright-ui': {
-    title: 'Playwright UI Specialist',
-    categories: ['ui'],
-    aliases: ['playwright', 'playwright-ui']
-  },
-  cypress: {
-    title: 'Cypress Specialist',
-    categories: ['ui'],
-    aliases: ['cypress']
-  },
-  webdriverio: {
-    title: 'WebdriverIO Specialist',
-    categories: ['ui'],
-    aliases: ['webdriverio', 'wdio']
-  },
-  selenium: {
-    title: 'Selenium Specialist',
-    categories: ['ui'],
-    aliases: ['selenium', 'selenium-jest-browserstack']
-  },
-  'playwright-api': {
-    title: 'Playwright API Specialist',
-    categories: ['api'],
-    aliases: ['playwright-api', 'playwright']
-  },
-  postman: {
-    title: 'Postman/Newman Specialist',
-    categories: ['api'],
-    aliases: ['postman', 'newman']
-  },
-  'rest-assured': {
-    title: 'REST Assured Specialist',
-    categories: ['api'],
-    aliases: ['rest-assured', 'restassured']
-  },
-  karate: {
-    title: 'Karate API Specialist',
-    categories: ['api'],
-    aliases: ['karate']
-  },
-  appium: {
-    title: 'Appium Specialist',
-    categories: ['mobile'],
-    aliases: ['appium']
-  },
-  'generic-test-design': {
-    title: 'Generic Test Design Specialist',
-    categories: ['test-design'],
-    aliases: ['generic-test-design', 'test-design', 'non-gherkin']
-  },
-  testrail: {
-    title: 'TestRail Specialist',
-    categories: ['test-management'],
-    aliases: ['testrail']
-  },
-  jira: {
-    title: 'Jira Specialist',
-    categories: ['issue-tracker'],
-    aliases: ['jira']
-  }
-};
-
-function activeSpecialists(config) {
-  const mode = String(getConfigValue(config, 'agents.specialistMode', 'auto')).toLowerCase();
-  if (mode === 'off' || mode === 'none') return [];
-
-  const wanted = [
-    ['ui', getConfigValue(config, 'automation.ui.framework', '')],
-    ['api', getConfigValue(config, 'automation.api.framework', '')],
-    ['test-management', getConfigValue(config, 'tools.testManagement', '')],
-    ['issue-tracker', getConfigValue(config, 'tools.issueTracker', '')]
-  ];
-
-  const active = new Map();
-  for (const [category, value] of wanted) {
-    const normalized = slug(value);
-    if (!isConfiguredFramework(normalized)) continue;
-    const entry = Object.entries(specialistCatalog).find(([, details]) => (
-      details.categories.includes(category) && details.aliases.map(slug).includes(normalized)
-    ));
-    if (entry) active.set(entry[0], entry[1]);
-  }
-
-  if (mode === 'required' && active.size < wanted.filter(([, value]) => isConfiguredFramework(slug(value))).length) {
-    console.warn('Warning: specialistMode is required, but some configured tools do not have specialists yet.');
-  }
-
-  active.set('generic-test-design', specialistCatalog['generic-test-design']);
-  return [...active.entries()].sort(([a], [b]) => a.localeCompare(b));
-}
-
-function activeSpecialistsContent(config) {
-  const specialists = activeSpecialists(config);
-  const lines = [
-    '# Active QA AI Specialists',
-    '',
-    'Generated by `node .qa-ai/scripts/init.mjs` from `qa-ai.config.yaml`.',
-    'The orchestrator should load only these specialist instructions in addition to the generic agents.',
-    ''
-  ];
-
-  if (specialists.length === 0) {
-    lines.push('No specialist agents are active. Use the generic agents.');
-  } else {
-    for (const [id, details] of specialists) {
-      lines.push(`- \`${id}\`: ${details.title} (` + details.categories.join(', ') + `)`);
-      lines.push(`  - Source: \`.qa-ai/agents/specialists/available/${id}.md\``);
-    }
-  }
-  lines.push('');
-  return `${lines.join('\n')}\n`;
-}
-
 async function main() {
   if (args.help) {
     printHelp();
@@ -440,6 +291,22 @@ async function main() {
     console.error(`Base template not found: ${presetName}`);
     console.error(`Available base templates: ${names.length > 0 ? names.join(', ') : '(none found)'}`);
     process.exit(1);
+  }
+
+  const qaContextPath = selectedQaContextPath();
+  if (qaContextPath) {
+    const resolvedContext = resolveRepoPath(cwd, qaContextPath, { label: 'QA context folder' });
+    if (!await pathExists(resolvedContext)) {
+      console.error(`QA context folder not found: ${relativeTo(cwd, resolvedContext)}`);
+      process.exit(1);
+    }
+    const contextStats = await fs.stat(resolvedContext);
+    if (!contextStats.isDirectory()) {
+      console.error(`QA context path must be a folder: ${relativeTo(cwd, resolvedContext)}`);
+      process.exit(1);
+    }
+    validatedQaContextPath = qaContextPath;
+    console.log(`Using QA context folder: ${qaContextPath}`);
   }
 
   console.log(`Using base template: ${presetName}`);
@@ -463,10 +330,7 @@ async function main() {
   const effectiveConfigContent = configWrite.written ? configContent : (await loadQaAiConfig(cwd)).content;
   const config = parseSimpleYaml(effectiveConfigContent);
 
-  const dirs = new Set();
-  addCommonDirs(dirs, config);
-  addUiDirs(dirs, config);
-  addApiDirs(dirs, config);
+  const dirs = configuredDirs(config);
 
   const dirResults = [];
   for (const dir of [...dirs].filter(Boolean).sort()) {

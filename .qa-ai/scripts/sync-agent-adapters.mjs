@@ -25,7 +25,8 @@ const adapterMap = {
   cline: { source: 'cline', target: '.' },
   continue: { source: 'continue', target: '.continue' },
   aider: { source: 'aider', target: '.' },
-  goose: { source: 'goose', target: '.goose' }
+  goose: { source: 'goose', target: '.goose' },
+  gemini: { source: 'gemini', target: '.' }
 };
 
 function printHelp() {

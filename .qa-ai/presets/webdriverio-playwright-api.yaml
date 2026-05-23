@@ -24,6 +24,11 @@ sources:
     paths:
       - docs/PRD
       - docs/RF
+knowledge:
+  enabled: false
+  sourcePath: ''
+  summaryPath: qa-ai-output/qa-knowledge-summary.md
+  decisionsPath: qa-ai-output/qa-init-decisions.md
 requirements:
   requireOfficialRfId: true
   allowInferredAcceptanceCriteria: true
