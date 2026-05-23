@@ -19,15 +19,17 @@ You are the implementation agent for an open-source QA AI workflow starter. You 
 9. Continue receives `.continue/` rules/checks where applicable.
 10. Aider receives `.aider.conf.yml` plus documentation.
 11. Goose receives a recipe file.
-12. All destructive or external write actions must be proposal-first and approval-gated.
-13. The starter must not require real external tool credentials in the MVP.
-14. Specialist agents live under `.qa-ai/agents/specialists/available/`; `init.mjs` generates `.qa-ai/agents/specialists/active.md` from config.
-15. Generated test cases must be written in the configured Gherkin language: English (`en`) or Spanish (`es`).
-16. Manual tests must also have `.feature` files.
-17. Unit tests are out of scope.
-18. Agent-first initialization uses `/qa-init`, not `/init`, to avoid overriding native agent commands.
-19. Claude Code bootstrap commands live in `.claude/commands/`.
-20. OpenCode bootstrap commands live in `.opencode/commands/`.
+12. Gemini CLI receives `GEMINI.md` project context.
+13. Optional QA context folders are interpreted by agents, while `init.mjs` only validates and records the approved repo-local path.
+14. All destructive or external write actions must be proposal-first and approval-gated.
+15. The starter must not require real external tool credentials in the MVP.
+16. Specialist agents live under `.qa-ai/agents/specialists/available/`; `init.mjs` generates `.qa-ai/agents/specialists/active.md` from config.
+17. Generated test cases must be written in the configured Gherkin language: English (`en`) or Spanish (`es`).
+18. Manual tests must also have `.feature` files.
+19. Unit tests are out of scope.
+20. Agent-first initialization uses `/qa-init`, not `/init`, to avoid overriding native agent commands.
+21. Claude Code bootstrap commands live in `.claude/commands/`.
+22. OpenCode bootstrap commands live in `.opencode/commands/`.
 
 ## Target project structure
 
@@ -95,6 +97,7 @@ The script must:
 12. Reject configured output paths that are absolute or resolve outside the target repository.
 13. Generate starter `qa-ai-output/*.md` artifacts only when `--with-doc-templates` is passed.
 14. Generate the configured test management mapping file only when `--with-test-management-mapping` is passed.
+15. Accept `--qa-context <path>` for one repo-local QA knowledge folder, validate that it exists as a directory, and record it under `knowledge`.
 
 ### Step 4 - Implement agent bootstrap
 
@@ -117,7 +120,8 @@ The script must:
 4. Validate required agents exist.
 5. Validate configured feature and QA output paths exist.
 6. Warn if framework config files are missing.
-7. Produce clear pass/warn/fail output.
+7. Validate configured QA context paths when `knowledge.enabled` is true.
+8. Produce clear pass/warn/fail output.
 
 ### Step 6 - Implement `clean.mjs`
 
@@ -149,6 +153,7 @@ The script must scan `.feature` files and validate:
 The script `.qa-ai/scripts/smoke-test.mjs` must use native Node.js APIs to verify:
 
 - Init preserves preset paths when framework flags match the preset defaults.
+- Init records a valid `--qa-context` folder and rejects unsafe context paths.
 - Generated files are not overwritten without `--force`.
 - Unsafe configured paths outside the repository are rejected.
 
@@ -166,6 +171,7 @@ Supported adapters:
 - `continue`: `.continue/`
 - `aider`: `.aider.conf.yml`
 - `goose`: `.goose/recipes/qa-ai-workflow.yaml`
+- `gemini`: `GEMINI.md`
 
 Claude and OpenCode adapters must include slash command files for:
 

@@ -26,6 +26,7 @@ Status: Done
 Acceptance Criteria:
 - Generates `qa-ai.config.yaml`.
 - Creates QA output, features and configured test folders.
+- Records optional `--qa-context` knowledge folders without interpreting them in Node.
 - Keeps default init minimal: OpenCode adapter only, no starter QA document files unless requested.
 - Does not overwrite files by default.
 - Supports presets.
@@ -51,6 +52,7 @@ Acceptance Criteria:
 - Reports pass/warn/fail.
 - Validates config, core folders and required framework assets.
 - Validates configured QA output, features and tests paths.
+- Validates configured QA context when `knowledge.enabled` is true.
 - Warns for missing automation framework config files.
 
 ### TASK-005 - Implement feature validator
@@ -98,6 +100,7 @@ Supported adapters:
 - Continue
 - Aider
 - Goose
+- Gemini CLI
 
 Slash command support:
 - Claude Code includes `/qa-init`, `/qa-full-flow`, `/qa-doctor`, `/qa-clean` and `/qa-validate-features`.
@@ -118,6 +121,18 @@ Templates exist for requirement analysis, test management coverage, test design 
 Status: Done
 
 Rules exist for approval, Gherkin, test management, automation, UI automation and API testing.
+
+### TASK-011A - Add optional QA context intake
+
+Status: Done
+
+Acceptance Criteria:
+- `init.mjs` supports one repo-local `--qa-context` folder.
+- Presets include disabled `knowledge` defaults.
+- Claude Code and OpenCode `/qa-init` read QA context before proposing defaults.
+- `.qa-ai/agents/qa-context-intake-agent.md` exists.
+- `.qa-ai/workflows/context-intake.md` exists.
+- Future agents read QA context summary and decisions when enabled.
 
 ## Epic 4 - Open-source readiness
 
