@@ -68,7 +68,7 @@ Then open the repository with your AI coding tool and start with:
 Read AGENTS.md, qa-ai.config.yaml and .qa-ai/workflows/full-flow.md. Follow .qa-ai/rules/ before making changes.
 ```
 
-By default, init uses the `webdriverio-playwright-api` base template with English interface and English Gherkin. Use init options only when you want to change those defaults.
+By default, init uses the `webdriverio-playwright-api` base template with English interface, English Gherkin and the OpenCode adapter only. It creates the minimum usable structure first; starter QA documents and extra adapters are opt-in.
 
 ## Agent-First Bootstrap
 
@@ -104,7 +104,7 @@ Advanced direct form:
 | Command | Purpose |
 |---|---|
 | `node .qa-ai/scripts/bootstrap-agent-adapters.mjs --agents claude,opencode` | Copy minimal root slash commands for agent-first setup |
-| `node .qa-ai/scripts/init.mjs` | Generate config, folders, docs and adapters with default options |
+| `node .qa-ai/scripts/init.mjs` | Generate the minimum config, folders and OpenCode adapter |
 | `node .qa-ai/scripts/sync-agent-adapters.mjs --adapters all` | Sync selected adapter templates |
 | `node .qa-ai/scripts/doctor.mjs` | Check setup health |
 | `node .qa-ai/scripts/validate-features.mjs` | Validate generated `.feature` files |
@@ -125,8 +125,10 @@ Advanced direct form:
 | `--requirements-source <name>` | `markdown`, `jira`, `confluence`, `pasted-text`, custom value | Base template value | Sets the primary requirement source |
 | `--test-management-tool <name>` | `none`, `testrail`, `zephyr`, `xray`, custom value | Base template value | Sets the configured test management tool |
 | `--issue-tracker <name>` | `none`, `jira`, `github`, custom value | Base template value | Sets the configured issue tracker |
-| `--adapters <list>` | `all`, `generic`, `codex`, `claude`, `opencode`, `cline`, `continue`, `aider`, `goose` | `all` | Selects generated agent adapters |
+| `--adapters <list>` | `all`, `generic`, `codex`, `claude`, `opencode`, `cline`, `continue`, `aider`, `goose` | `opencode` | Selects generated agent adapters |
 | `--no-adapters` | flag | off | Skips adapter generation |
+| `--with-doc-templates` | flag | off | Generates starter Markdown artifacts under `qa-ai-output/` |
+| `--with-test-management-mapping` | flag | off | Creates the configured test management mapping file |
 | `--force` | flag | off | Allows overwriting generated files |
 
 Advanced framework and path overrides:
@@ -152,6 +154,12 @@ node .qa-ai/scripts/init.mjs --preset manual-only --interface-language es --gher
 
 # Generate only generic and Codex adapters
 node .qa-ai/scripts/init.mjs --adapters generic,codex
+
+# Generate starter QA artifact templates too
+node .qa-ai/scripts/init.mjs --with-doc-templates
+
+# Generate every supported adapter
+node .qa-ai/scripts/init.mjs --adapters all
 ```
 
 Framework and path flags are advanced overrides. When a base template already defines the frameworks you want, omit those flags so the template paths are preserved.
@@ -183,20 +191,24 @@ The `--preset` flag name is kept for CLI compatibility, but conceptually these a
 
 ```text
 qa-ai.config.yaml
+.opencode/
+qa-ai-output/
+features/
+tests/
+
+# Optional, only when requested through --adapters
 AGENTS.md
 .claude/
 .codex/
-.opencode/
 .cline/
 .clinerules
 .continue/
 .aider.conf.yml
 .aider/
 .goose/
-docs/qa/
-features/
-tests/
 ```
+
+Default init creates only the minimum useful files and folders. It does not create starter `qa-ai-output/*.md` artifacts unless `--with-doc-templates` is passed, and it generates only the OpenCode adapter unless `--adapters` requests more.
 
 The exact `tests/` subfolders are config-aware. Init creates configured UI/API paths when frameworks are set, and skips automation folders when frameworks are `none` or `undecided`.
 

@@ -35,6 +35,8 @@ async function copyFramework(targetRoot) {
 async function main() {
   const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-ai-starter-smoke-'));
   let unsafeRoot = null;
+  let defaultTarget = null;
+  let optionalDocsTarget = null;
   try {
     await copyFramework(tempRoot);
 
@@ -54,6 +56,59 @@ async function main() {
     }
     if (config.automation.api.specsPath !== 'tests/api/specs') {
       throw new Error(`Expected preset API path tests/api/specs, got ${config.automation.api.specsPath}`);
+    }
+    defaultTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-ai-starter-default-'));
+    await copyFramework(defaultTarget);
+    run(defaultTarget, ['.qa-ai/scripts/init.mjs']);
+    const expectedDefaultPaths = [
+      '.opencode/README.md',
+      '.opencode/commands/qa-init.md',
+      'qa-ai.config.yaml',
+      'qa-ai-output',
+      'features'
+    ];
+    for (const relPath of expectedDefaultPaths) {
+      try {
+        await fs.access(path.join(defaultTarget, relPath));
+      } catch {
+        throw new Error(`Default init did not create expected path: ${relPath}`);
+      }
+    }
+    const unexpectedDefaultPaths = [
+      '.claude',
+      '.codex',
+      'qa-ai-output/requirement-analysis.md',
+      'qa-ai-output/test-management-mapping.json'
+    ];
+    for (const relPath of unexpectedDefaultPaths) {
+      try {
+        await fs.access(path.join(defaultTarget, relPath));
+        throw new Error(`Default init created unexpected path: ${relPath}`);
+      } catch (error) {
+        if (error.code !== 'ENOENT') throw error;
+      }
+    }
+
+    optionalDocsTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-ai-starter-docs-'));
+    await copyFramework(optionalDocsTarget);
+    run(optionalDocsTarget, [
+      '.qa-ai/scripts/init.mjs',
+      '--with-doc-templates',
+      '--with-test-management-mapping',
+      '--no-adapters'
+    ]);
+    const expectedOptionalDocPaths = [
+      'qa-ai-output/requirement-analysis.md',
+      'qa-ai-output/test-design-proposal.md',
+      'qa-ai-output/traceability-matrix.md',
+      'qa-ai-output/test-management-mapping.json'
+    ];
+    for (const relPath of expectedOptionalDocPaths) {
+      try {
+        await fs.access(path.join(optionalDocsTarget, relPath));
+      } catch {
+        throw new Error(`Optional doc init did not create expected path: ${relPath}`);
+      }
     }
 
     const activePath = path.join(tempRoot, '.qa-ai/agents/specialists/active.md');
@@ -83,6 +138,8 @@ async function main() {
   } finally {
     await fs.rm(tempRoot, { recursive: true, force: true });
     if (unsafeRoot) await fs.rm(unsafeRoot, { recursive: true, force: true });
+    if (defaultTarget) await fs.rm(defaultTarget, { recursive: true, force: true });
+    if (optionalDocsTarget) await fs.rm(optionalDocsTarget, { recursive: true, force: true });
   }
 }
 

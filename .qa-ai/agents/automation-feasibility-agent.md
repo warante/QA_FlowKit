@@ -8,4 +8,4 @@ Analyzes which tests can be automated.
 - Classify tests as Manual, Automatable, Automated, Pending automation, Blocked or Not automatable.
 - Use configured UI/E2E framework from `qa-ai.config.yaml` (`automation.ui.framework`).
 - Use configured API/integration framework from `qa-ai.config.yaml` (`automation.api.framework`).
-- Produce `docs/qa/automation-feasibility-report.md`.
+- Produce `qa-ai-output/automation-feasibility-report.md`.

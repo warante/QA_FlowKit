@@ -137,7 +137,7 @@ function isConfiguredFramework(value) {
 
 function addConfiguredChecks(checks, config) {
   const featurePath = getConfigValue(config, 'gherkin.featurePath', 'features');
-  const matrixPath = getConfigValue(config, 'traceability.matrixPath', 'docs/qa/traceability-matrix.md');
+  const matrixPath = getConfigValue(config, 'traceability.matrixPath', 'qa-ai-output/traceability-matrix.md');
   const mappingFile = getConfigValue(config, 'testrail.mappingFile', '');
   const uiFramework = String(getConfigValue(config, 'automation.ui.framework', 'none')).toLowerCase();
   const uiSpecsPath = getConfigValue(config, 'automation.ui.specsPath', '');
@@ -146,9 +146,9 @@ function addConfiguredChecks(checks, config) {
   const apiSpecsPath = getConfigValue(config, 'automation.api.specsPath', '');
 
   checks.push(pathCheck('required', 'configured feature root', featurePath));
-  checks.push(pathCheck('required', 'configured QA docs path', path.dirname(matrixPath)));
-  checks.push(pathCheck('required', 'configured traceability matrix', matrixPath));
-  if (mappingFile) checks.push(pathCheck('required', 'configured test management mapping file', mappingFile));
+  checks.push(pathCheck('required', 'configured QA output path', path.dirname(matrixPath)));
+  checks.push(pathCheck('optional', 'configured traceability matrix', matrixPath));
+  if (mappingFile) checks.push(pathCheck('optional', 'configured test management mapping file', mappingFile));
 
   if (isConfiguredFramework(uiFramework)) {
     if (uiSpecsPath) checks.push(pathCheck('required', 'configured UI specs path', uiSpecsPath));

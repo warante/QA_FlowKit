@@ -16,7 +16,7 @@ node .qa-ai/scripts/clean.mjs
 Summarize the cleanup plan, then ask the user:
 
 1. Which scope should be cleaned?
-   - `generated`: generated config, QA docs and empty generated folders.
+   - `generated`: generated config, QA output artifacts and empty generated folders.
    - `adapters`: generated agent adapter files.
    - `empty-dirs`: tracked empty directories.
    - `all`: all tracked entries.

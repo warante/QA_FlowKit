@@ -34,15 +34,15 @@ Then present a concise plan before modifying files.
 
 Expected local artifacts:
 
-- `docs/qa/requirement-analysis.md`
-- `docs/qa/testrail-coverage-analysis.md`
-- `docs/qa/test-design-proposal.md`
+- `qa-ai-output/requirement-analysis.md`
+- `qa-ai-output/testrail-coverage-analysis.md`
+- `qa-ai-output/test-design-proposal.md`
 - `.feature` files under the configured feature path after approval
-- `docs/qa/testrail-sync-plan.md`
-- `docs/qa/traceability-matrix.md`
-- `docs/qa/automation-feasibility-report.md`
-- `docs/qa/automation-implementation-plan.md`
-- `docs/qa/pr-summary.md`
+- `qa-ai-output/testrail-sync-plan.md`
+- `qa-ai-output/traceability-matrix.md`
+- `qa-ai-output/automation-feasibility-report.md`
+- `qa-ai-output/automation-implementation-plan.md`
+- `qa-ai-output/pr-summary.md`
 
 After feature changes, run:
 

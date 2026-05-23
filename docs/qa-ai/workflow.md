@@ -11,7 +11,7 @@ Inputs:
 
 Outputs:
 
-- `docs/qa/requirement-analysis.md`
+- `qa-ai-output/requirement-analysis.md`
 
 Requirements:
 
@@ -32,7 +32,7 @@ Requirements:
 
 Outputs:
 
-- `docs/qa/testrail-coverage-analysis.md`
+- `qa-ai-output/testrail-coverage-analysis.md`
 
 Requirements:
 
@@ -61,7 +61,7 @@ Requirements:
 
 Outputs:
 
-- `docs/qa/testrail-sync-plan.md`
+- `qa-ai-output/testrail-sync-plan.md`
 
 Requirements:
 
@@ -74,7 +74,7 @@ Requirements:
 
 Outputs:
 
-- `docs/qa/traceability-matrix.md`
+- `qa-ai-output/traceability-matrix.md`
 
 Required mapping:
 
@@ -86,7 +86,7 @@ Requirement Source -> RF -> CA -> Feature -> Test Management Case ID -> Automati
 
 Outputs:
 
-- `docs/qa/automation-feasibility-report.md`
+- `qa-ai-output/automation-feasibility-report.md`
 
 Requirements:
 

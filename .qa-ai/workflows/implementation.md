@@ -21,4 +21,4 @@ Implement only approved automation changes using repository conventions.
 
 - Run the most relevant local tests when possible.
 - If tests cannot be executed, document first manual execution requirements.
-- Update `docs/qa/traceability-matrix.md` and `docs/qa/pr-summary.md`.
+- Update `qa-ai-output/traceability-matrix.md` and `qa-ai-output/pr-summary.md`.

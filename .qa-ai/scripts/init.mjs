@@ -23,6 +23,8 @@ import {
 const cwd = process.cwd();
 const args = parseArgs(process.argv);
 const force = Boolean(args.force);
+const withDocTemplates = Boolean(args['with-doc-templates'] || args.withDocTemplates);
+const withTestManagementMapping = Boolean(args['with-test-management-mapping'] || args.withTestManagementMapping);
 const presetName = args.preset || 'webdriverio-playwright-api';
 const interfaceLanguage = normalizeLanguage(args['interface-language'] || args.interfaceLanguage || 'en', 'interface language');
 const gherkinLanguage = normalizeLanguage(args['gherkin-language'] || args.gherkinLanguage || args.gherkin || 'en', 'Gherkin language');
@@ -47,9 +49,11 @@ Options:
   --api-specs-path <path>  API/integration specs directory
   --specialist-mode <auto|off|required> Specialist agent activation mode (default from base template)
   --set <key=value>        Repeatable scalar config override, for example automation.ui.framework=cypress
-  --adapters <list>        Comma-separated adapters to generate, or "all" (default: all)
+  --adapters <list>        Comma-separated adapters to generate, or "all" (default: opencode)
   --adapter <name>         Repeatable single adapter name
   --no-adapters            Skip adapter generation
+  --with-doc-templates     Generate starter QA docs under qa-ai-output/
+  --with-test-management-mapping Generate the configured test management mapping file
   --force                  Overwrite generated files when they already exist
   --help                   Show this help
 `);
@@ -203,7 +207,8 @@ function personalizeConfig(content) {
 function selectedAdapters() {
   if (args['no-adapters']) return [];
   const requested = [...commaList(args.adapters), ...commaList(args.adapter)].map((name) => name.toLowerCase());
-  if (requested.length === 0 || requested.includes('all')) return ['all'];
+  if (requested.length === 0) return ['opencode'];
+  if (requested.includes('all')) return ['all'];
   return requested.includes('generic') ? requested : ['generic', ...requested];
 }
 
@@ -211,14 +216,14 @@ function addCommonDirs(dirs, config) {
   const featureRoot = getConfigValue(config, 'gherkin.featurePath', 'features');
   const featureTypes = ['functional', 'integration', 'e2e', 'api', 'accessibility', 'manual'];
 
-  dirs.add('docs/qa');
+  dirs.add('qa-ai-output');
   dirs.add(featureRoot);
   for (const type of featureTypes) dirs.add(path.join(featureRoot, type));
 
-  const matrixPath = getConfigValue(config, 'traceability.matrixPath', 'docs/qa/traceability-matrix.md');
+  const matrixPath = getConfigValue(config, 'traceability.matrixPath', 'qa-ai-output/traceability-matrix.md');
   if (matrixPath) dirs.add(path.dirname(matrixPath));
 
-  const mappingFile = getConfigValue(config, 'testrail.mappingFile', 'docs/qa/testrail-mapping.json');
+  const mappingFile = getConfigValue(config, 'testrail.mappingFile', 'qa-ai-output/test-management-mapping.json');
   if (mappingFile) dirs.add(path.dirname(mappingFile));
 }
 
@@ -251,15 +256,15 @@ function addApiDirs(dirs, config) {
 
 function generatedDocs() {
   return [
-    ['templates/requirement-analysis.template.md', 'docs/qa/requirement-analysis.md'],
-    ['templates/testrail-coverage-analysis.template.md', 'docs/qa/testrail-coverage-analysis.md'],
-    ['templates/test-design-proposal.template.md', 'docs/qa/test-design-proposal.md'],
-    ['templates/automation-feasibility-report.template.md', 'docs/qa/automation-feasibility-report.md'],
-    ['templates/automation-implementation-plan.template.md', 'docs/qa/automation-implementation-plan.md'],
-    ['templates/traceability-matrix.template.md', 'docs/qa/traceability-matrix.md'],
-    ['templates/testrail-sync-plan.template.md', 'docs/qa/testrail-sync-plan.md'],
-    ['templates/jira-automation-task.template.md', 'docs/qa/jira-automation-task.md'],
-    ['templates/pr-template.md', 'docs/qa/pr-summary.md']
+    ['templates/requirement-analysis.template.md', 'qa-ai-output/requirement-analysis.md'],
+    ['templates/testrail-coverage-analysis.template.md', 'qa-ai-output/testrail-coverage-analysis.md'],
+    ['templates/test-design-proposal.template.md', 'qa-ai-output/test-design-proposal.md'],
+    ['templates/automation-feasibility-report.template.md', 'qa-ai-output/automation-feasibility-report.md'],
+    ['templates/automation-implementation-plan.template.md', 'qa-ai-output/automation-implementation-plan.md'],
+    ['templates/traceability-matrix.template.md', 'qa-ai-output/traceability-matrix.md'],
+    ['templates/testrail-sync-plan.template.md', 'qa-ai-output/testrail-sync-plan.md'],
+    ['templates/jira-automation-task.template.md', 'qa-ai-output/jira-automation-task.md'],
+    ['templates/pr-template.md', 'qa-ai-output/pr-summary.md']
   ];
 }
 
@@ -476,21 +481,25 @@ async function main() {
     }
   }
 
-  for (const [src, dest] of generatedDocs()) {
-    const source = path.join(qaAiDir, src);
-    if (await pathExists(source)) {
-      const outputLanguage = getConfigValue(config, 'project.interfaceLanguage', interfaceLanguage);
-      const content = localizeTemplate(await readText(source), outputLanguage);
-      const result = await writeFileSafe(resolveRepoPath(cwd, dest, { label: `generated artifact "${dest}"` }), content, { force });
-      writes.push(result);
-      if (result.written) {
-        manifestEntries.push(await manifestEntry(cwd, result.path, {
-          type: 'file',
-          category: 'generated',
-          source: 'init'
-        }));
+  if (withDocTemplates) {
+    for (const [src, dest] of generatedDocs()) {
+      const source = path.join(qaAiDir, src);
+      if (await pathExists(source)) {
+        const outputLanguage = getConfigValue(config, 'project.interfaceLanguage', interfaceLanguage);
+        const content = localizeTemplate(await readText(source), outputLanguage);
+        const result = await writeFileSafe(resolveRepoPath(cwd, dest, { label: `generated artifact "${dest}"` }), content, { force });
+        writes.push(result);
+        if (result.written) {
+          manifestEntries.push(await manifestEntry(cwd, result.path, {
+            type: 'file',
+            category: 'generated',
+            source: 'init'
+          }));
+        }
       }
     }
+  } else {
+    console.log('\nSkipping starter QA docs. Use --with-doc-templates to generate qa-ai-output/*.md templates.');
   }
 
   const specialistsResult = await writeFileSafe(
@@ -507,8 +516,8 @@ async function main() {
     }));
   }
 
-  const mappingFile = getConfigValue(config, 'testrail.mappingFile', 'docs/qa/testrail-mapping.json');
-  if (mappingFile) {
+  const mappingFile = getConfigValue(config, 'testrail.mappingFile', 'qa-ai-output/test-management-mapping.json');
+  if (mappingFile && withTestManagementMapping) {
     const result = await writeFileSafe(resolveRepoPath(cwd, mappingFile, { label: 'test management mapping file' }), '{}\n', { force });
     writes.push(result);
     if (result.written) {
@@ -518,6 +527,8 @@ async function main() {
         source: 'init'
       }));
     }
+  } else if (mappingFile) {
+    console.log('Skipping test management mapping file. Use --with-test-management-mapping to create it.');
   }
 
   const adapters = selectedAdapters();

@@ -15,7 +15,7 @@ Generate Gherkin tests from approved requirement analysis in the configured Gher
 
 ## Output
 
-- Proposal: `docs/qa/test-design-proposal.md`
+- Proposal: `qa-ai-output/test-design-proposal.md`
 - Feature files: configured `gherkin.featurePath`, usually `features/`
 
 Run `node .qa-ai/scripts/validate-features.mjs` after generating or changing `.feature` files.

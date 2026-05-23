@@ -84,15 +84,17 @@ The script must:
 1. Run from the target repository root.
 2. Read a preset from `.qa-ai/presets/`.
 3. Generate `qa-ai.config.yaml` if it does not exist.
-4. Create `docs/qa/`.
+4. Create `qa-ai-output/`.
 5. Create `features/` subfolders.
 6. Create configured UI test folders when `automation.ui.framework` is not `none` or `undecided`.
 7. Create configured API test folders when `automation.api.framework` is not `none` or `undecided`.
 8. Generate `AGENTS.md` if it does not exist.
-9. Generate `.claude/`, `.codex/`, `.opencode/`, `.cline/`, `.continue/`, `.goose/` adapter docs when requested.
+9. Generate `.opencode/` by default and generate other adapters only when requested.
 10. Never overwrite existing files unless `--force` is passed.
 11. Support agent-first bootstrapping through `/qa-init`, which delegates to this script.
 12. Reject configured output paths that are absolute or resolve outside the target repository.
+13. Generate starter `qa-ai-output/*.md` artifacts only when `--with-doc-templates` is passed.
+14. Generate the configured test management mapping file only when `--with-test-management-mapping` is passed.
 
 ### Step 4 - Implement agent bootstrap
 
@@ -113,7 +115,7 @@ The script must:
 2. Validate `.qa-ai/` exists.
 3. Validate required templates exist.
 4. Validate required agents exist.
-5. Validate configured feature and docs paths exist.
+5. Validate configured feature and QA output paths exist.
 6. Warn if framework config files are missing.
 7. Produce clear pass/warn/fail output.
 
@@ -188,8 +190,8 @@ Whenever code changes, update:
 
 - A user can copy `.qa-ai/` into a new repository.
 - A user can run `node .qa-ai/scripts/bootstrap-agent-adapters.mjs --agents claude,opencode` and then use `/qa-init` in Claude Code or OpenCode.
-- A user can run `node .qa-ai/scripts/init.mjs --preset webdriverio-playwright-api --interface-language en --gherkin-language en`.
-- The target repository receives `qa-ai.config.yaml`, `AGENTS.md`, docs folders, feature folders and adapter files.
+- A user can run `node .qa-ai/scripts/init.mjs` for the default setup.
+- The target repository receives `qa-ai.config.yaml`, QA output folders, feature folders and requested adapter files.
 - A user can run `node .qa-ai/scripts/doctor.mjs` and receive a meaningful report.
 - A user can run `node .qa-ai/scripts/clean.mjs` and receive a safe dry-run cleanup plan.
 - A user can run `node .qa-ai/scripts/validate-features.mjs` and receive validation results.

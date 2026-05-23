@@ -25,7 +25,8 @@ Status: Done
 
 Acceptance Criteria:
 - Generates `qa-ai.config.yaml`.
-- Creates docs, features and configured test folders.
+- Creates QA output, features and configured test folders.
+- Keeps default init minimal: OpenCode adapter only, no starter QA document files unless requested.
 - Does not overwrite files by default.
 - Supports presets.
 - Supports adapter generation and adapter selection.
@@ -49,7 +50,7 @@ Status: Done
 Acceptance Criteria:
 - Reports pass/warn/fail.
 - Validates config, core folders and required framework assets.
-- Validates configured docs/features/tests paths.
+- Validates configured QA output, features and tests paths.
 - Warns for missing automation framework config files.
 
 ### TASK-005 - Implement feature validator

@@ -4,13 +4,13 @@ The MVP uses `AGENTS.md` as the generic compatibility layer and syncs tool-speci
 
 ## Syncing adapters
 
-Default init syncs every supported adapter:
+Default init syncs only the OpenCode adapter, keeping the first setup small:
 
 ```bash
 node .qa-ai/scripts/init.mjs
 ```
 
-Adapters can also be synced explicitly:
+Additional adapters can be synced explicitly:
 
 ```bash
 node .qa-ai/scripts/sync-agent-adapters.mjs --adapters generic,codex,claude
@@ -45,7 +45,7 @@ After copying `.qa-ai/` and running the bootstrap script, start the agent and ru
 /qa-init
 ```
 
-The command asks for the required initialization choices, including interface language, Gherkin language, base template, requirement source and optional framework overrides, then runs `node .qa-ai/scripts/init.mjs` and generates the full adapter set. Use `/qa-init`, not `/init`, because `/init` is a built-in command in both Claude Code and OpenCode.
+The command asks for the required initialization choices, including interface language, Gherkin language, base template, requirement source, optional framework overrides and adapter selection, then runs `node .qa-ai/scripts/init.mjs`. Use `/qa-init`, not `/init`, because `/init` is a built-in command in both Claude Code and OpenCode.
 
 Advanced users may still pass flags directly:
 

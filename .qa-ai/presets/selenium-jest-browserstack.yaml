@@ -34,7 +34,7 @@ testrail:
   allowCreateCases: true
   allowUpdateCases: approval-only
   allowDeleteCases: never
-  mappingFile: docs/qa/testrail-mapping.json
+  mappingFile: qa-ai-output/test-management-mapping.json
 automation:
   ui:
     framework: selenium-jest-browserstack
@@ -48,7 +48,7 @@ automation:
     requireProposalBeforeImplementation: true
     allowModifyExistingTests: approval-only
 traceability:
-  matrixPath: docs/qa/traceability-matrix.md
+  matrixPath: qa-ai-output/traceability-matrix.md
 approval:
   beforeExternalWrite: true
   beforeExistingFileModification: true

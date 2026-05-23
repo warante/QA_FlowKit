@@ -11,7 +11,7 @@ Produce a sync plan for the configured test management tool. Do not write extern
 
 ## Output
 
-Update `docs/qa/testrail-sync-plan.md` with:
+Update `qa-ai-output/testrail-sync-plan.md` with:
 
 - Sections to create.
 - New cases to create.

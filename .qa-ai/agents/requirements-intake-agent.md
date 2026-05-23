@@ -8,4 +8,4 @@ Reads the configured requirement source and supporting attachments.
 - Extract RFs and Acceptance Criteria.
 - Detect missing information.
 - Propose inferred Acceptance Criteria but do not include them without approval.
-- Produce `docs/qa/requirement-analysis.md`.
+- Produce `qa-ai-output/requirement-analysis.md`.

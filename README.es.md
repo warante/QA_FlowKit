@@ -68,7 +68,7 @@ Después abre el repositorio con tu herramienta de IA y empieza con:
 Lee AGENTS.md, qa-ai.config.yaml y .qa-ai/workflows/full-flow.md. Sigue .qa-ai/rules/ antes de modificar archivos.
 ```
 
-Por defecto, init usa la plantilla base `webdriverio-playwright-api`, interfaz en inglés y Gherkin en inglés. Usa opciones de init solo cuando quieras cambiar esos defaults.
+Por defecto, init usa la plantilla base `webdriverio-playwright-api`, interfaz en inglés, Gherkin en inglés y solo el adaptador OpenCode. Crea primero la estructura mínima usable; los documentos QA iniciales y adaptadores extra son opt-in.
 
 ## Bootstrap Desde Agente
 
@@ -104,7 +104,7 @@ Forma directa avanzada:
 | Comando | Propósito |
 |---|---|
 | `node .qa-ai/scripts/bootstrap-agent-adapters.mjs --agents claude,opencode` | Copia comandos slash mínimos para setup desde agente |
-| `node .qa-ai/scripts/init.mjs` | Genera config, carpetas, docs y adaptadores con opciones por defecto |
+| `node .qa-ai/scripts/init.mjs` | Genera la config mínima, carpetas y adaptador OpenCode |
 | `node .qa-ai/scripts/sync-agent-adapters.mjs --adapters all` | Sincroniza adaptadores seleccionados |
 | `node .qa-ai/scripts/doctor.mjs` | Revisa salud del setup |
 | `node .qa-ai/scripts/validate-features.mjs` | Valida archivos `.feature` generados |
@@ -125,8 +125,10 @@ Forma directa avanzada:
 | `--requirements-source <name>` | `markdown`, `jira`, `confluence`, `pasted-text`, valor custom | Valor de la plantilla base | Define la fuente principal de requisitos |
 | `--test-management-tool <name>` | `none`, `testrail`, `zephyr`, `xray`, valor custom | Valor de la plantilla base | Define la herramienta de gestión de pruebas |
 | `--issue-tracker <name>` | `none`, `jira`, `github`, valor custom | Valor de la plantilla base | Define el issue tracker configurado |
-| `--adapters <list>` | `all`, `generic`, `codex`, `claude`, `opencode`, `cline`, `continue`, `aider`, `goose` | `all` | Selecciona adaptadores de agentes generados |
+| `--adapters <list>` | `all`, `generic`, `codex`, `claude`, `opencode`, `cline`, `continue`, `aider`, `goose` | `opencode` | Selecciona adaptadores de agentes generados |
 | `--no-adapters` | flag | off | Omite generación de adaptadores |
+| `--with-doc-templates` | flag | off | Genera artefactos Markdown iniciales bajo `qa-ai-output/` |
+| `--with-test-management-mapping` | flag | off | Crea el archivo configurado de mapping de gestión de pruebas |
 | `--force` | flag | off | Permite sobrescribir archivos generados |
 
 Overrides avanzados de framework y rutas:
@@ -152,6 +154,12 @@ node .qa-ai/scripts/init.mjs --preset manual-only --interface-language es --gher
 
 # Generar solo adaptadores generic y Codex
 node .qa-ai/scripts/init.mjs --adapters generic,codex
+
+# Generar también plantillas iniciales de artefactos QA
+node .qa-ai/scripts/init.mjs --with-doc-templates
+
+# Generar todos los adaptadores soportados
+node .qa-ai/scripts/init.mjs --adapters all
 ```
 
 Los flags de framework y rutas son overrides avanzados. Si una plantilla base ya define los frameworks que quieres, omite esos flags para conservar las rutas de la plantilla.
@@ -183,20 +191,24 @@ El flag se sigue llamando `--preset` por compatibilidad con la CLI, pero concept
 
 ```text
 qa-ai.config.yaml
+.opencode/
+qa-ai-output/
+features/
+tests/
+
+# Opcional, solo cuando se pide mediante --adapters
 AGENTS.md
 .claude/
 .codex/
-.opencode/
 .cline/
 .clinerules
 .continue/
 .aider.conf.yml
 .aider/
 .goose/
-docs/qa/
-features/
-tests/
 ```
+
+El init por defecto crea solo los archivos y carpetas mínimos. No crea artefactos iniciales `qa-ai-output/*.md` salvo que pases `--with-doc-templates`, y solo genera el adaptador OpenCode salvo que `--adapters` pida más.
 
 Las subcarpetas exactas de `tests/` dependen de la configuración. Init crea rutas UI/API cuando hay frameworks configurados, y omite carpetas de automatización cuando los frameworks son `none` o `undecided`.
 
