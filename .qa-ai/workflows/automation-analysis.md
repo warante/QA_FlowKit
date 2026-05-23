@@ -12,12 +12,12 @@ Classify approved test cases by automation feasibility and propose implementatio
 
 ## Output
 
-Update `docs/qa/automation-feasibility-report.md` with:
+Update `qa-ai-output/automation-feasibility-report.md` with:
 
 - Feature/test IDs.
 - Recommended framework from `qa-ai.config.yaml`.
 - Required test data, selectors, mocks, clients or schemas.
 - Risks and blockers.
-- Pending Jira task drafts when automation cannot be implemented now.
+- Pending configured issue tracker task drafts when automation cannot be implemented now.
 
-Do not write automation code until `docs/qa/automation-implementation-plan.md` is approved.
+Do not write automation code until `qa-ai-output/automation-implementation-plan.md` is approved.

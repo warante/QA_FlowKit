@@ -1,4 +1,4 @@
 # Traceability Matrix
 
-| Jira Story | RF | CA | Feature File | TestRail Case ID | Type | Priority | Automation Status | Automation File |
+| Requirement Source | RF | CA | Feature File | Test Management Case ID | Type | Priority | Automation Status | Automation File |
 |---|---|---|---|---|---|---|---|---|

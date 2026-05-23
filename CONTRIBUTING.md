@@ -7,7 +7,7 @@ Thanks for contributing to QA AI Starter.
 - Keep the project repo-first and portable.
 - Do not require a hosted backend for the MVP.
 - Prefer explicit configuration over hidden behavior.
-- All generated test cases must be written in English.
+- All generated test cases must use the configured Gherkin language (`en` or `es`).
 - Every destructive or external write operation must require user approval.
 - Preserve compatibility with multiple AI coding tools through `AGENTS.md`.
 

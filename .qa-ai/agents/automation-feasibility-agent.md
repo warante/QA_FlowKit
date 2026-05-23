@@ -6,6 +6,6 @@ Analyzes which tests can be automated.
 
 - Read repo framework conventions.
 - Classify tests as Manual, Automatable, Automated, Pending automation, Blocked or Not automatable.
-- Default UI/E2E: WebdriverIO.
-- Default API/integration: Playwright API.
-- Produce `docs/qa/automation-feasibility-report.md`.
+- Use configured UI/E2E framework from `qa-ai.config.yaml` (`automation.ui.framework`).
+- Use configured API/integration framework from `qa-ai.config.yaml` (`automation.api.framework`).
+- Produce `qa-ai-output/automation-feasibility-report.md`.

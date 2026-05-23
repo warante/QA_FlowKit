@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import path from 'node:path';
-import { getConfigValue, loadQaAiConfig, pathExists, logHeader } from './lib/utils.mjs';
+import { getConfigValue, loadQaAiConfig, pathExists, resolveRepoPath, logHeader } from './lib/utils.mjs';
 
 const cwd = process.cwd();
 
@@ -10,6 +10,7 @@ const requiredScripts = [
   '.qa-ai/scripts/bootstrap-agent-adapters.mjs',
   '.qa-ai/scripts/clean.mjs',
   '.qa-ai/scripts/validate-features.mjs',
+  '.qa-ai/scripts/smoke-test.mjs',
   '.qa-ai/scripts/sync-agent-adapters.mjs',
   '.qa-ai/scripts/lib/utils.mjs'
 ];
@@ -37,6 +38,7 @@ const requiredTemplates = [
 ];
 
 const requiredAgents = [
+  '.qa-ai/agents/README.md',
   '.qa-ai/agents/api-testing-agent.md',
   '.qa-ai/agents/automation-feasibility-agent.md',
   '.qa-ai/agents/gherkin-test-design-agent.md',
@@ -48,6 +50,21 @@ const requiredAgents = [
   '.qa-ai/agents/testrail-coverage-agent.md',
   '.qa-ai/agents/testrail-sync-agent.md',
   '.qa-ai/agents/webdriverio-implementation-agent.md'
+];
+
+const requiredSpecialists = [
+  '.qa-ai/agents/specialists/available/appium.md',
+  '.qa-ai/agents/specialists/available/cypress.md',
+  '.qa-ai/agents/specialists/available/generic-test-design.md',
+  '.qa-ai/agents/specialists/available/jira.md',
+  '.qa-ai/agents/specialists/available/karate.md',
+  '.qa-ai/agents/specialists/available/playwright-api.md',
+  '.qa-ai/agents/specialists/available/playwright-ui.md',
+  '.qa-ai/agents/specialists/available/postman.md',
+  '.qa-ai/agents/specialists/available/rest-assured.md',
+  '.qa-ai/agents/specialists/available/selenium.md',
+  '.qa-ai/agents/specialists/available/testrail.md',
+  '.qa-ai/agents/specialists/available/webdriverio.md'
 ];
 
 const requiredPresets = [
@@ -113,9 +130,14 @@ function anyPathCheck(level, label, relPaths) {
   return { level, label, paths: relPaths, any: true };
 }
 
+function isConfiguredFramework(value) {
+  const normalized = String(value || '').trim().toLowerCase();
+  return Boolean(normalized) && !['none', 'undecided', 'manual', 'n/a', 'na'].includes(normalized);
+}
+
 function addConfiguredChecks(checks, config) {
   const featurePath = getConfigValue(config, 'gherkin.featurePath', 'features');
-  const matrixPath = getConfigValue(config, 'traceability.matrixPath', 'docs/qa/traceability-matrix.md');
+  const matrixPath = getConfigValue(config, 'traceability.matrixPath', 'qa-ai-output/traceability-matrix.md');
   const mappingFile = getConfigValue(config, 'testrail.mappingFile', '');
   const uiFramework = String(getConfigValue(config, 'automation.ui.framework', 'none')).toLowerCase();
   const uiSpecsPath = getConfigValue(config, 'automation.ui.specsPath', '');
@@ -124,16 +146,16 @@ function addConfiguredChecks(checks, config) {
   const apiSpecsPath = getConfigValue(config, 'automation.api.specsPath', '');
 
   checks.push(pathCheck('required', 'configured feature root', featurePath));
-  checks.push(pathCheck('required', 'configured QA docs path', path.dirname(matrixPath)));
-  checks.push(pathCheck('required', 'configured traceability matrix', matrixPath));
-  if (mappingFile) checks.push(pathCheck('required', 'configured TestRail mapping file', mappingFile));
+  checks.push(pathCheck('required', 'configured QA output path', path.dirname(matrixPath)));
+  checks.push(pathCheck('optional', 'configured traceability matrix', matrixPath));
+  if (mappingFile) checks.push(pathCheck('optional', 'configured test management mapping file', mappingFile));
 
-  if (uiFramework === 'webdriverio' || uiFramework === 'selenium-jest-browserstack' || uiFramework === 'selenium') {
+  if (isConfiguredFramework(uiFramework)) {
     if (uiSpecsPath) checks.push(pathCheck('required', 'configured UI specs path', uiSpecsPath));
     if (uiPageObjectsPath) checks.push(pathCheck('required', 'configured UI page objects path', uiPageObjectsPath));
   }
 
-  if (apiFramework === 'playwright-api' || apiFramework === 'playwright') {
+  if (isConfiguredFramework(apiFramework)) {
     if (apiSpecsPath) checks.push(pathCheck('required', 'configured API specs path', apiSpecsPath));
   }
 
@@ -171,7 +193,18 @@ function addConfiguredChecks(checks, config) {
 }
 
 async function runCheck(check) {
-  const results = await Promise.all(check.paths.map((relPath) => pathExists(path.join(cwd, relPath))));
+  const resolvedPaths = [];
+  for (const relPath of check.paths) {
+    try {
+      resolvedPaths.push(resolveRepoPath(cwd, relPath, {
+        label: check.label,
+        allowRoot: relPath === '.'
+      }));
+    } catch (error) {
+      return { ...check, ok: false, reason: error.message };
+    }
+  }
+  const results = await Promise.all(resolvedPaths.map((filePath) => pathExists(filePath)));
   const ok = check.any ? results.some(Boolean) : results.every(Boolean);
   return { ...check, ok };
 }
@@ -184,8 +217,10 @@ function describePaths(paths, any = false) {
 async function main() {
   logHeader('QA AI Starter doctor');
   const configInfo = await loadQaAiConfig(cwd);
+  const isFrameworkSourceRepo = await pathExists(path.join(cwd, 'docs/qa-ai/architecture.md'));
+  const configLevel = isFrameworkSourceRepo ? 'optional' : 'required';
   const checks = [
-    pathCheck('required', 'config', 'qa-ai.config.yaml'),
+    pathCheck(configLevel, 'config', 'qa-ai.config.yaml'),
     pathCheck('required', 'framework folder', '.qa-ai'),
     pathCheck('required', 'agents folder', '.qa-ai/agents'),
     pathCheck('required', 'rules folder', '.qa-ai/rules'),
@@ -198,6 +233,7 @@ async function main() {
     ...requiredRules.map((relPath) => pathCheck('required', `rule ${path.basename(relPath)}`, relPath)),
     ...requiredTemplates.map((relPath) => pathCheck('required', `template ${path.basename(relPath)}`, relPath)),
     ...requiredAgents.map((relPath) => pathCheck('required', `agent ${path.basename(relPath)}`, relPath)),
+    ...requiredSpecialists.map((relPath) => pathCheck('required', `specialist ${path.basename(relPath)}`, relPath)),
     ...requiredPresets.map((relPath) => pathCheck('required', `preset ${path.basename(relPath)}`, relPath)),
     ...requiredWorkflows.map((relPath) => pathCheck('required', `workflow ${path.basename(relPath)}`, relPath)),
     ...requiredAdapterTemplates.map((relPath) => pathCheck('required', `adapter template ${relPath.split('/').slice(2).join('/')}`, relPath)),
@@ -206,6 +242,7 @@ async function main() {
 
   if (configInfo.exists) addConfiguredChecks(checks, configInfo.data);
   if (configInfo.exists) checks.push(pathCheck('optional', 'init manifest', '.qa-ai/state/init-manifest.json'));
+  if (configInfo.exists) checks.push(pathCheck('required', 'active specialists index', '.qa-ai/agents/specialists/active.md'));
 
   let failed = 0;
   let warned = 0;
@@ -216,10 +253,10 @@ async function main() {
       console.log(`[PASS] ${check.label}: ${target}`);
     } else if (check.level === 'required') {
       failed += 1;
-      console.log(`[FAIL] ${check.label}: ${target}`);
+      console.log(`[FAIL] ${check.label}: ${target}${result.reason ? ` (${result.reason})` : ''}`);
     } else {
       warned += 1;
-      console.log(`[WARN] ${check.label}: ${target}`);
+      console.log(`[WARN] ${check.label}: ${target}${result.reason ? ` (${result.reason})` : ''}`);
     }
   }
 

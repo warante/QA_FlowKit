@@ -1,6 +1,6 @@
-# TestRail Coverage Analysis
+# Test Management Coverage Analysis
 
-## TestRail project
+## Test management project
 
 ## Existing matching tests
 
@@ -12,6 +12,6 @@
 
 ## Potential duplicates
 
-## Proposed TestRail sections
+## Proposed test management sections
 
 ## Recommendation

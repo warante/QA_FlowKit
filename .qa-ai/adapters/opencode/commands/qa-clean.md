@@ -1,9 +1,11 @@
 ---
-description: Guided manifest-based QA AI cleanup
+description: Guided manifest-based QA AI cleanup / Limpieza guiada de QA AI Starter
 argument-hint: [optional clean flags]
 ---
 
 Preview or execute cleanup for generated QA AI Starter artifacts.
+
+Read `qa-ai.config.yaml` when present and use its configured interface language (`project.interfaceLanguage` / `project.defaultLanguage`, `en` or `es`) for questions, descriptions and summaries.
 
 If `$ARGUMENTS` is empty, run the safe dry-run first:
 
@@ -14,7 +16,7 @@ node .qa-ai/scripts/clean.mjs
 Summarize the cleanup plan, then ask the user:
 
 1. Which scope should be cleaned?
-   - `generated`: generated config, QA docs and empty generated folders.
+   - `generated`: generated config, QA output artifacts and empty generated folders.
    - `adapters`: generated agent adapter files.
    - `empty-dirs`: tracked empty directories.
    - `all`: all tracked entries.

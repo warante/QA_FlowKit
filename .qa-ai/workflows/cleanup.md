@@ -49,4 +49,4 @@ node .qa-ai/scripts/clean.mjs --all --force --prune-state
 
 - Do not manually delete broad project folders when the manifest is available.
 - Do not use `--include-modified` unless the user explicitly wants to discard local edits to generated files.
-- Do not clean TestRail, Jira, Confluence or GitHub data; the MVP has no external write cleanup.
+- Do not clean configured external tool data; the MVP has no external write cleanup.

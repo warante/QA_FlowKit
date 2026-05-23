@@ -2,29 +2,36 @@
 
 Use this folder as an instruction bridge for OpenCode or other terminal coding agents.
 
-Primary files to read:
+Related docs: [main README](../../../README.md) | [agent compatibility](../../../docs/qa-ai/agent-compatibility.md)
 
-- `AGENTS.md`
-- `qa-ai.config.yaml`
-- `.qa-ai/rules/`
-- `.qa-ai/workflows/`
+## Primary Files
 
-Slash commands:
+| File | Purpose |
+|---|---|
+| `AGENTS.md` | Generic behavior and safety rules |
+| `qa-ai.config.yaml` | Project configuration |
+| `.qa-ai/rules/` | Mandatory workflow rules |
+| `.qa-ai/agents/README.md` | Agent loading protocol |
+| `.qa-ai/workflows/` | Task playbooks |
 
-```text
-/qa-init
-/qa-full-flow
-/qa-doctor
-/qa-clean
-/qa-validate-features
-```
+Agent files in `.qa-ai/agents/` are required role instructions for QA workflow phases. If OpenCode does not expose them as callable subagents, read the relevant Markdown files and follow them directly. Always load `.qa-ai/agents/specialists/active.md` when present, plus the specialist files it lists.
 
-Run local checks:
+## Slash Commands
 
-```bash
-node .qa-ai/scripts/doctor.mjs
-node .qa-ai/scripts/validate-features.mjs
-node .qa-ai/scripts/clean.mjs
-```
+| Command | Purpose |
+|---|---|
+| `/qa-init` | Guided initialization |
+| `/qa-full-flow` | End-to-end requirements-to-PR QA flow |
+| `/qa-doctor` | Setup health checks |
+| `/qa-clean` | Manifest-based cleanup preview/execution |
+| `/qa-validate-features` | Gherkin convention validation |
+
+## Local Checks
+
+| Command | Purpose |
+|---|---|
+| `node .qa-ai/scripts/doctor.mjs` | Check setup health |
+| `node .qa-ai/scripts/validate-features.mjs` | Validate `.feature` files |
+| `node .qa-ai/scripts/clean.mjs` | Preview cleanup before deleting generated files |
 
 Use `.qa-ai/workflows/full-flow.md` for end-to-end QA delivery and keep all external writes proposal-first.

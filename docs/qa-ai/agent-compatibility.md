@@ -4,13 +4,13 @@ The MVP uses `AGENTS.md` as the generic compatibility layer and syncs tool-speci
 
 ## Syncing adapters
 
-Default init syncs every supported adapter:
+Default init syncs only the OpenCode adapter, keeping the first setup small:
 
 ```bash
-node .qa-ai/scripts/init.mjs --preset webdriverio-playwright-api
+node .qa-ai/scripts/init.mjs
 ```
 
-Adapters can also be synced explicitly:
+Additional adapters can be synced explicitly:
 
 ```bash
 node .qa-ai/scripts/sync-agent-adapters.mjs --adapters generic,codex,claude
@@ -45,21 +45,23 @@ After copying `.qa-ai/` and running the bootstrap script, start the agent and ru
 /qa-init
 ```
 
-The command asks for the required initialization choices, then runs `node .qa-ai/scripts/init.mjs` and generates the full adapter set. Use `/qa-init`, not `/init`, because `/init` is a built-in command in both Claude Code and OpenCode.
+The command asks for the required initialization choices, including interface language, Gherkin language, base template, requirement source, optional framework overrides and adapter selection, then runs `node .qa-ai/scripts/init.mjs`. Use `/qa-init`, not `/init`, because `/init` is a built-in command in both Claude Code and OpenCode.
 
 Advanced users may still pass flags directly:
 
 ```text
-/qa-init --preset webdriverio-playwright-api --adapters claude,opencode
+/qa-init --preset webdriverio-playwright-api --interface-language es --gherkin-language en --adapters claude,opencode
 ```
 
 Interactive command behavior:
 
-- `/qa-init` asks for preset, adapters and overwrite behavior.
-- `/qa-full-flow` asks for requirement source, official RF ID, TestRail project and whether to stop at proposals.
+- `/qa-init` asks for interface language, Gherkin language, base template, requirement source, optional UI/API framework overrides, adapters and overwrite behavior.
+- `/qa-full-flow` asks for requirement source, official RF ID, configured test management project/suite and whether to stop at proposals.
 - `/qa-clean` previews cleanup first, then asks for scope and execution approval.
 - `/qa-validate-features` uses the configured feature path unless the user asks for a custom path.
 - `/qa-doctor` runs without extra input.
+
+The framework agents under `.qa-ai/agents/` are role instructions. If a tool does not expose them as callable subagents, it must read `.qa-ai/agents/README.md`, the matching phase agent and `.qa-ai/agents/specialists/active.md` directly before doing QA workflow work.
 
 ## Supported adapters
 

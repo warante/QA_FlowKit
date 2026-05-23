@@ -11,8 +11,8 @@ Implement only approved automation changes using repository conventions.
 
 ## During coding
 
-- Prefer WebdriverIO for configured UI/E2E coverage.
-- Prefer Playwright API for configured API/integration coverage.
+- Use the configured UI/E2E framework for UI coverage.
+- Use the configured API/integration framework for API coverage.
 - Reuse existing selectors, clients, fixtures and schemas when possible.
 - Keep tests deterministic and isolated.
 - Do not add dependencies without approval.
@@ -21,4 +21,4 @@ Implement only approved automation changes using repository conventions.
 
 - Run the most relevant local tests when possible.
 - If tests cannot be executed, document first manual execution requirements.
-- Update `docs/qa/traceability-matrix.md` and `docs/qa/pr-summary.md`.
+- Update `qa-ai-output/traceability-matrix.md` and `qa-ai-output/pr-summary.md`.

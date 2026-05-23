@@ -2,7 +2,7 @@
 
 ## MVP status
 
-The folder-copy MVP is implemented. Remaining work is validation hardening, examples and packaging.
+The folder-copy MVP is implemented. Remaining work is additional parser-backed validation, examples and packaging.
 
 ## Epic 1 - Portable starter foundation
 
@@ -25,7 +25,8 @@ Status: Done
 
 Acceptance Criteria:
 - Generates `qa-ai.config.yaml`.
-- Creates docs, features and configured test folders.
+- Creates QA output, features and configured test folders.
+- Keeps default init minimal: OpenCode adapter only, no starter QA document files unless requested.
 - Does not overwrite files by default.
 - Supports presets.
 - Supports adapter generation and adapter selection.
@@ -49,7 +50,7 @@ Status: Done
 Acceptance Criteria:
 - Reports pass/warn/fail.
 - Validates config, core folders and required framework assets.
-- Validates configured docs/features/tests paths.
+- Validates configured QA output, features and tests paths.
 - Warns for missing automation framework config files.
 
 ### TASK-005 - Implement feature validator
@@ -60,7 +61,9 @@ Acceptance Criteria:
 - Detects missing Acceptance Criteria.
 - Detects multiple scenarios per file.
 - Detects missing required tags.
+- Detects required tags without values.
 - Detects missing RF ID in filename, Feature and Scenario titles.
+- Requires `# language: es` for Spanish Gherkin files.
 
 ### TASK-006 - Implement clean script
 
@@ -108,13 +111,13 @@ Slash command support:
 
 Status: Done
 
-Templates exist for requirement analysis, TestRail coverage, test design proposal, automation feasibility, automation implementation, traceability, TestRail sync, Jira automation task drafts and PR summaries.
+Templates exist for requirement analysis, test management coverage, test design proposal, automation feasibility, automation implementation, traceability, test management sync, issue task drafts and PR summaries.
 
 ### TASK-011 - Add QA rules
 
 Status: Done
 
-Rules exist for approval, Gherkin, TestRail, automation, WebdriverIO and API testing.
+Rules exist for approval, Gherkin, test management, automation, UI automation and API testing.
 
 ## Epic 4 - Open-source readiness
 
@@ -135,7 +138,7 @@ Acceptance Criteria:
 - Parser-backed Gherkin validation.
 - Traceability matrix validation.
 - Duplicate RF/test ID validation.
-- Dry-run TestRail sync plan validation.
+- Dry-run test management sync plan validation.
 - CI validation workflow.
 - Example repositories.
 - npm CLI migration.

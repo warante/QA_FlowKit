@@ -1,4 +1,4 @@
-# TestRail Sync Plan
+# Test Management Sync Plan
 
 ## Project
 
@@ -16,4 +16,4 @@
 
 ## Approval request
 
-Do you approve the proposed TestRail synchronization?
+Do you approve the proposed test management synchronization?
