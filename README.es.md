@@ -15,7 +15,8 @@ Idioma: [English](README.md) | **Español**
 - [Inicio Rápido](#inicio-rápido)
 - [Bootstrap Desde Agente](#bootstrap-desde-agente)
 - [Comandos](#comandos)
-- [Presets](#presets)
+- [Opciones de Init](#opciones-de-init)
+- [Plantillas Base](#plantillas-base)
 - [Adaptadores](#adaptadores)
 - [Estructura Generada](#estructura-generada)
 - [Reglas Gherkin](#reglas-gherkin)
@@ -57,7 +58,7 @@ Ejecuta esto desde el repositorio objetivo donde quieres instalar el starter:
 
 ```bash
 cp -R /path/to/qa-ai-starter/.qa-ai .qa-ai
-node .qa-ai/scripts/init.mjs --preset webdriverio-playwright-api --interface-language es --gherkin-language es
+node .qa-ai/scripts/init.mjs
 node .qa-ai/scripts/doctor.mjs
 ```
 
@@ -67,7 +68,7 @@ Después abre el repositorio con tu herramienta de IA y empieza con:
 Lee AGENTS.md, qa-ai.config.yaml y .qa-ai/workflows/full-flow.md. Sigue .qa-ai/rules/ antes de modificar archivos.
 ```
 
-Los flags de framework y rutas son overrides avanzados. Si el preset ya define los frameworks que quieres, omite esos flags para conservar las rutas del preset.
+Por defecto, init usa la plantilla base `webdriverio-playwright-api`, interfaz en inglés y Gherkin en inglés. Usa opciones de init solo cuando quieras cambiar esos defaults.
 
 ## Bootstrap Desde Agente
 
@@ -90,7 +91,7 @@ Abre Claude Code u OpenCode en el repositorio objetivo y ejecuta:
 /qa-init
 ```
 
-Usa `/qa-init` en vez de `/init`; Claude Code y OpenCode ya tienen comandos internos llamados `/init`. El comando guiado pregunta idioma, preset, adaptadores, overrides opcionales de framework y comportamiento de sobrescritura.
+Usa `/qa-init` en vez de `/init`; Claude Code y OpenCode ya tienen comandos internos llamados `/init`. El comando guiado pregunta idioma, plantilla base, adaptadores, overrides opcionales de framework y comportamiento de sobrescritura.
 
 Forma directa avanzada:
 
@@ -103,7 +104,7 @@ Forma directa avanzada:
 | Comando | Propósito |
 |---|---|
 | `node .qa-ai/scripts/bootstrap-agent-adapters.mjs --agents claude,opencode` | Copia comandos slash mínimos para setup desde agente |
-| `node .qa-ai/scripts/init.mjs --preset webdriverio-playwright-api --interface-language es --gherkin-language es` | Genera config, carpetas, docs y adaptadores |
+| `node .qa-ai/scripts/init.mjs` | Genera config, carpetas, docs y adaptadores con opciones por defecto |
 | `node .qa-ai/scripts/sync-agent-adapters.mjs --adapters all` | Sincroniza adaptadores seleccionados |
 | `node .qa-ai/scripts/doctor.mjs` | Revisa salud del setup |
 | `node .qa-ai/scripts/validate-features.mjs` | Valida archivos `.feature` generados |
@@ -112,9 +113,54 @@ Forma directa avanzada:
 
 `init.mjs` nunca sobrescribe archivos existentes salvo que se pase `--force`. `validate-features.mjs` falla si no encuentra archivos `.feature`; usa `--allow-empty` solo para smoke checks del repo fuente u otros casos donde una carpeta vacía sea esperada.
 
-## Presets
+## Opciones de Init
 
-| Preset | Mejor Para | Automatización Por Defecto |
+`init.mjs` funciona sin flags. Usa flags solo cuando la plantilla base o los idiomas por defecto no sean lo que necesitas.
+
+| Opción | Valores | Default | Propósito |
+|---|---|---|---|
+| `--preset <name>` | `webdriverio-playwright-api`, `selenium-jest-browserstack`, `manual-only` | `webdriverio-playwright-api` | Selecciona la plantilla base para generar `qa-ai.config.yaml` |
+| `--interface-language <lang>` | `en`, `es` | `en` | Idioma de encabezados de artefactos QA y texto guiado del workflow |
+| `--gherkin-language <lang>` | `en`, `es` | `en` | Idioma de los archivos `.feature` generados |
+| `--requirements-source <name>` | `markdown`, `jira`, `confluence`, `pasted-text`, valor custom | Valor de la plantilla base | Define la fuente principal de requisitos |
+| `--test-management-tool <name>` | `none`, `testrail`, `zephyr`, `xray`, valor custom | Valor de la plantilla base | Define la herramienta de gestión de pruebas |
+| `--issue-tracker <name>` | `none`, `jira`, `github`, valor custom | Valor de la plantilla base | Define el issue tracker configurado |
+| `--adapters <list>` | `all`, `generic`, `codex`, `claude`, `opencode`, `cline`, `continue`, `aider`, `goose` | `all` | Selecciona adaptadores de agentes generados |
+| `--no-adapters` | flag | off | Omite generación de adaptadores |
+| `--force` | flag | off | Permite sobrescribir archivos generados |
+
+Overrides avanzados de framework y rutas:
+
+| Opción | Valores de Ejemplo | Propósito |
+|---|---|---|
+| `--ui-framework <name>` | `none`, `undecided`, `webdriverio`, `playwright`, `cypress`, `selenium` | Sobrescribe el framework UI/E2E de la plantilla base |
+| `--api-framework <name>` | `none`, `undecided`, `playwright-api`, `postman`, `rest-assured`, `supertest` | Sobrescribe el framework API/integration de la plantilla base |
+| `--ui-specs-path <path>` | `tests/wdio/specs` | Sobrescribe la ruta de specs UI |
+| `--ui-page-objects-path <path>` | `tests/wdio/pageobjects` | Sobrescribe la ruta de page objects UI |
+| `--api-specs-path <path>` | `tests/api/specs` | Sobrescribe la ruta de specs API |
+| `--specialist-mode <mode>` | `auto`, `off`, `required` | Controla activación de especialistas |
+| `--set <key=value>` | `automation.ui.framework=cypress` | Define directamente un valor escalar de config |
+
+Ejemplos:
+
+```bash
+# Setup por defecto
+node .qa-ai/scripts/init.mjs
+
+# Interfaz en español y Gherkin en español, sin carpetas de automatización
+node .qa-ai/scripts/init.mjs --preset manual-only --interface-language es --gherkin-language es
+
+# Generar solo adaptadores generic y Codex
+node .qa-ai/scripts/init.mjs --adapters generic,codex
+```
+
+Los flags de framework y rutas son overrides avanzados. Si una plantilla base ya define los frameworks que quieres, omite esos flags para conservar las rutas de la plantilla.
+
+## Plantillas Base
+
+El flag se sigue llamando `--preset` por compatibilidad con la CLI, pero conceptualmente son plantillas base: aportan una configuración inicial completa que tus flags pueden sobrescribir.
+
+| Plantilla Base (`--preset`) | Mejor Para | Automatización Por Defecto |
 |---|---|---|
 | `webdriverio-playwright-api` | Repositorios de QA + automatización | WebdriverIO UI/E2E y Playwright API |
 | `selenium-jest-browserstack` | Automatización UI estilo Selenium | Carpetas Selenium/Jest/BrowserStack |

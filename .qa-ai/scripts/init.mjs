@@ -34,7 +34,7 @@ function printHelp() {
   console.log(`Usage: node .qa-ai/scripts/init.mjs [options]
 
 Options:
-  --preset <name>          Preset from .qa-ai/presets (default: webdriverio-playwright-api)
+  --preset <name>          Base template from .qa-ai/presets (default: webdriverio-playwright-api)
   --interface-language <en|es> User-facing workflow language (default: en)
   --gherkin-language <en|es>   Gherkin feature language (default: en)
   --requirements-source <name> Primary requirement source, for example markdown, jira, confluence
@@ -45,7 +45,7 @@ Options:
   --ui-specs-path <path>   UI/E2E specs directory
   --ui-page-objects-path <path> UI page objects directory
   --api-specs-path <path>  API/integration specs directory
-  --specialist-mode <auto|off|required> Specialist agent activation mode (default from preset)
+  --specialist-mode <auto|off|required> Specialist agent activation mode (default from base template)
   --set <key=value>        Repeatable scalar config override, for example automation.ui.framework=cypress
   --adapters <list>        Comma-separated adapters to generate, or "all" (default: all)
   --adapter <name>         Repeatable single adapter name
@@ -432,12 +432,12 @@ async function main() {
 
   if (!await pathExists(presetPath)) {
     const names = await availablePresets();
-    console.error(`Preset not found: ${presetName}`);
-    console.error(`Available presets: ${names.length > 0 ? names.join(', ') : '(none found)'}`);
+    console.error(`Base template not found: ${presetName}`);
+    console.error(`Available base templates: ${names.length > 0 ? names.join(', ') : '(none found)'}`);
     process.exit(1);
   }
 
-  console.log(`Using preset: ${presetName}`);
+  console.log(`Using base template: ${presetName}`);
   console.log(`Using interface language: ${interfaceLanguage}`);
   console.log(`Using Gherkin language: ${gherkinLanguage}`);
 

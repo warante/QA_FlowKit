@@ -15,7 +15,8 @@ Language: **English** | [Español](README.es.md)
 - [Quick Start](#quick-start)
 - [Agent-First Bootstrap](#agent-first-bootstrap)
 - [Commands](#commands)
-- [Presets](#presets)
+- [Init Options](#init-options)
+- [Base Templates](#base-templates)
 - [Adapters](#adapters)
 - [Generated Structure](#generated-structure)
 - [Gherkin Rules](#gherkin-rules)
@@ -57,7 +58,7 @@ Run this from the target repository where you want to install the starter:
 
 ```bash
 cp -R /path/to/qa-ai-starter/.qa-ai .qa-ai
-node .qa-ai/scripts/init.mjs --preset webdriverio-playwright-api --interface-language en --gherkin-language en
+node .qa-ai/scripts/init.mjs
 node .qa-ai/scripts/doctor.mjs
 ```
 
@@ -67,7 +68,7 @@ Then open the repository with your AI coding tool and start with:
 Read AGENTS.md, qa-ai.config.yaml and .qa-ai/workflows/full-flow.md. Follow .qa-ai/rules/ before making changes.
 ```
 
-Framework and path flags are advanced overrides. When a preset already defines the frameworks you want, omit those flags so the preset paths are preserved.
+By default, init uses the `webdriverio-playwright-api` base template with English interface and English Gherkin. Use init options only when you want to change those defaults.
 
 ## Agent-First Bootstrap
 
@@ -90,7 +91,7 @@ Open Claude Code or OpenCode in the target repository and run:
 /qa-init
 ```
 
-Use `/qa-init` rather than `/init`; both Claude Code and OpenCode have their own built-in `/init` commands. The guided command asks for language, preset, adapters, optional framework overrides and overwrite behavior.
+Use `/qa-init` rather than `/init`; both Claude Code and OpenCode have their own built-in `/init` commands. The guided command asks for language, base template, adapters, optional framework overrides and overwrite behavior.
 
 Advanced direct form:
 
@@ -103,7 +104,7 @@ Advanced direct form:
 | Command | Purpose |
 |---|---|
 | `node .qa-ai/scripts/bootstrap-agent-adapters.mjs --agents claude,opencode` | Copy minimal root slash commands for agent-first setup |
-| `node .qa-ai/scripts/init.mjs --preset webdriverio-playwright-api --interface-language en --gherkin-language en` | Generate config, folders, docs and adapters |
+| `node .qa-ai/scripts/init.mjs` | Generate config, folders, docs and adapters with default options |
 | `node .qa-ai/scripts/sync-agent-adapters.mjs --adapters all` | Sync selected adapter templates |
 | `node .qa-ai/scripts/doctor.mjs` | Check setup health |
 | `node .qa-ai/scripts/validate-features.mjs` | Validate generated `.feature` files |
@@ -112,9 +113,54 @@ Advanced direct form:
 
 `init.mjs` never overwrites existing files unless `--force` is passed. `validate-features.mjs` fails when no `.feature` files are found; use `--allow-empty` only for source-repo smoke checks or other cases where an empty feature folder is expected.
 
-## Presets
+## Init Options
 
-| Preset | Best For | Default Automation |
+`init.mjs` works with no flags. Use flags only when the default base template or language choices are not what you want.
+
+| Option | Values | Default | Purpose |
+|---|---|---|---|
+| `--preset <name>` | `webdriverio-playwright-api`, `selenium-jest-browserstack`, `manual-only` | `webdriverio-playwright-api` | Selects the base template used to generate `qa-ai.config.yaml` |
+| `--interface-language <lang>` | `en`, `es` | `en` | Language for generated QA artifact headings and guided workflow text |
+| `--gherkin-language <lang>` | `en`, `es` | `en` | Language for generated `.feature` files |
+| `--requirements-source <name>` | `markdown`, `jira`, `confluence`, `pasted-text`, custom value | Base template value | Sets the primary requirement source |
+| `--test-management-tool <name>` | `none`, `testrail`, `zephyr`, `xray`, custom value | Base template value | Sets the configured test management tool |
+| `--issue-tracker <name>` | `none`, `jira`, `github`, custom value | Base template value | Sets the configured issue tracker |
+| `--adapters <list>` | `all`, `generic`, `codex`, `claude`, `opencode`, `cline`, `continue`, `aider`, `goose` | `all` | Selects generated agent adapters |
+| `--no-adapters` | flag | off | Skips adapter generation |
+| `--force` | flag | off | Allows overwriting generated files |
+
+Advanced framework and path overrides:
+
+| Option | Example Values | Purpose |
+|---|---|---|
+| `--ui-framework <name>` | `none`, `undecided`, `webdriverio`, `playwright`, `cypress`, `selenium` | Overrides the UI/E2E framework from the base template |
+| `--api-framework <name>` | `none`, `undecided`, `playwright-api`, `postman`, `rest-assured`, `supertest` | Overrides the API/integration framework from the base template |
+| `--ui-specs-path <path>` | `tests/wdio/specs` | Overrides the UI specs path |
+| `--ui-page-objects-path <path>` | `tests/wdio/pageobjects` | Overrides the UI page objects path |
+| `--api-specs-path <path>` | `tests/api/specs` | Overrides the API specs path |
+| `--specialist-mode <mode>` | `auto`, `off`, `required` | Controls specialist activation |
+| `--set <key=value>` | `automation.ui.framework=cypress` | Sets a scalar config value directly |
+
+Examples:
+
+```bash
+# Default setup
+node .qa-ai/scripts/init.mjs
+
+# Spanish interface and Spanish Gherkin, no automation folders
+node .qa-ai/scripts/init.mjs --preset manual-only --interface-language es --gherkin-language es
+
+# Generate only generic and Codex adapters
+node .qa-ai/scripts/init.mjs --adapters generic,codex
+```
+
+Framework and path flags are advanced overrides. When a base template already defines the frameworks you want, omit those flags so the template paths are preserved.
+
+## Base Templates
+
+The `--preset` flag name is kept for CLI compatibility, but conceptually these are base templates: they provide a complete starting config that your flags can override.
+
+| Base Template (`--preset`) | Best For | Default Automation |
 |---|---|---|
 | `webdriverio-playwright-api` | QA + automation repositories | WebdriverIO UI/E2E and Playwright API |
 | `selenium-jest-browserstack` | Selenium-style UI automation | Selenium/Jest/BrowserStack folders |

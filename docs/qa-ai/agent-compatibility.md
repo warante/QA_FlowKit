@@ -7,7 +7,7 @@ The MVP uses `AGENTS.md` as the generic compatibility layer and syncs tool-speci
 Default init syncs every supported adapter:
 
 ```bash
-node .qa-ai/scripts/init.mjs --preset webdriverio-playwright-api --interface-language en --gherkin-language en
+node .qa-ai/scripts/init.mjs
 ```
 
 Adapters can also be synced explicitly:
@@ -45,7 +45,7 @@ After copying `.qa-ai/` and running the bootstrap script, start the agent and ru
 /qa-init
 ```
 
-The command asks for the required initialization choices, including interface language, Gherkin language, requirement source and optional framework overrides, then runs `node .qa-ai/scripts/init.mjs` and generates the full adapter set. Use `/qa-init`, not `/init`, because `/init` is a built-in command in both Claude Code and OpenCode.
+The command asks for the required initialization choices, including interface language, Gherkin language, base template, requirement source and optional framework overrides, then runs `node .qa-ai/scripts/init.mjs` and generates the full adapter set. Use `/qa-init`, not `/init`, because `/init` is a built-in command in both Claude Code and OpenCode.
 
 Advanced users may still pass flags directly:
 
@@ -55,7 +55,7 @@ Advanced users may still pass flags directly:
 
 Interactive command behavior:
 
-- `/qa-init` asks for interface language, Gherkin language, requirement source, optional UI/API framework overrides, adapters and overwrite behavior.
+- `/qa-init` asks for interface language, Gherkin language, base template, requirement source, optional UI/API framework overrides, adapters and overwrite behavior.
 - `/qa-full-flow` asks for requirement source, official RF ID, configured test management project/suite and whether to stop at proposals.
 - `/qa-clean` previews cleanup first, then asks for scope and execution approval.
 - `/qa-validate-features` uses the configured feature path unless the user asks for a custom path.

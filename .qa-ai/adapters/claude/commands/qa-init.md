@@ -13,7 +13,7 @@ If `$ARGUMENTS` is empty, do not run anything yet. Ask the user these questions 
 2. Which Gherkin language should generated `.feature` files use?
    - `en`: English Gherkin keywords and `Acceptance Criteria:`.
    - `es`: Spanish Gherkin keywords and `Criterios de aceptación:`.
-3. Which preset should be used?
+3. Which base template should be used?
    - `manual-only`: QA artifact generation only; no automation folders.
    - `webdriverio-playwright-api`: WebdriverIO UI/E2E plus Playwright API folders.
    - `selenium-jest-browserstack`: Selenium/Jest/BrowserStack style folders.
@@ -23,9 +23,9 @@ If `$ARGUMENTS` is empty, do not run anything yet. Ask the user these questions 
    - Examples: `none`, `testrail`, `zephyr`, `xray`.
 6. Which issue tracker should be configured?
    - Examples: `none`, `jira`, `github`.
-7. Should the preset UI/E2E framework be overridden?
+7. Should the base template UI/E2E framework be overridden?
    - Examples: `none`, `undecided`, `webdriverio`, `playwright`, `cypress`, `selenium`.
-8. Should the preset API/integration framework be overridden?
+8. Should the base template API/integration framework be overridden?
    - Examples: `none`, `undecided`, `playwright-api`, `postman`, `rest-assured`, `supertest`.
 9. Should any generated paths be customized?
    - Optional flags: `--ui-specs-path`, `--ui-page-objects-path`, `--api-specs-path`.
@@ -39,10 +39,10 @@ If `$ARGUMENTS` is empty, do not run anything yet. Ask the user these questions 
 After the user answers, build and run:
 
 ```bash
-node .qa-ai/scripts/init.mjs --preset <preset> --interface-language <en|es> --gherkin-language <en|es> --requirements-source <source> --test-management-tool <tool> --issue-tracker <tool> --adapters <adapters>
+node .qa-ai/scripts/init.mjs --preset <base-template> --interface-language <en|es> --gherkin-language <en|es> --requirements-source <source> --test-management-tool <tool> --issue-tracker <tool> --adapters <adapters>
 ```
 
-Only add `--ui-framework`, `--api-framework`, path override flags or `--set key=value` when the user asks for custom configuration that differs from the preset. Only add `--force` if the user explicitly approved overwriting.
+Only add `--ui-framework`, `--api-framework`, path override flags or `--set key=value` when the user asks for custom configuration that differs from the base template. Only add `--force` if the user explicitly approved overwriting.
 
 If `$ARGUMENTS` is not empty, treat it as advanced mode and run:
 
