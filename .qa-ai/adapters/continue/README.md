@@ -4,6 +4,8 @@ Continue is best used for review and checks in the folder-copy MVP.
 
 Related docs: [main README](../../../README.md) | [agent compatibility](../../../docs/qa-ai/agent-compatibility.md)
 
+When `knowledge.enabled` is true in `qa-ai.config.yaml`, review `knowledge.summaryPath` and `knowledge.decisionsPath` before applying QA checks or review guidance.
+
 ## Read First
 
 | File | Purpose |
@@ -16,6 +18,7 @@ Related docs: [main README](../../../README.md) | [agent compatibility](../../..
 
 | Command | Purpose |
 |---|---|
+| `node .qa-ai/scripts/config.mjs --help` | Import/export reusable QA AI config profiles |
 | `node .qa-ai/scripts/doctor.mjs` | Check setup health |
 | `node .qa-ai/scripts/validate-features.mjs` | Validate `.feature` files |
 | `node .qa-ai/scripts/clean.mjs` | Dry-run cleanup before removal suggestions |

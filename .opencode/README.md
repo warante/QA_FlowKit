@@ -10,8 +10,6 @@ Related docs: [main README](../../../README.md) | [agent compatibility](../../..
 |---|---|
 | `AGENTS.md` | Generic behavior and safety rules |
 | `qa-ai.config.yaml` | Project configuration |
-| `qa-ai-output/qa-knowledge-summary.md` | Team QA practice summary when `knowledge.enabled` is true |
-| `qa-ai-output/qa-init-decisions.md` | Approved context-based init decisions when `knowledge.enabled` is true |
 | `.qa-ai/rules/` | Mandatory workflow rules |
 | `.qa-ai/agents/README.md` | Agent loading protocol |
 | `.qa-ai/workflows/` | Task playbooks |
@@ -44,5 +42,3 @@ Agent files in `.qa-ai/agents/` are required role instructions for QA workflow p
 | `node .qa-ai/scripts/clean.mjs` | Preview cleanup before deleting generated files |
 
 Use `.qa-ai/workflows/full-flow.md` for end-to-end QA delivery and keep all external writes proposal-first.
-
-When initializing with a QA context folder, use `/qa-init --qa-context <path>` so OpenCode reads `.qa-ai/workflows/context-intake.md` before choosing defaults.

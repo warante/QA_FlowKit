@@ -17,6 +17,7 @@ Related docs: [main README](../../../../README.md) | [agent compatibility](../..
 
 | Command | Purpose |
 |---|---|
+| `node .qa-ai/scripts/config.mjs --help` | Import/export reusable QA AI config profiles |
 | `node .qa-ai/scripts/doctor.mjs` | Check setup health |
 | `node .qa-ai/scripts/validate-features.mjs` | Validate `.feature` files |
 | `node .qa-ai/scripts/clean.mjs` | Preview generated artifact cleanup |
