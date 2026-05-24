@@ -1,0 +1,4 @@
+name: QA FlowKit CodeQL config
+
+paths:
+  - .qa-ai/scripts
