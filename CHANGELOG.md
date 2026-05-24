@@ -1,5 +1,29 @@
 # Changelog
 
+## 0.3.0 - Context intake y agentes ampliados
+
+Release tras el merge de [#2](https://github.com/warante/QA_FlowKit/pull/2). Enfoque: carpeta de contexto QA del equipo, init/config refactorizados, agentes más accionables y más comandos `/qa-*` en adaptadores agent-first.
+
+### Added
+
+- Agente `qa-context-intake-agent` y workflow `context-intake.md` para prácticas QA locales en una carpeta del repo.
+- Scripts `config.mjs` y `lib/project-config.mjs`; comando npm `qa:config`.
+- Adaptador **Gemini CLI** (`GEMINI.md` en plantillas).
+- Comandos `/qa-*` ampliados en plantillas y salidas **Claude Code** y **OpenCode** (`qa-config`, `qa-status`, `qa-coverage`, `qa-add-tests`, `qa-update-tests`, `qa-automation-plan`, `qa-full-flow`, etc.).
+- Documentación de carpeta de contexto QA en README (EN/ES).
+
+### Changed
+
+- `init.mjs` simplificado y alineado con presets y lectura de contexto del proyecto.
+- Agentes de fase y especialistas (`available/*`) con guías operativas más detalladas.
+- `doctor.mjs` y `smoke-test.mjs` validan el nuevo flujo y utilidades de configuración.
+- Presets actualizados con soporte de carpeta de contexto.
+
+### Documentation
+
+- `README.md` / `README.es.md`: agent-first bootstrap, context folder y comandos.
+- `docs/qa-ai/*`: arquitectura, workflow, compatibilidad de agentes y backlog.
+
 ## 0.2.0 - Workflow enhancements
 
 Major update after the first community release. Focus: agent-first bootstrap, specialist agents, stronger validation and clearer init defaults.
