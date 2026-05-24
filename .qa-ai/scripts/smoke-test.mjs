@@ -40,6 +40,7 @@ async function main() {
   let qaContextTarget = null;
   let optionalDocsTarget = null;
   let importProfileTarget = null;
+  let validatorTarget = null;
   try {
     await copyFramework(tempRoot);
 
@@ -188,6 +189,64 @@ async function main() {
       }
     }
 
+    validatorTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-ai-starter-validators-'));
+    await copyFramework(validatorTarget);
+    run(validatorTarget, [
+      '.qa-ai/scripts/init.mjs',
+      '--preset', 'manual-only',
+      '--no-adapters'
+    ]);
+    await fs.mkdir(path.join(validatorTarget, 'features', 'functional'), { recursive: true });
+    await fs.writeFile(
+      path.join(validatorTarget, 'features', 'functional', 'RF-101-TC-001-login.feature'),
+      [
+        '@priority:high @type:functional @manual:false @id:TC-001',
+        'Feature: RF-101 Login',
+        '',
+        'Acceptance Criteria:',
+        '- User can sign in with valid credentials.',
+        '',
+        'Scenario: RF-101 TC-001 Valid login',
+        '  Given a registered user',
+        '  When the user signs in',
+        '  Then the dashboard is displayed',
+        ''
+      ].join('\n'),
+      'utf8'
+    );
+    await fs.writeFile(
+      path.join(validatorTarget, 'qa-ai-output', 'traceability-matrix.md'),
+      [
+        '# Traceability Matrix',
+        '',
+        '| ID | Feature |',
+        '|---|---|',
+        '| RF-101 | Login |',
+        '| TC-001 | Valid login |',
+        ''
+      ].join('\n'),
+      'utf8'
+    );
+    await fs.writeFile(
+      path.join(validatorTarget, 'qa-ai-output', 'testrail-sync-plan.md'),
+      [
+        '# TestRail Sync Plan',
+        '',
+        'Approval is required before any external write.',
+        '',
+        '| ID | Proposed action |',
+        '|---|---|',
+        '| RF-101 | Review coverage |',
+        '| TC-001 | Propose create/update only |',
+        ''
+      ].join('\n'),
+      'utf8'
+    );
+    run(validatorTarget, ['.qa-ai/scripts/validate-features.mjs']);
+    run(validatorTarget, ['.qa-ai/scripts/validate-traceability.mjs']);
+    run(validatorTarget, ['.qa-ai/scripts/validate-sync-plan.mjs']);
+    run(validatorTarget, ['.qa-ai/scripts/validate-active-specialists.mjs']);
+
     const activePath = path.join(tempRoot, '.qa-ai/agents/specialists/active.md');
     await fs.writeFile(activePath, 'USER EDIT\n', 'utf8');
     run(tempRoot, [
@@ -226,6 +285,7 @@ async function main() {
     if (qaContextTarget) await fs.rm(qaContextTarget, { recursive: true, force: true });
     if (optionalDocsTarget) await fs.rm(optionalDocsTarget, { recursive: true, force: true });
     if (importProfileTarget) await fs.rm(importProfileTarget, { recursive: true, force: true });
+    if (validatorTarget) await fs.rm(validatorTarget, { recursive: true, force: true });
   }
 }
 

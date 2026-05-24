@@ -35,13 +35,18 @@ tests/                          automation code when configured
 - `init.mjs` reads a base template, generates `qa-ai.config.yaml`, records an optional `--qa-context` folder, creates configured `qa-ai-output/`, `features/` and `tests/` folders, and syncs the OpenCode adapter by default without overwriting existing files unless `--force` is passed. Starter QA artifacts and extra adapters are opt-in.
 - `doctor.mjs` validates the framework folder, required scripts/rules/templates/agents/presets/adapters, generated target files, optional QA context configuration and configured paths. `qa-ai.config.yaml` is required in initialized target repositories and optional in the framework source repository.
 - `clean.mjs` reads `.qa-ai/state/init-manifest.json`, previews cleanup by default, and removes only tracked generated files or empty directories when `--force` is passed.
-- `validate-features.mjs` scans configured `.feature` files for one scenario, acceptance criteria, required tag values, language directives and RF IDs.
+- `validate-features.mjs` parses configured `.feature` files for one Feature, one Scenario, acceptance criteria, required tag values, language directives, RF IDs and duplicate explicit test case IDs.
+- `validate-traceability.mjs` checks that feature RF/test identifiers are represented in the configured traceability matrix.
+- `validate-sync-plan.mjs` checks that test-management sync plans remain proposal-first, mention approval and cover feature identifiers.
+- `validate-active-specialists.mjs` checks that `.qa-ai/agents/specialists/active.md` matches the configured tools/frameworks.
 - `smoke-test.mjs` runs native Node smoke checks for init, config profiles, selected adapters, no-overwrite behavior and unsafe path rejection.
 - `sync-agent-adapters.mjs` copies selected adapter templates into target tool paths.
 
 Supported sync adapters are `generic`, `claude`, `codex`, `opencode`, `cline`, `continue`, `aider`, `goose` and `gemini`.
 
 All scripts use native Node.js APIs and are intended for Node.js 20+.
+
+Agent behavior can be customized through phase agents, specialists, shared rules and adapter templates. See [Customizing Agents](customizing-agents.md) for the recommended customization workflow and safety checklist.
 
 ## Bootstrap model
 
@@ -90,7 +95,7 @@ qa-workflow-orchestrator
 
 ## Safety model
 
-The MVP uses prompt rules plus local validation scripts. Future versions may add parser-backed validation, CI workflows and MCP tools.
+The Early Product release uses prompt rules, local validation scripts, smoke tests and GitHub CI. Future versions may add full parser dependencies, strict target-repo CI templates and MCP tools.
 
 Safety principles:
 

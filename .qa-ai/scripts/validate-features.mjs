@@ -5,15 +5,17 @@ import {
   getConfigValue,
   listFilesRecursive,
   loadQaAiConfig,
+  logHeader,
   parseArgs,
   relativeTo,
-  resolveRepoPath,
-  logHeader
+  resolveRepoPath
 } from './lib/utils.mjs';
 
 const cwd = process.cwd();
 const args = parseArgs(process.argv);
-const rfPattern = /\bRF[-_ ]?[A-Z0-9]+(?:[-_][A-Z0-9]+)*\b/i;
+const rfPattern = /\bRF[-_ ]?[A-Z0-9]+\b/i;
+const idPattern = /\b(?:RF|TC|TEST|QA)[-_ ]?[A-Z0-9]+\b/gi;
+const caseIdPattern = /\b(?:TC|TEST|QA)[-_ ]?[A-Z0-9]+\b/gi;
 
 function printHelp() {
   console.log(`Usage: node .qa-ai/scripts/validate-features.mjs [options]
@@ -22,6 +24,7 @@ Options:
   --path <dir>   Override the configured feature root
   --gherkin-language <en|es> Override the configured Gherkin language
   --allow-empty  Return success when no .feature files exist
+  --no-duplicates Skip cross-file duplicate ID validation
   --help         Show this help
 `);
 }
@@ -39,7 +42,7 @@ function findLine(content, prefix) {
 
 function normalizeLanguage(value) {
   const normalized = String(value || '').trim().toLowerCase();
-  if (['es', 'esp', 'spa', 'spanish', 'espanol', 'español'].includes(normalized)) return 'es';
+  if (['es', 'esp', 'spa', 'spanish', 'espanol', 'espa\u00f1ol'].includes(normalized)) return 'es';
   return 'en';
 }
 
@@ -47,21 +50,21 @@ function languageRules(language) {
   if (language === 'es') {
     return {
       code: 'es',
-      featurePattern: /^\s*(?:Característica|Caracteristica):/gmi,
-      scenarioPattern: /^\s*(?:Escenario|Esquema del escenario):/gmi,
-      featurePrefixes: ['Característica:', 'Caracteristica:'],
+      featurePattern: /^(?:Caracter\u00edstica|Caracteristica):/i,
+      scenarioPattern: /^(?:Escenario|Esquema del escenario):/i,
+      featurePrefixes: ['Caracter\u00edstica:', 'Caracteristica:'],
       scenarioPrefixes: ['Escenario:', 'Esquema del escenario:'],
-      acceptancePattern: /^\s*Criterios de aceptación:/gmi,
-      acceptanceLabel: 'Criterios de aceptación'
+      acceptancePattern: /^Criterios de aceptaci\u00f3n:/i,
+      acceptanceLabel: 'Criterios de aceptaci\u00f3n'
     };
   }
   return {
     code: 'en',
-    featurePattern: /^\s*Feature:/gmi,
-    scenarioPattern: /^\s*Scenario(?: Outline)?:/gmi,
+    featurePattern: /^Feature:/i,
+    scenarioPattern: /^Scenario(?: Outline)?:/i,
     featurePrefixes: ['Feature:'],
     scenarioPrefixes: ['Scenario:', 'Scenario Outline:'],
-    acceptancePattern: /^\s*Acceptance Criteria:/gmi,
+    acceptancePattern: /^Acceptance Criteria:/i,
     acceptanceLabel: 'Acceptance Criteria'
   };
 }
@@ -83,13 +86,78 @@ function hasRequiredTag(content, tagName) {
   return pattern.test(content);
 }
 
+function normalizeId(value) {
+  return String(value || '').replace(/\s+/g, '-').toUpperCase();
+}
+
+function idsFromText(value) {
+  return [...String(value || '').matchAll(idPattern)].map((match) => normalizeId(match[0]));
+}
+
+function caseIdsFromText(value) {
+  return [...String(value || '').matchAll(caseIdPattern)].map((match) => normalizeId(match[0]));
+}
+
+function caseIdsFromTags(model) {
+  const caseTagPattern = /^@(?:id|test|case|testrail):(.+)$/i;
+  return model.tags
+    .map(({ tag }) => tag.match(caseTagPattern)?.[1])
+    .filter(Boolean)
+    .map(normalizeId);
+}
+
+function parseFeature(content, language) {
+  const rules = languageRules(language);
+  const model = {
+    languageLine: '',
+    featureLines: [],
+    scenarioLines: [],
+    acceptanceLines: [],
+    tags: []
+  };
+
+  const lines = content.split(/\r?\n/);
+  for (let index = 0; index < lines.length; index += 1) {
+    const trimmed = lines[index].trim();
+    if (!trimmed) continue;
+    const line = index + 1;
+
+    if (trimmed.toLowerCase().startsWith('# language:')) {
+      model.languageLine = trimmed;
+      continue;
+    }
+    if (trimmed.startsWith('@')) {
+      for (const tag of trimmed.split(/\s+/).filter(Boolean)) model.tags.push({ line, tag });
+      continue;
+    }
+    if (rules.featurePattern.test(trimmed)) {
+      model.featureLines.push({ line, text: trimmed });
+      continue;
+    }
+    if (rules.scenarioPattern.test(trimmed)) {
+      model.scenarioLines.push({ line, text: trimmed });
+      continue;
+    }
+    if (rules.acceptancePattern.test(trimmed)) {
+      model.acceptanceLines.push({ line, text: trimmed });
+    }
+  }
+
+  return model;
+}
+
+function hasRequiredParsedTag(model, tagName) {
+  const prefix = `${tagName}:`;
+  return model.tags.some(({ tag }) => tag.toLowerCase().startsWith(prefix.toLowerCase()) && tag.length > prefix.length);
+}
+
 function validate(content, file, requiredTags, language) {
   const errors = [];
   const rules = languageRules(language);
-  const scenarios = content.match(rules.scenarioPattern) || [];
-  const featureLine = findAnyLine(content, rules.featurePrefixes);
-  const scenarioLine = findAnyLine(content, rules.scenarioPrefixes);
-  const languageLine = findLine(content, '# language:');
+  const parsed = parseFeature(content, language);
+  const featureLine = parsed.featureLines[0]?.text || findAnyLine(content, rules.featurePrefixes);
+  const scenarioLine = parsed.scenarioLines[0]?.text || findAnyLine(content, rules.scenarioPrefixes);
+  const languageLine = parsed.languageLine || findLine(content, '# language:');
 
   if (languageLine && !new RegExp(`#\\s*language:\\s*${rules.code}\\b`, 'i').test(languageLine)) {
     errors.push(`Feature declares a Gherkin language that does not match configured language "${rules.code}".`);
@@ -97,18 +165,51 @@ function validate(content, file, requiredTags, language) {
   if (rules.code === 'es' && !languageLine) {
     errors.push('Spanish Gherkin files must declare "# language: es".');
   }
-  if (!featureLine) errors.push('Missing Feature title.');
-  if (scenarios.length !== 1) errors.push(`Expected exactly one Scenario, found ${scenarios.length}.`);
-  if (!rules.acceptancePattern.test(content)) errors.push(`Missing ${rules.acceptanceLabel}.`);
+  if (parsed.featureLines.length !== 1) errors.push(`Expected exactly one Feature title, found ${parsed.featureLines.length}.`);
+  if (parsed.scenarioLines.length !== 1) errors.push(`Expected exactly one Scenario, found ${parsed.scenarioLines.length}.`);
+  if (parsed.acceptanceLines.length === 0) errors.push(`Missing ${rules.acceptanceLabel}.`);
 
   for (const tag of requiredTags.map(requiredTagName).filter(Boolean)) {
-    if (!hasRequiredTag(content, tag)) errors.push(`Missing required tag value ${tag}:<value>`);
+    if (!hasRequiredParsedTag(parsed, tag) && !hasRequiredTag(content, tag)) {
+      errors.push(`Missing required tag value ${tag}:<value>`);
+    }
   }
 
   if (featureLine && !rfPattern.test(featureLine)) errors.push('Feature title does not contain an RF-like ID.');
   if (scenarioLine && !rfPattern.test(scenarioLine)) errors.push('Scenario title does not contain an RF-like ID.');
   if (!rfPattern.test(path.basename(file))) errors.push('Feature filename does not contain an RF-like ID.');
 
+  return {
+    errors,
+    ids: [...new Set([
+      ...idsFromText(path.basename(file, '.feature')),
+      ...idsFromText(featureLine),
+      ...idsFromText(scenarioLine)
+    ])].sort(),
+    caseIds: [...new Set([
+      ...caseIdsFromText(path.basename(file, '.feature')),
+      ...caseIdsFromTags(parsed)
+    ])].sort()
+  };
+}
+
+function duplicateIdErrors(results) {
+  const byId = new Map();
+  for (const result of results) {
+    for (const id of result.caseIds) {
+      const current = byId.get(id) || [];
+      current.push(result.file);
+      byId.set(id, current);
+    }
+  }
+
+  const errors = [];
+  for (const [id, files] of byId.entries()) {
+    const uniqueFiles = [...new Set(files)];
+    if (uniqueFiles.length > 1) {
+      errors.push(`Duplicate test case identifier ${id} appears in: ${uniqueFiles.map((file) => relativeTo(cwd, file)).join(', ')}`);
+    }
+  }
   return errors;
 }
 
@@ -137,15 +238,29 @@ async function main() {
   }
 
   let totalErrors = 0;
+  const results = [];
   for (const file of files) {
     const content = await fs.readFile(file, 'utf8');
-    const errors = validate(content, file, tagNames, language);
-    if (errors.length === 0) {
+    const result = {
+      file,
+      ...validate(content, file, tagNames, language)
+    };
+    results.push(result);
+    if (result.errors.length === 0) {
       console.log(`[PASS] ${relativeTo(cwd, file)}`);
     } else {
-      totalErrors += errors.length;
+      totalErrors += result.errors.length;
       console.log(`[FAIL] ${relativeTo(cwd, file)}`);
-      for (const error of errors) console.log(`  - ${error}`);
+      for (const error of result.errors) console.log(`  - ${error}`);
+    }
+  }
+
+  if (!args['no-duplicates']) {
+    const duplicateErrors = duplicateIdErrors(results);
+    if (duplicateErrors.length > 0) {
+      totalErrors += duplicateErrors.length;
+      console.log('[FAIL] Duplicate identifier validation');
+      for (const error of duplicateErrors) console.log(`  - ${error}`);
     }
   }
 
