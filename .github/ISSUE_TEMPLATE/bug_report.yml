@@ -1,0 +1,53 @@
+name: Bug report
+description: Report a reproducible problem with QA FlowKit.
+title: "bug: "
+labels:
+  - bug
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What went wrong?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Include commands, flags, and relevant paths.
+      placeholder: |
+        1. Copy .qa-ai into a target repo
+        2. Run node .qa-ai/scripts/init.mjs
+        3. Run node .qa-ai/scripts/doctor.mjs
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, Node.js version, shell, and agent/tool if relevant.
+      placeholder: |
+        OS:
+        Node.js:
+        Shell:
+        Agent/tool:
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or output
+      render: shell
