@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "qa:init": "node .qa-ai/scripts/init.mjs",
+    "qa:config": "node .qa-ai/scripts/config.mjs",
     "qa:bootstrap": "node .qa-ai/scripts/bootstrap-agent-adapters.mjs",
     "qa:doctor": "node .qa-ai/scripts/doctor.mjs",
     "qa:clean": "node .qa-ai/scripts/clean.mjs",
@@ -22,7 +23,8 @@
     "webdriverio",
     "playwright",
     "codex",
-    "claude-code"
+    "claude-code",
+    "gemini-cli"
   ],
   "license": "MIT",
   "engines": {

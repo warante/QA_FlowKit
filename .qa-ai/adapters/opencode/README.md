@@ -10,6 +10,8 @@ Related docs: [main README](../../../README.md) | [agent compatibility](../../..
 |---|---|
 | `AGENTS.md` | Generic behavior and safety rules |
 | `qa-ai.config.yaml` | Project configuration |
+| `qa-ai-output/qa-knowledge-summary.md` | Team QA practice summary when `knowledge.enabled` is true |
+| `qa-ai-output/qa-init-decisions.md` | Approved context-based init decisions when `knowledge.enabled` is true |
 | `.qa-ai/rules/` | Mandatory workflow rules |
 | `.qa-ai/agents/README.md` | Agent loading protocol |
 | `.qa-ai/workflows/` | Task playbooks |
@@ -21,7 +23,13 @@ Agent files in `.qa-ai/agents/` are required role instructions for QA workflow p
 | Command | Purpose |
 |---|---|
 | `/qa-init` | Guided initialization |
+| `/qa-config` | Import or export reusable QA AI config profiles |
 | `/qa-full-flow` | End-to-end requirements-to-PR QA flow |
+| `/qa-add-tests` | Add tests for a new RF without disturbing existing tests |
+| `/qa-update-tests` | Review existing tests after RF changes and apply approved updates |
+| `/qa-automation-plan` | Classify existing `.feature` files and plan automation |
+| `/qa-coverage` | Analyze functional coverage across RFs, manual tests and automated tests |
+| `/qa-status` | Summarize config, artifacts, feature health and recommended next steps |
 | `/qa-doctor` | Setup health checks |
 | `/qa-clean` | Manifest-based cleanup preview/execution |
 | `/qa-validate-features` | Gherkin convention validation |
@@ -30,8 +38,11 @@ Agent files in `.qa-ai/agents/` are required role instructions for QA workflow p
 
 | Command | Purpose |
 |---|---|
+| `node .qa-ai/scripts/config.mjs --help` | Import/export reusable QA AI config profiles |
 | `node .qa-ai/scripts/doctor.mjs` | Check setup health |
 | `node .qa-ai/scripts/validate-features.mjs` | Validate `.feature` files |
 | `node .qa-ai/scripts/clean.mjs` | Preview cleanup before deleting generated files |
 
 Use `.qa-ai/workflows/full-flow.md` for end-to-end QA delivery and keep all external writes proposal-first.
+
+When initializing with a QA context folder, use `/qa-init --qa-context <path>` so OpenCode reads `.qa-ai/workflows/context-intake.md` before choosing defaults.

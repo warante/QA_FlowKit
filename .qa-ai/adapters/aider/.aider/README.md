@@ -17,6 +17,7 @@ Related docs: [main README](../../../../README.md) | [agent compatibility](../..
 
 | Aider Command | Purpose |
 |---|---|
+| `/run node .qa-ai/scripts/config.mjs --help` | Import/export reusable QA AI config profiles |
 | `/run node .qa-ai/scripts/doctor.mjs` | Check setup health |
 | `/run node .qa-ai/scripts/validate-features.mjs` | Validate `.feature` files after changes |
 | `/run node .qa-ai/scripts/clean.mjs` | Preview cleanup before removing generated files |

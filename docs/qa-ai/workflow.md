@@ -1,5 +1,27 @@
 # QA AI Workflow
 
+## Optional - QA context intake
+
+Use this before Step 1 when `knowledge.enabled` is true or when the user provides `--qa-context <path>`.
+
+Inputs:
+
+- Repository-local QA context folder.
+- `.qa-ai/workflows/context-intake.md`.
+- `.qa-ai/agents/qa-context-intake-agent.md`.
+
+Outputs:
+
+- `qa-ai-output/qa-knowledge-summary.md`
+- `qa-ai-output/qa-init-decisions.md`
+
+Requirements:
+
+- Separate documented practices from inferred practices.
+- Ask approval before applying inferred init defaults.
+- Do not write to external tools.
+- Future workflow steps must follow the approved QA context decisions unless they conflict with `.qa-ai/rules/`.
+
 ## Step 1 - Requirement intake and normalization
 
 Inputs:

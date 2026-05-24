@@ -14,6 +14,7 @@ Language: **English** | [Español](README.es.md)
 - [What It Does](#what-it-does)
 - [Quick Start](#quick-start)
 - [Agent-First Bootstrap](#agent-first-bootstrap)
+- [QA Context Folder](#qa-context-folder)
 - [Commands](#commands)
 - [Init Options](#init-options)
 - [Base Templates](#base-templates)
@@ -33,11 +34,12 @@ The starter does **not** perform external writes to configured tools in the MVP.
 | Area | Included |
 |---|---|
 | Framework | Portable `.qa-ai/` folder |
-| Scripts | `bootstrap-agent-adapters`, `init`, `doctor`, `clean`, `validate-features`, `smoke-test`, `sync-agent-adapters` |
+| Scripts | `bootstrap-agent-adapters`, `init`, `config`, `doctor`, `clean`, `validate-features`, `smoke-test`, `sync-agent-adapters` |
 | Rules | Approval, Gherkin, test management, automation, UI automation and API testing |
 | Agents | Phase agents plus active specialists from `.qa-ai/agents/specialists/active.md` |
 | Templates | Requirement analysis, test design, traceability, automation planning and PR summary |
-| Adapters | AGENTS.md, Claude Code, Codex, OpenCode, Cline, Continue, Aider and Goose |
+| QA context | Optional repo-local folder with team QA practices for agent-assisted init defaults |
+| Adapters | AGENTS.md, Claude Code, Codex, OpenCode, Cline, Continue, Aider, Goose and Gemini CLI |
 
 ```text
 Requirements
@@ -99,19 +101,64 @@ Advanced direct form:
 /qa-init --preset webdriverio-playwright-api --interface-language es --gherkin-language en --adapters claude,opencode
 ```
 
+## QA Context Folder
+
+For a more tailored setup, add a repository-local folder that documents how QA works for your team, then start init through an agent:
+
+```text
+/qa-init --qa-context qa-ai-knowledge
+```
+
+The agent reads `.qa-ai/workflows/context-intake.md`, summarizes the QA context, proposes default init flags, asks for approval, and then runs `init.mjs` with `--qa-context <path>`. The Node script records the approved folder in `qa-ai.config.yaml`; it does not interpret the documents itself.
+
+When enabled, future QA workflows should read the configured knowledge artifacts before planning:
+
+```text
+qa-ai-output/qa-knowledge-summary.md
+qa-ai-output/qa-init-decisions.md
+```
+
 ## Commands
 
 | Command | Purpose |
 |---|---|
 | `node .qa-ai/scripts/bootstrap-agent-adapters.mjs --agents claude,opencode` | Copy minimal root slash commands for agent-first setup |
 | `node .qa-ai/scripts/init.mjs` | Generate the minimum config, folders and OpenCode adapter |
+| `node .qa-ai/scripts/init.mjs --qa-context qa-ai-knowledge` | Record a QA context folder for agent-assisted defaults |
+| `node .qa-ai/scripts/config.mjs --export .qa-ai/config-profiles/team.yaml` | Export the current config as a reusable profile |
+| `node .qa-ai/scripts/config.mjs --import .qa-ai/config-profiles/team.yaml` | Import a reusable config profile |
 | `node .qa-ai/scripts/sync-agent-adapters.mjs --adapters all` | Sync selected adapter templates |
 | `node .qa-ai/scripts/doctor.mjs` | Check setup health |
 | `node .qa-ai/scripts/validate-features.mjs` | Validate generated `.feature` files |
 | `node .qa-ai/scripts/smoke-test.mjs` | Run maintainer smoke checks |
 | `node .qa-ai/scripts/clean.mjs` | Preview cleanup of generated artifacts |
 
-`init.mjs` never overwrites existing files unless `--force` is passed. `validate-features.mjs` fails when no `.feature` files are found; use `--allow-empty` only for source-repo smoke checks or other cases where an empty feature folder is expected.
+Claude Code and OpenCode adapters also provide guided slash commands:
+
+| Slash Command | Purpose |
+|---|---|
+| `/qa-init` | Guided initialization |
+| `/qa-config` | Import or export reusable QA AI config profiles |
+| `/qa-full-flow` | End-to-end requirements-to-PR QA flow |
+| `/qa-add-tests` | Add tests for a new RF without disturbing existing tests |
+| `/qa-update-tests` | Review existing tests after RF changes and apply approved updates |
+| `/qa-automation-plan` | Classify existing `.feature` files and plan automation |
+| `/qa-coverage` | Analyze functional coverage across RFs, manual tests and automated tests |
+| `/qa-status` | Summarize config, artifacts, feature health and recommended next steps |
+| `/qa-doctor` | Setup health checks |
+| `/qa-clean` | Manifest-based cleanup preview/execution |
+| `/qa-validate-features` | Gherkin convention validation |
+
+`init.mjs` and `config.mjs --import` never overwrite existing files unless `--force` is passed. `validate-features.mjs` fails when no `.feature` files are found; use `--allow-empty` only for source-repo smoke checks or other cases where an empty feature folder is expected.
+
+To reuse the same setup across repositories with the same structure, export a profile from the configured repository and import it in the next one:
+
+```bash
+node .qa-ai/scripts/config.mjs --export .qa-ai/config-profiles/team.yaml
+node .qa-ai/scripts/config.mjs --import .qa-ai/config-profiles/team.yaml
+```
+
+Importing a profile writes `qa-ai.config.yaml`, creates the configured folders and refreshes `.qa-ai/agents/specialists/active.md`. Use `--no-structure` when you only want to copy the YAML.
 
 ## Init Options
 
@@ -125,7 +172,8 @@ Advanced direct form:
 | `--requirements-source <name>` | `markdown`, `jira`, `confluence`, `pasted-text`, custom value | Base template value | Sets the primary requirement source |
 | `--test-management-tool <name>` | `none`, `testrail`, `zephyr`, `xray`, custom value | Base template value | Sets the configured test management tool |
 | `--issue-tracker <name>` | `none`, `jira`, `github`, custom value | Base template value | Sets the configured issue tracker |
-| `--adapters <list>` | `all`, `generic`, `codex`, `claude`, `opencode`, `cline`, `continue`, `aider`, `goose` | `opencode` | Selects generated agent adapters |
+| `--qa-context <path>` | repo-local folder | off | Enables QA knowledge context for agent-assisted init |
+| `--adapters <list>` | `all`, `generic`, `codex`, `claude`, `opencode`, `cline`, `continue`, `aider`, `goose`, `gemini` | `opencode` | Selects generated agent adapters |
 | `--no-adapters` | flag | off | Skips adapter generation |
 | `--with-doc-templates` | flag | off | Generates starter Markdown artifacts under `qa-ai-output/` |
 | `--with-test-management-mapping` | flag | off | Creates the configured test management mapping file |
@@ -136,7 +184,7 @@ Advanced framework and path overrides:
 | Option | Example Values | Purpose |
 |---|---|---|
 | `--ui-framework <name>` | `none`, `undecided`, `webdriverio`, `playwright`, `cypress`, `selenium` | Overrides the UI/E2E framework from the base template |
-| `--api-framework <name>` | `none`, `undecided`, `playwright-api`, `postman`, `rest-assured`, `supertest` | Overrides the API/integration framework from the base template |
+| `--api-framework <name>` | `none`, `undecided`, `playwright-api`, `postman`, `rest-assured`, `karate` | Overrides the API/integration framework from the base template |
 | `--ui-specs-path <path>` | `tests/wdio/specs` | Overrides the UI specs path |
 | `--ui-page-objects-path <path>` | `tests/wdio/pageobjects` | Overrides the UI page objects path |
 | `--api-specs-path <path>` | `tests/api/specs` | Overrides the API specs path |
@@ -157,6 +205,9 @@ node .qa-ai/scripts/init.mjs --adapters generic,codex
 
 # Generate starter QA artifact templates too
 node .qa-ai/scripts/init.mjs --with-doc-templates
+
+# Record a QA context folder after the agent has reviewed it
+node .qa-ai/scripts/init.mjs --qa-context qa-ai-knowledge
 
 # Generate every supported adapter
 node .qa-ai/scripts/init.mjs --adapters all
@@ -186,6 +237,7 @@ The `--preset` flag name is kept for CLI compatibility, but conceptually these a
 | Continue | `.continue/` | Review/check guidance |
 | Aider | `.aider.conf.yml`, `.aider/` | Read list and command notes |
 | Goose | `.goose/` | Workflow recipe |
+| Gemini CLI | `GEMINI.md` | Gemini CLI project context |
 
 ## Generated Structure
 
@@ -193,6 +245,8 @@ The `--preset` flag name is kept for CLI compatibility, but conceptually these a
 qa-ai.config.yaml
 .opencode/
 qa-ai-output/
+qa-ai-output/qa-knowledge-summary.md       # Optional, written by agent-assisted QA context intake
+qa-ai-output/qa-init-decisions.md          # Optional, written by agent-assisted QA context intake
 features/
 tests/
 
@@ -206,6 +260,7 @@ AGENTS.md
 .aider.conf.yml
 .aider/
 .goose/
+GEMINI.md
 ```
 
 Default init creates only the minimum useful files and folders. It does not create starter `qa-ai-output/*.md` artifacts unless `--with-doc-templates` is passed, and it generates only the OpenCode adapter unless `--adapters` requests more.

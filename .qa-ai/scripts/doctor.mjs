@@ -6,12 +6,14 @@ const cwd = process.cwd();
 
 const requiredScripts = [
   '.qa-ai/scripts/init.mjs',
+  '.qa-ai/scripts/config.mjs',
   '.qa-ai/scripts/doctor.mjs',
   '.qa-ai/scripts/bootstrap-agent-adapters.mjs',
   '.qa-ai/scripts/clean.mjs',
   '.qa-ai/scripts/validate-features.mjs',
   '.qa-ai/scripts/smoke-test.mjs',
   '.qa-ai/scripts/sync-agent-adapters.mjs',
+  '.qa-ai/scripts/lib/project-config.mjs',
   '.qa-ai/scripts/lib/utils.mjs'
 ];
 
@@ -42,6 +44,7 @@ const requiredAgents = [
   '.qa-ai/agents/api-testing-agent.md',
   '.qa-ai/agents/automation-feasibility-agent.md',
   '.qa-ai/agents/gherkin-test-design-agent.md',
+  '.qa-ai/agents/qa-context-intake-agent.md',
   '.qa-ai/agents/jira-task-agent.md',
   '.qa-ai/agents/pr-agent.md',
   '.qa-ai/agents/qa-workflow-orchestrator.md',
@@ -76,6 +79,7 @@ const requiredPresets = [
 const requiredWorkflows = [
   '.qa-ai/workflows/automation-analysis.md',
   '.qa-ai/workflows/cleanup.md',
+  '.qa-ai/workflows/context-intake.md',
   '.qa-ai/workflows/full-flow.md',
   '.qa-ai/workflows/implementation.md',
   '.qa-ai/workflows/intake.md',
@@ -88,10 +92,16 @@ const requiredAdapterTemplates = [
   '.qa-ai/adapters/aider/.aider.conf.yml',
   '.qa-ai/adapters/aider/.aider/README.md',
   '.qa-ai/adapters/claude/agents/qa-workflow-orchestrator.md',
+  '.qa-ai/adapters/claude/commands/qa-add-tests.md',
+  '.qa-ai/adapters/claude/commands/qa-automation-plan.md',
   '.qa-ai/adapters/claude/commands/qa-clean.md',
+  '.qa-ai/adapters/claude/commands/qa-config.md',
+  '.qa-ai/adapters/claude/commands/qa-coverage.md',
   '.qa-ai/adapters/claude/commands/qa-doctor.md',
   '.qa-ai/adapters/claude/commands/qa-full-flow.md',
   '.qa-ai/adapters/claude/commands/qa-init.md',
+  '.qa-ai/adapters/claude/commands/qa-status.md',
+  '.qa-ai/adapters/claude/commands/qa-update-tests.md',
   '.qa-ai/adapters/claude/commands/qa-validate-features.md',
   '.qa-ai/adapters/cline/.clinerules',
   '.qa-ai/adapters/cline/.cline/README.md',
@@ -100,13 +110,20 @@ const requiredAdapterTemplates = [
   '.qa-ai/adapters/continue/README.md',
   '.qa-ai/adapters/continue/checks/qa-feature-conventions.md',
   '.qa-ai/adapters/generic/AGENTS.md',
+  '.qa-ai/adapters/gemini/GEMINI.md',
   '.qa-ai/adapters/goose/recipes/qa-ai-workflow.yaml',
   '.qa-ai/adapters/opencode/README.md',
   '.qa-ai/adapters/opencode/agents/qa-workflow.md',
+  '.qa-ai/adapters/opencode/commands/qa-add-tests.md',
+  '.qa-ai/adapters/opencode/commands/qa-automation-plan.md',
   '.qa-ai/adapters/opencode/commands/qa-clean.md',
+  '.qa-ai/adapters/opencode/commands/qa-config.md',
+  '.qa-ai/adapters/opencode/commands/qa-coverage.md',
   '.qa-ai/adapters/opencode/commands/qa-doctor.md',
   '.qa-ai/adapters/opencode/commands/qa-full-flow.md',
   '.qa-ai/adapters/opencode/commands/qa-init.md',
+  '.qa-ai/adapters/opencode/commands/qa-status.md',
+  '.qa-ai/adapters/opencode/commands/qa-update-tests.md',
   '.qa-ai/adapters/opencode/commands/qa-validate-features.md'
 ];
 
@@ -119,7 +136,8 @@ const generatedAdapters = [
   ['Continue adapter', '.continue'],
   ['Aider config', '.aider.conf.yml'],
   ['Aider docs', '.aider'],
-  ['Goose recipe', '.goose/recipes/qa-ai-workflow.yaml']
+  ['Goose recipe', '.goose/recipes/qa-ai-workflow.yaml'],
+  ['Gemini context', 'GEMINI.md']
 ];
 
 function pathCheck(level, label, relPath) {
@@ -135,6 +153,10 @@ function isConfiguredFramework(value) {
   return Boolean(normalized) && !['none', 'undecided', 'manual', 'n/a', 'na'].includes(normalized);
 }
 
+function isEnabled(value) {
+  return value === true || String(value || '').trim().toLowerCase() === 'true';
+}
+
 function addConfiguredChecks(checks, config) {
   const featurePath = getConfigValue(config, 'gherkin.featurePath', 'features');
   const matrixPath = getConfigValue(config, 'traceability.matrixPath', 'qa-ai-output/traceability-matrix.md');
@@ -144,11 +166,21 @@ function addConfiguredChecks(checks, config) {
   const uiPageObjectsPath = getConfigValue(config, 'automation.ui.pageObjectsPath', '');
   const apiFramework = String(getConfigValue(config, 'automation.api.framework', 'none')).toLowerCase();
   const apiSpecsPath = getConfigValue(config, 'automation.api.specsPath', '');
+  const knowledgeEnabled = isEnabled(getConfigValue(config, 'knowledge.enabled', false));
+  const knowledgeSourcePath = getConfigValue(config, 'knowledge.sourcePath', '');
+  const knowledgeSummaryPath = getConfigValue(config, 'knowledge.summaryPath', 'qa-ai-output/qa-knowledge-summary.md');
+  const knowledgeDecisionsPath = getConfigValue(config, 'knowledge.decisionsPath', 'qa-ai-output/qa-init-decisions.md');
 
   checks.push(pathCheck('required', 'configured feature root', featurePath));
   checks.push(pathCheck('required', 'configured QA output path', path.dirname(matrixPath)));
   checks.push(pathCheck('optional', 'configured traceability matrix', matrixPath));
   if (mappingFile) checks.push(pathCheck('optional', 'configured test management mapping file', mappingFile));
+
+  if (knowledgeEnabled) {
+    checks.push(pathCheck('required', 'configured QA context folder', knowledgeSourcePath));
+    if (knowledgeSummaryPath) checks.push(pathCheck('optional', 'QA context summary artifact', knowledgeSummaryPath));
+    if (knowledgeDecisionsPath) checks.push(pathCheck('optional', 'QA init decisions artifact', knowledgeDecisionsPath));
+  }
 
   if (isConfiguredFramework(uiFramework)) {
     if (uiSpecsPath) checks.push(pathCheck('required', 'configured UI specs path', uiSpecsPath));

@@ -14,6 +14,7 @@ Implement and maintain a reusable repo-first workflow that helps QA teams move f
 
 - Read this file before making changes.
 - Read `qa-ai.config.yaml` when present.
+- When `knowledge.enabled` is true, read the configured QA knowledge summary and init decisions artifacts before QA workflow work.
 - Read `.qa-ai/rules/` before changing workflow behavior.
 - Read `.qa-ai/agents/README.md` before QA workflow work; then load the matching phase agent and active specialists listed in `.qa-ai/agents/specialists/active.md`.
 - Present a plan before modifying files.
@@ -57,6 +58,8 @@ qa-ai.config.yaml
 .opencode/
 .opencode/commands/qa-init.md
 qa-ai-output/
+qa-ai-output/qa-knowledge-summary.md
+qa-ai-output/qa-init-decisions.md
 features/
 tests/
 ```
@@ -71,6 +74,7 @@ AGENTS.md
 .continue/
 .aider.conf.yml
 .goose/
+GEMINI.md
 .claude/commands/qa-init.md
 ```
 

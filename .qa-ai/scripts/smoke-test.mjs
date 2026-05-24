@@ -36,7 +36,10 @@ async function main() {
   const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-ai-starter-smoke-'));
   let unsafeRoot = null;
   let defaultTarget = null;
+  let geminiTarget = null;
+  let qaContextTarget = null;
   let optionalDocsTarget = null;
+  let importProfileTarget = null;
   try {
     await copyFramework(tempRoot);
 
@@ -57,6 +60,41 @@ async function main() {
     if (config.automation.api.specsPath !== 'tests/api/specs') {
       throw new Error(`Expected preset API path tests/api/specs, got ${config.automation.api.specsPath}`);
     }
+
+    run(tempRoot, [
+      '.qa-ai/scripts/config.mjs',
+      '--export', '.qa-ai/config-profiles/team.yaml'
+    ]);
+    importProfileTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-ai-starter-import-'));
+    await copyFramework(importProfileTarget);
+    await fs.mkdir(path.join(importProfileTarget, '.qa-ai/config-profiles'), { recursive: true });
+    await fs.copyFile(
+      path.join(tempRoot, '.qa-ai/config-profiles/team.yaml'),
+      path.join(importProfileTarget, '.qa-ai/config-profiles/team.yaml')
+    );
+    run(importProfileTarget, [
+      '.qa-ai/scripts/config.mjs',
+      '--import', '.qa-ai/config-profiles/team.yaml'
+    ]);
+    const importedConfig = parseSimpleYaml(await readText(path.join(importProfileTarget, 'qa-ai.config.yaml')));
+    if (importedConfig.automation.ui.specsPath !== 'tests/wdio/specs') {
+      throw new Error(`Imported config did not preserve UI specs path, got ${importedConfig.automation.ui.specsPath}`);
+    }
+    const expectedImportPaths = [
+      '.qa-ai/agents/specialists/active.md',
+      'features',
+      'qa-ai-output',
+      'tests/wdio/specs',
+      'tests/api/specs'
+    ];
+    for (const relPath of expectedImportPaths) {
+      try {
+        await fs.access(path.join(importProfileTarget, relPath));
+      } catch {
+        throw new Error(`Config import did not create expected path: ${relPath}`);
+      }
+    }
+
     defaultTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-ai-starter-default-'));
     await copyFramework(defaultTarget);
     run(defaultTarget, ['.qa-ai/scripts/init.mjs']);
@@ -87,6 +125,45 @@ async function main() {
       } catch (error) {
         if (error.code !== 'ENOENT') throw error;
       }
+    }
+
+    geminiTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-ai-starter-gemini-'));
+    await copyFramework(geminiTarget);
+    run(geminiTarget, [
+      '.qa-ai/scripts/init.mjs',
+      '--adapters', 'gemini'
+    ]);
+    const expectedGeminiPaths = [
+      'AGENTS.md',
+      'GEMINI.md'
+    ];
+    for (const relPath of expectedGeminiPaths) {
+      try {
+        await fs.access(path.join(geminiTarget, relPath));
+      } catch {
+        throw new Error(`Gemini adapter init did not create expected path: ${relPath}`);
+      }
+    }
+
+    qaContextTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-ai-starter-context-'));
+    await copyFramework(qaContextTarget);
+    await fs.mkdir(path.join(qaContextTarget, 'qa-ai-knowledge'), { recursive: true });
+    await fs.writeFile(
+      path.join(qaContextTarget, 'qa-ai-knowledge', 'qa-process.md'),
+      '# QA Process\n\nUse Jira, TestRail and English Gherkin.\n',
+      'utf8'
+    );
+    run(qaContextTarget, [
+      '.qa-ai/scripts/init.mjs',
+      '--qa-context', 'qa-ai-knowledge',
+      '--no-adapters'
+    ]);
+    const qaContextConfig = parseSimpleYaml(await readText(path.join(qaContextTarget, 'qa-ai.config.yaml')));
+    if (qaContextConfig.knowledge.enabled !== true) {
+      throw new Error('QA context init did not enable knowledge config.');
+    }
+    if (qaContextConfig.knowledge.sourcePath !== 'qa-ai-knowledge') {
+      throw new Error(`QA context init did not preserve sourcePath, got ${qaContextConfig.knowledge.sourcePath}`);
     }
 
     optionalDocsTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-ai-starter-docs-'));
@@ -133,13 +210,22 @@ async function main() {
       '--set', 'traceability.matrixPath=../traceability.md',
       '--no-adapters'
     ], { expectFailure: true });
+    run(unsafeRoot, [
+      '.qa-ai/scripts/init.mjs',
+      '--preset', 'manual-only',
+      '--qa-context', '../qa-knowledge',
+      '--no-adapters'
+    ], { expectFailure: true });
 
     console.log('Smoke tests passed.');
   } finally {
     await fs.rm(tempRoot, { recursive: true, force: true });
     if (unsafeRoot) await fs.rm(unsafeRoot, { recursive: true, force: true });
     if (defaultTarget) await fs.rm(defaultTarget, { recursive: true, force: true });
+    if (geminiTarget) await fs.rm(geminiTarget, { recursive: true, force: true });
+    if (qaContextTarget) await fs.rm(qaContextTarget, { recursive: true, force: true });
     if (optionalDocsTarget) await fs.rm(optionalDocsTarget, { recursive: true, force: true });
+    if (importProfileTarget) await fs.rm(importProfileTarget, { recursive: true, force: true });
   }
 }
 

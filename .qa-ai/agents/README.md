@@ -4,19 +4,23 @@ This directory contains Markdown role instructions for the QA AI workflow. Some 
 
 Related docs: [main README](../../README.md) | [workflow](../../docs/qa-ai/workflow.md) | [agent compatibility](../../docs/qa-ai/agent-compatibility.md)
 
+Reusable repository configuration profiles can be imported or exported with `node .qa-ai/scripts/config.mjs`; after import, reload `qa-ai.config.yaml` and `.qa-ai/agents/specialists/active.md`.
+
 ## Load Order
 
 | Order | File | Purpose |
 |---|---|---|
 | 1 | `.qa-ai/agents/qa-workflow-orchestrator.md` | Coordinates the full QA flow |
-| 2 | `.qa-ai/agents/specialists/active.md` when present | Lists active specialists for the current config |
-| 3 | Files listed in `active.md` | Adds tool/framework-specific guidance |
-| 4 | Matching phase agent | Applies phase-specific rules |
+| 2 | `knowledge.summaryPath` / `knowledge.decisionsPath` when `knowledge.enabled` is true | Adds team QA working-practice guidance |
+| 3 | `.qa-ai/agents/specialists/active.md` when present | Lists active specialists for the current config |
+| 4 | Files listed in `active.md` | Adds tool/framework-specific guidance |
+| 5 | Matching phase agent | Applies phase-specific rules |
 
 ## Phase Agents
 
 | Phase | Agent File |
 |---|---|
+| QA context intake | `.qa-ai/agents/qa-context-intake-agent.md` |
 | Requirements intake | `.qa-ai/agents/requirements-intake-agent.md` |
 | Requirements normalization | `.qa-ai/agents/requirements-normalization-agent.md` |
 | Gherkin test design | `.qa-ai/agents/gherkin-test-design-agent.md` |
