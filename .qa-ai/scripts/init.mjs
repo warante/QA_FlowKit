@@ -89,6 +89,10 @@ function scalarOverrideValue(value) {
   return yamlScalar(String(value));
 }
 
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 function selectedQaContextPath() {
   const values = commaList(args['qa-context'] || args.qaContext || args['qa-context-path'] || args.qaContextPath);
   if (values.length === 0) return null;
@@ -109,7 +113,7 @@ function setSimpleYamlScalar(content, keyPath, value) {
 
   for (let depth = 0; depth < parts.length - 1; depth += 1) {
     const key = parts[depth];
-    const pattern = new RegExp(`^(\\s*)${key}:\\s*$`);
+    const pattern = new RegExp(`^(\\s*)${escapeRegExp(key)}:\\s*$`);
     let foundIndex = -1;
     let foundIndent = -1;
     for (let i = searchStart; i < lines.length; i += 1) {
@@ -130,7 +134,7 @@ function setSimpleYamlScalar(content, keyPath, value) {
   }
 
   const target = parts.at(-1);
-  const targetPattern = new RegExp(`^(\\s*)${target}:\\s*.*$`);
+  const targetPattern = new RegExp(`^(\\s*)${escapeRegExp(target)}:\\s*.*$`);
   for (let i = searchStart; i < lines.length; i += 1) {
     const line = lines[i];
     if (!line.trim() || line.trim().startsWith('#')) continue;
