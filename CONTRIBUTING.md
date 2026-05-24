@@ -17,7 +17,8 @@ Thanks for contributing to QA AI Starter.
 2. Create a branch from `main`.
 3. Add or update documentation when behavior changes.
 4. Add validation logic when adding a new rule.
-5. Open a PR with a clear summary and manual validation steps.
+5. Run `npm run validate:oss-extraction` locally (same checks as the GitHub Actions CI workflow).
+6. Open a PR with a clear summary and manual validation steps.
 
 ## Commit style
 
