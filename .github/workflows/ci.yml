@@ -1,0 +1,74 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate starter
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Check dependency policy
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+          const dependencyGroups = [
+            'dependencies',
+            'devDependencies',
+            'optionalDependencies',
+            'peerDependencies'
+          ];
+          const dependencies = dependencyGroups.flatMap((group) => (
+            Object.entries(pkg[group] || {}).map(([name, spec]) => ({ group, name, spec: String(spec) }))
+          ));
+          const unsafeSpecs = dependencies.filter(({ spec }) => /^(?:git\+?|https?:|file:|link:)/i.test(spec));
+          if (unsafeSpecs.length > 0) {
+            console.error('Unsafe dependency specifiers are not allowed in this portable starter:');
+            for (const item of unsafeSpecs) {
+              console.error(`- ${item.group}.${item.name}: ${item.spec}`);
+            }
+            process.exit(1);
+          }
+          if (dependencies.length === 0) {
+            console.log('No package dependencies declared; npm audit is not required.');
+            process.exit(0);
+          }
+          if (!fs.existsSync('package-lock.json')) {
+            console.error('Dependencies are declared, but package-lock.json is missing.');
+            console.error('Add a committed lockfile so CI can run npm ci and npm audit reproducibly.');
+            process.exit(1);
+          }
+          console.log(`Dependency policy passed for ${dependencies.length} declared dependencies.`);
+          NODE
+
+      - name: Install dependencies
+        if: ${{ hashFiles('package-lock.json') != '' }}
+        run: npm ci --ignore-scripts
+
+      - name: Audit dependencies
+        if: ${{ hashFiles('package-lock.json') != '' }}
+        run: npm audit --audit-level=low
+
+      - name: Check script syntax
+        run: |
+          find .qa-ai/scripts -name '*.mjs' -print0 | xargs -0 -n1 node --check
+
+      - name: Run starter validation and smoke tests
+        run: npm run validate:oss-extraction

@@ -4,6 +4,7 @@
 [![Node.js 20+](https://img.shields.io/badge/node.js-20%2B-339933.svg)](package.json)
 [![Status: MVP](https://img.shields.io/badge/status-MVP-blue.svg)](ROADMAP.md)
 [![Workflow: QA AI](https://img.shields.io/badge/workflow-QA%20AI-6f42c1.svg)](docs/qa-ai/workflow.md)
+[![CI](https://github.com/warante/QA_FlowKit/actions/workflows/ci.yml/badge.svg)](https://github.com/warante/QA_FlowKit/actions/workflows/ci.yml)
 
 Portable open-source starter kit for adding an AI-assisted QA workflow to an existing QA or automation repository.
 
@@ -131,6 +132,7 @@ qa-ai-output/qa-init-decisions.md
 | `node .qa-ai/scripts/doctor.mjs` | Check setup health |
 | `node .qa-ai/scripts/validate-features.mjs` | Validate generated `.feature` files |
 | `node .qa-ai/scripts/smoke-test.mjs` | Run maintainer smoke checks |
+| `npm run validate:oss-extraction` | Run doctor, feature validation (`--allow-empty`) and smoke tests (same as CI) |
 | `node .qa-ai/scripts/clean.mjs` | Preview cleanup of generated artifacts |
 
 Claude Code and OpenCode adapters also provide guided slash commands:
