@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 import path from 'node:path';
-import { getConfigValue, loadQaAiConfig, pathExists, resolveRepoPath, logHeader } from './lib/utils.mjs';
+import { getConfigValue, loadQaAiConfig, parseArgs, pathExists, resolveRepoPath, logHeader } from './lib/utils.mjs';
 
 const cwd = process.cwd();
+const args = parseArgs(process.argv);
+const strict = Boolean(args.strict);
 
 const requiredScripts = [
   '.qa-ai/scripts/init.mjs',
@@ -14,9 +16,13 @@ const requiredScripts = [
   '.qa-ai/scripts/validate-traceability.mjs',
   '.qa-ai/scripts/validate-sync-plan.mjs',
   '.qa-ai/scripts/validate-active-specialists.mjs',
+  '.qa-ai/scripts/validate-target.mjs',
+  '.qa-ai/scripts/test-validators.mjs',
   '.qa-ai/scripts/smoke-test.mjs',
   '.qa-ai/scripts/sync-agent-adapters.mjs',
+  '.qa-ai/scripts/lib/markdown-table.mjs',
   '.qa-ai/scripts/lib/project-config.mjs',
+  '.qa-ai/scripts/lib/test-management-mapping.mjs',
   '.qa-ai/scripts/lib/utils.mjs'
 ];
 
@@ -38,6 +44,7 @@ const requiredTemplates = [
   '.qa-ai/templates/requirement-analysis.template.md',
   '.qa-ai/templates/test-design-proposal.template.md',
   '.qa-ai/templates/testrail-coverage-analysis.template.md',
+  '.qa-ai/templates/test-management-mapping.template.json',
   '.qa-ai/templates/testrail-sync-plan.template.md',
   '.qa-ai/templates/traceability-matrix.template.md'
 ];
@@ -160,6 +167,41 @@ function isEnabled(value) {
   return value === true || String(value || '').trim().toLowerCase() === 'true';
 }
 
+function checkLevel(defaultLevel) {
+  return strict && defaultLevel === 'optional' ? 'required' : defaultLevel;
+}
+
+function isConfiguredTool(value) {
+  const normalized = String(value || '').trim().toLowerCase();
+  return Boolean(normalized) && !['none', 'undecided', 'n/a', 'na'].includes(normalized);
+}
+
+function addWorkflowArtifactChecks(checks, config) {
+  const testManagementTool = getConfigValue(config, 'tools.testManagement', '');
+  const issueTracker = getConfigValue(config, 'tools.issueTracker', '');
+  const uiFramework = getConfigValue(config, 'automation.ui.framework', 'none');
+  const apiFramework = getConfigValue(config, 'automation.api.framework', 'none');
+  const hasAutomation = isConfiguredFramework(uiFramework) || isConfiguredFramework(apiFramework);
+
+  checks.push(pathCheck(checkLevel('optional'), 'requirement analysis artifact', 'qa-ai-output/requirement-analysis.md'));
+  checks.push(pathCheck(checkLevel('optional'), 'test design proposal artifact', 'qa-ai-output/test-design-proposal.md'));
+  checks.push(pathCheck(checkLevel('optional'), 'PR summary artifact', 'qa-ai-output/pr-summary.md'));
+
+  if (isConfiguredTool(testManagementTool)) {
+    checks.push(pathCheck(checkLevel('optional'), 'test management coverage artifact', 'qa-ai-output/testrail-coverage-analysis.md'));
+    checks.push(pathCheck(checkLevel('optional'), 'test management sync plan artifact', 'qa-ai-output/testrail-sync-plan.md'));
+  }
+
+  if (hasAutomation) {
+    checks.push(pathCheck(checkLevel('optional'), 'automation feasibility artifact', 'qa-ai-output/automation-feasibility-report.md'));
+    checks.push(pathCheck(checkLevel('optional'), 'automation implementation plan artifact', 'qa-ai-output/automation-implementation-plan.md'));
+  }
+
+  if (isConfiguredTool(issueTracker)) {
+    checks.push(pathCheck(checkLevel('optional'), 'issue tracker task draft artifact', 'qa-ai-output/jira-automation-task.md'));
+  }
+}
+
 function addConfiguredChecks(checks, config) {
   const featurePath = getConfigValue(config, 'gherkin.featurePath', 'features');
   const matrixPath = getConfigValue(config, 'traceability.matrixPath', 'qa-ai-output/traceability-matrix.md');
@@ -176,13 +218,14 @@ function addConfiguredChecks(checks, config) {
 
   checks.push(pathCheck('required', 'configured feature root', featurePath));
   checks.push(pathCheck('required', 'configured QA output path', path.dirname(matrixPath)));
-  checks.push(pathCheck('optional', 'configured traceability matrix', matrixPath));
-  if (mappingFile) checks.push(pathCheck('optional', 'configured test management mapping file', mappingFile));
+  checks.push(pathCheck(checkLevel('optional'), 'configured traceability matrix', matrixPath));
+  if (mappingFile) checks.push(pathCheck(checkLevel('optional'), 'configured test management mapping file', mappingFile));
+  addWorkflowArtifactChecks(checks, config);
 
   if (knowledgeEnabled) {
     checks.push(pathCheck('required', 'configured QA context folder', knowledgeSourcePath));
-    if (knowledgeSummaryPath) checks.push(pathCheck('optional', 'QA context summary artifact', knowledgeSummaryPath));
-    if (knowledgeDecisionsPath) checks.push(pathCheck('optional', 'QA init decisions artifact', knowledgeDecisionsPath));
+    if (knowledgeSummaryPath) checks.push(pathCheck(checkLevel('optional'), 'QA context summary artifact', knowledgeSummaryPath));
+    if (knowledgeDecisionsPath) checks.push(pathCheck(checkLevel('optional'), 'QA init decisions artifact', knowledgeDecisionsPath));
   }
 
   if (isConfiguredFramework(uiFramework)) {
@@ -195,7 +238,7 @@ function addConfiguredChecks(checks, config) {
   }
 
   if (uiFramework === 'webdriverio') {
-    checks.push(anyPathCheck('optional', 'WebdriverIO config', [
+    checks.push(anyPathCheck(checkLevel('optional'), 'WebdriverIO config', [
       'wdio.conf.ts',
       'wdio.conf.js',
       'wdio.conf.mjs',
@@ -204,20 +247,20 @@ function addConfiguredChecks(checks, config) {
   }
 
   if (uiFramework === 'selenium-jest-browserstack' || uiFramework === 'selenium') {
-    checks.push(anyPathCheck('optional', 'Jest config', [
+    checks.push(anyPathCheck(checkLevel('optional'), 'Jest config', [
       'jest.config.ts',
       'jest.config.js',
       'jest.config.mjs',
       'jest.config.cjs'
     ]));
-    checks.push(anyPathCheck('optional', 'BrowserStack config', [
+    checks.push(anyPathCheck(checkLevel('optional'), 'BrowserStack config', [
       'browserstack.yml',
       'browserstack.yaml'
     ]));
   }
 
   if (apiFramework === 'playwright-api' || apiFramework === 'playwright') {
-    checks.push(anyPathCheck('optional', 'Playwright API config', [
+    checks.push(anyPathCheck(checkLevel('optional'), 'Playwright API config', [
       'playwright.api.config.ts',
       'playwright.api.config.js',
       'playwright.config.ts',
@@ -250,10 +293,11 @@ function describePaths(paths, any = false) {
 }
 
 async function main() {
-  logHeader('QA AI Starter doctor');
+  logHeader(`QA AI Starter doctor${strict ? ' --strict' : ''}`);
   const configInfo = await loadQaAiConfig(cwd);
   const isFrameworkSourceRepo = await pathExists(path.join(cwd, 'docs/qa-ai/architecture.md'));
-  const configLevel = isFrameworkSourceRepo ? 'optional' : 'required';
+  const configLevel = isFrameworkSourceRepo && !strict ? 'optional' : 'required';
+  const genericInstructionsLevel = isFrameworkSourceRepo ? 'required' : 'optional';
   const checks = [
     pathCheck(configLevel, 'config', 'qa-ai.config.yaml'),
     pathCheck('required', 'framework folder', '.qa-ai'),
@@ -263,7 +307,7 @@ async function main() {
     pathCheck('required', 'scripts folder', '.qa-ai/scripts'),
     pathCheck('required', 'presets folder', '.qa-ai/presets'),
     pathCheck('required', 'adapters folder', '.qa-ai/adapters'),
-    pathCheck('required', 'generic agent instructions', 'AGENTS.md'),
+    pathCheck(genericInstructionsLevel, 'generic agent instructions', 'AGENTS.md'),
     ...requiredScripts.map((relPath) => pathCheck('required', `script ${path.basename(relPath)}`, relPath)),
     ...requiredRules.map((relPath) => pathCheck('required', `rule ${path.basename(relPath)}`, relPath)),
     ...requiredTemplates.map((relPath) => pathCheck('required', `template ${path.basename(relPath)}`, relPath)),

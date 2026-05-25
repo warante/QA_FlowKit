@@ -41,7 +41,7 @@ Workflow:
    - Ambiguities requiring user decision.
 4. Ask for approval before changing, deleting or adding tests.
 5. Apply only the approved changes.
-6. Run `node .qa-ai/scripts/validate-features.mjs` after feature changes.
+6. Run `node .qa-ai/scripts/validate-features.mjs`, `node .qa-ai/scripts/validate-traceability.mjs` and `node .qa-ai/scripts/validate-sync-plan.mjs` after feature/artifact changes.
 7. Update `qa-ai-output/traceability-matrix.md` when useful.
 
 Never delete tests by default. Do not write to configured external tools.

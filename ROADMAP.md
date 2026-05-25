@@ -1,10 +1,10 @@
 # Roadmap
 
-## Current status - Early Product
+## Current status - Target-repo hardening
 
 QA FlowKit has moved beyond the folder-copy MVP. The portable `.qa-ai/` framework, init/bootstrap scripts, adapters, validation workflow, CI, GitHub repository hardening and public releases are in place.
 
-The current product phase is **Early Product**: usable by public adopters, still improving through pilots, stronger validations, examples and packaging.
+The current product phase is **Target-repo hardening**: the starter has been validated in a real pilot repository and the core workflow is correct. Current work should focus on stricter target-repository validation, clearer pilot migration notes, guided examples and packaging.
 
 ## Completed - Portable folder MVP
 
@@ -21,16 +21,20 @@ Delivered:
 - CI workflow running doctor, validators and smoke tests.
 - GitHub repository hardening with branch rules, CodeQL, Dependabot and secret scanning.
 
-## Phase 1 - Pilot repositories
+## Completed - Pilot repositories
 
 Goal: validate that the workflow works across different QA and automation setups.
 
-Deliverables:
+Delivered:
 
 - Pilot with WebdriverIO + Playwright API.
-- Pilot with Selenium + Jest + BrowserStack or a manual-only project.
 - Feedback from generated Gherkin, traceability and automation planning.
-- Documented friction points and migration notes from real target repositories.
+- Confirmation that the folder-copy workflow, init scripts, adapters and validators work correctly in a target repository.
+
+Follow-up:
+
+- Document friction points and migration notes from the pilot.
+- Add a second pilot when useful, preferably Selenium + Jest + BrowserStack or manual-only, to widen coverage.
 
 ## Phase 2 - Stronger validators
 
@@ -41,15 +45,17 @@ Delivered:
 - Parsed Gherkin structure validation for feature files.
 - Duplicate explicit test case ID validation.
 - Traceability matrix coverage validation.
+- Traceability matrix row shape and duplicate matrix entry validation.
 - Proposal-first test-management sync plan validation.
+- Test-management sync plan table shape and duplicate ID validation.
+- Test-management mapping file shape, duplicate external ID and secret-like value validation.
 - Active specialist index validation against `qa-ai.config.yaml`.
+- `doctor --strict` for fully initialized target repositories.
 
 Next:
 
 - Replace lightweight parsing with a full Gherkin parser when the project accepts dependencies or ships an npm CLI.
-- Validate traceability matrix row shape and duplicate matrix entries.
 - Validate dry-run TestRail/Zephyr/Xray plans against richer mapping schemas.
-- Add `doctor --strict` for fully initialized target repositories.
 
 ## Phase 3 - Guided examples and public docs
 

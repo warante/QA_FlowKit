@@ -37,6 +37,6 @@ Workflow:
 4. Produce or update `qa-ai-output/test-design-proposal.md` with only new tests to add and existing tests to reuse.
 5. After approval, create one `.feature` file per new test case under the configured `gherkin.featurePath`.
 6. Update `qa-ai-output/traceability-matrix.md` when useful.
-7. Run `node .qa-ai/scripts/validate-features.mjs` after feature changes.
+7. Run `node .qa-ai/scripts/validate-features.mjs`, `node .qa-ai/scripts/validate-traceability.mjs` and `node .qa-ai/scripts/validate-sync-plan.mjs` after feature/artifact changes.
 
 Do not modify existing tests unless the user explicitly approves that scope. Do not write to configured external tools.

@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { normalizeColumn, parseMarkdownTable } from './lib/markdown-table.mjs';
 import {
   getConfigValue,
   listFilesRecursive,
@@ -16,6 +17,16 @@ import {
 const cwd = process.cwd();
 const args = parseArgs(process.argv);
 const idPattern = /\b(?:RF|TC|TEST|QA)[-_ ]?[A-Z0-9]+\b/gi;
+const caseIdPattern = /\b(?:TC|TEST|QA)[-_ ]?[A-Z0-9]+\b/gi;
+const requiredColumns = [
+  'Requirement Source',
+  'RF',
+  'Feature File',
+  'Test Management Case ID',
+  'Type',
+  'Priority',
+  'Automation Status'
+];
 
 function printHelp() {
   console.log(`Usage: node .qa-ai/scripts/validate-traceability.mjs [options]
@@ -26,6 +37,8 @@ Options:
   --allow-empty     Return success when no .feature files exist
   --allow-missing   Return success when the traceability matrix is missing
   --help            Show this help
+
+Validates feature identifier coverage, traceability matrix table shape and duplicate test case or feature-file rows.
 `);
 }
 
@@ -35,6 +48,60 @@ function normalizeId(value) {
 
 function idsFromText(value) {
   return [...String(value || '').matchAll(idPattern)].map((match) => normalizeId(match[0]));
+}
+
+function caseIdsFromText(value) {
+  return [...String(value || '').matchAll(caseIdPattern)].map((match) => normalizeId(match[0]));
+}
+
+function parseMatrix(content) {
+  const table = parseMarkdownTable(content, {
+    label: 'Traceability matrix',
+    requiredColumns
+  });
+  const errors = [...table.errors];
+  const rows = [];
+  for (const row of table.rows) {
+    const ids = [...new Set(idsFromText(row.cells.join(' ')))].sort();
+    const caseIds = [...new Set(caseIdsFromText(row.cells.join(' ')))].sort();
+    if (ids.length === 0) {
+      errors.push(`Line ${row.line}: row must include at least one RF/test identifier.`);
+    }
+    rows.push({ ...row, ids, caseIds });
+  }
+
+  return { errors, rows, header: table.header };
+}
+
+function duplicateMatrixErrors(rows) {
+  const errors = [];
+  const byCaseId = new Map();
+  const byFeatureFile = new Map();
+
+  for (const row of rows) {
+    for (const id of row.caseIds) {
+      const current = byCaseId.get(id) || [];
+      current.push(row.line);
+      byCaseId.set(id, current);
+    }
+
+    const featureFile = String(row.values[normalizeColumn('Feature File')] || '').trim();
+    if (featureFile) {
+      const normalizedFeatureFile = featureFile.replaceAll('\\', '/').toLowerCase();
+      const current = byFeatureFile.get(normalizedFeatureFile) || [];
+      current.push(row.line);
+      byFeatureFile.set(normalizedFeatureFile, current);
+    }
+  }
+
+  for (const [id, lines] of byCaseId.entries()) {
+    if (lines.length > 1) errors.push(`Identifier ${id} appears in multiple traceability rows: ${lines.join(', ')}.`);
+  }
+  for (const [featureFile, lines] of byFeatureFile.entries()) {
+    if (lines.length > 1) errors.push(`Feature file ${featureFile} appears in multiple traceability rows: ${lines.join(', ')}.`);
+  }
+
+  return errors;
 }
 
 async function featureIds(featureRootPath) {
@@ -82,8 +149,13 @@ async function main() {
     process.exit(1);
   }
 
-  const matrixContent = normalizeId(await readText(matrixFilePath));
+  const rawMatrixContent = await readText(matrixFilePath);
+  const matrix = parseMatrix(rawMatrixContent);
+  const matrixContent = normalizeId(rawMatrixContent);
   const errors = [];
+  errors.push(...matrix.errors);
+  errors.push(...duplicateMatrixErrors(matrix.rows));
+
   for (const feature of features) {
     if (feature.ids.length === 0) {
       errors.push(`${relativeTo(cwd, feature.file)} has no RF/test identifiers to trace.`);

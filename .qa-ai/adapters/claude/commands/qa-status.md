@@ -18,11 +18,22 @@ Use `project.interfaceLanguage` / `project.defaultLanguage` from `qa-ai.config.y
 
 If `$ARGUMENTS` is empty, inspect the whole configured QA workspace. If `$ARGUMENTS` is provided, treat it as a folder, RF ID or scope filter.
 
-Run setup and feature validation checks when useful:
+Run setup and validation checks when useful. Use `--allow-empty` only for freshly initialized repositories where artifacts do not exist yet:
 
 ```bash
 node .qa-ai/scripts/doctor.mjs
 node .qa-ai/scripts/validate-features.mjs --allow-empty
+node .qa-ai/scripts/validate-traceability.mjs --allow-empty --allow-missing
+node .qa-ai/scripts/validate-sync-plan.mjs --allow-empty --allow-missing
+node .qa-ai/scripts/validate-active-specialists.mjs --allow-missing
+```
+
+For initialized target repositories after a real QA flow, recommend running the validators without `--allow-empty` / `--allow-missing` and add `node .qa-ai/scripts/doctor.mjs --strict` for CI hardening.
+
+Shortcut for target repositories:
+
+```bash
+node .qa-ai/scripts/validate-target.mjs
 ```
 
 Summarize:

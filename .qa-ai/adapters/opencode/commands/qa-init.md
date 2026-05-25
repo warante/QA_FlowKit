@@ -63,7 +63,8 @@ After the command finishes:
 
 1. Summarize what was created, skipped or warned in the selected interface language.
 2. Run or suggest `node .qa-ai/scripts/doctor.mjs`.
-3. If QA context was used, write or update `qa-ai-output/qa-knowledge-summary.md` and `qa-ai-output/qa-init-decisions.md` unless the user declined artifact writes.
-4. Tell the user in the selected interface language that QA agents are loaded from `.qa-ai/agents/README.md`, active specialists from `.qa-ai/agents/specialists/active.md`, and QA context artifacts from `knowledge.summaryPath` / `knowledge.decisionsPath` when enabled.
-5. Tell the user in the selected interface language to restart OpenCode if newly generated slash commands do not appear immediately.
-6. Do not write to configured external tools.
+3. Explain that source-repo maintainers can run `npm run validate:oss-extraction`, while target repositories should run `node .qa-ai/scripts/validate-target.mjs` after real QA artifacts exist.
+4. If QA context was used, write or update `qa-ai-output/qa-knowledge-summary.md` and `qa-ai-output/qa-init-decisions.md` unless the user declined artifact writes.
+5. Tell the user in the selected interface language that QA agents are loaded from `.qa-ai/agents/README.md`, active specialists from `.qa-ai/agents/specialists/active.md`, and QA context artifacts from `knowledge.summaryPath` / `knowledge.decisionsPath` when enabled.
+6. Tell the user in the selected interface language to restart OpenCode if newly generated slash commands do not appear immediately.
+7. Do not write to configured external tools.

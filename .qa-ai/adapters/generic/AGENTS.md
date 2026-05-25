@@ -89,6 +89,12 @@ node .qa-ai/scripts/init.mjs
 node .qa-ai/scripts/doctor.mjs
 ```
 
+After real QA artifacts exist in a target repository, validate with:
+
+```bash
+node .qa-ai/scripts/validate-target.mjs
+```
+
 The generated repository must be ready for use with Codex Desktop, Claude Code and other AI coding tools.
 Claude Code and OpenCode users may initialize through `/qa-init` after running the bootstrap script.
 The preferred agent-first setup is: copy `.qa-ai`, run `node .qa-ai/scripts/bootstrap-agent-adapters.mjs`, open Claude Code or OpenCode, then run `/qa-init`.

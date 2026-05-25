@@ -34,10 +34,11 @@ tests/                          automation code when configured
 - `bootstrap-agent-adapters.mjs` copies the minimal root `/qa-init` command files for Claude Code and OpenCode after only `.qa-ai/` has been copied.
 - `init.mjs` reads a base template, generates `qa-ai.config.yaml`, records an optional `--qa-context` folder, creates configured `qa-ai-output/`, `features/` and `tests/` folders, and syncs the OpenCode adapter by default without overwriting existing files unless `--force` is passed. Starter QA artifacts and extra adapters are opt-in.
 - `doctor.mjs` validates the framework folder, required scripts/rules/templates/agents/presets/adapters, generated target files, optional QA context configuration and configured paths. `qa-ai.config.yaml` is required in initialized target repositories and optional in the framework source repository.
+- `doctor.mjs --strict` is intended for initialized target repositories and CI. It requires `qa-ai.config.yaml`, configured workflow artifacts, configured mapping/traceability files, QA knowledge artifacts when enabled and framework config files for configured automation stacks. Optional adapters remain warnings unless explicitly generated and required by the team.
 - `clean.mjs` reads `.qa-ai/state/init-manifest.json`, previews cleanup by default, and removes only tracked generated files or empty directories when `--force` is passed.
 - `validate-features.mjs` parses configured `.feature` files for one Feature, one Scenario, acceptance criteria, required tag values, language directives, RF IDs and duplicate explicit test case IDs.
-- `validate-traceability.mjs` checks that feature RF/test identifiers are represented in the configured traceability matrix.
-- `validate-sync-plan.mjs` checks that test-management sync plans remain proposal-first, mention approval and cover feature identifiers.
+- `validate-traceability.mjs` checks that feature RF/test identifiers are represented in the configured traceability matrix, validates the Markdown table shape and detects duplicate test case or feature-file rows.
+- `validate-sync-plan.mjs` checks that test-management sync plans remain proposal-first, mention approval, cover feature identifiers, validate Markdown table shape, detect duplicate plan IDs and validate the optional test-management mapping file shape.
 - `validate-active-specialists.mjs` checks that `.qa-ai/agents/specialists/active.md` matches the configured tools/frameworks.
 - `smoke-test.mjs` runs native Node smoke checks for init, config profiles, selected adapters, no-overwrite behavior and unsafe path rejection.
 - `sync-agent-adapters.mjs` copies selected adapter templates into target tool paths.
