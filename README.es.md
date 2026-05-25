@@ -176,12 +176,15 @@ Usa `node .qa-ai/scripts/init.mjs --qa-context qa-ai-knowledge` para registrar u
 | `node .qa-ai/scripts/config.mjs --import .qa-ai/config-profiles/team.yaml` | Importa un perfil de config reutilizable |
 | `node .qa-ai/scripts/sync-agent-adapters.mjs --adapters all` | Sincroniza adaptadores seleccionados |
 | `node .qa-ai/scripts/doctor.mjs` | Revisa salud del setup |
+| `node .qa-ai/scripts/doctor.mjs --strict` | Falla checks tipo CI para repositorios destino inicializados |
 | `node .qa-ai/scripts/validate-features.mjs` | Valida archivos `.feature` generados |
 | `node .qa-ai/scripts/validate-traceability.mjs` | Valida cobertura de IDs en la matriz de trazabilidad |
 | `node .qa-ai/scripts/validate-sync-plan.mjs` | Valida planes de sincronizaci贸n proposal-first |
 | `node .qa-ai/scripts/validate-active-specialists.mjs` | Valida especialistas activos contra la config |
+| `node .qa-ai/scripts/validate-target.mjs` | Ejecuta validacion estricta de repos destino tras artefactos QA reales |
+| `node .qa-ai/scripts/test-validators.mjs` | Ejecuta tests unitarios nativos de helpers compartidos de validadores |
 | `node .qa-ai/scripts/smoke-test.mjs` | Ejecuta smoke checks de mantenimiento |
-| `npm run validate:oss-extraction` | Ejecuta doctor, validadores reforzados y smoke tests (igual que CI) |
+| `npm run validate:oss-extraction` | Ejecuta doctor, validadores reforzados, tests unitarios de validadores y smoke tests (igual que CI) |
 | `node .qa-ai/scripts/clean.mjs` | Previsualiza limpieza de artefactos generados |
 
 Los adaptadores de Claude Code y OpenCode tambien incluyen comandos slash guiados:
@@ -208,10 +211,10 @@ QA FlowKit usa validadores locales m谩s fuertes sin dependencias externas:
 
 | Validador | Comprueba |
 |---|---|
-| `doctor.mjs` | Assets del framework, scripts, reglas, plantillas, agentes, presets, adaptadores y rutas configuradas |
+| `doctor.mjs` | Assets del framework, scripts, reglas, plantillas, agentes, presets, adaptadores y rutas configuradas; `--strict` convierte artefactos de workflow y configs de framework de repos destino de warnings a fallos |
 | `validate-features.mjs` | Estructura Gherkin parseada, directiva de idioma, un Feature, un Scenario, criterios de aceptaci贸n, tags requeridos, RF IDs e IDs expl铆citos de test duplicados |
-| `validate-traceability.mjs` | Los identificadores RF/test de features aparecen en la matriz de trazabilidad configurada |
-| `validate-sync-plan.mjs` | Los planes de sincronizaci贸n de gesti贸n de pruebas siguen siendo proposal-first, mencionan aprobaci贸n y cubren IDs de features |
+| `validate-traceability.mjs` | Los identificadores RF/test de features aparecen en la matriz de trazabilidad configurada, con validacion de forma de tabla Markdown y duplicados de caso/archivo |
+| `validate-sync-plan.mjs` | Los planes de sincronizacion de gestion de pruebas siguen siendo proposal-first, mencionan aprobacion, cubren IDs de features y pasan checks de tabla Markdown, IDs duplicados y mapping |
 | `validate-active-specialists.mjs` | `.qa-ai/agents/specialists/active.md` coincide con `qa-ai.config.yaml` y existen los especialistas referenciados |
 | `smoke-test.mjs` | Instalaci贸n por copia de carpeta, import/export de config, adaptadores, no-overwrite, rechazo de rutas inseguras y comportamiento de validadores |
 
@@ -222,6 +225,20 @@ npm run validate:oss-extraction
 ```
 
 En un repositorio objetivo ya configurado, ejecuta los validadores sin `--allow-empty` / `--allow-missing` cuando los `.feature` y artefactos correspondientes deban existir.
+
+Usa el modo estricto de doctor en la CI del repositorio destino despues de inicializar y de que al menos un flujo QA real haya generado los artefactos configurados:
+
+```bash
+node .qa-ai/scripts/validate-target.mjs
+```
+
+Para repositorios destino incompletos, usa `node .qa-ai/scripts/validate-target.mjs --allow-empty --allow-missing --no-strict-doctor`.
+
+### Mapping de gestion de pruebas
+
+Cuando se usa `--with-test-management-mapping`, init crea el archivo de mapping configurado como un objeto JSON vacio (`{}`) para que los repositorios nuevos no empiecen con IDs externos ficticios.
+
+Usa [.qa-ai/templates/test-management-mapping.template.json](.qa-ai/templates/test-management-mapping.template.json) como referencia documentada. Las claves del mapping deben ser IDs RF/test como `RF-101` o `TC-001`, o rutas `.feature`. Los valores deben ser objetos solo con campos soportados: `externalId`, `section`, `suite`, `status`, `lastReviewedAt` y `notes`. No guardes secretos, tokens ni credenciales en archivos de mapping.
 
 Para reutilizar el mismo setup en repositorios con la misma estructura, exporta un perfil desde el repo configurado e importalo en el siguiente:
 
@@ -387,6 +404,9 @@ Reglas de seguridad:
 
 | Documento | Prop贸sito |
 |---|---|
+| [Primeros pasos](docs/qa-ai/getting-started.md) | Flujos de configuraci贸n paso a paso por tipo de usuario |
+| [Soluci髇 de problemas](docs/qa-ai/troubleshooting.md) | Fallos comunes y c髆o resolverlos |
+| [Transcripts de terminal](docs/qa-ai/terminal-transcripts.md) | Salida real de comandos para flujos comunes |
 | [Arquitectura](docs/qa-ai/architecture.md) | Estructura del framework y modelo de seguridad |
 | [Workflow](docs/qa-ai/workflow.md) | Flujo QA end-to-end |
 | [Compatibilidad de agentes](docs/qa-ai/agent-compatibility.md) | Adaptadores y discovery de comandos |
