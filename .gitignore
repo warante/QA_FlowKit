@@ -25,6 +25,7 @@ logs/
 # QA AI init output (dogfooding / local init on this repo)
 qa-ai.config.yaml
 .qa-ai/state/
+.qa-ai/agents/specialists/active.md
 qa-ai-output/
 features/
 tests/
