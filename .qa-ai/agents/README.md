@@ -2,7 +2,7 @@
 
 This directory contains Markdown role instructions for the QA AI workflow. Some tools expose these files as callable subagents; others only read them as project documentation. In both cases, load the relevant files before starting a workflow phase.
 
-Related docs: [main README](../../README.md) | [workflow](../../docs/qa-ai/workflow.md) | [agent compatibility](../../docs/qa-ai/agent-compatibility.md)
+Related docs: [main README](../../README.md) | [workflow](../../docs/qa-ai/workflow.md) | [agent compatibility](../../docs/qa-ai/agent-compatibility.md) | [customizing agents](../../docs/qa-ai/customizing-agents.md)
 
 Reusable repository configuration profiles can be imported or exported with `node .qa-ai/scripts/config.mjs`; after import, reload `qa-ai.config.yaml` and `.qa-ai/agents/specialists/active.md`.
 

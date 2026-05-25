@@ -2,7 +2,7 @@
 
 [![Licencia: MIT](https://img.shields.io/badge/licencia-MIT-green.svg)](LICENSE)
 [![Node.js 20+](https://img.shields.io/badge/node.js-20%2B-339933.svg)](package.json)
-[![Estado: MVP](https://img.shields.io/badge/estado-MVP-blue.svg)](ROADMAP.md)
+[![Estado: Early Product](https://img.shields.io/badge/estado-Early%20Product-blue.svg)](ROADMAP.md)
 [![Workflow: QA AI](https://img.shields.io/badge/workflow-QA%20AI-6f42c1.svg)](docs/qa-ai/workflow.md)
 [![CI](https://github.com/warante/QA_FlowKit/actions/workflows/ci.yml/badge.svg)](https://github.com/warante/QA_FlowKit/actions/workflows/ci.yml)
 
@@ -14,9 +14,11 @@ Idioma: [English](README.md) | **Español**
 
 - [Qué Hace](#qué-hace)
 - [Inicio Rápido](#inicio-rápido)
+- [Rutas de Uso Guiadas](#rutas-de-uso-guiadas)
 - [Bootstrap Desde Agente](#bootstrap-desde-agente)
 - [Carpeta de Contexto QA](#carpeta-de-contexto-qa)
 - [Comandos](#comandos)
+- [Validación](#validación)
 - [Opciones de Init](#opciones-de-init)
 - [Plantillas Base](#plantillas-base)
 - [Adaptadores](#adaptadores)
@@ -28,14 +30,14 @@ Idioma: [English](README.md) | **Español**
 
 ## Qué Hace
 
-El MVP está diseñado para funcionar copiando una carpeta: copias `.qa-ai/` en un repositorio objetivo, ejecutas scripts locales de Node.js y el repositorio recibe configuración, instrucciones para agentes, documentación de workflow, scripts de validación, plantillas y adaptadores para herramientas comunes de coding agents.
+QA AI Starter está en fase **Early Product**: el flujo portable por copia de carpeta está implementado, validado en CI y listo para uso público mientras maduran los validadores, ejemplos y empaquetado. Copias `.qa-ai/` en un repositorio objetivo, ejecutas scripts locales de Node.js y el repositorio recibe configuración, instrucciones para agentes, documentación de workflow, scripts de validación, plantillas y adaptadores para herramientas comunes de coding agents.
 
-El starter **no** realiza escrituras externas en herramientas configuradas durante el MVP. Solo crea artefactos locales y propuestas antes de cualquier sincronización externa.
+El starter **no** realiza escrituras externas en herramientas configuradas. Solo crea artefactos locales y propuestas antes de cualquier sincronización externa.
 
 | Área | Incluye |
 |---|---|
 | Framework | Carpeta portable `.qa-ai/` |
-| Scripts | `bootstrap-agent-adapters`, `init`, `config`, `doctor`, `clean`, `validate-features`, `smoke-test`, `sync-agent-adapters` |
+| Scripts | `bootstrap-agent-adapters`, `init`, `config`, `doctor`, `clean`, validadores reforzados, `smoke-test`, `sync-agent-adapters` |
 | Reglas | Aprobación, Gherkin, gestión de pruebas, automatización, UI automation y API testing |
 | Agentes | Agentes por fase y especialistas activos desde `.qa-ai/agents/specialists/active.md` |
 | Plantillas | Análisis de requisitos, diseño de pruebas, trazabilidad, planificación de automatización y resumen de PR |
@@ -72,6 +74,49 @@ Lee AGENTS.md, qa-ai.config.yaml y .qa-ai/workflows/full-flow.md. Sigue .qa-ai/r
 ```
 
 Por defecto, init usa la plantilla base `webdriverio-playwright-api`, interfaz en inglés, Gherkin en inglés y solo el adaptador OpenCode. Crea primero la estructura mínima usable; los documentos QA iniciales y adaptadores extra son opt-in.
+
+## Rutas de Uso Guiadas
+
+### Probar QA FlowKit en un repositorio nuevo
+
+Usa el setup por defecto cuando quieras llegar rápido a un flujo QA AI funcional:
+
+```bash
+cp -R /path/to/QA_FlowKit/.qa-ai .qa-ai
+node .qa-ai/scripts/init.mjs
+node .qa-ai/scripts/doctor.mjs
+```
+
+### QA manual solamente
+
+Usa esta opción cuando quieras flujo de requisitos a Gherkin y trazabilidad sin carpetas de automatización:
+
+```bash
+node .qa-ai/scripts/init.mjs --preset manual-only --interface-language es --gherkin-language es
+```
+
+### Repositorio de automatización
+
+Usa la plantilla por defecto para planificación WebdriverIO UI/E2E más Playwright API:
+
+```bash
+node .qa-ai/scripts/init.mjs --preset webdriverio-playwright-api
+node .qa-ai/scripts/validate-features.mjs --allow-empty
+```
+
+### Setup desde agente
+
+Usa esto cuando Claude Code u OpenCode deban guiar la inicialización mediante `/qa-init`:
+
+```bash
+node .qa-ai/scripts/bootstrap-agent-adapters.mjs --agents claude,opencode
+```
+
+Después abre el agente y ejecuta:
+
+```text
+/qa-init
+```
 
 ## Bootstrap Desde Agente
 
@@ -132,8 +177,11 @@ Usa `node .qa-ai/scripts/init.mjs --qa-context qa-ai-knowledge` para registrar u
 | `node .qa-ai/scripts/sync-agent-adapters.mjs --adapters all` | Sincroniza adaptadores seleccionados |
 | `node .qa-ai/scripts/doctor.mjs` | Revisa salud del setup |
 | `node .qa-ai/scripts/validate-features.mjs` | Valida archivos `.feature` generados |
+| `node .qa-ai/scripts/validate-traceability.mjs` | Valida cobertura de IDs en la matriz de trazabilidad |
+| `node .qa-ai/scripts/validate-sync-plan.mjs` | Valida planes de sincronización proposal-first |
+| `node .qa-ai/scripts/validate-active-specialists.mjs` | Valida especialistas activos contra la config |
 | `node .qa-ai/scripts/smoke-test.mjs` | Ejecuta smoke checks de mantenimiento |
-| `npm run validate:oss-extraction` | Ejecuta doctor, validación de features (`--allow-empty`) y smoke tests (igual que CI) |
+| `npm run validate:oss-extraction` | Ejecuta doctor, validadores reforzados y smoke tests (igual que CI) |
 | `node .qa-ai/scripts/clean.mjs` | Previsualiza limpieza de artefactos generados |
 
 Los adaptadores de Claude Code y OpenCode tambien incluyen comandos slash guiados:
@@ -153,6 +201,27 @@ Los adaptadores de Claude Code y OpenCode tambien incluyen comandos slash guiado
 | `/qa-validate-features` | Validacion de convenciones Gherkin |
 
 `init.mjs` y `config.mjs --import` nunca sobrescriben archivos existentes salvo que se pase `--force`. `validate-features.mjs` falla si no encuentra archivos `.feature`; usa `--allow-empty` solo para smoke checks del repo fuente u otros casos donde una carpeta vacia sea esperada.
+
+## Validación
+
+QA FlowKit usa validadores locales más fuertes sin dependencias externas:
+
+| Validador | Comprueba |
+|---|---|
+| `doctor.mjs` | Assets del framework, scripts, reglas, plantillas, agentes, presets, adaptadores y rutas configuradas |
+| `validate-features.mjs` | Estructura Gherkin parseada, directiva de idioma, un Feature, un Scenario, criterios de aceptación, tags requeridos, RF IDs e IDs explícitos de test duplicados |
+| `validate-traceability.mjs` | Los identificadores RF/test de features aparecen en la matriz de trazabilidad configurada |
+| `validate-sync-plan.mjs` | Los planes de sincronización de gestión de pruebas siguen siendo proposal-first, mencionan aprobación y cubren IDs de features |
+| `validate-active-specialists.mjs` | `.qa-ai/agents/specialists/active.md` coincide con `qa-ai.config.yaml` y existen los especialistas referenciados |
+| `smoke-test.mjs` | Instalación por copia de carpeta, import/export de config, adaptadores, no-overwrite, rechazo de rutas inseguras y comportamiento de validadores |
+
+Para el CI del repo fuente:
+
+```bash
+npm run validate:oss-extraction
+```
+
+En un repositorio objetivo ya configurado, ejecuta los validadores sin `--allow-empty` / `--allow-missing` cuando los `.feature` y artefactos correspondientes deban existir.
 
 Para reutilizar el mismo setup en repositorios con la misma estructura, exporta un perfil desde el repo configurado e importalo en el siguiente:
 
@@ -321,6 +390,7 @@ Reglas de seguridad:
 | [Arquitectura](docs/qa-ai/architecture.md) | Estructura del framework y modelo de seguridad |
 | [Workflow](docs/qa-ai/workflow.md) | Flujo QA end-to-end |
 | [Compatibilidad de agentes](docs/qa-ai/agent-compatibility.md) | Adaptadores y discovery de comandos |
+| [Personalización de agentes](docs/qa-ai/customizing-agents.md) | Cómo adaptar agentes, especialistas y adaptadores de forma segura |
 | [Limpieza](docs/qa-ai/cleanup.md) | Detalles de limpieza basada en manifiesto |
 | [Roadmap](ROADMAP.md) | Dirección del producto |
 | [Contribuir](CONTRIBUTING.md) | Guía de contribución |

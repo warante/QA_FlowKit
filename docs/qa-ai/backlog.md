@@ -1,8 +1,8 @@
 # Backlog
 
-## MVP status
+## Product status
 
-The folder-copy MVP is implemented. Remaining work is additional parser-backed validation, examples and packaging.
+The folder-copy MVP is complete. QA FlowKit is now in Early Product: public, CI-backed and usable, with current work focused on pilot repositories, stronger validation, guided examples and packaging.
 
 ## Epic 1 - Portable starter foundation
 
@@ -148,13 +148,31 @@ Acceptance Criteria:
 - README.md is complete for MVP use.
 - ROADMAP.md is complete.
 
+## Epic 5 - Stronger validators
+
+### TASK-013 - Add stronger local validators
+
+Status: Done
+
+Acceptance Criteria:
+- Feature validation parses Gherkin structure line-by-line.
+- Feature validation detects duplicate explicit test case IDs.
+- Traceability validation checks feature identifiers against the configured matrix.
+- Sync plan validation keeps test-management sync proposal-first and approval-gated.
+- Active specialist validation checks `.qa-ai/agents/specialists/active.md` against `qa-ai.config.yaml`.
+- CI runs the stronger validators with source-repo-safe empty/missing allowances.
+
+### TASK-014 - Add strict target repository validation
+
+Status: Planned
+
+Acceptance Criteria:
+- `doctor --strict` fails when configured target artifacts are missing.
+- Strict mode documents source-repo vs target-repo expectations.
+- Strict mode can be used in target repository CI.
+
 ## Future epics
 
-- Parser-backed Gherkin validation.
-- Traceability matrix validation.
-- Duplicate RF/test ID validation.
-- Dry-run test management sync plan validation.
-- CI validation workflow.
 - Example repositories.
 - npm CLI migration.
 - MCP read-only integration.

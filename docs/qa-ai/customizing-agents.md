@@ -1,0 +1,148 @@
+# Customizing Agents
+
+QA FlowKit agents are Markdown role instructions. You can adapt them to your team, but keep the shared safety rules and validation scripts as the source of truth.
+
+## When to customize
+
+Customize agents when your team needs stable behavior that should repeat across QA workflows:
+
+- Requirement intake should use your team's RF naming conventions.
+- Gherkin design should follow team vocabulary or scenario style.
+- Automation planning should reflect your framework patterns.
+- Test management planning should match your section, suite or ownership model.
+- PR summaries should match your reviewer expectations.
+
+Use `qa-ai.config.yaml` for project-specific paths, frameworks, languages and tools. Use `.qa-ai/rules/` for rules that must apply to every agent. Use agent files for phase-specific working style and output expectations.
+
+## Agent layers
+
+| Layer | Location | Use for |
+|---|---|---|
+| Global agent protocol | `.qa-ai/agents/README.md` | Load order and phase mapping |
+| Shared rules | `.qa-ai/rules/*.rules.md` | Non-negotiable behavior across agents |
+| Phase agents | `.qa-ai/agents/*-agent.md` | Phase-specific instructions and outputs |
+| Specialists | `.qa-ai/agents/specialists/available/*.md` | Tool/framework-specific guidance |
+| Active specialists | `.qa-ai/agents/specialists/active.md` | Generated list of specialists for the current config |
+| Adapter commands | `.qa-ai/adapters/*` and generated root tool folders | Tool-specific slash commands and onboarding |
+
+## Safe customization workflow
+
+1. Run `node .qa-ai/scripts/doctor.mjs` before changing agent behavior.
+2. Read `.qa-ai/rules/` and `.qa-ai/agents/README.md`.
+3. Identify the smallest layer that should change.
+4. Edit phase agents or specialist files first; avoid duplicating global rules.
+5. If a rule must apply everywhere, update `.qa-ai/rules/` and docs together.
+6. Run `npm run validate:oss-extraction` in the framework source repo, or the relevant validators in a target repo.
+7. Open a PR with examples of changed agent outputs when behavior changes.
+
+## What to change in phase agents
+
+Phase agents are best for workflow-specific instructions:
+
+- Required input questions.
+- Output headings and artifact shape.
+- Decision criteria for that phase.
+- Examples of good and bad outputs.
+- Escalation points where the agent must ask the user.
+
+Examples:
+
+- Add a required "Risk notes" section to `.qa-ai/agents/automation-feasibility-agent.md`.
+- Tell `.qa-ai/agents/gherkin-test-design-agent.md` to prefer business-domain names over UI control names.
+- Require `.qa-ai/agents/pr-agent.md` to include traceability IDs in every PR summary.
+
+Avoid putting secrets, environment names, private URLs or credentials in agent files. Put team-specific private context in a target repository knowledge folder and reference it through `--qa-context`.
+
+## What to change in specialists
+
+Specialists are best for framework and tool conventions:
+
+- Page object conventions.
+- API fixture patterns.
+- Test data setup style.
+- TestRail or Jira field expectations.
+- Browser/device/cloud provider practices.
+
+Add or update specialist files under:
+
+```text
+.qa-ai/agents/specialists/available/
+```
+
+Then make sure `qa-ai.config.yaml` points to matching tools/frameworks and regenerate active specialists:
+
+```bash
+node .qa-ai/scripts/init.mjs --force
+```
+
+or import a profile:
+
+```bash
+node .qa-ai/scripts/config.mjs --import .qa-ai/config-profiles/team.yaml --force
+```
+
+Validate the result:
+
+```bash
+node .qa-ai/scripts/validate-active-specialists.mjs
+```
+
+## Adding a new specialist
+
+1. Create `.qa-ai/agents/specialists/available/<id>.md`.
+2. Add the specialist to `specialistCatalog` in `.qa-ai/scripts/lib/project-config.mjs`.
+3. Include aliases for the config values users are likely to enter.
+4. Add docs if the specialist introduces a new supported framework.
+5. Run:
+
+```bash
+npm run validate:oss-extraction
+```
+
+Specialist IDs should be lowercase kebab-case, for example `playwright-ui`, `rest-assured` or `mobile-webview`.
+
+## Adapter command customization
+
+Adapter templates live under `.qa-ai/adapters/`. Generated tool files live in root folders such as `.claude/`, `.opencode/` or `.codex/`.
+
+Prefer editing adapter templates first, then regenerate adapters:
+
+```bash
+node .qa-ai/scripts/sync-agent-adapters.mjs --adapters claude,opencode --force
+```
+
+Only edit generated root adapter files directly when you are customizing a single target repository and do not want the change to become part of the portable framework.
+
+## Keeping customizations portable
+
+Keep portable framework changes in `.qa-ai/`. Keep target-repository-only knowledge in a repo-local folder such as:
+
+```text
+qa-ai-knowledge/
+```
+
+Then initialize with:
+
+```bash
+node .qa-ai/scripts/init.mjs --qa-context qa-ai-knowledge
+```
+
+Agents should summarize approved team context into:
+
+```text
+qa-ai-output/qa-knowledge-summary.md
+qa-ai-output/qa-init-decisions.md
+```
+
+This keeps the framework open-source ready while still allowing private teams to adapt behavior.
+
+## Review checklist
+
+Before merging agent customizations:
+
+- [ ] No secrets, credentials, private URLs or personal data were added.
+- [ ] Shared rules were updated only when behavior must apply globally.
+- [ ] Phase-agent changes include expected output shape.
+- [ ] Specialist changes match `qa-ai.config.yaml` aliases.
+- [ ] Adapter changes were made in templates when they should be portable.
+- [ ] `npm run validate:oss-extraction` passes.
