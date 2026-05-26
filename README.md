@@ -175,12 +175,15 @@ qa-ai-output/qa-init-decisions.md
 | `node .qa-ai/scripts/config.mjs --import .qa-ai/config-profiles/team.yaml` | Import a reusable config profile |
 | `node .qa-ai/scripts/sync-agent-adapters.mjs --adapters all` | Sync selected adapter templates |
 | `node .qa-ai/scripts/doctor.mjs` | Check setup health |
+| `node .qa-ai/scripts/doctor.mjs --strict` | Fail CI-style checks for initialized target repositories |
 | `node .qa-ai/scripts/validate-features.mjs` | Validate generated `.feature` files |
 | `node .qa-ai/scripts/validate-traceability.mjs` | Validate traceability matrix coverage for feature IDs |
 | `node .qa-ai/scripts/validate-sync-plan.mjs` | Validate proposal-first test-management sync plans |
 | `node .qa-ai/scripts/validate-active-specialists.mjs` | Validate active specialist list against config |
+| `node .qa-ai/scripts/validate-target.mjs` | Run strict target-repository validation after real QA artifacts exist |
+| `node .qa-ai/scripts/test-validators.mjs` | Run native Node unit tests for shared validator helpers |
 | `node .qa-ai/scripts/smoke-test.mjs` | Run maintainer smoke checks |
-| `npm run validate:oss-extraction` | Run doctor, stronger validators and smoke tests (same as CI) |
+| `npm run validate:oss-extraction` | Run doctor, stronger validators, validator unit tests and smoke tests (same as CI) |
 | `node .qa-ai/scripts/clean.mjs` | Preview cleanup of generated artifacts |
 
 Claude Code and OpenCode adapters also provide guided slash commands:
@@ -207,10 +210,10 @@ QA FlowKit now uses stronger local validators without external dependencies:
 
 | Validator | Checks |
 |---|---|
-| `doctor.mjs` | Framework assets, required scripts, rules, templates, agents, presets, adapters and configured paths |
+| `doctor.mjs` | Framework assets, required scripts, rules, templates, agents, presets, adapters and configured paths; `--strict` promotes target-repository workflow artifacts and configured framework files from warnings to failures |
 | `validate-features.mjs` | Parsed Gherkin structure, language directive, one Feature, one Scenario, acceptance criteria, required tags, RF IDs and duplicate explicit test IDs |
-| `validate-traceability.mjs` | Feature RF/test identifiers are represented in the configured traceability matrix |
-| `validate-sync-plan.mjs` | Test-management sync plans stay proposal-first, mention approval and cover feature identifiers |
+| `validate-traceability.mjs` | Feature RF/test identifiers are represented in the configured traceability matrix, with Markdown table shape and duplicate case/file checks |
+| `validate-sync-plan.mjs` | Test-management sync plans stay proposal-first, mention approval, cover feature identifiers and pass Markdown table, duplicate ID and mapping-file checks |
 | `validate-active-specialists.mjs` | `.qa-ai/agents/specialists/active.md` matches `qa-ai.config.yaml` and referenced specialist files exist |
 | `smoke-test.mjs` | Copy-folder install, config import/export, adapters, no-overwrite behavior, unsafe path rejection and validator behavior |
 
@@ -221,6 +224,20 @@ npm run validate:oss-extraction
 ```
 
 For a configured target repository with real `.feature` files and workflow artifacts, run the validators without `--allow-empty` / `--allow-missing` once the corresponding files should exist.
+
+Use strict doctor mode in target repository CI after initialization and at least one real QA flow has generated the configured workflow artifacts:
+
+```bash
+node .qa-ai/scripts/validate-target.mjs
+```
+
+For incomplete target repositories, use `node .qa-ai/scripts/validate-target.mjs --allow-empty --allow-missing --no-strict-doctor`.
+
+### Test-management mapping
+
+When `--with-test-management-mapping` is passed, init creates the configured mapping file as an empty JSON object (`{}`) so new repositories do not start with fake external IDs.
+
+Use [.qa-ai/templates/test-management-mapping.template.json](.qa-ai/templates/test-management-mapping.template.json) as the documented reference. Mapping keys must be RF/test IDs such as `RF-101` or `TC-001`, or `.feature` paths. Values must be objects with supported fields only: `externalId`, `section`, `suite`, `status`, `lastReviewedAt`, and `notes`. Do not store secrets, tokens or credentials in mapping files.
 
 To reuse the same setup across repositories with the same structure, export a profile from the configured repository and import it in the next one:
 
@@ -386,6 +403,9 @@ Safety rules:
 
 | Document | Purpose |
 |---|---|
+| [Getting started](docs/qa-ai/getting-started.md) | Step-by-step setup flows by user type |
+| [Terminal transcripts](docs/qa-ai/terminal-transcripts.md) | Real command output for common workflows |
+| [Troubleshooting](docs/qa-ai/troubleshooting.md) | Common failures and resolutions |
 | [Architecture](docs/qa-ai/architecture.md) | Framework structure and safety model |
 | [Workflow](docs/qa-ai/workflow.md) | End-to-end QA flow |
 | [Agent compatibility](docs/qa-ai/agent-compatibility.md) | Adapter behavior and command discovery |

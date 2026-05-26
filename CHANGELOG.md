@@ -1,5 +1,24 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- `doctor.mjs --strict` for initialized target repositories and CI hardening.
+- `validate-target.mjs` aggregated target-repository validation command.
+- Shared Markdown table parsing utilities for stronger validators.
+- Native Node unit tests for shared validator helpers.
+- Documented test-management mapping template.
+- Stronger traceability matrix validation for Markdown table shape, duplicate test case identifiers and duplicate feature file rows.
+- Stronger test-management sync plan validation for Markdown table shape, proposal-first rows, approval status and duplicate identifiers.
+- Stronger test-management mapping validation for entry shape, duplicate external IDs and secret-like values.
+- Smoke coverage for strict doctor success and failure paths.
+
+### Documentation
+
+- Documented target-repository hardening status and strict doctor usage in README, roadmap, architecture and backlog.
+- Aligned Claude, OpenCode, Codex and generic adapter validation guidance with the hardened validator pipeline.
+
 ## 0.3.0 - Context intake y agentes ampliados
 
 Release tras el merge de [#2](https://github.com/warante/QA_FlowKit/pull/2). Enfoque: carpeta de contexto QA del equipo, init/config refactorizados, agentes más accionables y más comandos `/qa-*` en adaptadores agent-first.

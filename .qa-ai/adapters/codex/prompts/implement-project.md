@@ -8,5 +8,8 @@ Run the local validation scripts after changes:
 
 ```bash
 node .qa-ai/scripts/doctor.mjs
-node .qa-ai/scripts/validate-features.mjs
+npm run validate:oss-extraction
 ```
+
+For initialized target repositories after real QA artifacts exist, also use `node .qa-ai/scripts/doctor.mjs --strict` and run the feature, traceability, sync-plan and active-specialist validators without source-repo allowances.
+Shortcut: `node .qa-ai/scripts/validate-target.mjs`.

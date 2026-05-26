@@ -40,7 +40,13 @@ Agent files in `.qa-ai/agents/` are required role instructions for QA workflow p
 |---|---|
 | `node .qa-ai/scripts/config.mjs --help` | Import/export reusable QA AI config profiles |
 | `node .qa-ai/scripts/doctor.mjs` | Check setup health |
+| `node .qa-ai/scripts/doctor.mjs --strict` | CI-style checks for initialized target repositories |
+| `node .qa-ai/scripts/validate-target.mjs` | Run the full target repository validation pipeline |
 | `node .qa-ai/scripts/validate-features.mjs` | Validate `.feature` files |
+| `node .qa-ai/scripts/validate-traceability.mjs` | Validate traceability matrix coverage and shape |
+| `node .qa-ai/scripts/validate-sync-plan.mjs` | Validate proposal-first sync plans and mapping shape |
+| `node .qa-ai/scripts/validate-active-specialists.mjs` | Validate active specialist index |
+| `npm run validate:oss-extraction` | Run source-repo maintainer validation |
 | `node .qa-ai/scripts/clean.mjs` | Preview cleanup before deleting generated files |
 
 Use `.qa-ai/workflows/full-flow.md` for end-to-end QA delivery and keep all external writes proposal-first.

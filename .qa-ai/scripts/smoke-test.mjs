@@ -39,6 +39,7 @@ async function main() {
   let geminiTarget = null;
   let qaContextTarget = null;
   let optionalDocsTarget = null;
+  let strictTarget = null;
   let importProfileTarget = null;
   let validatorTarget = null;
   try {
@@ -127,6 +128,7 @@ async function main() {
         if (error.code !== 'ENOENT') throw error;
       }
     }
+    run(defaultTarget, ['.qa-ai/scripts/doctor.mjs']);
 
     geminiTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-ai-starter-gemini-'));
     await copyFramework(geminiTarget);
@@ -189,6 +191,21 @@ async function main() {
       }
     }
 
+    strictTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-ai-starter-strict-'));
+    await copyFramework(strictTarget);
+    run(strictTarget, [
+      '.qa-ai/scripts/init.mjs',
+      '--preset', 'webdriverio-playwright-api',
+      '--with-doc-templates',
+      '--with-test-management-mapping',
+      '--adapters', 'generic'
+    ]);
+    await fs.writeFile(path.join(strictTarget, 'wdio.conf.js'), 'export const config = {};\n', 'utf8');
+    await fs.writeFile(path.join(strictTarget, 'playwright.config.js'), 'export default {};\n', 'utf8');
+    run(strictTarget, ['.qa-ai/scripts/doctor.mjs', '--strict']);
+    await fs.rm(path.join(strictTarget, 'qa-ai-output', 'traceability-matrix.md'), { force: true });
+    run(strictTarget, ['.qa-ai/scripts/doctor.mjs', '--strict'], { expectFailure: true });
+
     validatorTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-ai-starter-validators-'));
     await copyFramework(validatorTarget);
     run(validatorTarget, [
@@ -219,14 +236,17 @@ async function main() {
       [
         '# Traceability Matrix',
         '',
-        '| ID | Feature |',
-        '|---|---|',
-        '| RF-101 | Login |',
-        '| TC-001 | Valid login |',
+        '| Requirement Source | RF | CA | Feature File | Test Management Case ID | Type | Priority | Automation Status | Automation File |',
+        '|---|---|---|---|---|---|---|---|---|',
+        '| Jira | RF-101 | User can sign in with valid credentials. | features/functional/RF-101-TC-001-login.feature | TC-001 | functional | high | automated | tests/login.spec.js |',
         ''
       ].join('\n'),
       'utf8'
     );
+    await fs.writeFile(path.join(validatorTarget, 'qa-ai-output', 'requirement-analysis.md'), '# Requirement Analysis\n\nRF-101 login.\n', 'utf8');
+    await fs.writeFile(path.join(validatorTarget, 'qa-ai-output', 'test-design-proposal.md'), '# Test Design Proposal\n\nTC-001 proposed.\n', 'utf8');
+    await fs.writeFile(path.join(validatorTarget, 'qa-ai-output', 'testrail-coverage-analysis.md'), '# TestRail Coverage Analysis\n\nRF-101 coverage.\n', 'utf8');
+    await fs.writeFile(path.join(validatorTarget, 'qa-ai-output', 'pr-summary.md'), '# PR Summary\n\nValidation pending.\n', 'utf8');
     await fs.writeFile(
       path.join(validatorTarget, 'qa-ai-output', 'testrail-sync-plan.md'),
       [
@@ -234,17 +254,100 @@ async function main() {
         '',
         'Approval is required before any external write.',
         '',
-        '| ID | Proposed action |',
-        '|---|---|',
-        '| RF-101 | Review coverage |',
-        '| TC-001 | Propose create/update only |',
+        '| ID | Proposed action | Approval status | Target section | Notes |',
+        '|---|---|---|---|---|',
+        '| RF-101 | Review coverage | Pending approval | Login | Requirement coverage check |',
+        '| TC-001 | Propose create/update only | Approval required | Login | Do not sync without approval |',
         ''
       ].join('\n'),
       'utf8'
     );
+    await fs.writeFile(
+      path.join(validatorTarget, 'qa-ai-output', 'test-management-mapping.json'),
+      `${JSON.stringify({
+        'TC-001': {
+          externalId: 'C123',
+          section: 'Login',
+          suite: 'Regression',
+          status: 'planned',
+          lastReviewedAt: '2026-05-25',
+          notes: 'Mapped from validated sync proposal.'
+        }
+      }, null, 2)}\n`,
+      'utf8'
+    );
     run(validatorTarget, ['.qa-ai/scripts/validate-features.mjs']);
     run(validatorTarget, ['.qa-ai/scripts/validate-traceability.mjs']);
+    run(validatorTarget, ['.qa-ai/scripts/validate-target.mjs']);
+    await fs.rm(path.join(validatorTarget, 'qa-ai-output', 'traceability-matrix.md'), { force: true });
+    run(validatorTarget, ['.qa-ai/scripts/validate-target.mjs'], { expectFailure: true });
+    await fs.writeFile(
+      path.join(validatorTarget, 'qa-ai-output', 'traceability-matrix.md'),
+      [
+        '# Traceability Matrix',
+        '',
+        '| Requirement Source | RF | CA | Feature File | Test Management Case ID | Type | Priority | Automation Status | Automation File |',
+        '|---|---|---|---|---|---|---|---|---|',
+        '| Jira | RF-101 | User can sign in with valid credentials. | features/functional/RF-101-TC-001-login.feature | TC-001 | functional | high | automated | tests/login.spec.js |',
+        ''
+      ].join('\n'),
+      'utf8'
+    );
+    await fs.writeFile(
+      path.join(validatorTarget, 'qa-ai-output', 'traceability-matrix.md'),
+      [
+        '# Traceability Matrix',
+        '',
+        '| Requirement Source | RF | CA | Feature File | Test Management Case ID | Type | Priority | Automation Status | Automation File |',
+        '|---|---|---|---|---|---|---|---|---|',
+        '| Jira | RF-101 | User can sign in with valid credentials. | features/functional/RF-101-TC-001-login.feature | TC-001 | functional | high | automated | tests/login.spec.js |',
+        '| Jira | RF-101 | User can sign in with valid credentials. | features/functional/RF-101-TC-001-login.feature | TC-001 | functional | high | automated | tests/login.spec.js |',
+        ''
+      ].join('\n'),
+      'utf8'
+    );
+    run(validatorTarget, ['.qa-ai/scripts/validate-traceability.mjs'], { expectFailure: true });
     run(validatorTarget, ['.qa-ai/scripts/validate-sync-plan.mjs']);
+    await fs.writeFile(
+      path.join(validatorTarget, 'qa-ai-output', 'testrail-sync-plan.md'),
+      [
+        '# TestRail Sync Plan',
+        '',
+        'Approval is required before any external write.',
+        '',
+        '| ID | Proposed action | Approval status | Target section | Notes |',
+        '|---|---|---|---|---|',
+        '| TC-001 | Created in TestRail | Done | Login | Direct write claim |',
+        '| TC-001 | Updated in TestRail | Done | Login | Duplicate direct write claim |',
+        ''
+      ].join('\n'),
+      'utf8'
+    );
+    run(validatorTarget, ['.qa-ai/scripts/validate-sync-plan.mjs'], { expectFailure: true });
+    await fs.writeFile(
+      path.join(validatorTarget, 'qa-ai-output', 'testrail-sync-plan.md'),
+      [
+        '# TestRail Sync Plan',
+        '',
+        'Approval is required before any external write.',
+        '',
+        '| ID | Proposed action | Approval status | Target section | Notes |',
+        '|---|---|---|---|---|',
+        '| RF-101 | Review coverage | Pending approval | Login | Requirement coverage check |',
+        '| TC-001 | Propose create/update only | Approval required | Login | Do not sync without approval |',
+        ''
+      ].join('\n'),
+      'utf8'
+    );
+    await fs.writeFile(
+      path.join(validatorTarget, 'qa-ai-output', 'test-management-mapping.json'),
+      `${JSON.stringify({
+        'TC-001': { externalId: 'C123' },
+        'TC-002': { externalId: 'C123' }
+      }, null, 2)}\n`,
+      'utf8'
+    );
+    run(validatorTarget, ['.qa-ai/scripts/validate-sync-plan.mjs'], { expectFailure: true });
     run(validatorTarget, ['.qa-ai/scripts/validate-active-specialists.mjs']);
 
     const activePath = path.join(tempRoot, '.qa-ai/agents/specialists/active.md');
@@ -284,6 +387,7 @@ async function main() {
     if (geminiTarget) await fs.rm(geminiTarget, { recursive: true, force: true });
     if (qaContextTarget) await fs.rm(qaContextTarget, { recursive: true, force: true });
     if (optionalDocsTarget) await fs.rm(optionalDocsTarget, { recursive: true, force: true });
+    if (strictTarget) await fs.rm(strictTarget, { recursive: true, force: true });
     if (importProfileTarget) await fs.rm(importProfileTarget, { recursive: true, force: true });
     if (validatorTarget) await fs.rm(validatorTarget, { recursive: true, force: true });
   }
