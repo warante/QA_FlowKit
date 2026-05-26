@@ -4,6 +4,11 @@
 
 ### Added
 
+- `qa-help.mjs` and `qa-next-steps.mjs` for context-aware next-step guidance (BMAD-inspired).
+- `project.qaTrack` (`quick`, `standard`, `enterprise`) in presets and `init.mjs --qa-track`.
+- `/qa-help` slash commands for Claude Code and OpenCode adapters.
+- Release quality gate (`release-gate.yaml`, `validate-release-gate.mjs`, `/qa-gate`) with PASS/CONCERNS/FAIL/WAIVED decisions for enterprise track.
+- Dual-mode test design: system-level `test-design-system.md`, per-RF proposal, `validate-test-design.mjs` and `testDesign.*` config paths.
 - `doctor.mjs --strict` for initialized target repositories and CI hardening.
 - `validate-target.mjs` aggregated target-repository validation command.
 - Shared Markdown table parsing utilities for stronger validators.
@@ -16,6 +21,8 @@
 
 ### Documentation
 
+- Added `docs/qa-ai/qa-help.md`, `release-gate.md` and `test-design-dual-mode.md`.
+- Framework upgrade guide in `README.md` and `README.es.md`.
 - Documented target-repository hardening status and strict doctor usage in README, roadmap, architecture and backlog.
 - Aligned Claude, OpenCode, Codex and generic adapter validation guidance with the hardened validator pipeline.
 

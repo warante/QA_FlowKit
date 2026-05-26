@@ -63,7 +63,8 @@ Interactive command behavior:
 - `/qa-update-tests` asks for the updated RF source, official RF ID, existing test scope and proposal/apply mode before changing current tests.
 - `/qa-automation-plan` asks which existing tests to analyze and produces automation feasibility plus implementation planning before any automation code is written.
 - `/qa-coverage` asks for RF, requirement source or repo scope and reports functional coverage across requirements, manual tests and automated tests.
-- `/qa-status` summarizes configuration, feature health, QA artifacts, active specialists and recommended next steps without modifying files.
+- `/qa-help` inspects artifacts and `project.qaTrack` to recommend the next workflow phase (CLI: `node .qa-ai/scripts/qa-help.mjs`).
+- `/qa-status` summarizes configuration, feature health, QA artifacts, active specialists and recommended next steps without modifying files. It should include output from `qa-help` for the next command.
 - `/qa-clean` previews cleanup first, then asks for scope and execution approval.
 - `/qa-validate-features` uses the configured feature path unless the user asks for a custom path.
 - `/qa-doctor` runs without extra input.
