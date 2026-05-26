@@ -1,7 +1,11 @@
 #!/usr/bin/env node
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
+import os from 'node:os';
 import path from 'node:path';
+import { inspectQaWorkflow, normalizeQaTrack } from './lib/qa-next-steps.mjs';
+import { validateReleaseGateData } from './lib/release-gate.mjs';
+import { validateTestDesignProposal, validateTestDesignSystem } from './lib/test-design.mjs';
 import { parseMarkdownTable } from './lib/markdown-table.mjs';
 import { validateTestManagementMapping } from './lib/test-management-mapping.mjs';
 
@@ -149,7 +153,126 @@ async function testMappingTemplateIsValid() {
   assert.deepEqual(validateTestManagementMapping(parsed, { source: 'test-management-mapping.template.json' }), []);
 }
 
+function testNormalizeQaTrack() {
+  assert.equal(normalizeQaTrack('fast'), 'quick');
+  assert.equal(normalizeQaTrack('enterprise'), 'enterprise');
+  assert.equal(normalizeQaTrack('unknown-value'), 'standard');
+}
+
+async function testQaHelpWithoutConfig() {
+  const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-ai-help-'));
+  const report = await inspectQaWorkflow(tempDir);
+  assert.equal(report.initialized, false);
+  assert.ok(report.recommendations.some((item) => item.command.includes('init.mjs')));
+}
+
+function testReleaseGatePass() {
+  const result = validateReleaseGateData({
+    decision: 'PASS',
+    approver: 'QA Lead',
+    coverage_summary: 'All validators passed.',
+    open_risks: ['None documented'],
+    evidence_paths: ['qa-ai-output/traceability-matrix.md', 'qa-ai-output/pr-summary.md']
+  });
+  assert.deepEqual(result.errors, []);
+  assert.equal(result.decision, 'PASS');
+}
+
+function testTestDesignSystemSections() {
+  const valid = validateTestDesignSystem(`# System Test Design\n${[
+    '## Scope',
+    '## Architecture alignment',
+    '## Testability risks',
+    '## Cross-RF coverage strategy',
+    '## Shared fixtures and data',
+    '## Non-functional focus',
+    '## Open questions'
+  ].join('\n\n')}\n`);
+  assert.equal(valid.ok, true);
+  const invalid = validateTestDesignSystem('# System Test Design\n## Scope\n');
+  assert.equal(invalid.ok, false);
+}
+
+function testTestDesignProposalSections() {
+  const valid = validateTestDesignProposal(`# Test Design Proposal\n${[
+    '## Official RF ID',
+    'RF-101',
+    '## Scope',
+    '## Proposed tests',
+    '## Existing tests to reuse',
+    '## Existing tests requiring modification',
+    '## New tests to create',
+    '## Ambiguities requiring user decision',
+    '## Approval request'
+  ].join('\n\n')}\n`);
+  assert.equal(valid.ok, true);
+}
+
+function testReleaseGateWaivedRequiresApprover() {
+  const result = validateReleaseGateData({
+    decision: 'WAIVED',
+    coverage_summary: 'Partial coverage accepted.',
+    open_risks: ['Known gap in API tests'],
+    evidence_paths: ['qa-ai-output/pr-summary.md']
+  });
+  assert.ok(result.errors.some((error) => error.includes('approver')));
+  assert.ok(result.errors.some((error) => error.includes('waived_reason')));
+}
+
+async function testQaHelpQuickTrackPendingGherkin() {
+  const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-ai-help-'));
+  await fs.mkdir(path.join(tempDir, '.qa-ai'), { recursive: true });
+  await fs.mkdir(path.join(tempDir, 'qa-ai-output'), { recursive: true });
+  await fs.writeFile(
+    path.join(tempDir, 'qa-ai.config.yaml'),
+    [
+      'project:',
+      '  qaTrack: quick',
+      'knowledge:',
+      '  enabled: false',
+      'tools:',
+      '  testManagement: none',
+      '  issueTracker: none',
+      'automation:',
+      '  ui:',
+      '    framework: none',
+      '  api:',
+      '    framework: none',
+      'gherkin:',
+      '  featurePath: features',
+      'traceability:',
+      '  matrixPath: qa-ai-output/traceability-matrix.md',
+      ''
+    ].join('\n'),
+    'utf8'
+  );
+  await fs.writeFile(
+    path.join(tempDir, 'qa-ai-output', 'requirement-analysis.md'),
+    '# Requirement Analysis\n',
+    'utf8'
+  );
+  await fs.writeFile(
+    path.join(tempDir, 'qa-ai-output', 'normalized-requirements.md'),
+    '# Normalized Requirements\n',
+    'utf8'
+  );
+
+  const report = await inspectQaWorkflow(tempDir);
+  assert.equal(report.track, 'quick');
+  assert.ok(!report.pendingPhaseIds.includes('tm-coverage'));
+  assert.ok(!report.pendingPhaseIds.includes('feasibility'));
+  assert.equal(report.pendingPhaseIds[0], 'gherkin');
+  assert.ok(report.recommendations.some((item) => item.title.includes('Gherkin')));
+}
+
 async function main() {
+  testNormalizeQaTrack();
+  testTestDesignSystemSections();
+  testTestDesignProposalSections();
+  testReleaseGatePass();
+  testReleaseGateWaivedRequiresApprover();
+  await testQaHelpWithoutConfig();
+  await testQaHelpQuickTrackPendingGherkin();
   testValidTable();
   testMissingSeparator();
   testMissingRequiredColumn();

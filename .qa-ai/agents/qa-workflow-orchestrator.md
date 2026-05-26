@@ -15,23 +15,36 @@ Activated when the user starts a full QA workflow run (`/qa-full-flow`) or reque
 - `knowledge.summaryPath` and `knowledge.decisionsPath` when `knowledge.enabled` is true.
 - `.qa-ai/agents/specialists/active.md` when present.
 
+## QA tracks (`project.qaTrack`)
+
+Read `project.qaTrack` from `qa-ai.config.yaml` (`quick`, `standard`, or `enterprise`). After each phase, recommend `node .qa-ai/scripts/qa-help.mjs` or `/qa-help`.
+
+| Track | Purpose | Phases omitted (in addition to config-based skips below) |
+|---|---|---|
+| `quick` | Manual QA, bugfix scope, Gherkin + traceability + PR | System test design, test-management coverage/sync, automation feasibility, UI/API implementation, issue task drafts |
+| `standard` | Full QA workflow (default) | None |
+| `enterprise` | Compliance-oriented teams | None; after workflow completion require `validate-target.mjs` |
+
 ## Phase Sequence
 
 Execute phases in order. Each phase depends on the previous one's output.
 
 | # | Phase | Agent | Skip condition |
 |---|---|---|---|
-| 1 | QA context intake | `qa-context-intake-agent.md` | Already completed (`qa-knowledge-summary.md` exists and is current) |
+| 1 | QA context intake | `qa-context-intake-agent.md` | `knowledge.enabled` is false, or already completed (`qa-knowledge-summary.md` exists and is current) |
 | 2 | Requirements intake | `requirements-intake-agent.md` | User provides pre-analyzed requirements |
 | 3 | Requirements normalization | `requirements-normalization-agent.md` | Never skip |
-| 4 | Gherkin test design | `gherkin-test-design-agent.md` | Never skip |
-| 5 | Test management coverage | `testrail-coverage-agent.md` | `tools.testManagement` is `none` or missing |
-| 6 | Test management sync | `testrail-sync-agent.md` | `tools.testManagement` is `none` or missing |
-| 7 | Automation feasibility | `automation-feasibility-agent.md` | Never skip |
-| 8 | UI/E2E implementation | `webdriverio-implementation-agent.md` | No tests classified as UI automatable |
-| 9 | API implementation | `api-testing-agent.md` | No tests classified as API automatable |
-| 10 | Issue task drafts | `jira-task-agent.md` | No tests classified as pending automation |
-| 11 | PR summary | `pr-agent.md` | User explicitly skips |
+| 4 | System test design | `test-design-system-agent.md` | `quick` track |
+| 5 | Per-RF test design | `gherkin-test-design-agent.md` | Never skip (proposal); on `quick` may combine with phase 6 |
+| 6 | Gherkin feature generation | `gherkin-test-design-agent.md` | Never skip |
+| 7 | Test management coverage | `testrail-coverage-agent.md` | `quick` track, or `tools.testManagement` is `none` or missing |
+| 8 | Test management sync | `testrail-sync-agent.md` | `quick` track, or `tools.testManagement` is `none` or missing |
+| 9 | Automation feasibility | `automation-feasibility-agent.md` | `quick` track |
+| 10 | UI/E2E implementation | `webdriverio-implementation-agent.md` | `quick` track, no UI automatable tests, or `automation.ui.framework` is `none`/`undecided` |
+| 11 | API implementation | `api-testing-agent.md` | `quick` track, no API automatable tests, or `automation.api.framework` is `none`/`undecided` |
+| 12 | Issue task drafts | `jira-task-agent.md` | `quick` track, no pending automation tests, or `tools.issueTracker` is `none`/missing |
+| 13 | PR summary | `pr-agent.md` | User explicitly skips |
+| 14 | Release quality gate | `release-gate-agent.md` | `project.qaTrack` is not `enterprise` |
 
 ## Responsibilities
 
@@ -50,7 +63,7 @@ Execute phases in order. Each phase depends on the previous one's output.
 Between phases, report to the user:
 
 ```
-Phase [N/11]: [Phase Name] — [Status]
+Phase [N/14]: [Phase Name] — [Status]
 Artifacts produced: [list]
 Pending decisions: [list or "none"]
 Next phase: [Name] (or "complete")
@@ -58,11 +71,13 @@ Next phase: [Name] (or "complete")
 
 ## Decision Rules
 
+- If `project.qaTrack` is `quick`: skip phases 4 and 7–12 unless the user explicitly requests a deeper pass; still produce per-RF proposal (optional), features, traceability and PR summary.
+- If `project.qaTrack` is `enterprise`: run phase 12 (`release-gate-agent.md`) after PR summary, then `node .qa-ai/scripts/validate-target.mjs` and `node .qa-ai/scripts/validate-release-gate.mjs`.
 - If `automation.ui.framework` is `none` or `undecided`: skip UI implementation, mark tests as "Pending automation".
 - If `automation.api.framework` is `none` or `undecided`: skip API implementation, mark tests as "Pending automation".
 - If `tools.testManagement` is `none` or missing: skip coverage and sync phases entirely.
 - If `tools.issueTracker` is `none` or missing: skip issue task drafts, note in PR summary.
-- If user interrupts mid-workflow: save current state summary and resume from last completed phase on next run.
+- If user interrupts mid-workflow: save current state summary and resume from last completed phase on next run; run `/qa-help` to see the next required phase.
 
 ## Error Handling
 

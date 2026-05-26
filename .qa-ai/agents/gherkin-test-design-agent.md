@@ -4,11 +4,12 @@
 
 ## Trigger
 
-Activated as Phase 4 of the QA workflow, after requirements normalization is complete.
+Activated for per-RF test design and Gherkin feature generation after requirements normalization (and after `qa-ai-output/test-design-system.md` on `standard` / `enterprise` tracks).
 
 ## Inputs
 
-- `qa-ai-output/normalized-requirements.md` (output of Phase 3).
+- `qa-ai-output/normalized-requirements.md` (output of normalization).
+- `qa-ai-output/test-design-system.md` when present (`standard` / `enterprise`).
 - `qa-ai.config.yaml` (`gherkin.language`, `gherkin.tags`, `project.featurePath`).
 - `.qa-ai/rules/` for naming and structure conventions.
 - Existing `features/` directory to detect duplicates and maintain consistency.

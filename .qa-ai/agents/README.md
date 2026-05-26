@@ -23,7 +23,9 @@ Reusable repository configuration profiles can be imported or exported with `nod
 | QA context intake | `.qa-ai/agents/qa-context-intake-agent.md` |
 | Requirements intake | `.qa-ai/agents/requirements-intake-agent.md` |
 | Requirements normalization | `.qa-ai/agents/requirements-normalization-agent.md` |
-| Gherkin test design | `.qa-ai/agents/gherkin-test-design-agent.md` |
+| System test design | `.qa-ai/agents/test-design-system-agent.md` |
+| Per-RF test design / Gherkin | `.qa-ai/agents/gherkin-test-design-agent.md` |
+| Release quality gate | `.qa-ai/agents/release-gate-agent.md` |
 | Test management coverage | `.qa-ai/agents/testrail-coverage-agent.md` |
 | Test management sync planning | `.qa-ai/agents/testrail-sync-agent.md` |
 | Automation feasibility | `.qa-ai/agents/automation-feasibility-agent.md` |
