@@ -29,6 +29,8 @@ Agent files in `.qa-ai/agents/` are required role instructions for QA workflow p
 | `/qa-update-tests` | Review existing tests after RF changes and apply approved updates |
 | `/qa-automation-plan` | Classify existing `.feature` files and plan automation |
 | `/qa-coverage` | Analyze functional coverage across RFs, manual tests and automated tests |
+| `/qa-help` | Context-aware guidance for the next QA workflow step |
+| `/qa-gate` | Record enterprise release gate decision |
 | `/qa-status` | Summarize config, artifacts, feature health and recommended next steps |
 | `/qa-doctor` | Setup health checks |
 | `/qa-clean` | Manifest-based cleanup preview/execution |
@@ -41,6 +43,7 @@ Agent files in `.qa-ai/agents/` are required role instructions for QA workflow p
 | `node .qa-ai/scripts/config.mjs --help` | Import/export reusable QA AI config profiles |
 | `node .qa-ai/scripts/doctor.mjs` | Check setup health |
 | `node .qa-ai/scripts/doctor.mjs --strict` | CI-style checks for initialized target repositories |
+| `node .qa-ai/scripts/qa-help.mjs` | Recommend the next QA phase based on artifacts and track |
 | `node .qa-ai/scripts/validate-target.mjs` | Run the full target repository validation pipeline |
 | `node .qa-ai/scripts/validate-features.mjs` | Validate `.feature` files |
 | `node .qa-ai/scripts/validate-traceability.mjs` | Validate traceability matrix coverage and shape |

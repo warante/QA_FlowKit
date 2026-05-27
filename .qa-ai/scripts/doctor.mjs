@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import path from 'node:path';
+import { normalizeQaTrack } from './lib/qa-next-steps.mjs';
 import { getConfigValue, loadQaAiConfig, parseArgs, pathExists, resolveRepoPath, logHeader } from './lib/utils.mjs';
 
 const cwd = process.cwd();
@@ -17,9 +18,15 @@ const requiredScripts = [
   '.qa-ai/scripts/validate-sync-plan.mjs',
   '.qa-ai/scripts/validate-active-specialists.mjs',
   '.qa-ai/scripts/validate-target.mjs',
+  '.qa-ai/scripts/qa-help.mjs',
+  '.qa-ai/scripts/validate-release-gate.mjs',
+  '.qa-ai/scripts/validate-test-design.mjs',
   '.qa-ai/scripts/test-validators.mjs',
   '.qa-ai/scripts/smoke-test.mjs',
   '.qa-ai/scripts/sync-agent-adapters.mjs',
+  '.qa-ai/scripts/lib/qa-next-steps.mjs',
+  '.qa-ai/scripts/lib/release-gate.mjs',
+  '.qa-ai/scripts/lib/test-design.mjs',
   '.qa-ai/scripts/lib/markdown-table.mjs',
   '.qa-ai/scripts/lib/project-config.mjs',
   '.qa-ai/scripts/lib/test-management-mapping.mjs',
@@ -42,11 +49,13 @@ const requiredTemplates = [
   '.qa-ai/templates/jira-automation-task.template.md',
   '.qa-ai/templates/pr-template.md',
   '.qa-ai/templates/requirement-analysis.template.md',
+  '.qa-ai/templates/test-design-system.template.md',
   '.qa-ai/templates/test-design-proposal.template.md',
   '.qa-ai/templates/testrail-coverage-analysis.template.md',
   '.qa-ai/templates/test-management-mapping.template.json',
   '.qa-ai/templates/testrail-sync-plan.template.md',
-  '.qa-ai/templates/traceability-matrix.template.md'
+  '.qa-ai/templates/traceability-matrix.template.md',
+  '.qa-ai/templates/release-gate.template.yaml'
 ];
 
 const requiredAgents = [
@@ -54,6 +63,7 @@ const requiredAgents = [
   '.qa-ai/agents/api-testing-agent.md',
   '.qa-ai/agents/automation-feasibility-agent.md',
   '.qa-ai/agents/gherkin-test-design-agent.md',
+  '.qa-ai/agents/test-design-system-agent.md',
   '.qa-ai/agents/qa-context-intake-agent.md',
   '.qa-ai/agents/jira-task-agent.md',
   '.qa-ai/agents/pr-agent.md',
@@ -62,7 +72,8 @@ const requiredAgents = [
   '.qa-ai/agents/requirements-normalization-agent.md',
   '.qa-ai/agents/testrail-coverage-agent.md',
   '.qa-ai/agents/testrail-sync-agent.md',
-  '.qa-ai/agents/webdriverio-implementation-agent.md'
+  '.qa-ai/agents/webdriverio-implementation-agent.md',
+  '.qa-ai/agents/release-gate-agent.md'
 ];
 
 const requiredSpecialists = [
@@ -95,7 +106,9 @@ const requiredWorkflows = [
   '.qa-ai/workflows/intake.md',
   '.qa-ai/workflows/pr.md',
   '.qa-ai/workflows/test-design.md',
-  '.qa-ai/workflows/testrail-sync.md'
+  '.qa-ai/workflows/test-design-system.md',
+  '.qa-ai/workflows/testrail-sync.md',
+  '.qa-ai/workflows/release-gate.md'
 ];
 
 const requiredAdapterTemplates = [
@@ -110,6 +123,8 @@ const requiredAdapterTemplates = [
   '.qa-ai/adapters/claude/commands/qa-doctor.md',
   '.qa-ai/adapters/claude/commands/qa-full-flow.md',
   '.qa-ai/adapters/claude/commands/qa-init.md',
+  '.qa-ai/adapters/claude/commands/qa-help.md',
+  '.qa-ai/adapters/claude/commands/qa-gate.md',
   '.qa-ai/adapters/claude/commands/qa-status.md',
   '.qa-ai/adapters/claude/commands/qa-update-tests.md',
   '.qa-ai/adapters/claude/commands/qa-validate-features.md',
@@ -132,6 +147,8 @@ const requiredAdapterTemplates = [
   '.qa-ai/adapters/opencode/commands/qa-doctor.md',
   '.qa-ai/adapters/opencode/commands/qa-full-flow.md',
   '.qa-ai/adapters/opencode/commands/qa-init.md',
+  '.qa-ai/adapters/opencode/commands/qa-help.md',
+  '.qa-ai/adapters/opencode/commands/qa-gate.md',
   '.qa-ai/adapters/opencode/commands/qa-status.md',
   '.qa-ai/adapters/opencode/commands/qa-update-tests.md',
   '.qa-ai/adapters/opencode/commands/qa-validate-features.md'
@@ -182,12 +199,19 @@ function addWorkflowArtifactChecks(checks, config) {
   const uiFramework = getConfigValue(config, 'automation.ui.framework', 'none');
   const apiFramework = getConfigValue(config, 'automation.api.framework', 'none');
   const hasAutomation = isConfiguredFramework(uiFramework) || isConfiguredFramework(apiFramework);
+  const track = normalizeQaTrack(getConfigValue(config, 'project.qaTrack', 'standard'));
+  const proposalPath = getConfigValue(config, 'testDesign.proposalPath', 'qa-ai-output/test-design-proposal.md');
+  const isQuickTrack = track === 'quick';
 
   checks.push(pathCheck(checkLevel('optional'), 'requirement analysis artifact', 'qa-ai-output/requirement-analysis.md'));
-  checks.push(pathCheck(checkLevel('optional'), 'test design proposal artifact', 'qa-ai-output/test-design-proposal.md'));
+  if (!isQuickTrack) {
+    const systemPath = getConfigValue(config, 'testDesign.systemPath', 'qa-ai-output/test-design-system.md');
+    checks.push(pathCheck(checkLevel('optional'), 'system test design artifact', systemPath));
+  }
+  checks.push(pathCheck(isQuickTrack ? 'optional' : checkLevel('optional'), 'test design proposal artifact', proposalPath));
   checks.push(pathCheck(checkLevel('optional'), 'PR summary artifact', 'qa-ai-output/pr-summary.md'));
 
-  if (isConfiguredTool(testManagementTool)) {
+  if (!isQuickTrack && isConfiguredTool(testManagementTool)) {
     checks.push(pathCheck(checkLevel('optional'), 'test management coverage artifact', 'qa-ai-output/testrail-coverage-analysis.md'));
     checks.push(pathCheck(checkLevel('optional'), 'test management sync plan artifact', 'qa-ai-output/testrail-sync-plan.md'));
   }
@@ -215,11 +239,12 @@ function addConfiguredChecks(checks, config) {
   const knowledgeSourcePath = getConfigValue(config, 'knowledge.sourcePath', '');
   const knowledgeSummaryPath = getConfigValue(config, 'knowledge.summaryPath', 'qa-ai-output/qa-knowledge-summary.md');
   const knowledgeDecisionsPath = getConfigValue(config, 'knowledge.decisionsPath', 'qa-ai-output/qa-init-decisions.md');
+  const track = normalizeQaTrack(getConfigValue(config, 'project.qaTrack', 'standard'));
 
   checks.push(pathCheck('required', 'configured feature root', featurePath));
   checks.push(pathCheck('required', 'configured QA output path', path.dirname(matrixPath)));
   checks.push(pathCheck(checkLevel('optional'), 'configured traceability matrix', matrixPath));
-  if (mappingFile) checks.push(pathCheck(checkLevel('optional'), 'configured test management mapping file', mappingFile));
+  if (mappingFile && track !== 'quick') checks.push(pathCheck(checkLevel('optional'), 'configured test management mapping file', mappingFile));
   addWorkflowArtifactChecks(checks, config);
 
   if (knowledgeEnabled) {

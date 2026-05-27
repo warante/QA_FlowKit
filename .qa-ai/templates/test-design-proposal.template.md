@@ -1,4 +1,10 @@
-# Test Design Proposal
+# Test Design Proposal (per RF / epic)
+
+> Per-RF or per-epic test cases. For system-wide strategy see `qa-ai-output/test-design-system.md` (standard and enterprise tracks).
+
+## Official RF ID
+
+<!-- Required before final .feature generation -->
 
 ## Scope
 

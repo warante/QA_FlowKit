@@ -305,6 +305,55 @@ Acceptance Criteria:
 - Short terminal transcripts or screenshots for: default init, manual-only init, agent-first bootstrap, validate-features and validate-target.
 - Transcripts embedded or linked from getting-started or a dedicated examples page.
 
+## Epic 7 - Intelligent guidance (BMAD-inspired)
+
+### TASK-028 - Add qa-help and qa-next-steps library
+
+Status: Done
+
+Acceptance Criteria:
+- Add `qa-next-steps.mjs` with track-aware phase inspection and prioritized recommendations.
+- Add `qa-help.mjs` CLI with `--json` support.
+- Add `npm run qa:help`.
+
+### TASK-029 - Add QA workflow tracks
+
+Status: Done
+
+Acceptance Criteria:
+- Add `project.qaTrack` to presets (`quick` for manual-only, `standard` for automation presets).
+- Support `init.mjs --qa-track`.
+- Document track skips in orchestrator and `full-flow.md`.
+
+### TASK-030 - Add /qa-help adapter commands
+
+Status: Done
+
+Acceptance Criteria:
+- Add `qa-help.md` for Claude Code and OpenCode adapters.
+- Update `qa-status` and `qa-full-flow` to reference `qa-help`.
+- Add `docs/qa-ai/qa-help.md` and link from README.
+
+## Epic 8 - Quality gates (BMAD-inspired)
+
+### TASK-031 - Add release gate artifact and validator
+
+Status: Done
+
+Acceptance Criteria:
+- Add `release-gate.template.yaml` and `validate-release-gate.mjs`.
+- Support decisions PASS, CONCERNS, FAIL, WAIVED and PENDING (draft).
+- Validate evidence paths exist and WAIVED requires approver plus waived_reason.
+
+### TASK-032 - Integrate release gate with enterprise track
+
+Status: Done
+
+Acceptance Criteria:
+- Add `release-gate-agent.md`, `release-gate.md` workflow and `/qa-gate` adapter commands.
+- Include release gate validation in `validate-target.mjs` for `enterprise` track.
+- Extend `qa-help` enterprise phase list with `release-gate`.
+
 ### TASK-027 - Add example manual-only repository
 
 Status: Planned
@@ -313,6 +362,28 @@ Acceptance Criteria:
 - Public repository with manual-only preset, feature files, traceability matrix and QA context folder.
 - Passes `validate-target.mjs` in CI.
 - Linked from README and getting-started.
+
+## Epic 9 - Test design dual-mode (BMAD TEA-inspired)
+
+### TASK-033 - Add system and per-RF test design artifacts
+
+Status: Done
+
+Acceptance Criteria:
+- Add `test-design-system.template.md` and extend `test-design-proposal.template.md` for per-RF scope.
+- Add `test-design-system-agent.md` and `test-design-system.md` workflow.
+- Add `testDesign.systemPath` and `testDesign.proposalPath` to presets.
+- Generate system template with `init.mjs --with-doc-templates`.
+
+### TASK-034 - Add test design validation and qa-help phases
+
+Status: Done
+
+Acceptance Criteria:
+- Add `lib/test-design.mjs` and `validate-test-design.mjs` with `npm run qa:validate-test-design`.
+- Add `test-design-system` and `test-design-rf` phases to `qa-next-steps.mjs` for standard and enterprise tracks.
+- Include test design validation in `validate-target.mjs` for standard and enterprise tracks.
+- Add `docs/qa-ai/test-design-dual-mode.md` and link from README files.
 
 ## Future epics
 

@@ -2,6 +2,7 @@ version: 1
 project:
   name: CHANGE_ME
   repoMode: qa-design-only
+  qaTrack: quick
   defaultLanguage: en
   interfaceLanguage: en
 tools:
@@ -49,6 +50,9 @@ automation:
     automateAllTechnicallyPossible: false
     requireProposalBeforeImplementation: true
     allowModifyExistingTests: approval-only
+testDesign:
+  systemPath: qa-ai-output/test-design-system.md
+  proposalPath: qa-ai-output/test-design-proposal.md
 traceability:
   matrixPath: qa-ai-output/traceability-matrix.md
 approval:

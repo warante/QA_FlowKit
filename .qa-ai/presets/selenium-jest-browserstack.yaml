@@ -2,6 +2,7 @@ version: 1
 project:
   name: CHANGE_ME
   repoMode: qa-and-automation
+  qaTrack: standard
   defaultLanguage: en
   interfaceLanguage: en
 tools:
@@ -52,8 +53,13 @@ automation:
     automateAllTechnicallyPossible: true
     requireProposalBeforeImplementation: true
     allowModifyExistingTests: approval-only
+testDesign:
+  systemPath: qa-ai-output/test-design-system.md
+  proposalPath: qa-ai-output/test-design-proposal.md
 traceability:
   matrixPath: qa-ai-output/traceability-matrix.md
+release:
+  gatePath: qa-ai-output/release-gate.yaml
 approval:
   beforeExternalWrite: true
   beforeExistingFileModification: true

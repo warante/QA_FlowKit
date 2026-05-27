@@ -1,0 +1,16 @@
+# Release gate — proposal-first record for go/no-go decisions.
+# QA FlowKit does not perform external writes. Update this file after validators and review.
+
+decision: PENDING
+approver: ""
+recordedAt: ""
+coverage_summary: |
+  Summarize traceability coverage, validator results and test-management sync status.
+open_risks:
+  - Document any blocking or residual risks, or state "None documented" for PASS.
+evidence_paths:
+  - qa-ai-output/traceability-matrix.md
+  - qa-ai-output/pr-summary.md
+waived_reason: ""
+notes: |
+  Required human approval before production release. Use WAIVED only with explicit approver and reason.

@@ -40,6 +40,7 @@ async function main() {
   let qaContextTarget = null;
   let optionalDocsTarget = null;
   let strictTarget = null;
+  let quickStrictTarget = null;
   let importProfileTarget = null;
   let validatorTarget = null;
   try {
@@ -179,6 +180,7 @@ async function main() {
     ]);
     const expectedOptionalDocPaths = [
       'qa-ai-output/requirement-analysis.md',
+      'qa-ai-output/test-design-system.md',
       'qa-ai-output/test-design-proposal.md',
       'qa-ai-output/traceability-matrix.md',
       'qa-ai-output/test-management-mapping.json'
@@ -205,6 +207,30 @@ async function main() {
     run(strictTarget, ['.qa-ai/scripts/doctor.mjs', '--strict']);
     await fs.rm(path.join(strictTarget, 'qa-ai-output', 'traceability-matrix.md'), { force: true });
     run(strictTarget, ['.qa-ai/scripts/doctor.mjs', '--strict'], { expectFailure: true });
+
+    quickStrictTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-ai-starter-quick-strict-'));
+    await copyFramework(quickStrictTarget);
+    run(quickStrictTarget, [
+      '.qa-ai/scripts/init.mjs',
+      '--preset', 'manual-only',
+      '--no-adapters'
+    ]);
+    await fs.writeFile(
+      path.join(quickStrictTarget, 'qa-ai-output', 'requirement-analysis.md'),
+      '# Requirement Analysis\n\nRF-101 login.\n',
+      'utf8'
+    );
+    await fs.writeFile(
+      path.join(quickStrictTarget, 'qa-ai-output', 'traceability-matrix.md'),
+      '# Traceability Matrix\n\n| Requirement Source | RF | CA | Feature File | Test Management Case ID | Type | Priority | Automation Status | Automation File |\n|---|---|---|---|---|---|---|---|---|\n',
+      'utf8'
+    );
+    await fs.writeFile(
+      path.join(quickStrictTarget, 'qa-ai-output', 'pr-summary.md'),
+      '# PR Summary\n\nQuick track summary.\n',
+      'utf8'
+    );
+    run(quickStrictTarget, ['.qa-ai/scripts/doctor.mjs', '--strict']);
 
     validatorTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-ai-starter-validators-'));
     await copyFramework(validatorTarget);
@@ -244,7 +270,40 @@ async function main() {
       'utf8'
     );
     await fs.writeFile(path.join(validatorTarget, 'qa-ai-output', 'requirement-analysis.md'), '# Requirement Analysis\n\nRF-101 login.\n', 'utf8');
-    await fs.writeFile(path.join(validatorTarget, 'qa-ai-output', 'test-design-proposal.md'), '# Test Design Proposal\n\nTC-001 proposed.\n', 'utf8');
+    await fs.writeFile(
+      path.join(validatorTarget, 'qa-ai-output', 'test-design-proposal.md'),
+      [
+        '# Test Design Proposal (per RF / epic)',
+        '',
+        '## Official RF ID',
+        'RF-101',
+        '',
+        '## Scope',
+        'Login for RF-101.',
+        '',
+        '## Proposed tests',
+        '| RF | CA | Test ID | Title | Type | Priority | Manual | Action |',
+        '|---|---|---|---|---|---|---|---|',
+        '| RF-101 | Valid login | TC-001 | Valid login | functional | high | false | create |',
+        '',
+        '## Existing tests to reuse',
+        'None.',
+        '',
+        '## Existing tests requiring modification',
+        'None.',
+        '',
+        '## New tests to create',
+        'TC-001.',
+        '',
+        '## Ambiguities requiring user decision',
+        'None.',
+        '',
+        '## Approval request',
+        'Approve TC-001 feature generation.',
+        ''
+      ].join('\n'),
+      'utf8'
+    );
     await fs.writeFile(path.join(validatorTarget, 'qa-ai-output', 'testrail-coverage-analysis.md'), '# TestRail Coverage Analysis\n\nRF-101 coverage.\n', 'utf8');
     await fs.writeFile(path.join(validatorTarget, 'qa-ai-output', 'pr-summary.md'), '# PR Summary\n\nValidation pending.\n', 'utf8');
     await fs.writeFile(
@@ -350,8 +409,9 @@ async function main() {
     run(validatorTarget, ['.qa-ai/scripts/validate-sync-plan.mjs'], { expectFailure: true });
     run(validatorTarget, ['.qa-ai/scripts/validate-active-specialists.mjs']);
 
-    const activePath = path.join(tempRoot, '.qa-ai/agents/specialists/active.md');
-    await fs.writeFile(activePath, 'USER EDIT\n', 'utf8');
+    const preservedPath = path.join(tempRoot, 'qa-ai-output', 'requirement-analysis.md');
+    await fs.mkdir(path.dirname(preservedPath), { recursive: true });
+    await fs.writeFile(preservedPath, 'USER EDIT\n', 'utf8');
     run(tempRoot, [
       '.qa-ai/scripts/init.mjs',
       '--preset', 'webdriverio-playwright-api',
@@ -359,9 +419,14 @@ async function main() {
       '--gherkin-language', 'en',
       '--adapters', 'generic'
     ]);
+    const preservedContent = await readText(preservedPath);
+    if (preservedContent !== 'USER EDIT\n') {
+      throw new Error('requirement-analysis.md was overwritten without --force.');
+    }
+    const activePath = path.join(tempRoot, '.qa-ai/agents/specialists/active.md');
     const activeContent = await readText(activePath);
-    if (activeContent !== 'USER EDIT\n') {
-      throw new Error('active.md was overwritten without --force.');
+    if (!activeContent.includes('Active QA AI Specialists')) {
+      throw new Error('active.md was not regenerated from init config.');
     }
 
     unsafeRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-ai-starter-unsafe-'));
@@ -388,6 +453,7 @@ async function main() {
     if (qaContextTarget) await fs.rm(qaContextTarget, { recursive: true, force: true });
     if (optionalDocsTarget) await fs.rm(optionalDocsTarget, { recursive: true, force: true });
     if (strictTarget) await fs.rm(strictTarget, { recursive: true, force: true });
+    if (quickStrictTarget) await fs.rm(quickStrictTarget, { recursive: true, force: true });
     if (importProfileTarget) await fs.rm(importProfileTarget, { recursive: true, force: true });
     if (validatorTarget) await fs.rm(validatorTarget, { recursive: true, force: true });
   }

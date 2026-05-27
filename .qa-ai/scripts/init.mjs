@@ -49,6 +49,7 @@ Options:
   --requirements-source <name> Primary requirement source, for example markdown, jira, confluence
   --test-management-tool <name> Test management tool, for example none, testrail, zephyr, xray
   --issue-tracker <name>   Issue tracker, for example none, jira, github
+  --qa-track <name>        QA workflow depth: quick, standard, enterprise (default from preset)
   --qa-context <path>      Repo-local folder with QA working-practice docs for agent-assisted init
   --ui-framework <name>    UI/E2E framework, or none/undecided
   --api-framework <name>   API/integration framework, or none/undecided
@@ -164,6 +165,7 @@ function configOverrides() {
   const overrides = [
     ['project.defaultLanguage', interfaceLanguage],
     ['project.interfaceLanguage', interfaceLanguage],
+    ['project.qaTrack', args['qa-track'] || args.qaTrack],
     ['gherkin.language', gherkinLanguage],
     ['knowledge.enabled', validatedQaContextPath ? 'true' : undefined],
     ['knowledge.sourcePath', validatedQaContextPath],
@@ -227,13 +229,15 @@ function generatedDocs() {
   return [
     ['templates/requirement-analysis.template.md', 'qa-ai-output/requirement-analysis.md'],
     ['templates/testrail-coverage-analysis.template.md', 'qa-ai-output/testrail-coverage-analysis.md'],
+    ['templates/test-design-system.template.md', 'qa-ai-output/test-design-system.md'],
     ['templates/test-design-proposal.template.md', 'qa-ai-output/test-design-proposal.md'],
     ['templates/automation-feasibility-report.template.md', 'qa-ai-output/automation-feasibility-report.md'],
     ['templates/automation-implementation-plan.template.md', 'qa-ai-output/automation-implementation-plan.md'],
     ['templates/traceability-matrix.template.md', 'qa-ai-output/traceability-matrix.md'],
     ['templates/testrail-sync-plan.template.md', 'qa-ai-output/testrail-sync-plan.md'],
     ['templates/jira-automation-task.template.md', 'qa-ai-output/jira-automation-task.md'],
-    ['templates/pr-template.md', 'qa-ai-output/pr-summary.md']
+    ['templates/pr-template.md', 'qa-ai-output/pr-summary.md'],
+    ['templates/release-gate.template.yaml', 'qa-ai-output/release-gate.yaml']
   ];
 }
 
@@ -244,17 +248,25 @@ const spanishTemplateHeadings = new Map([
   ['## Functional scope', '## Alcance funcional'],
   ['## Acceptance Criteria', '## Criterios de aceptacion'],
   ['## Inferred Acceptance Criteria', '## Criterios de aceptacion inferidos'],
+  ['## Ambiguities requiring user decision', '## Ambiguedades que requieren decision del usuario'],
   ['## Ambiguities', '## Ambiguedades'],
   ['## Out of scope', '## Fuera de alcance'],
   ['## QA impact', '## Impacto en QA'],
   ['# TestRail Coverage Analysis', '# Analisis de cobertura de gestion de pruebas'],
-  ['# Test Design Proposal', '# Propuesta de diseno de pruebas'],
+  ['# System Test Design', '# Diseno de pruebas de sistema'],
+  ['## Architecture alignment', '## Alineacion con arquitectura'],
+  ['## Testability risks', '## Riesgos de testabilidad'],
+  ['## Cross-RF coverage strategy', '## Estrategia de cobertura entre RFs'],
+  ['## Shared fixtures and data', '## Fixtures y datos compartidos'],
+  ['## Non-functional focus', '## Enfoque no funcional'],
+  ['## Open questions', '## Preguntas abiertas'],
+  ['# Test Design Proposal (per RF / epic)', '# Propuesta de diseno de pruebas (por RF / epic)'],
+  ['## Official RF ID', '## RF oficial'],
   ['## Scope', '## Alcance'],
   ['## Proposed tests', '## Pruebas propuestas'],
   ['## Existing tests to reuse', '## Pruebas existentes para reutilizar'],
   ['## Existing tests requiring modification', '## Pruebas existentes que requieren modificacion'],
   ['## New tests to create', '## Nuevas pruebas a crear'],
-  ['## Ambiguities requiring user decision', '## Ambiguedades que requieren decision del usuario'],
   ['## Approval request', '## Solicitud de aprobacion'],
   ['# Automation Feasibility Report', '# Informe de viabilidad de automatizacion'],
   ['# Automation Implementation Plan', '# Plan de implementacion de automatizacion'],
@@ -373,7 +385,7 @@ async function main() {
   const specialistsResult = await writeFileSafe(
     resolveRepoPath(cwd, '.qa-ai/agents/specialists/active.md', { label: 'active specialists index' }),
     activeSpecialistsContent(config),
-    { force }
+    { force: true }
   );
   writes.push(specialistsResult);
   if (specialistsResult.written) {

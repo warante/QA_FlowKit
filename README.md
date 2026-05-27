@@ -14,9 +14,11 @@ Language: **English** | [Español](README.es.md)
 
 - [What It Does](#what-it-does)
 - [Quick Start](#quick-start)
+- [Upgrading the framework](#upgrading-the-framework)
 - [Guided Usage Paths](#guided-usage-paths)
 - [Agent-First Bootstrap](#agent-first-bootstrap)
 - [QA Context Folder](#qa-context-folder)
+- [QA Workflow Tracks and Guided Help](#qa-workflow-tracks-and-guided-help)
 - [Commands](#commands)
 - [Validation](#validation)
 - [Init Options](#init-options)
@@ -37,10 +39,12 @@ The starter does **not** perform external writes to configured tools. It creates
 | Area | Included |
 |---|---|
 | Framework | Portable `.qa-ai/` folder |
-| Scripts | `bootstrap-agent-adapters`, `init`, `config`, `doctor`, `clean`, stronger validators, `smoke-test`, `sync-agent-adapters` |
+| Scripts | `bootstrap-agent-adapters`, `init`, `config`, `doctor`, `clean`, `qa-help`, stronger validators, `validate-target`, `validate-release-gate`, `smoke-test`, `sync-agent-adapters` |
 | Rules | Approval, Gherkin, test management, automation, UI automation and API testing |
 | Agents | Phase agents plus active specialists from `.qa-ai/agents/specialists/active.md` |
-| Templates | Requirement analysis, test design, traceability, automation planning and PR summary |
+| Templates | Requirement analysis, system/RF test design, traceability, automation planning, release gate and PR summary |
+| Guided help | `qa-help` and `/qa-help` recommend the next workflow phase from artifacts and `project.qaTrack` |
+| Release gate | Enterprise `release-gate.yaml` with `PASS` / `CONCERNS` / `FAIL` / `WAIVED` decisions |
 | QA context | Optional repo-local folder with team QA practices for agent-assisted init defaults |
 | Adapters | AGENTS.md, Claude Code, Codex, OpenCode, Cline, Continue, Aider, Goose and Gemini CLI |
 
@@ -48,8 +52,10 @@ The starter does **not** perform external writes to configured tools. It creates
 Requirements
   -> requirement intake
   -> official RF + acceptance criteria validation
+  -> system test design (standard / enterprise)
+  -> per-RF test design proposal
+  -> Gherkin feature files
   -> test management coverage analysis
-  -> Gherkin test design
   -> test management sync plan
   -> traceability matrix
   -> automation feasibility
@@ -73,7 +79,112 @@ Then open the repository with your AI coding tool and start with:
 Read AGENTS.md, qa-ai.config.yaml and .qa-ai/workflows/full-flow.md. Follow .qa-ai/rules/ before making changes.
 ```
 
+When unsure what to run next:
+
+```bash
+node .qa-ai/scripts/qa-help.mjs
+```
+
+Or use `/qa-help` in Claude Code or OpenCode after syncing adapters.
+
 By default, init uses the `webdriverio-playwright-api` base template with English interface, English Gherkin and the OpenCode adapter only. It creates the minimum usable structure first; starter QA documents and extra adapters are opt-in.
+
+## Upgrading the framework
+
+If you already copied an older `.qa-ai/` folder into your repository, refresh the **portable framework** from a newer [QA FlowKit](https://github.com/warante/QA_FlowKit) release. Your workflow artifacts (`qa-ai.config.yaml`, `qa-ai-output/`, `features/`, `tests/`, custom `AGENTS.md` edits) live **outside** `.qa-ai/` and are not removed when you replace that folder.
+
+### Before you start
+
+1. Commit or back up the repository (especially `qa-ai.config.yaml` and `qa-ai-output/`).
+2. Note which adapters you use (Claude Code, OpenCode, Codex, etc.).
+3. Skim the release notes or [CHANGELOG](CHANGELOG.md) for new config keys (for example `project.qaTrack`, `testDesign.*`, `release.gatePath`).
+
+### Recommended upgrade steps
+
+**1. Replace the `.qa-ai/` folder** with the version from the latest QA FlowKit checkout or release tag:
+
+```bash
+# Unix / macOS (from your target repository root)
+rm -rf .qa-ai
+cp -R /path/to/QA_FlowKit/.qa-ai .qa-ai
+```
+
+```powershell
+# Windows PowerShell (from your target repository root)
+Remove-Item -Recurse -Force .\.qa-ai
+Copy-Item -Recurse -LiteralPath C:\path\to\QA_FlowKit\.qa-ai -Destination .\.qa-ai
+```
+
+**2. Refresh agent slash commands and adapter files** (safe to overwrite adapter templates; does not touch `qa-ai.config.yaml`):
+
+```bash
+node .qa-ai/scripts/sync-agent-adapters.mjs --adapters claude,opencode --force
+```
+
+Add every adapter you use (`generic`, `codex`, `cline`, `continue`, `aider`, `goose`, `gemini`) or pass `--adapters all`.
+
+**3. Re-run init without overwriting your config** (creates missing folders, refreshes `.qa-ai/agents/specialists/active.md`; skips existing `qa-ai.config.yaml` unless you pass `--force`):
+
+```bash
+node .qa-ai/scripts/init.mjs --no-adapters
+```
+
+**4. Merge new settings into `qa-ai.config.yaml` manually** by comparing your file with the matching preset under `.qa-ai/presets/`. Do **not** run `init.mjs --force` unless you intend to replace the whole config. Typical additions in recent versions:
+
+| Key | Purpose |
+|---|---|
+| `project.qaTrack` | Workflow depth: `quick`, `standard`, `enterprise` |
+| `testDesign.systemPath` | System-level test design document |
+| `testDesign.proposalPath` | Per-RF test design proposal |
+| `release.gatePath` | Enterprise release gate YAML |
+
+To export your current config before editing:
+
+```bash
+node .qa-ai/scripts/config.mjs --export .qa-ai/config-profiles/backup-before-upgrade.yaml
+```
+
+**5. Add missing starter documents** (optional; only creates files that do not exist yet):
+
+```bash
+node .qa-ai/scripts/init.mjs --with-doc-templates --no-adapters
+```
+
+Use `--force` only if you explicitly want to reset generated templates under `qa-ai-output/`.
+
+**6. Verify the upgrade:**
+
+```bash
+node .qa-ai/scripts/doctor.mjs
+node .qa-ai/scripts/qa-help.mjs
+npm run qa:validate-target -- --allow-empty --allow-missing --no-strict-doctor
+```
+
+Adjust flags when your repository already has real `.feature` files and workflow artifacts.
+
+### What init does and does not overwrite
+
+| Path | Default on re-init | With `--force` |
+|---|---|---|
+| `.qa-ai/` | Replace manually (step 1) | Same |
+| `qa-ai.config.yaml` | Skipped if present | Overwritten from preset |
+| `qa-ai-output/*.md` (templates) | Skipped if present | Overwritten when using `--with-doc-templates` |
+| `.claude/`, `.opencode/`, etc. | Skipped | Overwritten via `sync-agent-adapters --force` |
+| `.qa-ai/agents/specialists/active.md` | Always regenerated | Always regenerated |
+| `features/`, `tests/` | Never touched by init | Never touched |
+
+### Minimal agent-first upgrade
+
+If you only use `/qa-init` in Claude Code or OpenCode:
+
+```bash
+rm -rf .qa-ai
+cp -R /path/to/QA_FlowKit/.qa-ai .qa-ai
+node .qa-ai/scripts/bootstrap-agent-adapters.mjs --agents claude,opencode --force
+node .qa-ai/scripts/doctor.mjs
+```
+
+Then merge any new keys into `qa-ai.config.yaml` and run `/qa-help` to see the updated workflow phases.
 
 ## Guided Usage Paths
 
@@ -164,6 +275,77 @@ qa-ai-output/qa-knowledge-summary.md
 qa-ai-output/qa-init-decisions.md
 ```
 
+## QA Workflow Tracks and Guided Help
+
+QA FlowKit adapts workflow depth using `project.qaTrack` in `qa-ai.config.yaml` (inspired by BMAD Method tracks and TEA gate decisions).
+
+### Workflow tracks
+
+| Track | Default preset | Active phases (summary) | Best for |
+|---|---|---|---|
+| `quick` | `manual-only` | Intake, normalization, Gherkin, traceability, PR | Manual QA, narrow scope, fast Gherkin + traceability |
+| `standard` | `webdriverio-playwright-api` | Full workflow including test-management planning, feasibility and automation phases when configured | Most automation repositories |
+| `enterprise` | set with `--qa-track enterprise` | Same as `standard`, plus **release gate** and stricter `validate-target` | Compliance, audit trails, formal go/no-go |
+
+Set the track at init:
+
+```bash
+node .qa-ai/scripts/init.mjs --preset manual-only --qa-track quick
+node .qa-ai/scripts/init.mjs --preset webdriverio-playwright-api --qa-track standard
+node .qa-ai/scripts/init.mjs --qa-track enterprise --with-doc-templates
+```
+
+| Track | Skipped by default |
+|---|---|
+| `quick` | Test-management coverage/sync, automation feasibility, UI/API implementation, issue task drafts, system test design, release gate |
+| `standard` | Release gate; phases skipped when tools/frameworks are `none` (see orchestrator) |
+| `enterprise` | None beyond config-based skips; requires `release-gate.yaml` before calling the workflow complete |
+
+Details: [QA help and tracks](docs/qa-ai/qa-help.md).
+
+### Guided next steps (`qa-help`)
+
+`qa-help` inspects `qa-ai.config.yaml`, `qa-ai-output/`, `features/` and `.qa-ai/state/` to list completed, pending and skipped phases, then prints prioritized recommendations (`required`, `recommended`, `optional`).
+
+```bash
+npm run qa:help
+node .qa-ai/scripts/qa-help.mjs
+node .qa-ai/scripts/qa-help.mjs --json
+```
+
+After each `/qa-full-flow` step or agent phase, run `/qa-help` again. `/qa-status` includes `qa-help` output for the suggested next command.
+
+### Release gate (enterprise)
+
+After the PR summary, record a formal decision in `qa-ai-output/release-gate.yaml`:
+
+| Decision | Meaning |
+|---|---|
+| `PASS` | Ready to release |
+| `CONCERNS` | Release with documented follow-ups |
+| `FAIL` | Blocking gaps remain |
+| `WAIVED` | Exception accepted (requires `approver` and `waived_reason`) |
+
+```bash
+node .qa-ai/scripts/validate-release-gate.mjs
+npm run qa:validate-release-gate
+```
+
+`/qa-gate` guides the agent through the gate workflow. `validate-target.mjs` runs the release gate validator automatically when `project.qaTrack` is `enterprise`.
+
+Details: [Release gate](docs/qa-ai/release-gate.md).
+
+### Test design dual-mode (standard / enterprise)
+
+Before per-RF Gherkin files, produce:
+
+1. `qa-ai-output/test-design-system.md` — architecture alignment, risks and cross-RF strategy.
+2. `qa-ai-output/test-design-proposal.md` — cases for the active RF/epic (approval before `.feature` files).
+
+The `quick` track skips the system phase and may combine proposal + features in one Gherkin pass.
+
+Details: [Test design dual-mode](docs/qa-ai/test-design-dual-mode.md).
+
 ## Commands
 
 | Command | Purpose |
@@ -181,6 +363,12 @@ qa-ai-output/qa-init-decisions.md
 | `node .qa-ai/scripts/validate-sync-plan.mjs` | Validate proposal-first test-management sync plans |
 | `node .qa-ai/scripts/validate-active-specialists.mjs` | Validate active specialist list against config |
 | `node .qa-ai/scripts/validate-target.mjs` | Run strict target-repository validation after real QA artifacts exist |
+| `node .qa-ai/scripts/qa-help.mjs` | Recommend the next QA phase from artifacts and `project.qaTrack` |
+| `node .qa-ai/scripts/validate-release-gate.mjs` | Validate enterprise release gate YAML |
+| `npm run qa:help` | Same as `qa-help.mjs` |
+| `npm run qa:validate-release-gate` | Same as `validate-release-gate.mjs` |
+| `node .qa-ai/scripts/validate-test-design.mjs` | Validate system and per-RF test design markdown structure |
+| `npm run qa:validate-test-design` | Same as `validate-test-design.mjs` |
 | `node .qa-ai/scripts/test-validators.mjs` | Run native Node unit tests for shared validator helpers |
 | `node .qa-ai/scripts/smoke-test.mjs` | Run maintainer smoke checks |
 | `npm run validate:oss-extraction` | Run doctor, stronger validators, validator unit tests and smoke tests (same as CI) |
@@ -197,7 +385,9 @@ Claude Code and OpenCode adapters also provide guided slash commands:
 | `/qa-update-tests` | Review existing tests after RF changes and apply approved updates |
 | `/qa-automation-plan` | Classify existing `.feature` files and plan automation |
 | `/qa-coverage` | Analyze functional coverage across RFs, manual tests and automated tests |
+| `/qa-help` | Context-aware guidance for the next QA workflow step |
 | `/qa-status` | Summarize config, artifacts, feature health and recommended next steps |
+| `/qa-gate` | Record enterprise release gate decision (`PASS` / `CONCERNS` / `FAIL` / `WAIVED`) |
 | `/qa-doctor` | Setup health checks |
 | `/qa-clean` | Manifest-based cleanup preview/execution |
 | `/qa-validate-features` | Gherkin convention validation |
@@ -215,6 +405,8 @@ QA FlowKit now uses stronger local validators without external dependencies:
 | `validate-traceability.mjs` | Feature RF/test identifiers are represented in the configured traceability matrix, with Markdown table shape and duplicate case/file checks |
 | `validate-sync-plan.mjs` | Test-management sync plans stay proposal-first, mention approval, cover feature identifiers and pass Markdown table, duplicate ID and mapping-file checks |
 | `validate-active-specialists.mjs` | `.qa-ai/agents/specialists/active.md` matches `qa-ai.config.yaml` and referenced specialist files exist |
+| `validate-release-gate.mjs` | Enterprise release gate YAML shape, decision rules and evidence paths |
+| `validate-test-design.mjs` | System and per-RF test design markdown section structure |
 | `smoke-test.mjs` | Copy-folder install, config import/export, adapters, no-overwrite behavior, unsafe path rejection and validator behavior |
 
 For source-repo CI, use:
@@ -261,6 +453,7 @@ Importing a profile writes `qa-ai.config.yaml`, creates the configured folders a
 | `--test-management-tool <name>` | `none`, `testrail`, `zephyr`, `xray`, custom value | Base template value | Sets the configured test management tool |
 | `--issue-tracker <name>` | `none`, `jira`, `github`, custom value | Base template value | Sets the configured issue tracker |
 | `--qa-context <path>` | repo-local folder | off | Enables QA knowledge context for agent-assisted init |
+| `--qa-track <name>` | `quick`, `standard`, `enterprise` | From preset | Controls workflow depth and `qa-help` phase list |
 | `--adapters <list>` | `all`, `generic`, `codex`, `claude`, `opencode`, `cline`, `continue`, `aider`, `goose`, `gemini` | `opencode` | Selects generated agent adapters |
 | `--no-adapters` | flag | off | Skips adapter generation |
 | `--with-doc-templates` | flag | off | Generates starter Markdown artifacts under `qa-ai-output/` |
@@ -404,6 +597,9 @@ Safety rules:
 | Document | Purpose |
 |---|---|
 | [Getting started](docs/qa-ai/getting-started.md) | Step-by-step setup flows by user type |
+| [QA help and tracks](docs/qa-ai/qa-help.md) | Context-aware next steps, workflow tracks and phase skips |
+| [Release gate](docs/qa-ai/release-gate.md) | Enterprise go/no-go decisions (`PASS` / `CONCERNS` / `FAIL` / `WAIVED`) |
+| [Test design dual-mode](docs/qa-ai/test-design-dual-mode.md) | System-level and per-RF test design artifacts (BMAD TEA-inspired) |
 | [Terminal transcripts](docs/qa-ai/terminal-transcripts.md) | Real command output for common workflows |
 | [Troubleshooting](docs/qa-ai/troubleshooting.md) | Common failures and resolutions |
 | [Architecture](docs/qa-ai/architecture.md) | Framework structure and safety model |

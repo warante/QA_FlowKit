@@ -39,11 +39,18 @@ node .qa-ai/scripts/validate-target.mjs
 Summarize:
 
 - Configured interface and Gherkin languages.
+- `project.qaTrack` (`quick`, `standard`, or `enterprise`).
 - Requirement source, test management tool and issue tracker.
 - Feature path and `.feature` counts by type/tag/manual flag.
 - Automation frameworks and configured automation paths.
 - Existing QA output artifacts.
 - Active specialists.
 - Warnings, gaps and recommended next command.
+
+For the recommended next command, run and include output from:
+
+```bash
+node .qa-ai/scripts/qa-help.mjs
+```
 
 Do not modify files.
