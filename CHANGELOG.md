@@ -4,6 +4,10 @@
 
 ### Added
 
+- npm CLI package identity `qa-flowkit@0.4.0-alpha.0` with `npx qa-flowkit init`.
+- `bin/qa-flowkit.mjs` with `init`, `update`, `doctor`, `validate-target`, `validate-features`, `sync-adapters`, `help` and `clean`.
+- npm pack/install smoke coverage for CLI install, safe init refusal, update preservation and package file allowlist.
+- Explicit npm package `files` allowlist to avoid publishing root adapters, GitHub metadata, caches or target-repository artifacts.
 - `qa-help.mjs` and `qa-next-steps.mjs` for context-aware next-step guidance (BMAD-inspired).
 - `project.qaTrack` (`quick`, `standard`, `enterprise`) in presets and `init.mjs --qa-track`.
 - `/qa-help` slash commands for Claude Code and OpenCode adapters.

@@ -60,7 +60,7 @@ async function main() {
     return;
   }
 
-  logHeader('QA AI Starter agent bootstrap');
+  logHeader('QA FlowKit agent bootstrap');
 
   if (!await pathExists(qaAiDir)) {
     console.error('Missing .qa-ai folder. Copy it into the repository root first.');

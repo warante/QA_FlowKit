@@ -1,6 +1,6 @@
 # Cleanup
 
-QA AI Starter includes a conservative cleanup command for generated files:
+QA FlowKit includes a conservative cleanup command for generated files:
 
 ```bash
 node .qa-ai/scripts/clean.mjs

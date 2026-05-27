@@ -192,7 +192,7 @@ async function main() {
     return;
   }
 
-  logHeader('QA AI Starter clean');
+  logHeader('QA FlowKit clean');
   const { exists, path: manifestPath, data: manifest } = await loadInitManifest(cwd);
   if (!exists) {
     console.log(`No init manifest found at ${manifestRelativePath}. Run init before clean can safely remove generated files.`);

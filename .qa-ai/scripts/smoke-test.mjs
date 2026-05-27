@@ -33,7 +33,7 @@ async function copyFramework(targetRoot) {
 }
 
 async function main() {
-  const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-ai-starter-smoke-'));
+  const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-flowkit-smoke-'));
   let unsafeRoot = null;
   let defaultTarget = null;
   let geminiTarget = null;
@@ -68,7 +68,7 @@ async function main() {
       '.qa-ai/scripts/config.mjs',
       '--export', '.qa-ai/config-profiles/team.yaml'
     ]);
-    importProfileTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-ai-starter-import-'));
+    importProfileTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-flowkit-import-'));
     await copyFramework(importProfileTarget);
     await fs.mkdir(path.join(importProfileTarget, '.qa-ai/config-profiles'), { recursive: true });
     await fs.copyFile(
@@ -98,7 +98,7 @@ async function main() {
       }
     }
 
-    defaultTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-ai-starter-default-'));
+    defaultTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-flowkit-default-'));
     await copyFramework(defaultTarget);
     run(defaultTarget, ['.qa-ai/scripts/init.mjs']);
     const expectedDefaultPaths = [
@@ -131,7 +131,7 @@ async function main() {
     }
     run(defaultTarget, ['.qa-ai/scripts/doctor.mjs']);
 
-    geminiTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-ai-starter-gemini-'));
+    geminiTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-flowkit-gemini-'));
     await copyFramework(geminiTarget);
     run(geminiTarget, [
       '.qa-ai/scripts/init.mjs',
@@ -149,7 +149,7 @@ async function main() {
       }
     }
 
-    qaContextTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-ai-starter-context-'));
+    qaContextTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-flowkit-context-'));
     await copyFramework(qaContextTarget);
     await fs.mkdir(path.join(qaContextTarget, 'qa-ai-knowledge'), { recursive: true });
     await fs.writeFile(
@@ -170,7 +170,7 @@ async function main() {
       throw new Error(`QA context init did not preserve sourcePath, got ${qaContextConfig.knowledge.sourcePath}`);
     }
 
-    optionalDocsTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-ai-starter-docs-'));
+    optionalDocsTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-flowkit-docs-'));
     await copyFramework(optionalDocsTarget);
     run(optionalDocsTarget, [
       '.qa-ai/scripts/init.mjs',
@@ -193,7 +193,7 @@ async function main() {
       }
     }
 
-    strictTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-ai-starter-strict-'));
+    strictTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-flowkit-strict-'));
     await copyFramework(strictTarget);
     run(strictTarget, [
       '.qa-ai/scripts/init.mjs',
@@ -208,7 +208,7 @@ async function main() {
     await fs.rm(path.join(strictTarget, 'qa-ai-output', 'traceability-matrix.md'), { force: true });
     run(strictTarget, ['.qa-ai/scripts/doctor.mjs', '--strict'], { expectFailure: true });
 
-    quickStrictTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-ai-starter-quick-strict-'));
+    quickStrictTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-flowkit-quick-strict-'));
     await copyFramework(quickStrictTarget);
     run(quickStrictTarget, [
       '.qa-ai/scripts/init.mjs',
@@ -232,7 +232,7 @@ async function main() {
     );
     run(quickStrictTarget, ['.qa-ai/scripts/doctor.mjs', '--strict']);
 
-    validatorTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-ai-starter-validators-'));
+    validatorTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-flowkit-validators-'));
     await copyFramework(validatorTarget);
     run(validatorTarget, [
       '.qa-ai/scripts/init.mjs',
@@ -429,7 +429,7 @@ async function main() {
       throw new Error('active.md was not regenerated from init config.');
     }
 
-    unsafeRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-ai-starter-unsafe-'));
+    unsafeRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-flowkit-unsafe-'));
     await copyFramework(unsafeRoot);
     run(unsafeRoot, [
       '.qa-ai/scripts/init.mjs',

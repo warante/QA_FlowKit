@@ -1,5 +1,5 @@
 ---
-description: Guided full QA AI Starter workflow / Workflow completo guiado de QA AI Starter
+description: Guided full QA FlowKit workflow / Workflow completo guiado de QA FlowKit
 argument-hint: [optional requirement source]
 ---
 

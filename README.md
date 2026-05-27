@@ -1,4 +1,4 @@
-# QA AI Starter
+# QA FlowKit
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Node.js 20+](https://img.shields.io/badge/node.js-20%2B-339933.svg)](package.json)
@@ -6,7 +6,7 @@
 [![Workflow: QA AI](https://img.shields.io/badge/workflow-QA%20AI-6f42c1.svg)](docs/qa-ai/workflow.md)
 [![CI](https://github.com/warante/QA_FlowKit/actions/workflows/ci.yml/badge.svg)](https://github.com/warante/QA_FlowKit/actions/workflows/ci.yml)
 
-Portable open-source starter kit for adding an AI-assisted QA workflow to an existing QA or automation repository.
+Portable open-source framework and npm CLI for adding an AI-assisted QA workflow to an existing QA or automation repository.
 
 Language: **English** | [Español](README.es.md)
 
@@ -32,7 +32,7 @@ Language: **English** | [Español](README.es.md)
 
 ## What It Does
 
-QA AI Starter is in **Early Product** stage: the portable folder workflow is implemented, validated in CI, and ready for public use while stronger validators, examples and packaging continue to mature. Copy `.qa-ai/` into a target repository, run the local Node.js scripts, and the target repo receives configuration, agent instructions, workflow docs, validation scripts, templates and adapters for common coding-agent tools.
+QA FlowKit is in **Early Product** stage: the portable folder workflow is implemented, validated in CI, and now gaining an npm CLI. Run `npx qa-flowkit init` in a target repository, and the repo receives configuration, agent instructions, workflow docs, validation scripts, templates and adapters for common coding-agent tools.
 
 The starter does **not** perform external writes to configured tools. It creates proposal-first artifacts and local repo files only.
 
@@ -65,12 +65,10 @@ Requirements
 
 ## Quick Start
 
-Run this from the target repository where you want to install the starter:
+Run this from the target repository where you want to install QA FlowKit:
 
 ```bash
-cp -R /path/to/qa-ai-starter/.qa-ai .qa-ai
-node .qa-ai/scripts/init.mjs
-node .qa-ai/scripts/doctor.mjs
+npx qa-flowkit init
 ```
 
 Then open the repository with your AI coding tool and start with:
@@ -82,16 +80,24 @@ Read AGENTS.md, qa-ai.config.yaml and .qa-ai/workflows/full-flow.md. Follow .qa-
 When unsure what to run next:
 
 ```bash
-node .qa-ai/scripts/qa-help.mjs
+npx qa-flowkit help
 ```
 
 Or use `/qa-help` in Claude Code or OpenCode after syncing adapters.
 
 By default, init uses the `webdriverio-playwright-api` base template with English interface, English Gherkin and the OpenCode adapter only. It creates the minimum usable structure first; starter QA documents and extra adapters are opt-in.
 
+Manual fallback when npm is not available:
+
+```bash
+cp -R /path/to/QA_FlowKit/.qa-ai .qa-ai
+node .qa-ai/scripts/init.mjs
+node .qa-ai/scripts/doctor.mjs
+```
+
 ## Upgrading the framework
 
-If you already copied an older `.qa-ai/` folder into your repository, refresh the **portable framework** from a newer [QA FlowKit](https://github.com/warante/QA_FlowKit) release. Your workflow artifacts (`qa-ai.config.yaml`, `qa-ai-output/`, `features/`, `tests/`, custom `AGENTS.md` edits) live **outside** `.qa-ai/` and are not removed when you replace that folder.
+If you already copied an older `.qa-ai/` folder into your repository, refresh the **portable framework** with the npm CLI or from a newer [QA FlowKit](https://github.com/warante/QA_FlowKit) release. Your workflow artifacts (`qa-ai.config.yaml`, `qa-ai-output/`, `features/`, `tests/`, custom `AGENTS.md` edits) live **outside** `.qa-ai/` and are not removed when you replace that folder.
 
 ### Before you start
 
@@ -101,7 +107,15 @@ If you already copied an older `.qa-ai/` folder into your repository, refresh th
 
 ### Recommended upgrade steps
 
-**1. Replace the `.qa-ai/` folder** with the version from the latest QA FlowKit checkout or release tag:
+**1. Preferred: update through npm**:
+
+```bash
+npx qa-flowkit update
+```
+
+This replaces only `.qa-ai/`, preserves `.qa-ai/state/` and `.qa-ai/config-profiles/`, refreshes active specialists, syncs existing adapters without overwriting them, and runs `doctor`.
+
+**Manual fallback: replace the `.qa-ai/` folder** with the version from the latest QA FlowKit checkout or release tag:
 
 ```bash
 # Unix / macOS (from your target repository root)
@@ -193,9 +207,7 @@ Then merge any new keys into `qa-ai.config.yaml` and run `/qa-help` to see the u
 Use the default setup when you want the quickest path to a working QA AI workflow:
 
 ```bash
-cp -R /path/to/QA_FlowKit/.qa-ai .qa-ai
-node .qa-ai/scripts/init.mjs
-node .qa-ai/scripts/doctor.mjs
+npx qa-flowkit init
 ```
 
 ### Manual QA only
@@ -203,7 +215,7 @@ node .qa-ai/scripts/doctor.mjs
 Use this when you want requirements-to-Gherkin and traceability without automation folders:
 
 ```bash
-node .qa-ai/scripts/init.mjs --preset manual-only --interface-language en --gherkin-language en
+npx qa-flowkit init --preset manual-only --interface-language en --gherkin-language en
 ```
 
 ### Automation repository
@@ -211,8 +223,8 @@ node .qa-ai/scripts/init.mjs --preset manual-only --interface-language en --gher
 Use the default template for WebdriverIO UI/E2E plus Playwright API planning:
 
 ```bash
-node .qa-ai/scripts/init.mjs --preset webdriverio-playwright-api
-node .qa-ai/scripts/validate-features.mjs --allow-empty
+npx qa-flowkit init --preset webdriverio-playwright-api
+npx qa-flowkit validate-features --allow-empty
 ```
 
 ### Agent-first setup
@@ -235,8 +247,8 @@ Use this flow when Claude Code or OpenCode should initialize the repo through `/
 
 | Platform | Command |
 |---|---|
-| Unix/macOS | `cp -R /path/to/qa-ai-starter/.qa-ai .qa-ai` |
-| PowerShell | `Copy-Item -Recurse -LiteralPath C:\path\to\qa-ai-starter\.qa-ai -Destination .\.qa-ai` |
+| Unix/macOS | `cp -R /path/to/qa-flowkit/.qa-ai .qa-ai` |
+| PowerShell | `Copy-Item -Recurse -LiteralPath C:\path\to\qa-flowkit\.qa-ai -Destination .\.qa-ai` |
 
 Then run:
 
@@ -350,6 +362,10 @@ Details: [Test design dual-mode](docs/qa-ai/test-design-dual-mode.md).
 
 | Command | Purpose |
 |---|---|
+| `npx qa-flowkit init` | Install `.qa-ai/`, generate config, folders and the default OpenCode adapter |
+| `npx qa-flowkit update` | Refresh `.qa-ai/` from the npm package while preserving target artifacts |
+| `npx qa-flowkit doctor` | Check setup health through the npm CLI |
+| `npx qa-flowkit validate-target --allow-empty --allow-missing --no-strict-doctor` | Run target validation through the npm CLI |
 | `node .qa-ai/scripts/bootstrap-agent-adapters.mjs --agents claude,opencode` | Copy minimal root slash commands for agent-first setup |
 | `node .qa-ai/scripts/init.mjs` | Generate the minimum config, folders and OpenCode adapter |
 | `node .qa-ai/scripts/init.mjs --qa-context qa-ai-knowledge` | Record a QA context folder for agent-assisted defaults |
@@ -371,6 +387,7 @@ Details: [Test design dual-mode](docs/qa-ai/test-design-dual-mode.md).
 | `npm run qa:validate-test-design` | Same as `validate-test-design.mjs` |
 | `node .qa-ai/scripts/test-validators.mjs` | Run native Node unit tests for shared validator helpers |
 | `node .qa-ai/scripts/smoke-test.mjs` | Run maintainer smoke checks |
+| `node .qa-ai/scripts/smoke-npm-pack.mjs` | Run npm pack/install smoke checks |
 | `npm run validate:oss-extraction` | Run doctor, stronger validators, validator unit tests and smoke tests (same as CI) |
 | `node .qa-ai/scripts/clean.mjs` | Preview cleanup of generated artifacts |
 

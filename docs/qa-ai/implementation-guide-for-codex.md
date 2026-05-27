@@ -1,6 +1,6 @@
 # Implementation Guide for Codex Desktop
 
-This document tells a Codex Desktop agent how to implement the QA AI Starter project from beginning to end.
+This document tells a Codex Desktop agent how to implement the QA FlowKit project from beginning to end.
 
 ## Role
 
@@ -36,7 +36,7 @@ You are the implementation agent for an open-source QA AI workflow starter. You 
 Create or maintain this structure:
 
 ```text
-qa-ai-starter/
+qa-flowkit/
   README.md
   LICENSE
   CONTRIBUTING.md
@@ -170,7 +170,7 @@ Supported adapters:
 - `cline`: `.clinerules` and `.cline/`
 - `continue`: `.continue/`
 - `aider`: `.aider.conf.yml`
-- `goose`: `.goose/recipes/qa-ai-workflow.yaml`
+- `goose`: `.goose/recipes/qa-flowkit.yaml`
 - `gemini`: `GEMINI.md`
 
 Claude and OpenCode adapters must include slash command files for:

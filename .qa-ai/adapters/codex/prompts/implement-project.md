@@ -1,6 +1,6 @@
 Read `AGENTS.md`, `README.md`, `ROADMAP.md`, `docs/qa-ai/implementation-guide-for-codex.md`, `docs/qa-ai/backlog.md` and all files under `.qa-ai/rules/`.
 
-Then implement the QA AI Starter MVP from beginning to end.
+Then implement the QA FlowKit MVP from beginning to end.
 
 Before changing files, provide a concise plan. Do not remove or overwrite existing files unless necessary and clearly justified.
 

@@ -69,6 +69,7 @@ jobs:
       - name: Check script syntax
         run: |
           find .qa-ai/scripts -name '*.mjs' -print0 | xargs -0 -n1 node --check
+          node --check bin/qa-flowkit.mjs
 
       - name: Run starter validation and smoke tests
         run: npm run validate:oss-extraction

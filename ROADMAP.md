@@ -71,15 +71,15 @@ Deliverables:
 
 ## Phase 4 - npm CLI
 
-Goal: replace manual copy with `npx qa-flowkit init` or an equivalent package workflow.
+Goal: replace manual copy with `npx qa-flowkit init` while keeping the folder-copy workflow as a fallback.
 
 Deliverables:
 
-- Node package.
-- Interactive prompts.
-- Presets.
-- Update/migration command.
-- Non-interactive CI-friendly install.
+- Node package: delivered for `0.4.0-alpha.0`.
+- Non-interactive CI-friendly install: delivered through `qa-flowkit init`.
+- Update/migration command: delivered through `qa-flowkit update`.
+- Presets: reused from `.qa-ai/presets`.
+- Interactive prompts: future enhancement after the zero-dependency alpha CLI.
 
 ## Phase 5 - MCP and integrations
 

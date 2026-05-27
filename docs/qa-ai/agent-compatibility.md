@@ -82,7 +82,7 @@ The framework agents under `.qa-ai/agents/` are role instructions. If a tool doe
 | Cline | `.clinerules`, `.cline/` | Cline behavior rules and docs. |
 | Continue | `.continue/` | Review/check documentation. |
 | Aider | `.aider.conf.yml`, `.aider/` | Aider read-list and usage notes. |
-| Goose | `.goose/recipes/qa-ai-workflow.yaml` | Reusable Goose workflow recipe. |
+| Goose | `.goose/recipes/qa-flowkit.yaml` | Reusable Goose workflow recipe. |
 | Gemini CLI | `GEMINI.md` | Gemini CLI project context that points back to the shared QA AI instructions. |
 
 ## Required behavior for every agent
