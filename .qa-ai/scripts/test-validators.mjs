@@ -178,6 +178,18 @@ function testReleaseGatePass() {
   assert.equal(result.decision, 'PASS');
 }
 
+function testReleaseGatePendingCanBeAllowed() {
+  const draft = {
+    decision: 'PENDING',
+    coverage_summary: 'Draft review in progress.',
+    open_risks: ['Pending QA lead review'],
+    evidence_paths: ['qa-ai-output/pr-summary.md']
+  };
+
+  assert.notEqual(validateReleaseGateData(draft).errors.length, 0);
+  assert.deepEqual(validateReleaseGateData(draft, { allowPending: true }).errors, []);
+}
+
 function testTestDesignSystemSections() {
   const valid = validateTestDesignSystem(`# System Test Design\n${[
     '## Scope',
@@ -191,6 +203,32 @@ function testTestDesignSystemSections() {
   assert.equal(valid.ok, true);
   const invalid = validateTestDesignSystem('# System Test Design\n## Scope\n');
   assert.equal(invalid.ok, false);
+}
+
+function testSpanishTestDesignSections() {
+  const system = validateTestDesignSystem(`# Diseno de pruebas de sistema\n${[
+    '## Alcance',
+    '## Alineacion con arquitectura',
+    '## Riesgos de testabilidad',
+    '## Estrategia de cobertura entre RFs',
+    '## Fixtures y datos compartidos',
+    '## Enfoque no funcional',
+    '## Preguntas abiertas'
+  ].join('\n\n')}\n`);
+  assert.equal(system.ok, true);
+
+  const proposal = validateTestDesignProposal(`# Propuesta de diseno de pruebas\n${[
+    '## RF oficial',
+    'RF-101',
+    '## Alcance',
+    '## Pruebas propuestas',
+    '## Pruebas existentes para reutilizar',
+    '## Pruebas existentes que requieren modificacion',
+    '## Nuevas pruebas a crear',
+    '## Ambiguedades que requieren decision del usuario',
+    '## Solicitud de aprobacion'
+  ].join('\n\n')}\n`);
+  assert.equal(proposal.ok, true);
 }
 
 function testTestDesignProposalSections() {
@@ -269,7 +307,9 @@ async function main() {
   testNormalizeQaTrack();
   testTestDesignSystemSections();
   testTestDesignProposalSections();
+  testSpanishTestDesignSections();
   testReleaseGatePass();
+  testReleaseGatePendingCanBeAllowed();
   testReleaseGateWaivedRequiresApprover();
   await testQaHelpWithoutConfig();
   await testQaHelpQuickTrackPendingGherkin();

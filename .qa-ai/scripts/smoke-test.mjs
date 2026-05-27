@@ -40,6 +40,7 @@ async function main() {
   let qaContextTarget = null;
   let optionalDocsTarget = null;
   let strictTarget = null;
+  let quickStrictTarget = null;
   let importProfileTarget = null;
   let validatorTarget = null;
   try {
@@ -206,6 +207,30 @@ async function main() {
     run(strictTarget, ['.qa-ai/scripts/doctor.mjs', '--strict']);
     await fs.rm(path.join(strictTarget, 'qa-ai-output', 'traceability-matrix.md'), { force: true });
     run(strictTarget, ['.qa-ai/scripts/doctor.mjs', '--strict'], { expectFailure: true });
+
+    quickStrictTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-ai-starter-quick-strict-'));
+    await copyFramework(quickStrictTarget);
+    run(quickStrictTarget, [
+      '.qa-ai/scripts/init.mjs',
+      '--preset', 'manual-only',
+      '--no-adapters'
+    ]);
+    await fs.writeFile(
+      path.join(quickStrictTarget, 'qa-ai-output', 'requirement-analysis.md'),
+      '# Requirement Analysis\n\nRF-101 login.\n',
+      'utf8'
+    );
+    await fs.writeFile(
+      path.join(quickStrictTarget, 'qa-ai-output', 'traceability-matrix.md'),
+      '# Traceability Matrix\n\n| Requirement Source | RF | CA | Feature File | Test Management Case ID | Type | Priority | Automation Status | Automation File |\n|---|---|---|---|---|---|---|---|---|\n',
+      'utf8'
+    );
+    await fs.writeFile(
+      path.join(quickStrictTarget, 'qa-ai-output', 'pr-summary.md'),
+      '# PR Summary\n\nQuick track summary.\n',
+      'utf8'
+    );
+    run(quickStrictTarget, ['.qa-ai/scripts/doctor.mjs', '--strict']);
 
     validatorTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-ai-starter-validators-'));
     await copyFramework(validatorTarget);
@@ -428,6 +453,7 @@ async function main() {
     if (qaContextTarget) await fs.rm(qaContextTarget, { recursive: true, force: true });
     if (optionalDocsTarget) await fs.rm(optionalDocsTarget, { recursive: true, force: true });
     if (strictTarget) await fs.rm(strictTarget, { recursive: true, force: true });
+    if (quickStrictTarget) await fs.rm(quickStrictTarget, { recursive: true, force: true });
     if (importProfileTarget) await fs.rm(importProfileTarget, { recursive: true, force: true });
     if (validatorTarget) await fs.rm(validatorTarget, { recursive: true, force: true });
   }

@@ -201,16 +201,17 @@ function addWorkflowArtifactChecks(checks, config) {
   const hasAutomation = isConfiguredFramework(uiFramework) || isConfiguredFramework(apiFramework);
   const track = normalizeQaTrack(getConfigValue(config, 'project.qaTrack', 'standard'));
   const proposalPath = getConfigValue(config, 'testDesign.proposalPath', 'qa-ai-output/test-design-proposal.md');
+  const isQuickTrack = track === 'quick';
 
   checks.push(pathCheck(checkLevel('optional'), 'requirement analysis artifact', 'qa-ai-output/requirement-analysis.md'));
-  if (track !== 'quick') {
+  if (!isQuickTrack) {
     const systemPath = getConfigValue(config, 'testDesign.systemPath', 'qa-ai-output/test-design-system.md');
     checks.push(pathCheck(checkLevel('optional'), 'system test design artifact', systemPath));
   }
-  checks.push(pathCheck(checkLevel('optional'), 'test design proposal artifact', proposalPath));
+  checks.push(pathCheck(isQuickTrack ? 'optional' : checkLevel('optional'), 'test design proposal artifact', proposalPath));
   checks.push(pathCheck(checkLevel('optional'), 'PR summary artifact', 'qa-ai-output/pr-summary.md'));
 
-  if (isConfiguredTool(testManagementTool)) {
+  if (!isQuickTrack && isConfiguredTool(testManagementTool)) {
     checks.push(pathCheck(checkLevel('optional'), 'test management coverage artifact', 'qa-ai-output/testrail-coverage-analysis.md'));
     checks.push(pathCheck(checkLevel('optional'), 'test management sync plan artifact', 'qa-ai-output/testrail-sync-plan.md'));
   }
@@ -238,11 +239,12 @@ function addConfiguredChecks(checks, config) {
   const knowledgeSourcePath = getConfigValue(config, 'knowledge.sourcePath', '');
   const knowledgeSummaryPath = getConfigValue(config, 'knowledge.summaryPath', 'qa-ai-output/qa-knowledge-summary.md');
   const knowledgeDecisionsPath = getConfigValue(config, 'knowledge.decisionsPath', 'qa-ai-output/qa-init-decisions.md');
+  const track = normalizeQaTrack(getConfigValue(config, 'project.qaTrack', 'standard'));
 
   checks.push(pathCheck('required', 'configured feature root', featurePath));
   checks.push(pathCheck('required', 'configured QA output path', path.dirname(matrixPath)));
   checks.push(pathCheck(checkLevel('optional'), 'configured traceability matrix', matrixPath));
-  if (mappingFile) checks.push(pathCheck(checkLevel('optional'), 'configured test management mapping file', mappingFile));
+  if (mappingFile && track !== 'quick') checks.push(pathCheck(checkLevel('optional'), 'configured test management mapping file', mappingFile));
   addWorkflowArtifactChecks(checks, config);
 
   if (knowledgeEnabled) {

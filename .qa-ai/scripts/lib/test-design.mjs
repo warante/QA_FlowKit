@@ -19,8 +19,34 @@ export const PROPOSAL_SECTIONS = [
   '## Approval request'
 ];
 
+const SYSTEM_SECTION_ALIASES = new Map([
+  ['## Scope', ['## Alcance']],
+  ['## Architecture alignment', ['## Alineacion con arquitectura']],
+  ['## Testability risks', ['## Riesgos de testabilidad']],
+  ['## Cross-RF coverage strategy', ['## Estrategia de cobertura entre RFs']],
+  ['## Shared fixtures and data', ['## Fixtures y datos compartidos']],
+  ['## Non-functional focus', ['## Enfoque no funcional']],
+  ['## Open questions', ['## Preguntas abiertas']]
+]);
+
+const PROPOSAL_SECTION_ALIASES = new Map([
+  ['## Official RF ID', ['## RF oficial']],
+  ['## Scope', ['## Alcance']],
+  ['## Proposed tests', ['## Pruebas propuestas']],
+  ['## Existing tests to reuse', ['## Pruebas existentes para reutilizar']],
+  ['## Existing tests requiring modification', ['## Pruebas existentes que requieren modificacion']],
+  ['## New tests to create', ['## Nuevas pruebas a crear']],
+  ['## Ambiguities requiring user decision', ['## Ambiguedades que requieren decision del usuario']],
+  ['## Approval request', ['## Solicitud de aprobacion']]
+]);
+
 function hasSection(content, heading) {
   return String(content || '').includes(heading);
+}
+
+function hasAnySection(content, heading, aliasesByHeading) {
+  const candidates = [heading, ...(aliasesByHeading.get(heading) || [])];
+  return candidates.some((candidate) => hasSection(content, candidate));
 }
 
 export function validateTestDesignSystem(content, options = {}) {
@@ -34,7 +60,7 @@ export function validateTestDesignSystem(content, options = {}) {
     errors.push('System test design must start with a top-level heading (# Title).');
   }
   for (const section of SYSTEM_SECTIONS) {
-    if (!hasSection(text, section)) {
+    if (!hasAnySection(text, section, SYSTEM_SECTION_ALIASES)) {
       errors.push(`Missing section: ${section}`);
     }
   }
@@ -55,7 +81,7 @@ export function validateTestDesignProposal(content, options = {}) {
     errors.push('Test design proposal must start with a top-level heading (# Title).');
   }
   for (const section of PROPOSAL_SECTIONS) {
-    if (!hasSection(text, section)) {
+    if (!hasAnySection(text, section, PROPOSAL_SECTION_ALIASES)) {
       errors.push(`Missing section: ${section}`);
     }
   }

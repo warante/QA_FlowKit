@@ -72,7 +72,7 @@ Next phase: [Name] (or "complete")
 ## Decision Rules
 
 - If `project.qaTrack` is `quick`: skip phases 4 and 7–12 unless the user explicitly requests a deeper pass; still produce per-RF proposal (optional), features, traceability and PR summary.
-- If `project.qaTrack` is `enterprise`: run phase 12 (`release-gate-agent.md`) after PR summary, then `node .qa-ai/scripts/validate-target.mjs` and `node .qa-ai/scripts/validate-release-gate.mjs`.
+- If `project.qaTrack` is `enterprise`: run phase 14 (`release-gate-agent.md`) after PR summary, then `node .qa-ai/scripts/validate-target.mjs` and `node .qa-ai/scripts/validate-release-gate.mjs`.
 - If `automation.ui.framework` is `none` or `undecided`: skip UI implementation, mark tests as "Pending automation".
 - If `automation.api.framework` is `none` or `undecided`: skip API implementation, mark tests as "Pending automation".
 - If `tools.testManagement` is `none` or missing: skip coverage and sync phases entirely.

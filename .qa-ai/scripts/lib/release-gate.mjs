@@ -20,7 +20,7 @@ export function normalizeRiskList(value) {
   return [];
 }
 
-export function validateReleaseGateData(data, { source = 'release gate' } = {}) {
+export function validateReleaseGateData(data, { source = 'release gate', allowPending = false } = {}) {
   const errors = [];
   const decision = normalizeGateDecision(data?.decision);
 
@@ -29,7 +29,7 @@ export function validateReleaseGateData(data, { source = 'release gate' } = {}) 
     return { decision, errors };
   }
 
-  if (decision === 'PENDING') {
+  if (decision === 'PENDING' && !allowPending) {
     errors.push(`${source}: decision is PENDING; set PASS, CONCERNS, FAIL or WAIVED after review.`);
   }
 

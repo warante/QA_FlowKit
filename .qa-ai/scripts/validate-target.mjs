@@ -67,9 +67,12 @@ async function main() {
     command('doctor', '.qa-ai/scripts/doctor.mjs', strictDoctor ? ['--strict'] : []),
     command('feature validation', '.qa-ai/scripts/validate-features.mjs', featureArgs),
     command('traceability validation', '.qa-ai/scripts/validate-traceability.mjs', artifactArgs),
-    command('sync plan validation', '.qa-ai/scripts/validate-sync-plan.mjs', artifactArgs),
     command('active specialist validation', '.qa-ai/scripts/validate-active-specialists.mjs', activeSpecialistArgs)
   ];
+
+  if (track !== 'quick') {
+    commands.splice(3, 0, command('sync plan validation', '.qa-ai/scripts/validate-sync-plan.mjs', artifactArgs));
+  }
 
   if (track === 'enterprise' && !args['skip-release-gate']) {
     const gateArgs = [

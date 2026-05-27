@@ -44,14 +44,13 @@ export async function validateReleaseGateFile(cwd, filePath, options = {}) {
     return { ok: false, errors: [`${filePath} is not valid YAML: ${error.message}`] };
   }
 
-  const result = validateReleaseGateData(data, { source: filePath });
+  const result = validateReleaseGateData(data, {
+    source: filePath,
+    allowPending: Boolean(options.allowPending)
+  });
   const errors = [...result.errors];
 
-  if (result.decision === 'PENDING' && !options.allowPending) {
-    errors.push(`${filePath}: decision is PENDING; pass --allow-pending for draft gates.`);
-  }
-
-  for (const relPath of result.evidence) {
+  for (const relPath of result.evidence || []) {
     if (!relPath || relPath.includes('..')) {
       errors.push(`${filePath}: invalid evidence_paths entry "${relPath}".`);
       continue;
