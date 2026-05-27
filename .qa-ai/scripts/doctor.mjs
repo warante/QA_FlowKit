@@ -23,6 +23,7 @@ const requiredScripts = [
   '.qa-ai/scripts/validate-test-design.mjs',
   '.qa-ai/scripts/test-validators.mjs',
   '.qa-ai/scripts/smoke-test.mjs',
+  '.qa-ai/scripts/smoke-npm-pack.mjs',
   '.qa-ai/scripts/sync-agent-adapters.mjs',
   '.qa-ai/scripts/lib/qa-next-steps.mjs',
   '.qa-ai/scripts/lib/release-gate.mjs',
@@ -136,7 +137,7 @@ const requiredAdapterTemplates = [
   '.qa-ai/adapters/continue/checks/qa-feature-conventions.md',
   '.qa-ai/adapters/generic/AGENTS.md',
   '.qa-ai/adapters/gemini/GEMINI.md',
-  '.qa-ai/adapters/goose/recipes/qa-ai-workflow.yaml',
+  '.qa-ai/adapters/goose/recipes/qa-flowkit.yaml',
   '.qa-ai/adapters/opencode/README.md',
   '.qa-ai/adapters/opencode/agents/qa-workflow.md',
   '.qa-ai/adapters/opencode/commands/qa-add-tests.md',
@@ -163,7 +164,7 @@ const generatedAdapters = [
   ['Continue adapter', '.continue'],
   ['Aider config', '.aider.conf.yml'],
   ['Aider docs', '.aider'],
-  ['Goose recipe', '.goose/recipes/qa-ai-workflow.yaml'],
+  ['Goose recipe', '.goose/recipes/qa-flowkit.yaml'],
   ['Gemini context', 'GEMINI.md']
 ];
 
@@ -318,7 +319,7 @@ function describePaths(paths, any = false) {
 }
 
 async function main() {
-  logHeader(`QA AI Starter doctor${strict ? ' --strict' : ''}`);
+  logHeader(`QA FlowKit doctor${strict ? ' --strict' : ''}`);
   const configInfo = await loadQaAiConfig(cwd);
   const isFrameworkSourceRepo = await pathExists(path.join(cwd, 'docs/qa-ai/architecture.md'));
   const configLevel = isFrameworkSourceRepo && !strict ? 'optional' : 'required';

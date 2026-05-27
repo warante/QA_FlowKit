@@ -12,6 +12,9 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+.npm-cache/
+.qa-flowkit-npm-*/
+.pack-test/
 
 # OS
 .DS_Store

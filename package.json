@@ -1,8 +1,26 @@
 {
-  "name": "qa-ai-starter",
-  "version": "0.3.0",
-  "description": "Portable open-source starter for AI-assisted QA workflows.",
+  "name": "qa-flowkit",
+  "version": "0.4.0-alpha.0",
+  "description": "Portable open-source framework and npm CLI for AI-assisted QA workflows.",
   "type": "module",
+  "bin": {
+    "qa-flowkit": "./bin/qa-flowkit.mjs"
+  },
+  "files": [
+    "bin/",
+    ".qa-ai/",
+    "!.qa-ai/state/",
+    "!.qa-ai/agents/specialists/active.md",
+    "docs/qa-ai/",
+    "README.md",
+    "README.es.md",
+    "CHANGELOG.md",
+    "ROADMAP.md",
+    "CONTRIBUTING.md",
+    "CODE_OF_CONDUCT.md",
+    "SECURITY.md",
+    "LICENSE"
+  ],
   "scripts": {
     "qa:init": "node .qa-ai/scripts/init.mjs",
     "qa:config": "node .qa-ai/scripts/config.mjs",
@@ -20,7 +38,8 @@
     "qa:sync-adapters": "node .qa-ai/scripts/sync-agent-adapters.mjs",
     "qa:test-validators": "node .qa-ai/scripts/test-validators.mjs",
     "qa:smoke": "node .qa-ai/scripts/smoke-test.mjs",
-    "validate:oss-extraction": "node .qa-ai/scripts/doctor.mjs && node .qa-ai/scripts/validate-features.mjs --allow-empty && node .qa-ai/scripts/validate-traceability.mjs --allow-empty --allow-missing && node .qa-ai/scripts/validate-sync-plan.mjs --allow-empty --allow-missing && node .qa-ai/scripts/validate-active-specialists.mjs --allow-missing && node .qa-ai/scripts/test-validators.mjs && node .qa-ai/scripts/smoke-test.mjs"
+    "qa:smoke-npm": "node .qa-ai/scripts/smoke-npm-pack.mjs",
+    "validate:oss-extraction": "node .qa-ai/scripts/doctor.mjs && node .qa-ai/scripts/validate-features.mjs --allow-empty && node .qa-ai/scripts/validate-traceability.mjs --allow-empty --allow-missing && node .qa-ai/scripts/validate-sync-plan.mjs --allow-empty --allow-missing && node .qa-ai/scripts/validate-active-specialists.mjs --allow-missing && node .qa-ai/scripts/test-validators.mjs && node .qa-ai/scripts/smoke-test.mjs && node .qa-ai/scripts/smoke-npm-pack.mjs"
   },
   "keywords": [
     "qa",
@@ -32,8 +51,20 @@
     "playwright",
     "codex",
     "claude-code",
-    "gemini-cli"
+    "gemini-cli",
+    "qa-flowkit"
   ],
+  "homepage": "https://github.com/warante/QA_FlowKit#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/warante/QA_FlowKit.git"
+  },
+  "bugs": {
+    "url": "https://github.com/warante/QA_FlowKit/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "license": "MIT",
   "engines": {
     "node": ">=20"
