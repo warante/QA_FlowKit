@@ -1,6 +1,6 @@
 # Codex Adapter
 
-This adapter gives Codex a compact onboarding path for QA AI Starter repositories.
+This adapter gives Codex a compact onboarding path for QA FlowKit repositories.
 
 Related docs: [main README](../../../README.md) | [agent compatibility](../../../docs/qa-ai/agent-compatibility.md)
 

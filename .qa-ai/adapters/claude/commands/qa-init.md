@@ -1,9 +1,9 @@
 ---
-description: Guided QA AI Starter initialization / Inicializacion guiada de QA AI Starter
+description: Guided QA FlowKit initialization / Inicializacion guiada de QA FlowKit
 argument-hint: [optional init flags]
 ---
 
-Initialize QA AI Starter from the copied `.qa-ai/` framework folder.
+Initialize QA FlowKit from the copied `.qa-ai/` framework folder.
 
 If the user already has an exported configuration profile from another repository with the same structure, suggest `/qa-config --import <profile-path>` instead of repeating guided init.
 
@@ -11,7 +11,7 @@ If the user provides `--qa-context <path>` or says they have a folder describing
 
 If `$ARGUMENTS` is empty, do not run anything yet. Ask the user these questions first. Ask question 1 in both English and Spanish; after the user chooses an interface language, ask the remaining questions in that interface language.
 
-1. Which language should QA AI Starter use for user-facing workflow descriptions and questions? / Que idioma debe usar QA AI Starter para las descripciones y preguntas del workflow?
+1. Which language should QA FlowKit use for user-facing workflow descriptions and questions? / Que idioma debe usar QA FlowKit para las descripciones y preguntas del workflow?
    - `en`: English.
    - `es`: Espanol.
 2. Do you have a repository-local folder that documents how the QA team works?

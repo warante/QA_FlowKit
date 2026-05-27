@@ -1,6 +1,6 @@
-# QA AI Starter - Gemini CLI Context
+# QA FlowKit - Gemini CLI Context
 
-This repository uses QA AI Starter for repo-first QA workflows. Treat this file as the Gemini CLI entry point, then load the shared framework instructions before doing QA work.
+This repository uses QA FlowKit for repo-first QA workflows. Treat this file as the Gemini CLI entry point, then load the shared framework instructions before doing QA work.
 
 ## Required Reading
 

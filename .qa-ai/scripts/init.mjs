@@ -295,7 +295,7 @@ async function main() {
     return;
   }
 
-  logHeader('QA AI Starter init');
+  logHeader('QA FlowKit init');
 
   if (!await pathExists(qaAiDir)) {
     console.error('Missing .qa-ai folder. Copy it into the repository root first.');

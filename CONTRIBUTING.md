@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for contributing to QA AI Starter.
+Thanks for contributing to QA FlowKit.
 
 ## Principles
 

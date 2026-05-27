@@ -17,7 +17,7 @@ Real command output for the most common QA FlowKit workflows. All transcripts we
 ```
 $ node .qa-ai/scripts/init.mjs
 
-=== QA AI Starter init ===
+=== QA FlowKit init ===
 
 Using base template: webdriverio-playwright-api
 Using interface language: en
@@ -80,7 +80,7 @@ Then run doctor to verify:
 ```
 $ node .qa-ai/scripts/doctor.mjs
 
-=== QA AI Starter doctor ===
+=== QA FlowKit doctor ===
 
 [PASS] config: qa-ai.config.yaml
 [PASS] framework folder: .qa-ai
@@ -124,7 +124,7 @@ The warnings are expected for a freshly initialized repository:
 ```
 $ node .qa-ai/scripts/init.mjs --preset manual-only --interface-language en --gherkin-language en --no-adapters
 
-=== QA AI Starter init ===
+=== QA FlowKit init ===
 
 Using base template: manual-only
 Using interface language: en
@@ -162,7 +162,7 @@ Copy `.qa-ai/` first, then bootstrap slash commands for Claude Code and OpenCode
 ```
 $ node .qa-ai/scripts/bootstrap-agent-adapters.mjs --agents claude,opencode
 
-=== QA AI Starter agent bootstrap ===
+=== QA FlowKit agent bootstrap ===
 
 claude: copied  .claude/commands/qa-init.md
 opencode: copied  .opencode/commands/qa-init.md
@@ -245,7 +245,7 @@ $ node .qa-ai/scripts/validate-target.mjs --allow-empty --allow-missing --no-str
 === QA AI target repository validator ===
 
 --- doctor ---
-=== QA AI Starter doctor ===
+=== QA FlowKit doctor ===
 [PASS] config: qa-ai.config.yaml
 [PASS] framework folder: .qa-ai
 ... (all framework checks PASS) ...

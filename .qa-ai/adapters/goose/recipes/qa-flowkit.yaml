@@ -1,5 +1,5 @@
 version: 1
-name: qa-ai-workflow
+name: qa-flowkit
 description: Run the QA AI workflow for requirements-to-tests-to-automation.
 instructions: |
   Read AGENTS.md, qa-ai.config.yaml and .qa-ai/rules/ before acting.

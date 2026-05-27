@@ -1,9 +1,9 @@
 ---
-description: Import or export QA AI Starter configuration / Importar o exportar configuracion de QA AI Starter
+description: Import or export QA FlowKit configuration / Importar o exportar configuracion de QA FlowKit
 argument-hint: [--export path | --import path]
 ---
 
-Import or export a reusable QA AI Starter configuration profile.
+Import or export a reusable QA FlowKit configuration profile.
 
 Read these files first:
 

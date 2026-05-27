@@ -4,7 +4,7 @@ Use this workflow when the user provides a repository-local folder that document
 
 ## Purpose
 
-Convert QA working-practice documentation into a proposed QA AI Starter configuration and durable local guidance for future agents.
+Convert QA working-practice documentation into a proposed QA FlowKit configuration and durable local guidance for future agents.
 
 ## Supported Input
 

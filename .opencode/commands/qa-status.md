@@ -3,7 +3,7 @@ description: Summarize QA AI repo status / Resumir estado del repo QA AI
 argument-hint: [optional scope]
 ---
 
-Summarize the current QA AI Starter status for this repository.
+Summarize the current QA FlowKit status for this repository.
 
 Read these files first:
 

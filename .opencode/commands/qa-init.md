@@ -1,9 +1,9 @@
 ---
-description: Guided QA AI Starter initialization
+description: Guided QA FlowKit initialization
 argument-hint: [optional init flags]
 ---
 
-Initialize QA AI Starter from the copied `.qa-ai/` framework folder.
+Initialize QA FlowKit from the copied `.qa-ai/` framework folder.
 
 If `$ARGUMENTS` is empty, do not run anything yet. Ask the user these questions first:
 

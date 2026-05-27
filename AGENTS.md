@@ -1,4 +1,4 @@
-# AGENTS.md - QA AI Starter
+# AGENTS.md - QA FlowKit
 
 This file is the generic instruction layer for all AI coding agents working in this repository.
 
@@ -83,7 +83,7 @@ GEMINI.md
 A target user must be able to:
 
 ```bash
-cp -R qa-ai-starter/.qa-ai ./target-repo/.qa-ai
+cp -R qa-flowkit/.qa-ai ./target-repo/.qa-ai
 cd ./target-repo
 node .qa-ai/scripts/init.mjs
 node .qa-ai/scripts/doctor.mjs
