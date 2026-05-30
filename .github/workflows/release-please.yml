@@ -46,7 +46,9 @@ jobs:
         id: release
         run: node .github/scripts/run-release-please.mjs
         env:
-          GITHUB_TOKEN: ${{ github.token }}
+          # Default GITHUB_TOKEN needs "Allow GitHub Actions to create pull requests"
+          # in repo Settings → Actions → General. Optional override: RELEASE_PLEASE_TOKEN (PAT).
+          GITHUB_TOKEN: ${{ secrets.RELEASE_PLEASE_TOKEN || github.token }}
 
   publish:
     name: Publish to npm

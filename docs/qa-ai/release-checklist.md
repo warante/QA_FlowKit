@@ -64,6 +64,16 @@ Releases are driven by [Conventional Commits](https://www.conventionalcommits.or
 
 The workflow uses the **release-please CLI** via `node .github/scripts/run-release-please.mjs` (devDependency), not `googleapis/release-please-action`, because repository settings only allow Actions from GitHub or `warante`. If Release Please fails with **Startup failure** and a message about an action not being allowed, do not add third-party actions; ensure this CLI workflow is on `main`.
 
+### Allow Release Please to open PRs (required once per repo)
+
+If the workflow fails with **403** and `GitHub Actions is not permitted to create or approve pull requests`:
+
+1. Open **Settings → Actions → General → Workflow permissions**.
+2. Enable **Allow GitHub Actions to create and approve pull requests** (in addition to read/write workflow permissions).
+3. Re-run the **Release Please** workflow on `main`.
+
+Optional: add a classic PAT with `repo` scope as secret `RELEASE_PLEASE_TOKEN` if you cannot enable that checkbox (org policy).
+
 ### One-time setup (maintainers)
 
 1. **npm Trusted Publishing (recommended)**  

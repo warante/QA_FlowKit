@@ -68,12 +68,34 @@ const baseArgs = [
   `--manifest-file=${manifestFile}`
 ];
 
+function isActionsCannotOpenPrError(text) {
+  return /not permitted to create or approve pull requests/i.test(text);
+}
+
+function printPrPermissionHelp() {
+  console.error(`
+::error::GitHub Actions cannot open pull requests with the default GITHUB_TOKEN.
+
+Fix (repository maintainer):
+  Settings → Actions → General → Workflow permissions
+  → enable "Allow GitHub Actions to create and approve pull requests"
+
+Or add a classic PAT with repo scope as repository secret RELEASE_PLEASE_TOKEN
+and re-run the workflow (see docs/qa-ai/release-checklist.md).
+`);
+}
+
 console.log('=== release-please release-pr ===');
 try {
   const prOut = runReleasePlease(['release-pr', ...baseArgs]);
   if (prOut) console.log(prOut);
 } catch (error) {
-  console.error(error.stderr || error.message);
+  const detail = `${error.stderr || ''}${error.stdout || ''}${error.message || ''}`;
+  if (isActionsCannotOpenPrError(detail)) {
+    printPrPermissionHelp();
+  } else {
+    console.error(error.stderr || error.message);
+  }
   process.exit(error.status || 1);
 }
 
