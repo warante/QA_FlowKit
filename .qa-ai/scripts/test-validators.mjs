@@ -10,11 +10,7 @@ import { validateTestDesignProposal, validateTestDesignSystem } from './lib/test
 import { parseMarkdownTable } from './lib/markdown-table.mjs';
 import { validateTestManagementMapping } from './lib/test-management-mapping.mjs';
 import { duplicateIdErrors, languageRules, parseFeature, validateFeatureContent } from './lib/gherkin-validate.mjs';
-import {
-  parseFeatureTags,
-  resolveFeatureSubfolder,
-  validateFeatureFilePlacement
-} from './lib/feature-layout.mjs';
+import { parseFeatureTags, resolveFeatureSubfolder, validateFeatureFilePlacement } from './lib/feature-layout.mjs';
 import { karateDuplicateIdErrors, validateKarateFeatureContent } from './lib/karate-validate.mjs';
 import { parseSimpleYaml } from './lib/utils.mjs';
 

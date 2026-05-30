@@ -13,7 +13,7 @@ const TYPE_TO_FOLDER = {
   smoke: 'functional',
   negative: 'functional',
   'edge-case': 'functional',
-  'edge_case': 'functional',
+  edge_case: 'functional',
   performance: 'functional',
   load: 'functional',
   stress: 'functional',
@@ -102,9 +102,7 @@ export function validateFeatureFilePlacement(filePath, featureRoot, content = ''
 
   const actualSubfolder = parts[0];
   if (!FEATURE_SUBFOLDERS.includes(actualSubfolder)) {
-    warnings.push(
-      `Unknown subfolder "${actualSubfolder}". Use one of: ${FEATURE_SUBFOLDERS.join(', ')}.`
-    );
+    warnings.push(`Unknown subfolder "${actualSubfolder}". Use one of: ${FEATURE_SUBFOLDERS.join(', ')}.`);
   } else if (actualSubfolder !== expectedSubfolder) {
     warnings.push(
       `Expected folder "${expectedSubfolder}/" based on @type/@manual tags, but file is under "${actualSubfolder}/".`

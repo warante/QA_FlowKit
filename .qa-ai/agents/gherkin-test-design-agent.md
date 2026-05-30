@@ -34,11 +34,11 @@ Activated for per-RF test design and Gherkin feature generation after requiremen
 
 Every scenario must include these tags with valid values:
 
-| Tag          | Valid Values                                                                                        | Source                                  |
-| ------------ | --------------------------------------------------------------------------------------------------- | --------------------------------------- |
-| `@priority:` | `high`, `medium`, `low`                                                                             | From intake priority or user assignment |
+| Tag          | Valid Values                                                                                                              | Source                                                |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| `@priority:` | `high`, `medium`, `low`                                                                                                   | From intake priority or user assignment               |
 | `@type:`     | `functional`, `regression`, `smoke`, `e2e`, `integration`, `api`, `negative`, `edge-case`, `accessibility`, `performance` | From normalization type; drives subfolder (see below) |
-| `@manual:`   | `true`, `false`                                                                                     | From normalization manual-only flag     |
+| `@manual:`   | `true`, `false`                                                                                                           | From normalization manual-only flag                   |
 
 ### Recommended (traceability and deduplication)
 
@@ -53,14 +53,14 @@ Additional optional tags: `@api`, `@ui`, `@mobile`, `@blocked`, `@wip`.
 
 **Always** write under a type subfolder (never directly in the feature root). Map tags to folder:
 
-| Tags | Subfolder |
-| ---- | --------- |
-| `@manual:true` | `manual/` |
-| `@type:e2e` | `e2e/` |
-| `@type:integration` | `integration/` |
-| `@type:accessibility` or `a11y` | `accessibility/` |
-| `@type:api` or `@api` | `api/` |
-| `@type:functional`, `regression`, `smoke`, `negative`, `edge-case`, `performance` (default) | `functional/` |
+| Tags                                                                                        | Subfolder        |
+| ------------------------------------------------------------------------------------------- | ---------------- |
+| `@manual:true`                                                                              | `manual/`        |
+| `@type:e2e`                                                                                 | `e2e/`           |
+| `@type:integration`                                                                         | `integration/`   |
+| `@type:accessibility` or `a11y`                                                             | `accessibility/` |
+| `@type:api` or `@api`                                                                       | `api/`           |
+| `@type:functional`, `regression`, `smoke`, `negative`, `edge-case`, `performance` (default) | `functional/`    |
 
 ```
 features/<subfolder>/[RF-ID]-TC-[N]-[short-description].feature
