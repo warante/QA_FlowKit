@@ -1,9 +1,6 @@
 #!/usr/bin/env node
 import path from 'node:path';
-import {
-  activeSpecialistsContent,
-  configuredDirs
-} from './lib/project-config.mjs';
+import { activeSpecialistsContent, configuredDirs } from './lib/project-config.mjs';
 import {
   copyFileSafe,
   ensureDir,
@@ -102,11 +99,13 @@ async function applyImportedStructure(config) {
     const result = await ensureDir(resolveRepoPath(cwd, dir, { label: `configured directory "${dir}"` }));
     dirResults.push(result);
     if (result.created) {
-      manifestEntries.push(await manifestEntry(cwd, result.path, {
-        type: 'dir',
-        category: 'generated',
-        source: 'config-import'
-      }));
+      manifestEntries.push(
+        await manifestEntry(cwd, result.path, {
+          type: 'dir',
+          category: 'generated',
+          source: 'config-import'
+        })
+      );
     }
   }
 
@@ -116,11 +115,13 @@ async function applyImportedStructure(config) {
     { force }
   );
   if (specialistsResult.written) {
-    manifestEntries.push(await manifestEntry(cwd, specialistsResult.path, {
-      type: 'file',
-      category: 'generated',
-      source: 'config-import'
-    }));
+    manifestEntries.push(
+      await manifestEntry(cwd, specialistsResult.path, {
+        type: 'file',
+        category: 'generated',
+        source: 'config-import'
+      })
+    );
   }
 
   return { dirResults, specialistsResult, manifestEntries };
@@ -129,13 +130,13 @@ async function applyImportedStructure(config) {
 async function importConfig(sourceArg) {
   logHeader('QA AI config import');
 
-  if (!await pathExists(qaAiDir)) {
+  if (!(await pathExists(qaAiDir))) {
     console.error('Missing .qa-ai folder. Copy it into the repository root first.');
     process.exit(1);
   }
 
   const source = resolveRepoPath(cwd, sourceArg, { label: 'import path' });
-  if (!await pathExists(source)) {
+  if (!(await pathExists(source))) {
     console.error(`Import profile not found: ${relativeTo(cwd, source)}`);
     process.exit(1);
   }
@@ -148,11 +149,13 @@ async function importConfig(sourceArg) {
 
   const manifestEntries = [];
   if (configWrite.written) {
-    manifestEntries.push(await manifestEntry(cwd, configWrite.path, {
-      type: 'file',
-      category: 'generated',
-      source: 'config-import'
-    }));
+    manifestEntries.push(
+      await manifestEntry(cwd, configWrite.path, {
+        type: 'file',
+        category: 'generated',
+        source: 'config-import'
+      })
+    );
   }
 
   let structureResult = null;
@@ -170,7 +173,9 @@ async function importConfig(sourceArg) {
     for (const result of structureResult.dirResults) {
       console.log(`${result.created ? 'created' : 'exists '} ${relativeTo(cwd, result.path)}`);
     }
-    console.log(`${structureResult.specialistsResult.written ? 'created' : 'skipped'} ${relativeTo(cwd, structureResult.specialistsResult.path)}`);
+    console.log(
+      `${structureResult.specialistsResult.written ? 'created' : 'skipped'} ${relativeTo(cwd, structureResult.specialistsResult.path)}`
+    );
     if (!structureResult.specialistsResult.written) {
       console.log('Use --force to refresh the active specialists index.');
     }

@@ -12,8 +12,8 @@
 
 ## Cases requiring user decision
 
-| ID | Proposed action | Approval status | Target section | Notes |
-|---|---|---|---|---|
+| ID  | Proposed action | Approval status | Target section | Notes |
+| --- | --------------- | --------------- | -------------- | ----- |
 
 ## Impact
 

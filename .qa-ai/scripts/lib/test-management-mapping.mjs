@@ -1,14 +1,8 @@
 const validMappingKeyPattern = /^(?:(?:RF|TC|TEST|QA)[-_ ]?[A-Z0-9]+|.*\.feature)$/i;
-const allowedFields = new Set([
-  'externalId',
-  'section',
-  'suite',
-  'status',
-  'lastReviewedAt',
-  'notes'
-]);
+const allowedFields = new Set(['externalId', 'section', 'suite', 'status', 'lastReviewedAt', 'notes']);
 const secretKeyPattern = /(?:token|secret|password|passwd|api[_-]?key|authorization|auth)/i;
-const secretValuePattern = /\b(?:ghp|github_pat|sk|xox[baprs]|glpat|AKIA)[A-Za-z0-9_-]{12,}\b|(?:bearer|basic)\s+[A-Za-z0-9._~+/-]+=*/i;
+const secretValuePattern =
+  /\b(?:ghp|github_pat|sk|xox[baprs]|glpat|AKIA)[A-Za-z0-9_-]{12,}\b|(?:bearer|basic)\s+[A-Za-z0-9._~+/-]+=*/i;
 
 function isPlainObject(value) {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -32,9 +26,7 @@ function scanForSecrets(value, path, errors) {
   }
 }
 
-export function validateTestManagementMapping(data, {
-  source = 'test management mapping'
-} = {}) {
+export function validateTestManagementMapping(data, { source = 'test management mapping' } = {}) {
   const errors = [];
   if (!isPlainObject(data)) {
     return [`${source} must contain a JSON object.`];

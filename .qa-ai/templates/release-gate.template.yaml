@@ -2,8 +2,8 @@
 # QA FlowKit does not perform external writes. Update this file after validators and review.
 
 decision: PENDING
-approver: ""
-recordedAt: ""
+approver: ''
+recordedAt: ''
 coverage_summary: |
   Summarize traceability coverage, validator results and test-management sync status.
 open_risks:
@@ -11,6 +11,6 @@ open_risks:
 evidence_paths:
   - qa-ai-output/traceability-matrix.md
   - qa-ai-output/pr-summary.md
-waived_reason: ""
+waived_reason: ''
 notes: |
   Required human approval before production release. Use WAIVED only with explicit approver and reason.

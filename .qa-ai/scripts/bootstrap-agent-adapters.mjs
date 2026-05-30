@@ -62,7 +62,7 @@ async function main() {
 
   logHeader('QA FlowKit agent bootstrap');
 
-  if (!await pathExists(qaAiDir)) {
+  if (!(await pathExists(qaAiDir))) {
     console.error('Missing .qa-ai folder. Copy it into the repository root first.');
     process.exit(1);
   }
@@ -87,28 +87,32 @@ async function main() {
     const source = path.join(cwd, bootstrap.source);
     const target = path.join(cwd, bootstrap.target);
 
-    if (!await pathExists(source)) {
+    if (!(await pathExists(source))) {
       console.log(`[FAIL] ${name}: missing ${bootstrap.source}`);
       continue;
     }
 
     const dirResult = await ensureDir(path.dirname(target));
     if (dirResult.created) {
-      manifestEntries.push(await manifestEntry(cwd, dirResult.path, {
-        type: 'dir',
-        category: 'bootstrap',
-        source: `bootstrap:${name}`
-      }));
+      manifestEntries.push(
+        await manifestEntry(cwd, dirResult.path, {
+          type: 'dir',
+          category: 'bootstrap',
+          source: `bootstrap:${name}`
+        })
+      );
     }
 
     const result = await copyFileSafe(source, target, { force });
     console.log(`${name}: ${result.copied ? 'copied ' : 'skipped'} ${relativeTo(cwd, result.path)}`);
     if (result.copied) {
-      manifestEntries.push(await manifestEntry(cwd, result.path, {
-        type: 'file',
-        category: 'bootstrap',
-        source: `bootstrap:${name}`
-      }));
+      manifestEntries.push(
+        await manifestEntry(cwd, result.path, {
+          type: 'file',
+          category: 'bootstrap',
+          source: `bootstrap:${name}`
+        })
+      );
     }
   }
 

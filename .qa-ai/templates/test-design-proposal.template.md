@@ -10,8 +10,8 @@
 
 ## Proposed tests
 
-| RF | CA | Test ID | Title | Type | Priority | Manual | Action |
-|---|---|---|---|---|---|---|---|
+| RF  | CA  | Test ID | Title | Type | Priority | Manual | Action |
+| --- | --- | ------- | ----- | ---- | -------- | ------ | ------ |
 
 ## Existing tests to reuse
 

@@ -1,11 +1,17 @@
 export function normalizeColumn(value) {
-  return String(value || '').trim().toLowerCase().replace(/\s+/g, ' ');
+  return String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, ' ');
 }
 
 export function splitMarkdownRow(line) {
   const trimmed = String(line || '').trim();
   if (!trimmed.startsWith('|') || !trimmed.endsWith('|')) return null;
-  return trimmed.slice(1, -1).split('|').map((cell) => cell.trim());
+  return trimmed
+    .slice(1, -1)
+    .split('|')
+    .map((cell) => cell.trim());
 }
 
 export function isSeparatorRow(cells) {
@@ -16,11 +22,10 @@ export function rowValues(header, cells) {
   return Object.fromEntries(header.map((column, index) => [normalizeColumn(column), cells[index]]));
 }
 
-export function parseMarkdownTable(content, {
-  label = 'Markdown table',
-  requiredColumns = []
-} = {}) {
-  const lines = String(content || '').replace(/\r/g, '').split('\n');
+export function parseMarkdownTable(content, { label = 'Markdown table', requiredColumns = [] } = {}) {
+  const lines = String(content || '')
+    .replace(/\r/g, '')
+    .split('\n');
   const errors = [];
   const tableLines = [];
 
@@ -45,7 +50,9 @@ export function parseMarkdownTable(content, {
     errors.push(`Line ${separatorLine.line}: ${label} must have a Markdown separator row after the header.`);
   }
   if (separatorLine.cells.length !== header.length) {
-    errors.push(`Line ${separatorLine.line}: separator has ${separatorLine.cells.length} cell(s), expected ${header.length}.`);
+    errors.push(
+      `Line ${separatorLine.line}: separator has ${separatorLine.cells.length} cell(s), expected ${header.length}.`
+    );
   }
 
   for (const column of requiredColumns) {

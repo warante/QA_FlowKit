@@ -29,7 +29,7 @@ Validates qa-ai-output/test-design-system.md and test-design-proposal.md structu
 
 async function validateFile(cwd, filePath, validator, options = {}) {
   const absolute = resolveRepoPath(cwd, filePath, { label: 'test design file' });
-  if (!await pathExists(absolute)) {
+  if (!(await pathExists(absolute))) {
     if (options.allowMissing) {
       return { ok: true, skipped: true, path: filePath, errors: [] };
     }
@@ -46,11 +46,9 @@ export async function validateTestDesignArtifacts(cwd, options = {}) {
   const configInfo = await loadQaAiConfig(cwd);
   const config = configInfo.data || {};
   const systemPath =
-    options.systemPath ||
-    getConfigValue(config, 'testDesign.systemPath', 'qa-ai-output/test-design-system.md');
+    options.systemPath || getConfigValue(config, 'testDesign.systemPath', 'qa-ai-output/test-design-system.md');
   const proposalPath =
-    options.proposalPath ||
-    getConfigValue(config, 'testDesign.proposalPath', 'qa-ai-output/test-design-proposal.md');
+    options.proposalPath || getConfigValue(config, 'testDesign.proposalPath', 'qa-ai-output/test-design-proposal.md');
 
   const allowMissing = Boolean(options.allowMissing);
   const validatorOptions = {
