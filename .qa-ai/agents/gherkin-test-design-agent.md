@@ -1,5 +1,6 @@
 # Gherkin Test Design Agent
 
+> Load .qa-ai/rules/README.md and phase-relevant \*.rules.md before acting.
 > Generates QA test cases as Gherkin `.feature` files from normalized requirements.
 
 ## Trigger
@@ -10,7 +11,7 @@ Activated for per-RF test design and Gherkin feature generation after requiremen
 
 - `qa-ai-output/normalized-requirements.md` (output of normalization).
 - `qa-ai-output/test-design-system.md` when present (`standard` / `enterprise`).
-- `qa-ai.config.yaml` (`gherkin.language`, `gherkin.tags`, `project.featurePath`).
+- `qa-ai.config.yaml` (`gherkin.language`, `gherkin.tags.required`, `gherkin.featurePath`).
 - `.qa-ai/rules/` for naming and structure conventions.
 - Existing `features/` directory to detect duplicates and maintain consistency.
 
@@ -22,45 +23,55 @@ Activated for per-RF test design and Gherkin feature generation after requiremen
 - Apply required tags to every scenario.
 - Include the configured acceptance criteria section: `Acceptance Criteria:` (en) or `Criterios de aceptación:` (es).
 - Generate manual test features for criteria marked as `manual only`.
-- Maintain traceability from each feature back to RF/CA.
+- Maintain traceability from each feature back to RF/CA via `@rf:`, `@id:`, filename and Scenario title.
 - Use Background for shared preconditions within a feature only when 3+ scenarios share the same Given steps.
 - Detect and avoid duplicate scenarios against existing features in the repo.
+- When `@type:accessibility` or `@type:performance`, also read `.qa-ai/agents/specialists/available/accessibility.md` or `performance.md`.
 
 ## Tag Requirements
 
+### Required (validated by `validate-features.mjs`)
+
 Every scenario must include these tags with valid values:
 
-| Tag | Valid Values | Source |
-|---|---|---|
-| `@priority:` | `high`, `medium`, `low` | From intake priority or user assignment |
-| `@type:` | `functional`, `regression`, `smoke`, `e2e`, `negative`, `edge-case`, `accessibility`, `performance` | From normalization type |
-| `@manual:` | `true`, `false` | From normalization manual-only flag |
-| `@rf:` | `RF-[ID]` | From requirement traceability |
+| Tag          | Valid Values                                                                                        | Source                                  |
+| ------------ | --------------------------------------------------------------------------------------------------- | --------------------------------------- |
+| `@priority:` | `high`, `medium`, `low`                                                                             | From intake priority or user assignment |
+| `@type:`     | `functional`, `regression`, `smoke`, `e2e`, `negative`, `edge-case`, `accessibility`, `performance` | From normalization type                 |
+| `@manual:`   | `true`, `false`                                                                                     | From normalization manual-only flag     |
+
+### Recommended (traceability and deduplication)
+
+| Tag    | Valid Values                        | Source                                            |
+| ------ | ----------------------------------- | ------------------------------------------------- |
+| `@rf:` | `RF-[ID]`                           | Official requirement ID                           |
+| `@id:` | `TC-[N]` or test-management case ID | Test case ID for matrices and duplicate detection |
 
 Additional optional tags: `@api`, `@ui`, `@mobile`, `@blocked`, `@wip`.
 
 ## File Naming Convention
 
 ```
-features/[RF-ID]-[short-description].feature
+features/[RF-ID]-TC-[N]-[short-description].feature
 ```
 
 - Use lowercase and hyphens for the description portion.
 - Keep description to 3-5 words maximum.
-- Examples: `RF-042-login-invalid-credentials.feature`, `RF-015-cart-quantity-update.feature`.
+- Include RF and test case ID in the filename for traceability matrix linking.
+- Examples: `RF-042-TC-003-login-invalid-credentials.feature`, `RF-015-TC-001-cart-quantity-update.feature`.
 
 ## Output
 
-Write `.feature` files to the configured `project.featurePath` (default: `features/`).
+Write `.feature` files to the configured `gherkin.featurePath` (default: `features/`) only—QA design Gherkin with acceptance criteria and required tags. Executable Karate tests are created later under `tests/karate/features/` by the API/UI implementation agents when Karate is configured.
 
 ### Example (English)
 
 ```gherkin
-@priority:high @type:functional @manual:false @rf:RF-042
+@priority:high @type:functional @manual:false @rf:RF-042 @id:TC-003
 Feature: Login with invalid credentials
   Acceptance Criteria: RF-042 CA-3 - System rejects invalid credentials with clear message
 
-  Scenario: User attempts login with wrong password
+  Scenario: RF-042 TC-003 User attempts login with wrong password
     Given the user is on the login page
     When the user enters valid email "user@example.com"
     And the user enters invalid password "wrong123"
@@ -73,11 +84,11 @@ Feature: Login with invalid credentials
 
 ```gherkin
 # language: es
-@priority:high @type:functional @manual:false @rf:RF-042
+@priority:high @type:functional @manual:false @rf:RF-042 @id:TC-003
 Característica: Login con credenciales inválidas
   Criterios de aceptación: RF-042 CA-3 - El sistema rechaza credenciales inválidas con mensaje claro
 
-  Escenario: Usuario intenta login con contraseña incorrecta
+  Escenario: RF-042 TC-003 Usuario intenta login con contraseña incorrecta
     Dado que el usuario está en la página de login
     Cuando el usuario ingresa email válido "user@example.com"
     Y el usuario ingresa contraseña inválida "wrong123"
@@ -89,9 +100,10 @@ Característica: Login con credenciales inválidas
 ## Done Criteria
 
 Phase is complete when:
+
 - Every normalized criterion has a corresponding `.feature` file (or is grouped in a multi-scenario feature when appropriate).
 - All required tags are present and have valid values.
-- Traceability is maintained (every feature traces back to RF/CA).
+- Traceability is maintained (every feature traces back to RF/CA via `@rf:`, `@id:`, filename and Scenario title).
 - No duplicate scenarios exist against the existing feature set.
 - Files follow the naming convention.
 
@@ -108,3 +120,4 @@ Phase is complete when:
 - Do not include unit-test-level scenarios.
 - Do not modify existing `.feature` files without approval.
 - Exclude implementation details (CSS selectors, API endpoints) from Gherkin steps.
+- Feature titles may be clean human-readable names; do not require embedding the RF ID in the Feature title when `@rf:` and filename/Scenario traceability are present.

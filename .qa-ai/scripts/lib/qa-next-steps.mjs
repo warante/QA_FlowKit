@@ -1,12 +1,5 @@
 import path from 'node:path';
-import {
-  getConfigValue,
-  listFilesRecursive,
-  loadQaAiConfig,
-  parseSimpleYaml,
-  pathExists,
-  readText
-} from './utils.mjs';
+import { getConfigValue, listFilesRecursive, loadQaAiConfig, parseSimpleYaml, pathExists, readText } from './utils.mjs';
 import { normalizeGateDecision } from './release-gate.mjs';
 import { isConfiguredFramework } from './project-config.mjs';
 
@@ -175,7 +168,9 @@ const PHASE_DEFINITIONS = {
 };
 
 export function normalizeQaTrack(value) {
-  const normalized = String(value || 'standard').trim().toLowerCase();
+  const normalized = String(value || 'standard')
+    .trim()
+    .toLowerCase();
   if (['quick', 'fast', 'minimal', 'light'].includes(normalized)) return 'quick';
   if (['enterprise', 'compliance', 'regulated'].includes(normalized)) return 'enterprise';
   if (['standard', 'method', 'full', 'default'].includes(normalized)) return 'standard';
@@ -183,11 +178,18 @@ export function normalizeQaTrack(value) {
 }
 
 function isEnabled(value) {
-  return value === true || String(value || '').trim().toLowerCase() === 'true';
+  return (
+    value === true ||
+    String(value || '')
+      .trim()
+      .toLowerCase() === 'true'
+  );
 }
 
 function isConfiguredTool(value) {
-  const normalized = String(value || '').trim().toLowerCase();
+  const normalized = String(value || '')
+    .trim()
+    .toLowerCase();
   return Boolean(normalized) && !['none', 'undecided', 'n/a', 'na'].includes(normalized);
 }
 
@@ -269,7 +271,7 @@ async function isPhaseComplete(cwd, config, phaseId, def) {
       getConfigValue(config, 'release.gatePath', 'qa-ai-output/release-gate.yaml')
     );
     const absolute = path.join(cwd, gatePath);
-    if (!await pathExists(absolute)) return false;
+    if (!(await pathExists(absolute))) return false;
     try {
       const data = parseSimpleYaml(await readText(absolute));
       const decision = normalizeGateDecision(data?.decision);
@@ -352,8 +354,8 @@ export async function inspectQaWorkflow(cwd) {
         {
           priority: 'required',
           title: 'Generate project configuration',
-          command: 'node .qa-ai/scripts/init.mjs',
-          detail: 'Creates qa-ai.config.yaml and the configured folder layout.'
+          command: 'npx qa-flowkit init',
+          detail: 'Creates qa-ai.config.yaml and the configured folder layout (or: node .qa-ai/scripts/init.mjs).'
         },
         {
           priority: 'recommended',
@@ -532,6 +534,15 @@ export function formatHelpReport(report, { query = '' } = {}) {
   lines.push('');
 
   if (!report.initialized || !report.configExists) {
+    if (!report.configExists && report.initialized) {
+      lines.push('qa-ai.config.yaml is missing — run init first:');
+      lines.push('  npx qa-flowkit init');
+      lines.push('');
+    } else if (!report.initialized) {
+      lines.push('QA FlowKit is not installed in this repository — run init first:');
+      lines.push('  npx qa-flowkit init');
+      lines.push('');
+    }
     for (const item of report.recommendations) {
       lines.push(`[${item.priority.toUpperCase()}] ${item.title}`);
       lines.push(`  ${item.command}`);
@@ -544,15 +555,21 @@ export function formatHelpReport(report, { query = '' } = {}) {
   lines.push(`Track: ${report.track} (${report.trackInfo.label})`);
   lines.push(report.trackInfo.description);
   lines.push('');
-  lines.push(`Completed phases (${report.completedPhaseIds.length}): ${
-    report.completedPhaseIds.length ? report.completedPhaseIds.join(', ') : 'none'
-  }`);
-  lines.push(`Skipped phases (${report.skippedPhaseIds.length}): ${
-    report.skippedPhaseIds.length ? report.skippedPhaseIds.join(', ') : 'none'
-  }`);
-  lines.push(`Pending phases (${report.pendingPhaseIds.length}): ${
-    report.pendingPhaseIds.length ? report.pendingPhaseIds.join(', ') : 'none'
-  }`);
+  lines.push(
+    `Completed phases (${report.completedPhaseIds.length}): ${
+      report.completedPhaseIds.length ? report.completedPhaseIds.join(', ') : 'none'
+    }`
+  );
+  lines.push(
+    `Skipped phases (${report.skippedPhaseIds.length}): ${
+      report.skippedPhaseIds.length ? report.skippedPhaseIds.join(', ') : 'none'
+    }`
+  );
+  lines.push(
+    `Pending phases (${report.pendingPhaseIds.length}): ${
+      report.pendingPhaseIds.length ? report.pendingPhaseIds.join(', ') : 'none'
+    }`
+  );
   lines.push('');
 
   if (report.pendingPhaseIds.length > 0 || report.completedPhaseIds.length > 0) {

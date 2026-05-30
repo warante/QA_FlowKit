@@ -6,14 +6,7 @@ On `standard` and `enterprise` tracks, complete [system test design](test-design
 
 ## Rules
 
-- Do not generate final tests until the official RF ID is known.
-- Create one `.feature` file per test case.
-- Include exactly one configured scenario keyword per file: `Scenario:` / `Scenario Outline:` for English or `Escenario:` / `Esquema del escenario:` for Spanish.
-- Include the configured acceptance criteria label in every file: `Acceptance Criteria:` for English or `Criterios de aceptación:` for Spanish.
-- Include `# language: es` in Spanish `.feature` files.
-- Include required tag values from `qa-ai.config.yaml`; the default tags are `@priority:`, `@type:` and `@manual:`.
-- Manual tests must also have `.feature` files.
-- Do not generate unit tests.
+Read `.qa-ai/rules/test-design.rules.md`, `.qa-ai/rules/requirements.rules.md` and `.qa-ai/rules/gherkin.rules.md` (index: `.qa-ai/rules/README.md`).
 
 ## Output
 

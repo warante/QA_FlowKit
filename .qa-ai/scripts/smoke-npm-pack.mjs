@@ -25,12 +25,16 @@ function run(command, args, { cwd, env = {}, expectFailure = false, shell = fals
   });
   const failed = result.status !== 0;
   if (expectFailure ? !failed : failed) {
-    throw new Error([
-      `Command ${expectFailure ? 'succeeded unexpectedly' : 'failed'} (${result.status}): ${command} ${args.join(' ')}`,
-      result.error?.message,
-      result.stdout,
-      result.stderr
-    ].filter(Boolean).join('\n'));
+    throw new Error(
+      [
+        `Command ${expectFailure ? 'succeeded unexpectedly' : 'failed'} (${result.status}): ${command} ${args.join(' ')}`,
+        result.error?.message,
+        result.stdout,
+        result.stderr
+      ]
+        .filter(Boolean)
+        .join('\n')
+    );
   }
   return result;
 }
@@ -130,8 +134,8 @@ async function main() {
   const tempRoot = await fs.mkdtemp(path.join(sourceRoot, '.qa-flowkit-npm-smoke-'));
   const packDir = path.join(tempRoot, 'pack');
   const npmCache = path.join(tempRoot, 'npm-cache');
-  let initTarget = null;
-  let updateTarget = null;
+  let initTarget;
+  let updateTarget;
 
   try {
     await fs.mkdir(packDir, { recursive: true });
@@ -158,6 +162,14 @@ async function main() {
     runCli(initTarget, ['init', '--skip-doctor'], { expectFailure: true });
     runCli(initTarget, ['doctor']);
     runCli(initTarget, ['validate-target', '--allow-empty', '--allow-missing', '--no-strict-doctor']);
+
+    const versionResult = runCli(initTarget, ['version']);
+    if (!versionResult.stdout.trim()) throw new Error('qa-flowkit version produced no output.');
+    const helpResult = runCli(initTarget, ['help', '--json']);
+    if (!helpResult.stdout) throw new Error('qa-flowkit help produced no output.');
+    runCli(initTarget, ['unknown-command-xyzzy'], { expectFailure: true });
+    runCli(initTarget, ['validate-features', '--allow-empty']);
+    runCli(initTarget, ['validate-active-specialists', '--allow-missing']);
 
     updateTarget = path.join(tempRoot, 'update-target');
     await fs.mkdir(updateTarget, { recursive: true });

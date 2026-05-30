@@ -35,13 +35,18 @@ If `$ARGUMENTS` is empty, do not run anything yet. Ask the user these questions 
 9. Should the base template API/integration framework be overridden?
    - Examples: `none`, `undecided`, `playwright-api`, `postman`, `rest-assured`, `karate`.
 10. Should any generated paths be customized?
-   - Optional flags: `--ui-specs-path`, `--ui-page-objects-path`, `--api-specs-path`.
+
+- Optional flags: `--ui-specs-path`, `--ui-page-objects-path`, `--api-specs-path`.
+
 11. Which agent adapters should be generated?
-   - Recommend `opencode,claude` when the user wants both.
-   - Use `opencode` when the repo will only use OpenCode.
-   - Use `all` when the user wants every supported adapter.
+
+- Recommend `opencode,claude` when the user wants both.
+- Use `opencode` when the repo will only use OpenCode.
+- Use `all` when the user wants every supported adapter.
+
 12. Should existing generated files be overwritten?
-   - Recommend `no`; only use `--force` if the user explicitly asks.
+
+- Recommend `no`; only use `--force` if the user explicitly asks.
 
 After the user answers, build and run:
 

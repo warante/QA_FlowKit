@@ -19,7 +19,7 @@ export async function ensureDir(dirPath) {
 }
 
 export async function writeFileSafe(filePath, content, { force = false } = {}) {
-  if (!force && await pathExists(filePath)) {
+  if (!force && (await pathExists(filePath))) {
     return { type: 'file', written: false, reason: 'exists', path: filePath };
   }
   await ensureDir(path.dirname(filePath));
@@ -32,12 +32,12 @@ export async function readText(filePath) {
 }
 
 export async function readTextIfExists(filePath) {
-  if (!await pathExists(filePath)) return null;
+  if (!(await pathExists(filePath))) return null;
   return readText(filePath);
 }
 
 export async function copyFileSafe(source, target, { force = false } = {}) {
-  if (!force && await pathExists(target)) {
+  if (!force && (await pathExists(target))) {
     return { type: 'file', copied: false, reason: 'exists', path: target };
   }
   await ensureDir(path.dirname(target));
@@ -46,7 +46,7 @@ export async function copyFileSafe(source, target, { force = false } = {}) {
 }
 
 export async function copyDirSafe(sourceDir, targetDir, { force = false } = {}) {
-  if (!await pathExists(sourceDir)) return [];
+  if (!(await pathExists(sourceDir))) return [];
   const results = [];
   const dirResult = await ensureDir(targetDir);
   if (dirResult.created) results.push(dirResult);
@@ -56,7 +56,7 @@ export async function copyDirSafe(sourceDir, targetDir, { force = false } = {}) 
     const source = path.join(sourceDir, item.name);
     const target = path.join(targetDir, item.name);
     if (item.isDirectory()) {
-      results.push(...await copyDirSafe(source, target, { force }));
+      results.push(...(await copyDirSafe(source, target, { force })));
     } else if (item.isFile()) {
       results.push(await copyFileSafe(source, target, { force }));
     }
@@ -65,14 +65,14 @@ export async function copyDirSafe(sourceDir, targetDir, { force = false } = {}) 
 }
 
 export async function listFilesRecursive(dirPath, predicate = () => true) {
-  if (!await pathExists(dirPath)) return [];
+  if (!(await pathExists(dirPath))) return [];
   const files = [];
   const items = await fs.readdir(dirPath, { withFileTypes: true });
   items.sort((a, b) => a.name.localeCompare(b.name));
   for (const item of items) {
     const fullPath = path.join(dirPath, item.name);
     if (item.isDirectory()) {
-      files.push(...await listFilesRecursive(fullPath, predicate));
+      files.push(...(await listFilesRecursive(fullPath, predicate)));
     } else if (item.isFile() && predicate(fullPath)) {
       files.push(fullPath);
     }
@@ -172,8 +172,20 @@ export function yamlScalar(value) {
   return JSON.stringify(text);
 }
 
+function stripInlineComment(text) {
+  if (!text) return text;
+  const q = text[0];
+  if (q === '"' || q === "'") {
+    const close = text.lastIndexOf(q, text.length - 1);
+    if (close > 0) return text.slice(0, close + 1);
+    return text;
+  }
+  const hashIdx = text.indexOf(' #');
+  return hashIdx > -1 ? text.slice(0, hashIdx).trim() : text;
+}
+
 function parseScalar(value) {
-  const text = value.trim();
+  const text = stripInlineComment(value.trim());
   if (text === 'true') return true;
   if (text === 'false') return false;
   if (text === 'null' || text === '~') return null;
@@ -243,7 +255,7 @@ export function getConfigValue(config, keyPath, fallback = undefined) {
 
 export async function loadQaAiConfig(cwd) {
   const filePath = path.join(cwd, 'qa-ai.config.yaml');
-  if (!await pathExists(filePath)) {
+  if (!(await pathExists(filePath))) {
     return { exists: false, path: filePath, content: '', data: {} };
   }
   const content = await readText(filePath);
@@ -256,7 +268,7 @@ export function manifestPath(cwd) {
 
 export async function loadInitManifest(cwd) {
   const filePath = manifestPath(cwd);
-  if (!await pathExists(filePath)) {
+  if (!(await pathExists(filePath))) {
     return {
       exists: false,
       path: filePath,

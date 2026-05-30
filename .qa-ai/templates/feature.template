@@ -1,5 +1,5 @@
-@priority:<critical|high|medium|low> @type:<functional|integration|e2e|api|accessibility|compatibility|manual> @manual:<true|false>
-Feature: <RF-ID> - <Feature title>
+@priority:<critical|high|medium|low> @type:<functional|integration|e2e|api|accessibility|compatibility|manual> @manual:<true|false> @rf:<RF-ID> @id:<TC-ID>
+Feature: <Feature title>
   As a <role>
   I want <capability>
   So that <business value>
@@ -7,7 +7,7 @@ Feature: <RF-ID> - <Feature title>
   Acceptance Criteria:
     - <acceptance criterion>
 
-  Scenario: <RF-ID> - <Scenario title>
+  Scenario: <RF-ID> <TC-ID> <Scenario title>
     Given <precondition>
     When <action>
     Then <expected result>

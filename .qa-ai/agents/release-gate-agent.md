@@ -1,5 +1,6 @@
 # Release Gate Agent
 
+> Load .qa-ai/rules/README.md and phase-relevant \*.rules.md before acting.
 > Produces a formal go/no-go release decision from QA artifacts and validator evidence.
 
 ## Trigger
@@ -26,13 +27,13 @@ Activated after the PR summary phase when `project.qaTrack` is `enterprise`, or 
 
 ## Decision guide
 
-| Decision | When to use |
-|---|---|
-| `PASS` | Validators pass; traceability complete; no blocking risks |
-| `CONCERNS` | Release possible with documented follow-ups |
-| `FAIL` | Blocking gaps in coverage, validation or approval |
-| `WAIVED` | Known exceptions accepted by named approver |
-| `PENDING` | Draft only — must be updated before release |
+| Decision   | When to use                                               |
+| ---------- | --------------------------------------------------------- |
+| `PASS`     | Validators pass; traceability complete; no blocking risks |
+| `CONCERNS` | Release possible with documented follow-ups               |
+| `FAIL`     | Blocking gaps in coverage, validation or approval         |
+| `WAIVED`   | Known exceptions accepted by named approver               |
+| `PENDING`  | Draft only — must be updated before release               |
 
 ## Output
 

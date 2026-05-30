@@ -1,5 +1,7 @@
 # QA Workflow Orchestrator
 
+> Load `.qa-ai/rules/README.md` and phase-relevant `*.rules.md` before acting.
+
 > Coordinates the complete AI-assisted QA workflow from requirements to PR-ready output.
 
 ## Trigger
@@ -19,32 +21,32 @@ Activated when the user starts a full QA workflow run (`/qa-full-flow`) or reque
 
 Read `project.qaTrack` from `qa-ai.config.yaml` (`quick`, `standard`, or `enterprise`). After each phase, recommend `node .qa-ai/scripts/qa-help.mjs` or `/qa-help`.
 
-| Track | Purpose | Phases omitted (in addition to config-based skips below) |
-|---|---|---|
-| `quick` | Manual QA, bugfix scope, Gherkin + traceability + PR | System test design, test-management coverage/sync, automation feasibility, UI/API implementation, issue task drafts |
-| `standard` | Full QA workflow (default) | None |
-| `enterprise` | Compliance-oriented teams | None; after workflow completion require `validate-target.mjs` |
+| Track        | Purpose                                              | Phases omitted (in addition to config-based skips below)                                                            |
+| ------------ | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `quick`      | Manual QA, bugfix scope, Gherkin + traceability + PR | System test design, test-management coverage/sync, automation feasibility, UI/API implementation, issue task drafts |
+| `standard`   | Full QA workflow (default)                           | None                                                                                                                |
+| `enterprise` | Compliance-oriented teams                            | None; after workflow completion require `validate-target.mjs`                                                       |
 
 ## Phase Sequence
 
 Execute phases in order. Each phase depends on the previous one's output.
 
-| # | Phase | Agent | Skip condition |
-|---|---|---|---|
-| 1 | QA context intake | `qa-context-intake-agent.md` | `knowledge.enabled` is false, or already completed (`qa-knowledge-summary.md` exists and is current) |
-| 2 | Requirements intake | `requirements-intake-agent.md` | User provides pre-analyzed requirements |
-| 3 | Requirements normalization | `requirements-normalization-agent.md` | Never skip |
-| 4 | System test design | `test-design-system-agent.md` | `quick` track |
-| 5 | Per-RF test design | `gherkin-test-design-agent.md` | Never skip (proposal); on `quick` may combine with phase 6 |
-| 6 | Gherkin feature generation | `gherkin-test-design-agent.md` | Never skip |
-| 7 | Test management coverage | `testrail-coverage-agent.md` | `quick` track, or `tools.testManagement` is `none` or missing |
-| 8 | Test management sync | `testrail-sync-agent.md` | `quick` track, or `tools.testManagement` is `none` or missing |
-| 9 | Automation feasibility | `automation-feasibility-agent.md` | `quick` track |
-| 10 | UI/E2E implementation | `webdriverio-implementation-agent.md` | `quick` track, no UI automatable tests, or `automation.ui.framework` is `none`/`undecided` |
-| 11 | API implementation | `api-testing-agent.md` | `quick` track, no API automatable tests, or `automation.api.framework` is `none`/`undecided` |
-| 12 | Issue task drafts | `jira-task-agent.md` | `quick` track, no pending automation tests, or `tools.issueTracker` is `none`/missing |
-| 13 | PR summary | `pr-agent.md` | User explicitly skips |
-| 14 | Release quality gate | `release-gate-agent.md` | `project.qaTrack` is not `enterprise` |
+| #   | Phase                      | Agent                                 | Skip condition                                                                                       |
+| --- | -------------------------- | ------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| 1   | QA context intake          | `qa-context-intake-agent.md`          | `knowledge.enabled` is false, or already completed (`qa-knowledge-summary.md` exists and is current) |
+| 2   | Requirements intake        | `requirements-intake-agent.md`        | User provides pre-analyzed requirements                                                              |
+| 3   | Requirements normalization | `requirements-normalization-agent.md` | Never skip                                                                                           |
+| 4   | System test design         | `test-design-system-agent.md`         | `quick` track                                                                                        |
+| 5   | Per-RF test design         | `gherkin-test-design-agent.md`        | Never skip (proposal); on `quick` may combine with phase 6                                           |
+| 6   | Gherkin feature generation | `gherkin-test-design-agent.md`        | Never skip                                                                                           |
+| 7   | Test management coverage   | `testrail-coverage-agent.md`          | `quick` track, or `tools.testManagement` is `none` or missing                                        |
+| 8   | Test management sync       | `testrail-sync-agent.md`              | `quick` track, or `tools.testManagement` is `none` or missing                                        |
+| 9   | Automation feasibility     | `automation-feasibility-agent.md`     | `quick` track                                                                                        |
+| 10  | UI/E2E implementation      | `webdriverio-implementation-agent.md` | `quick` track, no UI automatable tests, or `automation.ui.framework` is `none`/`undecided`           |
+| 11  | API implementation         | `api-testing-agent.md`                | `quick` track, no API automatable tests, or `automation.api.framework` is `none`/`undecided`         |
+| 12  | Issue task drafts          | `jira-task-agent.md`                  | `quick` track, no pending automation tests, or `tools.issueTracker` is `none`/missing                |
+| 13  | PR summary                 | `pr-agent.md`                         | User explicitly skips                                                                                |
+| 14  | Release quality gate       | `release-gate-agent.md`               | `project.qaTrack` is not `enterprise`                                                                |
 
 ## Responsibilities
 
@@ -97,13 +99,20 @@ Maintain a mental model of workflow state:
 
 ## Output Expectation
 
-Every workflow run must produce or update the expected artifacts under `qa-ai-output/`. At minimum:
+Every workflow run must produce or update artifacts under `qa-ai-output/` and `features/`. Minimum by track:
 
-- `qa-ai-output/requirement-analysis.md`
-- `qa-ai-output/normalized-requirements.md`
-- `features/*.feature`
-- `qa-ai-output/automation-feasibility-report.md`
-- `qa-ai-output/pr-summary.md`
+| Artifact                                        | `quick`     | `standard` | `enterprise` |
+| ----------------------------------------------- | ----------- | ---------- | ------------ |
+| `qa-ai-output/requirement-analysis.md`          | yes         | yes        | yes          |
+| `qa-ai-output/normalized-requirements.md`       | yes         | yes        | yes          |
+| `features/*.feature`                            | yes         | yes        | yes          |
+| `qa-ai-output/traceability-matrix.md`           | recommended | yes        | yes          |
+| `qa-ai-output/test-design-system.md`            | no          | yes        | yes          |
+| `qa-ai-output/automation-feasibility-report.md` | no          | yes        | yes          |
+| `qa-ai-output/pr-summary.md`                    | yes         | yes        | yes          |
+| `qa-ai-output/release-gate.yaml`                | no          | no         | yes          |
+
+When test management or issue tracker tools are configured, include their phase artifacts (`testrail-coverage-analysis.md`, `testrail-sync-plan.md`, `jira-automation-task.md`) as applicable.
 
 ## Constraints
 

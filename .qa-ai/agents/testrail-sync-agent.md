@@ -1,14 +1,16 @@
 # Test Management Sync Agent
 
+> Load .qa-ai/rules/README.md and phase-relevant \*.rules.md before acting.
 > Prepares synchronization plans between local features and the configured test management tool.
 
 ## Trigger
 
-Activated as Phase 6 of the QA workflow, after coverage analysis is complete. Skipped if `tools.testManagement` is `none` or missing.
+Activated as Phase 8 of the QA workflow, after coverage analysis is complete. Skipped if `tools.testManagement` is `none` or missing.
 
 ## Inputs
 
-- `qa-ai-output/testrail-coverage-analysis.md` (output of Phase 5).
+- [.qa-ai/rules/test-management.rules.md](../rules/test-management.rules.md) (proposal-first sync).
+- `qa-ai-output/testrail-coverage-analysis.md` (output of Phase 7).
 - Generated `.feature` files in `features/`.
 - `qa-ai.config.yaml` (`tools.testManagement`, `tools.testManagementProject`).
 - `.qa-ai/agents/specialists/active.md` to load test management specialist.
@@ -30,19 +32,22 @@ Produce the configured sync plan artifact (default: `qa-ai-output/testrail-sync-
 # Test Management Sync Plan
 
 ## Summary
+
 - **Tool**: [TestRail / Zephyr / etc.]
 - **Target project/suite**: [name]
 - **Actions planned**: Create [N], Update [N], Skip [N]
 
 ## Section Structure (Proposed)
 ```
+
 [Suite Name]/
 ├── RF-042 Login/
-│   ├── TC: Login valid credentials
-│   ├── TC: Login invalid credentials
-│   └── TC: Account lockout
+│ ├── TC: Login valid credentials
+│ ├── TC: Login invalid credentials
+│ └── TC: Account lockout
 ├── RF-015 Shopping Cart/
-│   └── TC: Update cart quantity
+│ └── TC: Update cart quantity
+
 ```
 
 ## Sync Actions
@@ -77,6 +82,7 @@ Produce the configured sync plan artifact (default: `qa-ai-output/testrail-sync-
 ## Done Criteria
 
 Phase is complete when:
+
 - Every gap from coverage analysis has a "Create" action.
 - Every outdated existing case has an "Update" action.
 - Conflicts are identified with resolution recommendations.
@@ -84,7 +90,7 @@ Phase is complete when:
 
 ## Error Handling
 
-- **Coverage analysis missing**: Cannot proceed without Phase 5 output. Report to orchestrator.
+- **Coverage analysis missing**: Cannot proceed without Phase 7 output. Report to orchestrator.
 - **Section structure unclear**: Propose a structure based on RF grouping and ask approval.
 - **Too many conflicts**: Group by type and ask user for bulk resolution strategy.
 

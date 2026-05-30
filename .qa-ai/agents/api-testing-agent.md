@@ -1,15 +1,16 @@
 # API Testing Agent
 
+> Load .qa-ai/rules/README.md and phase-relevant \*.rules.md before acting.
 > Implements or plans API/integration tests using the configured framework.
 
 ## Trigger
 
-Activated as Phase 9 of the QA workflow, when the feasibility report contains tests classified as "Automatable — API".
+Activated as Phase 11 of the QA workflow, when the feasibility report contains tests classified as "Automatable — API".
 
 ## Inputs
 
 - `qa-ai-output/automation-feasibility-report.md` (tests classified as API automatable).
-- `qa-ai.config.yaml` (`automation.api.framework`, `automation.api.specsPath`, `automation.api.clientsPath`).
+- `qa-ai.config.yaml` (`automation.api.framework`, `automation.api.specsPath`).
 - Existing API test code in the repository for pattern detection.
 - `.qa-ai/agents/specialists/active.md` to load the relevant API specialist.
 - API documentation or endpoint specifications when available.
@@ -27,17 +28,21 @@ Activated as Phase 9 of the QA workflow, when the feasibility report contains te
 
 ## Output Structure
 
-Write to the configured `automation.api.specsPath` (default: `tests/api/`):
+Use `automation.api.specsPath` from config.
+
+**When `automation.api.framework` is `karate`:** write executable `.feature` files under `tests/karate/features/api/` (or the configured specs path). Follow [karate.md](../specialists/available/karate.md) and run `validate-karate-features.mjs`. Do not use Playwright/REST Assured spec file layouts.
+
+**Otherwise** `init.mjs` creates sibling folders under the API test base (for example `tests/api/`):
 
 ```
 tests/api/
-├── clients/         # Reusable API client wrappers
-├── fixtures/        # Test data factories and setup helpers
-├── schemas/         # Response schema definitions (JSON Schema, types)
-├── specs/           # Test specification files
-│   ├── RF-042-login.spec.[ext]
-│   └── RF-015-create-order.spec.[ext]
-└── helpers/         # Auth, environment, utility functions
+├── clients/
+├── fixtures/
+├── schemas/
+├── specs/
+│   ├── RF-042-TC-001-login.spec.[ext]
+│   └── RF-015-TC-002-create-order.spec.[ext]
+└── helpers/
 ```
 
 ## Implementation Rules
@@ -52,6 +57,7 @@ tests/api/
 ## Done Criteria
 
 Phase is complete when:
+
 - Every API-automatable test from the feasibility report has a corresponding spec (or implementation plan if not approved for write).
 - Tests follow existing repo patterns.
 - Auth and environment handling is configured.

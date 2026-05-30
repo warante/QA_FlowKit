@@ -24,6 +24,7 @@ If `$ARGUMENTS` is empty, do not run anything yet. Ask the user these questions 
    - `manual-only`: QA artifact generation only; no automation folders.
    - `webdriverio-playwright-api`: WebdriverIO UI/E2E plus Playwright API folders.
    - `selenium-jest-browserstack`: Selenium/Jest/BrowserStack style folders.
+   - `karate-full`: Karate API + UI under `tests/karate/features/` (design Gherkin still in `features/`).
 5. What is the primary requirements source?
    - Examples: `markdown`, `jira`, `confluence`, `pasted-text`.
 6. Which test management tool should be configured?
@@ -35,13 +36,18 @@ If `$ARGUMENTS` is empty, do not run anything yet. Ask the user these questions 
 9. Should the base template API/integration framework be overridden?
    - Examples: `none`, `undecided`, `playwright-api`, `postman`, `rest-assured`, `karate`.
 10. Should any generated paths be customized?
-   - Optional flags: `--ui-specs-path`, `--ui-page-objects-path`, `--api-specs-path`.
+
+- Optional flags: `--ui-specs-path`, `--ui-page-objects-path`, `--api-specs-path`.
+
 11. Which agent adapters should be generated?
-   - Recommend `claude,opencode` when the user wants both.
-   - Use `claude` when the repo will only use Claude Code.
-   - Use `all` when the user wants every supported adapter.
+
+- Recommend `claude,opencode` when the user wants both.
+- Use `claude` when the repo will only use Claude Code.
+- Use `all` when the user wants every supported adapter.
+
 12. Should existing generated files be overwritten?
-   - Recommend `no`; only use `--force` if the user explicitly asks.
+
+- Recommend `no`; only use `--force` if the user explicitly asks.
 
 After the user answers, build and run:
 

@@ -43,7 +43,9 @@ Validates feature identifier coverage, traceability matrix table shape and dupli
 }
 
 function normalizeId(value) {
-  return String(value || '').replace(/\s+/g, '-').toUpperCase();
+  return String(value || '')
+    .replace(/\s+/g, '-')
+    .toUpperCase();
 }
 
 function idsFromText(value) {
@@ -98,7 +100,8 @@ function duplicateMatrixErrors(rows) {
     if (lines.length > 1) errors.push(`Identifier ${id} appears in multiple traceability rows: ${lines.join(', ')}.`);
   }
   for (const [featureFile, lines] of byFeatureFile.entries()) {
-    if (lines.length > 1) errors.push(`Feature file ${featureFile} appears in multiple traceability rows: ${lines.join(', ')}.`);
+    if (lines.length > 1)
+      errors.push(`Feature file ${featureFile} appears in multiple traceability rows: ${lines.join(', ')}.`);
   }
 
   return errors;
@@ -109,10 +112,7 @@ async function featureIds(featureRootPath) {
   const entries = [];
   for (const file of files) {
     const content = await fs.readFile(file, 'utf8');
-    const ids = new Set([
-      ...idsFromText(path.basename(file, '.feature')),
-      ...idsFromText(content)
-    ]);
+    const ids = new Set([...idsFromText(path.basename(file, '.feature')), ...idsFromText(content)]);
     entries.push({
       file,
       ids: [...ids].sort()
@@ -130,7 +130,8 @@ async function main() {
   logHeader('QA AI traceability validator');
   const configInfo = await loadQaAiConfig(cwd);
   const featureRoot = args.features || getConfigValue(configInfo.data, 'gherkin.featurePath', 'features');
-  const matrixPath = args.path || getConfigValue(configInfo.data, 'traceability.matrixPath', 'qa-ai-output/traceability-matrix.md');
+  const matrixPath =
+    args.path || getConfigValue(configInfo.data, 'traceability.matrixPath', 'qa-ai-output/traceability-matrix.md');
   const featureRootPath = resolveRepoPath(cwd, featureRoot, { label: 'feature root' });
   const matrixFilePath = resolveRepoPath(cwd, matrixPath, { label: 'traceability matrix' });
   const features = await featureIds(featureRootPath);
@@ -142,7 +143,7 @@ async function main() {
     process.exit(1);
   }
 
-  if (!await pathExists(matrixFilePath)) {
+  if (!(await pathExists(matrixFilePath))) {
     console.log(`Traceability matrix not found at ${matrixPath}.`);
     if (args['allow-missing']) return;
     console.log('\nFAILED - create the traceability matrix or pass --allow-missing.');
@@ -163,7 +164,10 @@ async function main() {
     }
     for (const id of feature.ids) {
       if (!matrixContent.includes(id)) {
-        errors.push(`${relativeTo(cwd, feature.file)} identifier ${id} is missing from ${matrixPath}.`);
+        errors.push(
+          `${relativeTo(cwd, feature.file)} identifier ${id} is missing from ${matrixPath}. ` +
+            'Add a matrix row with RF, Feature File, and Test Management Case ID columns.'
+        );
       }
     }
   }

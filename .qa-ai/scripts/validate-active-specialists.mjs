@@ -1,9 +1,5 @@
 #!/usr/bin/env node
-import path from 'node:path';
-import {
-  activeSpecialists,
-  specialistCatalog
-} from './lib/project-config.mjs';
+import { activeSpecialists, specialistCatalog } from './lib/project-config.mjs';
 import {
   loadQaAiConfig,
   logHeader,
@@ -57,14 +53,16 @@ async function main() {
     process.exit(1);
   }
 
-  if (!await pathExists(activePath)) {
+  if (!(await pathExists(activePath))) {
     console.log('No active specialists index found at .qa-ai/agents/specialists/active.md.');
     if (args['allow-missing']) return;
     console.log('\nFAILED - run init or config import to generate active specialists.');
     process.exit(1);
   }
 
-  const expected = activeSpecialists(configInfo.data).map(([id]) => id).sort();
+  const expected = activeSpecialists(configInfo.data)
+    .map(([id]) => id)
+    .sort();
   const actual = listedSpecialistIds(await readText(activePath));
   const errors = [];
 
@@ -82,7 +80,7 @@ async function main() {
     const sourcePath = resolveRepoPath(cwd, `.qa-ai/agents/specialists/available/${id}.md`, {
       label: `specialist source "${id}"`
     });
-    if (!await pathExists(sourcePath)) {
+    if (!(await pathExists(sourcePath))) {
       errors.push(`Missing specialist source for ${id}: ${relativeTo(cwd, sourcePath)}`);
     }
   }

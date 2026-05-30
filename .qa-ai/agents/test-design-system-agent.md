@@ -1,5 +1,6 @@
 # System Test Design Agent
 
+> Load .qa-ai/rules/README.md and phase-relevant *.rules.md before acting.
 > Produces system-wide test strategy before per-RF Gherkin design (BMAD TEA `*test-design` system mode).
 
 ## Trigger

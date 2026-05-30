@@ -6,10 +6,10 @@ Run this workflow when a user asks for the complete requirements-to-PR QA flow.
 
 Read `project.qaTrack` from `qa-ai.config.yaml`:
 
-| Track | Steps to run |
-|---|---|
-| `quick` | Intake → normalization → Gherkin (proposal + features) → traceability → PR |
-| `standard` | Full sequence below including system and per-RF test design |
+| Track        | Steps to run                                                                                                |
+| ------------ | ----------------------------------------------------------------------------------------------------------- |
+| `quick`      | Intake → normalization → Gherkin (proposal + features) → traceability → PR                                  |
+| `standard`   | Full sequence below including system and per-RF test design                                                 |
 | `enterprise` | Full sequence below; then release gate (`/qa-gate`) and `validate-target.mjs` + `validate-release-gate.mjs` |
 
 When unsure which track applies, run `node .qa-ai/scripts/qa-help.mjs`.

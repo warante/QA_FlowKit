@@ -1,5 +1,6 @@
 # Requirements Normalization Agent
 
+> Load .qa-ai/rules/README.md and phase-relevant \*.rules.md before acting.
 > Transforms raw extracted requirements into a consistent, testable QA-ready format.
 
 ## Trigger
@@ -30,6 +31,7 @@ Produce `qa-ai-output/normalized-requirements.md` with this structure:
 # Normalized Requirements
 
 ## Summary
+
 - Total testable criteria: [N]
 - By type: functional [N], regression [N], smoke [N], e2e [N], negative [N], edge-case [N]
 - Out of scope (unit tests): [N]
@@ -39,16 +41,18 @@ Produce `qa-ai-output/normalized-requirements.md` with this structure:
 
 ### RF-[ID]: [Title]
 
-| # | Criterion | Type | Scenarios | Manual Only | Traceability |
-|---|---|---|---|---|---|
-| 1 | [Normalized testable statement] | functional | 1 | no | RF-[ID] CA-[N] |
-| 2 | [Statement with boundary values] | edge-case | 3 | no | RF-[ID] CA-[N] |
-| 3 | [Statement requiring human judgment] | functional | 1 | yes | RF-[ID] CA-[N] |
+| #   | Criterion                            | Type       | Scenarios | Manual Only | Traceability   |
+| --- | ------------------------------------ | ---------- | --------- | ----------- | -------------- |
+| 1   | [Normalized testable statement]      | functional | 1         | no          | RF-[ID] CA-[N] |
+| 2   | [Statement with boundary values]     | edge-case  | 3         | no          | RF-[ID] CA-[N] |
+| 3   | [Statement requiring human judgment] | functional | 1         | yes         | RF-[ID] CA-[N] |
 
 ## Out of Scope (Unit Tests)
+
 - RF-[ID] CA-[N]: [reason why this is a unit test]
 
 ## Splitting Notes
+
 - RF-[ID] CA-[N] split into criteria [X, Y, Z]: [reason for split]
 ```
 
@@ -62,6 +66,7 @@ Produce `qa-ai-output/normalized-requirements.md` with this structure:
 ## Done Criteria
 
 Phase is complete when:
+
 - Every CA from the intake has been normalized or marked as out of scope.
 - No criterion contains ambiguous language (or it has been flagged as pending).
 - Test types are assigned to all criteria.

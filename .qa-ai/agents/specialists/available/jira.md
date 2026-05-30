@@ -22,16 +22,16 @@ Complements the Requirements Intake Agent (when Jira is the requirement source) 
 
 When Jira is `sources.main`:
 
-| Jira Field | Maps To | Notes |
-|---|---|---|
-| Issue Key (PROJ-123) | RF ID | Use as-is or map to RF-[key] |
-| Summary | Requirement Title | — |
-| Description | Requirement Description | Parse for user story format |
-| Acceptance Criteria (custom field or description section) | CA list | Extract numbered criteria |
-| Priority | Requirement Priority | Map: Highest/High→high, Medium→medium, Low/Lowest→low |
-| Attachments | Supporting docs | Reference file names |
-| Linked Issues | Dependencies/Context | Note blocking/blocked relationships |
-| Labels/Components | Tags/Categories | Map to test types when applicable |
+| Jira Field                                                | Maps To                 | Notes                                                 |
+| --------------------------------------------------------- | ----------------------- | ----------------------------------------------------- |
+| Issue Key (PROJ-123)                                      | RF ID                   | Use as-is or map to RF-[key]                          |
+| Summary                                                   | Requirement Title       | —                                                     |
+| Description                                               | Requirement Description | Parse for user story format                           |
+| Acceptance Criteria (custom field or description section) | CA list                 | Extract numbered criteria                             |
+| Priority                                                  | Requirement Priority    | Map: Highest/High→high, Medium→medium, Low/Lowest→low |
+| Attachments                                               | Supporting docs         | Reference file names                                  |
+| Linked Issues                                             | Dependencies/Context    | Note blocking/blocked relationships                   |
+| Labels/Components                                         | Tags/Categories         | Map to test types when applicable                     |
 
 ## User Story Parsing
 
@@ -71,6 +71,7 @@ When creating task drafts for the Issue Task Agent:
 # Task Draft: [Title]
 
 ## Jira Fields
+
 - **Project**: [PROJ]
 - **Issue Type**: Task | Story | Sub-task
 - **Priority**: [mapped priority]
@@ -80,9 +81,11 @@ When creating task drafts for the Issue Task Agent:
 - **Linked Issues**: relates to [RF issue key]
 
 ## Description
+
 [Task description in Jira markdown format]
 
 ## Acceptance Criteria
+
 - [checkbox style criteria]
 ```
 

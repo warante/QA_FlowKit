@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-import path from 'node:path';
 import { validateReleaseGateData } from './lib/release-gate.mjs';
 import {
   getConfigValue,
@@ -30,7 +29,7 @@ Validates qa-ai-output/release-gate.yaml shape and decision rules.
 
 export async function validateReleaseGateFile(cwd, filePath, options = {}) {
   const gatePath = resolveRepoPath(cwd, filePath, { label: 'release gate' });
-  if (!await pathExists(gatePath)) {
+  if (!(await pathExists(gatePath))) {
     if (options.allowMissing) {
       return { ok: true, skipped: true, path: filePath };
     }
@@ -55,7 +54,7 @@ export async function validateReleaseGateFile(cwd, filePath, options = {}) {
       errors.push(`${filePath}: invalid evidence_paths entry "${relPath}".`);
       continue;
     }
-    if (!await pathExists(resolveRepoPath(cwd, relPath, { label: 'evidence path' }))) {
+    if (!(await pathExists(resolveRepoPath(cwd, relPath, { label: 'evidence path' })))) {
       errors.push(`${filePath}: evidence_paths entry not found: ${relPath}`);
     }
   }
@@ -77,8 +76,7 @@ async function main() {
 
   logHeader('QA AI release gate validator');
   const configInfo = await loadQaAiConfig(cwd);
-  const gatePath = args.path
-    || getConfigValue(configInfo.data, 'release.gatePath', 'qa-ai-output/release-gate.yaml');
+  const gatePath = args.path || getConfigValue(configInfo.data, 'release.gatePath', 'qa-ai-output/release-gate.yaml');
 
   const result = await validateReleaseGateFile(cwd, gatePath, {
     allowMissing: Boolean(args['allow-missing']),

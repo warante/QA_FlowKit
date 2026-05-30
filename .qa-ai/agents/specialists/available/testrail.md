@@ -41,15 +41,15 @@ Suite: [Project Name]
 
 ## Test Case Field Mapping
 
-| Feature File Element | TestRail Field | Notes |
-|---|---|---|
-| Feature title | Case Title | Prefix with short identifier |
-| Scenario steps (Given/When/Then) | Steps (Step/Expected Result) | One step per Given/When/Then |
-| `@priority:` tag | Priority | Map: high=Critical/High, medium=Medium, low=Low |
-| `@type:` tag | Type | Map: functional=Functional, regression=Regression, etc. |
-| `Acceptance Criteria:` section | References | Link to RF/CA |
-| `@manual:true` | Automation Type | Set to "None" |
-| `@manual:false` | Automation Type | Set to "Automated" |
+| Feature File Element             | TestRail Field               | Notes                                                   |
+| -------------------------------- | ---------------------------- | ------------------------------------------------------- |
+| Feature title                    | Case Title                   | Prefix with short identifier                            |
+| Scenario steps (Given/When/Then) | Steps (Step/Expected Result) | One step per Given/When/Then                            |
+| `@priority:` tag                 | Priority                     | Map: high=Critical/High, medium=Medium, low=Low         |
+| `@type:` tag                     | Type                         | Map: functional=Functional, regression=Regression, etc. |
+| `Acceptance Criteria:` section   | References                   | Link to RF/CA                                           |
+| `@manual:true`                   | Automation Type              | Set to "None"                                           |
+| `@manual:false`                  | Automation Type              | Set to "Automated"                                      |
 
 ## Test Run vs Test Plan Strategy
 

@@ -30,25 +30,30 @@ Complements the Gherkin Test Design Agent when alternative output formats are ne
 **Estimated Time**: [minutes]
 
 ### Preconditions
+
 - [Required state before test execution]
 - [Required test data]
 
 ### Test Data
-| Field | Value | Notes |
-|---|---|---|
+
+| Field         | Value   | Notes         |
+| ------------- | ------- | ------------- |
 | [input field] | [value] | [explanation] |
 
 ### Steps
-| # | Action | Expected Result |
-|---|---|---|
-| 1 | [action] | [expected outcome] |
-| 2 | [action] | [expected outcome] |
+
+| #   | Action   | Expected Result    |
+| --- | -------- | ------------------ |
+| 1   | [action] | [expected outcome] |
+| 2   | [action] | [expected outcome] |
 
 ### Postconditions
+
 - [State after test execution]
 - [Cleanup needed]
 
 ### Notes
+
 - [Edge cases to consider]
 - [Related test cases]
 ```
@@ -57,27 +62,27 @@ Complements the Gherkin Test Design Agent when alternative output formats are ne
 
 Apply appropriate techniques based on the criterion type:
 
-| Technique | When to Use | Output |
-|---|---|---|
-| **Boundary Value Analysis** | Numeric inputs, ranges, limits | Min, min+1, max-1, max, below-min, above-max |
-| **Equivalence Partitioning** | Large input domains | Representative value per partition |
-| **Decision Table** | Multiple conditions with combined outcomes | Condition/action matrix |
-| **State Transition** | Workflows, status changes | State diagram + transition test cases |
-| **Pairwise/Combinatorial** | Multiple parameters with many values | Reduced combination set |
-| **Error Guessing** | Known failure patterns | Negative test cases |
+| Technique                    | When to Use                                | Output                                       |
+| ---------------------------- | ------------------------------------------ | -------------------------------------------- |
+| **Boundary Value Analysis**  | Numeric inputs, ranges, limits             | Min, min+1, max-1, max, below-min, above-max |
+| **Equivalence Partitioning** | Large input domains                        | Representative value per partition           |
+| **Decision Table**           | Multiple conditions with combined outcomes | Condition/action matrix                      |
+| **State Transition**         | Workflows, status changes                  | State diagram + transition test cases        |
+| **Pairwise/Combinatorial**   | Multiple parameters with many values       | Reduced combination set                      |
+| **Error Guessing**           | Known failure patterns                     | Negative test cases                          |
 
 ## Decision Table Format
 
 ```markdown
 ### Decision Table: [Feature]
 
-| Condition | Rule 1 | Rule 2 | Rule 3 | Rule 4 |
-|---|---|---|---|---|
-| [Condition A] | T | T | F | F |
-| [Condition B] | T | F | T | F |
-| **Action** | | | | |
-| [Action X] | ✓ | ✓ | — | — |
-| [Action Y] | — | — | ✓ | ✗ |
+| Condition     | Rule 1 | Rule 2 | Rule 3 | Rule 4 |
+| ------------- | ------ | ------ | ------ | ------ |
+| [Condition A] | T      | T      | F      | F      |
+| [Condition B] | T      | F      | T      | F      |
+| **Action**    |        |        |        |        |
+| [Action X]    | ✓      | ✓      | —      | —      |
+| [Action Y]    | —      | —      | ✓      | ✗      |
 ```
 
 ## Exploratory Testing Charter
@@ -88,14 +93,17 @@ Apply appropriate techniques based on the criterion type:
 **Mission**: Explore [feature/area] to discover [type of issues]
 **Time box**: [30-90 minutes]
 **Focus areas**:
+
 - [Specific aspect 1]
 - [Specific aspect 2]
 
 **Risks to investigate**:
+
 - [Known risk 1]
 - [Known risk 2]
 
 **Notes template**:
+
 - Observations: [what was found]
 - Issues: [bugs or concerns]
 - Questions: [things to clarify]
