@@ -27,3 +27,10 @@ node .qa-ai/scripts/validate-features.mjs $ARGUMENTS
 ```
 
 Explain any validation failures and propose the smallest safe fixes. Do not modify feature files unless the user approves.
+
+When feature validation passes and traceability or test-management artifacts exist, recommend the companion validators:
+
+```bash
+node .qa-ai/scripts/validate-traceability.mjs
+node .qa-ai/scripts/validate-sync-plan.mjs
+```

@@ -16,11 +16,15 @@ function run(cwd, args, { expectFailure = false } = {}) {
   });
   const failed = result.status !== 0;
   if (expectFailure ? !failed : failed) {
-    throw new Error([
-      `Command ${expectFailure ? 'succeeded unexpectedly' : 'failed'}: node ${args.join(' ')}`,
-      result.stdout,
-      result.stderr
-    ].filter(Boolean).join('\n'));
+    throw new Error(
+      [
+        `Command ${expectFailure ? 'succeeded unexpectedly' : 'failed'}: node ${args.join(' ')}`,
+        result.stdout,
+        result.stderr
+      ]
+        .filter(Boolean)
+        .join('\n')
+    );
   }
   return result;
 }
@@ -48,12 +52,18 @@ async function main() {
 
     run(tempRoot, [
       '.qa-ai/scripts/init.mjs',
-      '--preset', 'webdriverio-playwright-api',
-      '--interface-language', 'en',
-      '--gherkin-language', 'en',
-      '--ui-framework', 'webdriverio',
-      '--api-framework', 'playwright-api',
-      '--adapters', 'generic'
+      '--preset',
+      'webdriverio-playwright-api',
+      '--interface-language',
+      'en',
+      '--gherkin-language',
+      'en',
+      '--ui-framework',
+      'webdriverio',
+      '--api-framework',
+      'playwright-api',
+      '--adapters',
+      'generic'
     ]);
 
     const config = parseSimpleYaml(await readText(path.join(tempRoot, 'qa-ai.config.yaml')));
@@ -64,10 +74,7 @@ async function main() {
       throw new Error(`Expected preset API path tests/api/specs, got ${config.automation.api.specsPath}`);
     }
 
-    run(tempRoot, [
-      '.qa-ai/scripts/config.mjs',
-      '--export', '.qa-ai/config-profiles/team.yaml'
-    ]);
+    run(tempRoot, ['.qa-ai/scripts/config.mjs', '--export', '.qa-ai/config-profiles/team.yaml']);
     importProfileTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-flowkit-import-'));
     await copyFramework(importProfileTarget);
     await fs.mkdir(path.join(importProfileTarget, '.qa-ai/config-profiles'), { recursive: true });
@@ -75,10 +82,7 @@ async function main() {
       path.join(tempRoot, '.qa-ai/config-profiles/team.yaml'),
       path.join(importProfileTarget, '.qa-ai/config-profiles/team.yaml')
     );
-    run(importProfileTarget, [
-      '.qa-ai/scripts/config.mjs',
-      '--import', '.qa-ai/config-profiles/team.yaml'
-    ]);
+    run(importProfileTarget, ['.qa-ai/scripts/config.mjs', '--import', '.qa-ai/config-profiles/team.yaml']);
     const importedConfig = parseSimpleYaml(await readText(path.join(importProfileTarget, 'qa-ai.config.yaml')));
     if (importedConfig.automation.ui.specsPath !== 'tests/wdio/specs') {
       throw new Error(`Imported config did not preserve UI specs path, got ${importedConfig.automation.ui.specsPath}`);
@@ -133,14 +137,8 @@ async function main() {
 
     geminiTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-flowkit-gemini-'));
     await copyFramework(geminiTarget);
-    run(geminiTarget, [
-      '.qa-ai/scripts/init.mjs',
-      '--adapters', 'gemini'
-    ]);
-    const expectedGeminiPaths = [
-      'AGENTS.md',
-      'GEMINI.md'
-    ];
+    run(geminiTarget, ['.qa-ai/scripts/init.mjs', '--adapters', 'gemini']);
+    const expectedGeminiPaths = ['AGENTS.md', 'GEMINI.md'];
     for (const relPath of expectedGeminiPaths) {
       try {
         await fs.access(path.join(geminiTarget, relPath));
@@ -157,11 +155,7 @@ async function main() {
       '# QA Process\n\nUse Jira, TestRail and English Gherkin.\n',
       'utf8'
     );
-    run(qaContextTarget, [
-      '.qa-ai/scripts/init.mjs',
-      '--qa-context', 'qa-ai-knowledge',
-      '--no-adapters'
-    ]);
+    run(qaContextTarget, ['.qa-ai/scripts/init.mjs', '--qa-context', 'qa-ai-knowledge', '--no-adapters']);
     const qaContextConfig = parseSimpleYaml(await readText(path.join(qaContextTarget, 'qa-ai.config.yaml')));
     if (qaContextConfig.knowledge.enabled !== true) {
       throw new Error('QA context init did not enable knowledge config.');
@@ -197,10 +191,12 @@ async function main() {
     await copyFramework(strictTarget);
     run(strictTarget, [
       '.qa-ai/scripts/init.mjs',
-      '--preset', 'webdriverio-playwright-api',
+      '--preset',
+      'webdriverio-playwright-api',
       '--with-doc-templates',
       '--with-test-management-mapping',
-      '--adapters', 'generic'
+      '--adapters',
+      'generic'
     ]);
     await fs.writeFile(path.join(strictTarget, 'wdio.conf.js'), 'export const config = {};\n', 'utf8');
     await fs.writeFile(path.join(strictTarget, 'playwright.config.js'), 'export default {};\n', 'utf8');
@@ -210,11 +206,7 @@ async function main() {
 
     quickStrictTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-flowkit-quick-strict-'));
     await copyFramework(quickStrictTarget);
-    run(quickStrictTarget, [
-      '.qa-ai/scripts/init.mjs',
-      '--preset', 'manual-only',
-      '--no-adapters'
-    ]);
+    run(quickStrictTarget, ['.qa-ai/scripts/init.mjs', '--preset', 'manual-only', '--no-adapters']);
     await fs.writeFile(
       path.join(quickStrictTarget, 'qa-ai-output', 'requirement-analysis.md'),
       '# Requirement Analysis\n\nRF-101 login.\n',
@@ -234,11 +226,7 @@ async function main() {
 
     validatorTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-flowkit-validators-'));
     await copyFramework(validatorTarget);
-    run(validatorTarget, [
-      '.qa-ai/scripts/init.mjs',
-      '--preset', 'manual-only',
-      '--no-adapters'
-    ]);
+    run(validatorTarget, ['.qa-ai/scripts/init.mjs', '--preset', 'manual-only', '--no-adapters']);
     await fs.mkdir(path.join(validatorTarget, 'features', 'functional'), { recursive: true });
     await fs.writeFile(
       path.join(validatorTarget, 'features', 'functional', 'RF-101-TC-001-login.feature'),
@@ -269,7 +257,11 @@ async function main() {
       ].join('\n'),
       'utf8'
     );
-    await fs.writeFile(path.join(validatorTarget, 'qa-ai-output', 'requirement-analysis.md'), '# Requirement Analysis\n\nRF-101 login.\n', 'utf8');
+    await fs.writeFile(
+      path.join(validatorTarget, 'qa-ai-output', 'requirement-analysis.md'),
+      '# Requirement Analysis\n\nRF-101 login.\n',
+      'utf8'
+    );
     await fs.writeFile(
       path.join(validatorTarget, 'qa-ai-output', 'test-design-proposal.md'),
       [
@@ -304,8 +296,16 @@ async function main() {
       ].join('\n'),
       'utf8'
     );
-    await fs.writeFile(path.join(validatorTarget, 'qa-ai-output', 'testrail-coverage-analysis.md'), '# TestRail Coverage Analysis\n\nRF-101 coverage.\n', 'utf8');
-    await fs.writeFile(path.join(validatorTarget, 'qa-ai-output', 'pr-summary.md'), '# PR Summary\n\nValidation pending.\n', 'utf8');
+    await fs.writeFile(
+      path.join(validatorTarget, 'qa-ai-output', 'testrail-coverage-analysis.md'),
+      '# TestRail Coverage Analysis\n\nRF-101 coverage.\n',
+      'utf8'
+    );
+    await fs.writeFile(
+      path.join(validatorTarget, 'qa-ai-output', 'pr-summary.md'),
+      '# PR Summary\n\nValidation pending.\n',
+      'utf8'
+    );
     await fs.writeFile(
       path.join(validatorTarget, 'qa-ai-output', 'testrail-sync-plan.md'),
       [
@@ -323,16 +323,20 @@ async function main() {
     );
     await fs.writeFile(
       path.join(validatorTarget, 'qa-ai-output', 'test-management-mapping.json'),
-      `${JSON.stringify({
-        'TC-001': {
-          externalId: 'C123',
-          section: 'Login',
-          suite: 'Regression',
-          status: 'planned',
-          lastReviewedAt: '2026-05-25',
-          notes: 'Mapped from validated sync proposal.'
-        }
-      }, null, 2)}\n`,
+      `${JSON.stringify(
+        {
+          'TC-001': {
+            externalId: 'C123',
+            section: 'Login',
+            suite: 'Regression',
+            status: 'planned',
+            lastReviewedAt: '2026-05-25',
+            notes: 'Mapped from validated sync proposal.'
+          }
+        },
+        null,
+        2
+      )}\n`,
       'utf8'
     );
     run(validatorTarget, ['.qa-ai/scripts/validate-features.mjs']);
@@ -400,10 +404,14 @@ async function main() {
     );
     await fs.writeFile(
       path.join(validatorTarget, 'qa-ai-output', 'test-management-mapping.json'),
-      `${JSON.stringify({
-        'TC-001': { externalId: 'C123' },
-        'TC-002': { externalId: 'C123' }
-      }, null, 2)}\n`,
+      `${JSON.stringify(
+        {
+          'TC-001': { externalId: 'C123' },
+          'TC-002': { externalId: 'C123' }
+        },
+        null,
+        2
+      )}\n`,
       'utf8'
     );
     run(validatorTarget, ['.qa-ai/scripts/validate-sync-plan.mjs'], { expectFailure: true });
@@ -414,10 +422,14 @@ async function main() {
     await fs.writeFile(preservedPath, 'USER EDIT\n', 'utf8');
     run(tempRoot, [
       '.qa-ai/scripts/init.mjs',
-      '--preset', 'webdriverio-playwright-api',
-      '--interface-language', 'en',
-      '--gherkin-language', 'en',
-      '--adapters', 'generic'
+      '--preset',
+      'webdriverio-playwright-api',
+      '--interface-language',
+      'en',
+      '--gherkin-language',
+      'en',
+      '--adapters',
+      'generic'
     ]);
     const preservedContent = await readText(preservedPath);
     if (preservedContent !== 'USER EDIT\n') {
@@ -431,18 +443,23 @@ async function main() {
 
     unsafeRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-flowkit-unsafe-'));
     await copyFramework(unsafeRoot);
-    run(unsafeRoot, [
-      '.qa-ai/scripts/init.mjs',
-      '--preset', 'manual-only',
-      '--set', 'traceability.matrixPath=../traceability.md',
-      '--no-adapters'
-    ], { expectFailure: true });
-    run(unsafeRoot, [
-      '.qa-ai/scripts/init.mjs',
-      '--preset', 'manual-only',
-      '--qa-context', '../qa-knowledge',
-      '--no-adapters'
-    ], { expectFailure: true });
+    run(
+      unsafeRoot,
+      [
+        '.qa-ai/scripts/init.mjs',
+        '--preset',
+        'manual-only',
+        '--set',
+        'traceability.matrixPath=../traceability.md',
+        '--no-adapters'
+      ],
+      { expectFailure: true }
+    );
+    run(
+      unsafeRoot,
+      ['.qa-ai/scripts/init.mjs', '--preset', 'manual-only', '--qa-context', '../qa-knowledge', '--no-adapters'],
+      { expectFailure: true }
+    );
 
     console.log('Smoke tests passed.');
   } finally {

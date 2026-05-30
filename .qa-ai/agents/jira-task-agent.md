@@ -1,20 +1,24 @@
 # Issue Task Agent
 
+> Load .qa-ai/rules/README.md and phase-relevant \*.rules.md before acting.
 > Prepares issue tracker task descriptions for pending automation work.
 
 ## Trigger
 
-Activated as Phase 10 of the QA workflow, when the feasibility report contains tests classified as "Pending automation" or "Blocked".
+Activated as Phase 12 of the QA workflow, when the feasibility report contains tests classified as "Pending automation" or "Blocked".
 
 ## Inputs
 
+- [.qa-ai/rules/issue-tracker.rules.md](../rules/issue-tracker.rules.md) (MVP: local drafts only).
 - `qa-ai-output/automation-feasibility-report.md` (tests pending or blocked).
 - `qa-ai.config.yaml` (`tools.issueTracker`, `project.interfaceLanguage`).
 - `.qa-ai/agents/specialists/active.md` to load issue tracker specialist (Jira, etc.).
+- `.qa-ai/templates/jira-automation-task.template.md` for the primary artifact shape.
 
 ## Responsibilities
 
-- Create local task drafts for each test that cannot be automated now.
+- Create or update the primary artifact `qa-ai-output/jira-automation-task.md` (required by `doctor --strict`).
+- Create optional per-task detail files under `qa-ai-output/issue-drafts/` when multiple blockers need separate narratives.
 - Use the configured issue tracker format and conventions.
 - Include full traceability (RF ID, CA, feature file reference).
 - Map priority from the feasibility report.
@@ -24,21 +28,26 @@ Activated as Phase 10 of the QA workflow, when the feasibility report contains t
 
 ## Output
 
-Produce task drafts in `qa-ai-output/issue-drafts/`:
+### Primary artifact (required)
+
+`qa-ai-output/jira-automation-task.md` — summary of all pending/blocked automation work, using `.qa-ai/templates/jira-automation-task.template.md` as the base shape. When multiple RFs are involved, use sections per RF or a table of test cases with blockers.
+
+### Optional detail drafts
 
 ```
 qa-ai-output/issue-drafts/
 ├── RF-042-login-automation.md
 ├── RF-030-mobile-push-framework.md
-└── _index.md   (summary of all drafts)
+└── _index.md   (links to per-RF drafts; optional when primary artifact is sufficient)
 ```
 
-### Task Template
+### Task detail template (for `issue-drafts/`)
 
 ```markdown
 # [Type]: [Title]
 
 ## Metadata
+
 - **Type**: Task | Story | Bug | Spike
 - **Priority**: High | Medium | Low
 - **Labels**: automation, qa, [framework-name]
@@ -46,44 +55,49 @@ qa-ai-output/issue-drafts/
 - **Traceability**: RF-[ID], CA-[N], [feature-file.feature]
 
 ## Description
+
 [What needs to be done, in context of the QA automation effort]
 
 ## Acceptance Criteria
+
 - [ ] [Specific completion criterion for the automation task]
 - [ ] [Test passes in CI environment]
 - [ ] [Page objects / API clients created as needed]
 
 ## Blocker Details
+
 - **Current blocker**: [description]
 - **Unblock action**: [what needs to happen]
 - **Depends on**: [other task/team/resource]
 
 ## Related Test Scenarios
+
 - [feature-file.feature]: [scenario name]
 ```
 
 ### Priority Mapping
 
-| Feasibility Priority | Task Priority | Rationale |
-|---|---|---|
-| High + Pending (framework undecided) | High | Blocks high-value automation |
-| High + Blocked (infra) | High | Infrastructure dependency |
-| Medium + Pending | Medium | Standard backlog |
-| Low + Pending | Low | Nice-to-have automation |
+| Feasibility Priority                 | Task Priority | Rationale                    |
+| ------------------------------------ | ------------- | ---------------------------- |
+| High + Pending (framework undecided) | High          | Blocks high-value automation |
+| High + Blocked (infra)               | High          | Infrastructure dependency    |
+| Medium + Pending                     | Medium        | Standard backlog             |
+| Low + Pending                        | Low           | Nice-to-have automation      |
 
 ## Done Criteria
 
 Phase is complete when:
-- Every "Pending automation" and "Blocked" test has a corresponding task draft.
+
+- `qa-ai-output/jira-automation-task.md` exists and summarizes all pending/blocked automation work (or states none when applicable).
+- Every "Pending automation" and "Blocked" test is listed in the primary artifact or linked from optional `issue-drafts/`.
 - Tasks include traceability, acceptance criteria and blocker details.
-- The index file summarizes all drafts.
-- Tasks are written in the configured interface language.
+- Content is written in the configured interface language.
 
 ## Error Handling
 
 - **Issue tracker not configured**: Create generic task drafts in markdown format. Note that no tracker format was applied.
 - **Blocker unclear**: Ask user for details before creating the task draft.
-- **Too many tasks for one blocker**: Group into a single epic/parent task with subtasks.
+- **Too many tasks for one blocker**: Group into a single epic/parent task with subtasks in `issue-drafts/`, summarized in `jira-automation-task.md`.
 
 ## Constraints
 

@@ -37,14 +37,14 @@ Default path: `qa-ai-output/release-gate.yaml`
 
 Template: `.qa-ai/templates/release-gate.template.yaml`
 
-| Field | Purpose |
-|---|---|
-| `decision` | `PASS`, `CONCERNS`, `FAIL`, `WAIVED`, or draft `PENDING` |
-| `approver` | Required for `WAIVED` |
-| `coverage_summary` | Human-readable validation and coverage summary |
-| `open_risks` | List of risks; required for `CONCERNS` and `FAIL` |
-| `evidence_paths` | Repository-relative paths that exist on disk |
-| `waived_reason` | Required for `WAIVED` |
+| Field              | Purpose                                                  |
+| ------------------ | -------------------------------------------------------- |
+| `decision`         | `PASS`, `CONCERNS`, `FAIL`, `WAIVED`, or draft `PENDING` |
+| `approver`         | Required for `WAIVED`                                    |
+| `coverage_summary` | Human-readable validation and coverage summary           |
+| `open_risks`       | List of risks; required for `CONCERNS` and `FAIL`        |
+| `evidence_paths`   | Repository-relative paths that exist on disk             |
+| `waived_reason`    | Required for `WAIVED`                                    |
 
 ## Workflow
 

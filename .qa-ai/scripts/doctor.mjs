@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import path from 'node:path';
-import { normalizeQaTrack } from './lib/qa-next-steps.mjs';
+import { isKarateFramework, karateConfigPath, karateFeatureRoots, usesKarate } from './lib/automation-framework.mjs';
+import { inspectQaWorkflow, normalizeQaTrack } from './lib/qa-next-steps.mjs';
 import { getConfigValue, loadQaAiConfig, parseArgs, pathExists, resolveRepoPath, logHeader } from './lib/utils.mjs';
 
 const cwd = process.cwd();
@@ -14,6 +15,7 @@ const requiredScripts = [
   '.qa-ai/scripts/bootstrap-agent-adapters.mjs',
   '.qa-ai/scripts/clean.mjs',
   '.qa-ai/scripts/validate-features.mjs',
+  '.qa-ai/scripts/validate-karate-features.mjs',
   '.qa-ai/scripts/validate-traceability.mjs',
   '.qa-ai/scripts/validate-sync-plan.mjs',
   '.qa-ai/scripts/validate-active-specialists.mjs',
@@ -34,13 +36,24 @@ const requiredScripts = [
   '.qa-ai/scripts/lib/utils.mjs'
 ];
 
+const requiredRulesIndex = '.qa-ai/rules/README.md';
 const requiredRules = [
   '.qa-ai/rules/approval.rules.md',
   '.qa-ai/rules/api-testing.rules.md',
   '.qa-ai/rules/automation.rules.md',
+  '.qa-ai/rules/cleanup.rules.md',
+  '.qa-ai/rules/defect.rules.md',
   '.qa-ai/rules/gherkin.rules.md',
+  '.qa-ai/rules/karate.rules.md',
+  '.qa-ai/rules/issue-tracker.rules.md',
+  '.qa-ai/rules/release-gate.rules.md',
+  '.qa-ai/rules/requirements.rules.md',
+  '.qa-ai/rules/test-design.rules.md',
+  '.qa-ai/rules/test-management.rules.md',
   '.qa-ai/rules/testrail.rules.md',
-  '.qa-ai/rules/webdriverio.rules.md'
+  '.qa-ai/rules/ui-automation.rules.md',
+  '.qa-ai/rules/webdriverio.rules.md',
+  '.qa-ai/rules/workflow.rules.md'
 ];
 
 const requiredTemplates = [
@@ -94,6 +107,7 @@ const requiredSpecialists = [
 
 const requiredPresets = [
   '.qa-ai/presets/manual-only.yaml',
+  '.qa-ai/presets/karate-full.yaml',
   '.qa-ai/presets/selenium-jest-browserstack.yaml',
   '.qa-ai/presets/webdriverio-playwright-api.yaml'
 ];
@@ -177,12 +191,19 @@ function anyPathCheck(level, label, relPaths) {
 }
 
 function isConfiguredFramework(value) {
-  const normalized = String(value || '').trim().toLowerCase();
+  const normalized = String(value || '')
+    .trim()
+    .toLowerCase();
   return Boolean(normalized) && !['none', 'undecided', 'manual', 'n/a', 'na'].includes(normalized);
 }
 
 function isEnabled(value) {
-  return value === true || String(value || '').trim().toLowerCase() === 'true';
+  return (
+    value === true ||
+    String(value || '')
+      .trim()
+      .toLowerCase() === 'true'
+  );
 }
 
 function checkLevel(defaultLevel) {
@@ -190,7 +211,9 @@ function checkLevel(defaultLevel) {
 }
 
 function isConfiguredTool(value) {
-  const normalized = String(value || '').trim().toLowerCase();
+  const normalized = String(value || '')
+    .trim()
+    .toLowerCase();
   return Boolean(normalized) && !['none', 'undecided', 'n/a', 'na'].includes(normalized);
 }
 
@@ -204,26 +227,52 @@ function addWorkflowArtifactChecks(checks, config) {
   const proposalPath = getConfigValue(config, 'testDesign.proposalPath', 'qa-ai-output/test-design-proposal.md');
   const isQuickTrack = track === 'quick';
 
-  checks.push(pathCheck(checkLevel('optional'), 'requirement analysis artifact', 'qa-ai-output/requirement-analysis.md'));
+  checks.push(
+    pathCheck(checkLevel('optional'), 'requirement analysis artifact', 'qa-ai-output/requirement-analysis.md')
+  );
   if (!isQuickTrack) {
     const systemPath = getConfigValue(config, 'testDesign.systemPath', 'qa-ai-output/test-design-system.md');
     checks.push(pathCheck(checkLevel('optional'), 'system test design artifact', systemPath));
   }
-  checks.push(pathCheck(isQuickTrack ? 'optional' : checkLevel('optional'), 'test design proposal artifact', proposalPath));
+  checks.push(
+    pathCheck(isQuickTrack ? 'optional' : checkLevel('optional'), 'test design proposal artifact', proposalPath)
+  );
   checks.push(pathCheck(checkLevel('optional'), 'PR summary artifact', 'qa-ai-output/pr-summary.md'));
 
   if (!isQuickTrack && isConfiguredTool(testManagementTool)) {
-    checks.push(pathCheck(checkLevel('optional'), 'test management coverage artifact', 'qa-ai-output/testrail-coverage-analysis.md'));
-    checks.push(pathCheck(checkLevel('optional'), 'test management sync plan artifact', 'qa-ai-output/testrail-sync-plan.md'));
+    checks.push(
+      pathCheck(
+        checkLevel('optional'),
+        'test management coverage artifact',
+        'qa-ai-output/testrail-coverage-analysis.md'
+      )
+    );
+    checks.push(
+      pathCheck(checkLevel('optional'), 'test management sync plan artifact', 'qa-ai-output/testrail-sync-plan.md')
+    );
   }
 
   if (hasAutomation) {
-    checks.push(pathCheck(checkLevel('optional'), 'automation feasibility artifact', 'qa-ai-output/automation-feasibility-report.md'));
-    checks.push(pathCheck(checkLevel('optional'), 'automation implementation plan artifact', 'qa-ai-output/automation-implementation-plan.md'));
+    checks.push(
+      pathCheck(
+        checkLevel('optional'),
+        'automation feasibility artifact',
+        'qa-ai-output/automation-feasibility-report.md'
+      )
+    );
+    checks.push(
+      pathCheck(
+        checkLevel('optional'),
+        'automation implementation plan artifact',
+        'qa-ai-output/automation-implementation-plan.md'
+      )
+    );
   }
 
   if (isConfiguredTool(issueTracker)) {
-    checks.push(pathCheck(checkLevel('optional'), 'issue tracker task draft artifact', 'qa-ai-output/jira-automation-task.md'));
+    checks.push(
+      pathCheck(checkLevel('optional'), 'issue tracker task draft artifact', 'qa-ai-output/jira-automation-task.md')
+    );
   }
 }
 
@@ -245,54 +294,70 @@ function addConfiguredChecks(checks, config) {
   checks.push(pathCheck('required', 'configured feature root', featurePath));
   checks.push(pathCheck('required', 'configured QA output path', path.dirname(matrixPath)));
   checks.push(pathCheck(checkLevel('optional'), 'configured traceability matrix', matrixPath));
-  if (mappingFile && track !== 'quick') checks.push(pathCheck(checkLevel('optional'), 'configured test management mapping file', mappingFile));
+  if (mappingFile && track !== 'quick')
+    checks.push(pathCheck(checkLevel('optional'), 'configured test management mapping file', mappingFile));
   addWorkflowArtifactChecks(checks, config);
 
   if (knowledgeEnabled) {
     checks.push(pathCheck('required', 'configured QA context folder', knowledgeSourcePath));
-    if (knowledgeSummaryPath) checks.push(pathCheck(checkLevel('optional'), 'QA context summary artifact', knowledgeSummaryPath));
-    if (knowledgeDecisionsPath) checks.push(pathCheck(checkLevel('optional'), 'QA init decisions artifact', knowledgeDecisionsPath));
+    if (knowledgeSummaryPath)
+      checks.push(pathCheck(checkLevel('optional'), 'QA context summary artifact', knowledgeSummaryPath));
+    if (knowledgeDecisionsPath)
+      checks.push(pathCheck(checkLevel('optional'), 'QA init decisions artifact', knowledgeDecisionsPath));
   }
 
   if (isConfiguredFramework(uiFramework)) {
     if (uiSpecsPath) checks.push(pathCheck('required', 'configured UI specs path', uiSpecsPath));
-    if (uiPageObjectsPath) checks.push(pathCheck('required', 'configured UI page objects path', uiPageObjectsPath));
+    if (uiPageObjectsPath && !isKarateFramework(uiFramework)) {
+      checks.push(pathCheck('required', 'configured UI page objects path', uiPageObjectsPath));
+    }
   }
 
   if (isConfiguredFramework(apiFramework)) {
     if (apiSpecsPath) checks.push(pathCheck('required', 'configured API specs path', apiSpecsPath));
   }
 
+  if (usesKarate(config)) {
+    const kConfig = karateConfigPath(config);
+    checks.push(pathCheck(checkLevel('optional'), 'Karate config file', kConfig));
+    for (const root of karateFeatureRoots(config)) {
+      checks.push(pathCheck('required', 'Karate feature root', root));
+    }
+  }
+
   if (uiFramework === 'webdriverio') {
-    checks.push(anyPathCheck(checkLevel('optional'), 'WebdriverIO config', [
-      'wdio.conf.ts',
-      'wdio.conf.js',
-      'wdio.conf.mjs',
-      'wdio.conf.cjs'
-    ]));
+    checks.push(
+      anyPathCheck(checkLevel('optional'), 'WebdriverIO config', [
+        'wdio.conf.ts',
+        'wdio.conf.js',
+        'wdio.conf.mjs',
+        'wdio.conf.cjs'
+      ])
+    );
   }
 
   if (uiFramework === 'selenium-jest-browserstack' || uiFramework === 'selenium') {
-    checks.push(anyPathCheck(checkLevel('optional'), 'Jest config', [
-      'jest.config.ts',
-      'jest.config.js',
-      'jest.config.mjs',
-      'jest.config.cjs'
-    ]));
-    checks.push(anyPathCheck(checkLevel('optional'), 'BrowserStack config', [
-      'browserstack.yml',
-      'browserstack.yaml'
-    ]));
+    checks.push(
+      anyPathCheck(checkLevel('optional'), 'Jest config', [
+        'jest.config.ts',
+        'jest.config.js',
+        'jest.config.mjs',
+        'jest.config.cjs'
+      ])
+    );
+    checks.push(anyPathCheck(checkLevel('optional'), 'BrowserStack config', ['browserstack.yml', 'browserstack.yaml']));
   }
 
-  if (apiFramework === 'playwright-api' || apiFramework === 'playwright') {
-    checks.push(anyPathCheck(checkLevel('optional'), 'Playwright API config', [
-      'playwright.api.config.ts',
-      'playwright.api.config.js',
-      'playwright.config.ts',
-      'playwright.config.js',
-      'playwright.config.mjs'
-    ]));
+  if ((apiFramework === 'playwright-api' || apiFramework === 'playwright') && !isKarateFramework(apiFramework)) {
+    checks.push(
+      anyPathCheck(checkLevel('optional'), 'Playwright API config', [
+        'playwright.api.config.ts',
+        'playwright.api.config.js',
+        'playwright.config.ts',
+        'playwright.config.js',
+        'playwright.config.mjs'
+      ])
+    );
   }
 }
 
@@ -300,10 +365,12 @@ async function runCheck(check) {
   const resolvedPaths = [];
   for (const relPath of check.paths) {
     try {
-      resolvedPaths.push(resolveRepoPath(cwd, relPath, {
-        label: check.label,
-        allowRoot: relPath === '.'
-      }));
+      resolvedPaths.push(
+        resolveRepoPath(cwd, relPath, {
+          label: check.label,
+          allowRoot: relPath === '.'
+        })
+      );
     } catch (error) {
       return { ...check, ok: false, reason: error.message };
     }
@@ -335,19 +402,23 @@ async function main() {
     pathCheck('required', 'adapters folder', '.qa-ai/adapters'),
     pathCheck(genericInstructionsLevel, 'generic agent instructions', 'AGENTS.md'),
     ...requiredScripts.map((relPath) => pathCheck('required', `script ${path.basename(relPath)}`, relPath)),
+    pathCheck('required', 'rules index', requiredRulesIndex),
     ...requiredRules.map((relPath) => pathCheck('required', `rule ${path.basename(relPath)}`, relPath)),
     ...requiredTemplates.map((relPath) => pathCheck('required', `template ${path.basename(relPath)}`, relPath)),
     ...requiredAgents.map((relPath) => pathCheck('required', `agent ${path.basename(relPath)}`, relPath)),
     ...requiredSpecialists.map((relPath) => pathCheck('required', `specialist ${path.basename(relPath)}`, relPath)),
     ...requiredPresets.map((relPath) => pathCheck('required', `preset ${path.basename(relPath)}`, relPath)),
     ...requiredWorkflows.map((relPath) => pathCheck('required', `workflow ${path.basename(relPath)}`, relPath)),
-    ...requiredAdapterTemplates.map((relPath) => pathCheck('required', `adapter template ${relPath.split('/').slice(2).join('/')}`, relPath)),
+    ...requiredAdapterTemplates.map((relPath) =>
+      pathCheck('required', `adapter template ${relPath.split('/').slice(2).join('/')}`, relPath)
+    ),
     ...generatedAdapters.map(([label, relPath]) => pathCheck('optional', label, relPath))
   ];
 
   if (configInfo.exists) addConfiguredChecks(checks, configInfo.data);
   if (configInfo.exists) checks.push(pathCheck('optional', 'init manifest', '.qa-ai/state/init-manifest.json'));
-  if (configInfo.exists) checks.push(pathCheck('required', 'active specialists index', '.qa-ai/agents/specialists/active.md'));
+  if (configInfo.exists)
+    checks.push(pathCheck('required', 'active specialists index', '.qa-ai/agents/specialists/active.md'));
 
   let failed = 0;
   let warned = 0;
@@ -372,9 +443,19 @@ async function main() {
   }
   if (warned > 0) {
     console.log(`VALID WITH WARNINGS - ${warned} optional checks missing.`);
-    return;
+  } else if (failed === 0) {
+    console.log('VALID - all checks passed.');
   }
-  console.log('VALID - all checks passed.');
+
+  if (failed === 0 && configInfo.exists) {
+    const report = await inspectQaWorkflow(cwd);
+    const required = report.recommendations.filter((item) => item.priority === 'required');
+    if (required.length > 0) {
+      console.log('\nSuggested next step:');
+      console.log(`  ${required[0].command}`);
+      if (required[0].detail) console.log(`  ${required[0].detail}`);
+    }
+  }
 }
 
 main().catch((error) => {

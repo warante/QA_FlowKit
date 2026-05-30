@@ -1,5 +1,6 @@
 # QA Context Intake Agent
 
+> Load .qa-ai/rules/README.md and phase-relevant \*.rules.md before acting.
 > Analyzes a repository-local QA knowledge folder to understand team practices before initialization.
 
 ## Trigger
@@ -47,6 +48,7 @@ The summary must separate:
 ## Done Criteria
 
 Phase is complete when:
+
 - All detectable practices have been extracted and classified (explicit vs inferred).
 - Pending decisions are listed with clear questions for the user.
 - The summary artifact is written at `knowledge.summaryPath`.

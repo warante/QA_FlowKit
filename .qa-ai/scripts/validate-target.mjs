@@ -1,7 +1,19 @@
 #!/usr/bin/env node
+import fs from 'node:fs/promises';
 import { spawnSync } from 'node:child_process';
+import { karateSecretScanRoots, usesKarate } from './lib/automation-framework.mjs';
 import { normalizeQaTrack } from './lib/qa-next-steps.mjs';
-import { getConfigValue, loadQaAiConfig, logHeader, parseArgs } from './lib/utils.mjs';
+import { scanPathsForSecrets } from './lib/secret-patterns.mjs';
+import {
+  getConfigValue,
+  listFilesRecursive,
+  loadQaAiConfig,
+  logHeader,
+  parseArgs,
+  pathExists,
+  relativeTo,
+  resolveRepoPath
+} from './lib/utils.mjs';
 
 const args = parseArgs(process.argv);
 
@@ -15,6 +27,8 @@ Options:
   --skip-release-gate Skip release gate validation (enterprise track only)
   --skip-test-design   Skip test design markdown validation
   --allow-pending     Pass --allow-pending to release gate validator
+  --scan-secrets      Scan qa-ai-output and features for secret-like values
+  --no-scan-secrets   Skip secret scan (overrides default on --strict doctor)
   --help              Show this help
 
 Runs the target-repository validation pipeline:
@@ -57,15 +71,15 @@ async function main() {
   const track = normalizeQaTrack(getConfigValue(configInfo.data, 'project.qaTrack', 'standard'));
 
   const featureArgs = allowEmpty ? ['--allow-empty'] : [];
-  const artifactArgs = [
-    ...(allowEmpty ? ['--allow-empty'] : []),
-    ...(allowMissing ? ['--allow-missing'] : [])
-  ];
+  const artifactArgs = [...(allowEmpty ? ['--allow-empty'] : []), ...(allowMissing ? ['--allow-missing'] : [])];
   const activeSpecialistArgs = allowMissing ? ['--allow-missing'] : [];
 
   const commands = [
     command('doctor', '.qa-ai/scripts/doctor.mjs', strictDoctor ? ['--strict'] : []),
     command('feature validation', '.qa-ai/scripts/validate-features.mjs', featureArgs),
+    ...(usesKarate(configInfo.data)
+      ? [command('karate feature validation', '.qa-ai/scripts/validate-karate-features.mjs', featureArgs)]
+      : []),
     command('traceability validation', '.qa-ai/scripts/validate-traceability.mjs', artifactArgs),
     command('active specialist validation', '.qa-ai/scripts/validate-active-specialists.mjs', activeSpecialistArgs)
   ];
@@ -93,6 +107,40 @@ async function main() {
       console.log(`\nFAILED - ${commandSpec.label} failed.`);
       process.exit(exitCode);
     }
+  }
+
+  const scanSecrets = args['no-scan-secrets'] ? false : Boolean(args['scan-secrets'] || strictDoctor);
+  if (scanSecrets) {
+    console.log('\n--- secret scan ---');
+    const dirs = [
+      'qa-ai-output',
+      getConfigValue(configInfo.data, 'gherkin.featurePath', 'features'),
+      ...(usesKarate(configInfo.data) ? karateSecretScanRoots(configInfo.data) : [])
+    ];
+    const files = [];
+    for (const dir of dirs) {
+      try {
+        const dirPath = resolveRepoPath(process.cwd(), dir, { label: dir });
+        if (await pathExists(dirPath)) {
+          const listed = await listFilesRecursive(dirPath, (filePath) => {
+            const lower = filePath.toLowerCase();
+            return !lower.endsWith('.png') && !lower.endsWith('.jpg');
+          });
+          files.push(...listed);
+        }
+      } catch {
+        // optional paths
+      }
+    }
+    const findings = await scanPathsForSecrets(fs.readFile, files, process.cwd(), relativeTo);
+    if (findings.length > 0) {
+      for (const finding of findings) {
+        console.log(`[FAIL] ${finding.label}:${finding.line} (${finding.pattern}) ${finding.excerpt}`);
+      }
+      console.log(`\nFAILED - ${findings.length} potential secret(s) in QA artifacts.`);
+      process.exit(1);
+    }
+    console.log('[PASS] No secret-like values detected in qa-ai-output or features.');
   }
 
   console.log('\nVALID - target repository validation passed.');

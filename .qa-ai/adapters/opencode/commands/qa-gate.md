@@ -9,6 +9,7 @@ Read first:
 
 - `AGENTS.md`
 - `qa-ai.config.yaml`
+- `.qa-ai/rules/release-gate.rules.md`
 - `.qa-ai/rules/approval.rules.md`
 - `.qa-ai/agents/release-gate-agent.md`
 - `.qa-ai/workflows/release-gate.md`

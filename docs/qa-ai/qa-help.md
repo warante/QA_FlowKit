@@ -26,19 +26,19 @@ node .qa-ai/scripts/qa-help.mjs --json
 
 Set during `init` (from preset or `--qa-track`):
 
-| Track | Best for | Active phases |
-|---|---|---|
-| `quick` | Manual QA, narrow scope, Gherkin + traceability + PR | Context (optional), intake, normalization, Gherkin (proposal + features), traceability, PR |
-| `standard` | Full QA AI workflow (default) | All phases when tools and frameworks are configured, including system and per-RF test design |
-| `enterprise` | Teams that require strict target validation | Same as `standard`, plus `/qa-gate` and `validate-release-gate.mjs` |
+| Track        | Best for                                             | Active phases                                                                                |
+| ------------ | ---------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `quick`      | Manual QA, narrow scope, Gherkin + traceability + PR | Context (optional), intake, normalization, Gherkin (proposal + features), traceability, PR   |
+| `standard`   | Full QA AI workflow (default)                        | All phases when tools and frameworks are configured, including system and per-RF test design |
+| `enterprise` | Teams that require strict target validation          | Same as `standard`, plus `/qa-gate` and `validate-release-gate.mjs`                          |
 
 ### Preset defaults
 
-| Preset | Default track |
-|---|---|
-| `manual-only` | `quick` |
-| `webdriverio-playwright-api` | `standard` |
-| `selenium-jest-browserstack` | `standard` |
+| Preset                       | Default track |
+| ---------------------------- | ------------- |
+| `manual-only`                | `quick`       |
+| `webdriverio-playwright-api` | `standard`    |
+| `selenium-jest-browserstack` | `standard`    |
 
 Override at init:
 
@@ -57,9 +57,9 @@ node .qa-ai/scripts/init.mjs --preset webdriverio-playwright-api --qa-track ente
 
 ## Relationship to `/qa-status`
 
-| Command | Purpose |
-|---|---|
-| `/qa-help` | What to do **next** in the workflow |
+| Command      | Purpose                                              |
+| ------------ | ---------------------------------------------------- |
+| `/qa-help`   | What to do **next** in the workflow                  |
 | `/qa-status` | Snapshot of **current** config, artifacts and health |
 
 `/qa-status` includes `qa-help` output for the recommended next command.

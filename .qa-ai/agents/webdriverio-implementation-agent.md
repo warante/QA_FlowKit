@@ -1,10 +1,13 @@
 # UI Automation Implementation Agent
 
+> Load .qa-ai/rules/README.md and phase-relevant \*.rules.md before acting.
 > Implements approved UI/E2E tests using the configured framework.
 
 ## Trigger
 
-Activated as Phase 8 of the QA workflow, when the feasibility report contains tests classified as "Automatable — UI/E2E".
+Activated as Phase 10 of the QA workflow, when the feasibility report contains tests classified as "Automatable — UI/E2E".
+
+When `automation.ui.framework` is `karate`, treat this as **UI implementation via Karate**: follow [karate.md](../specialists/available/karate.md), write under `automation.ui.specsPath` (default `tests/karate/features/ui/`), and validate with `validate-karate-features.mjs` instead of WebdriverIO/Playwright page objects.
 
 ## Inputs
 
@@ -27,20 +30,21 @@ Activated as Phase 8 of the QA workflow, when the feasibility report contains te
 
 ## Output Structure
 
-Write to the configured `automation.ui.specsPath` (default: `tests/ui/`):
+Use paths from `qa-ai.config.yaml` (`automation.ui.specsPath`, `automation.ui.pageObjectsPath`). `init.mjs` creates sibling folders under the UI test base (for example `tests/wdio/`):
 
 ```
-tests/ui/
-├── pages/           # Page Object Model files
+tests/wdio/                    # example base when framework is webdriverio
+├── pageobjects/               # automation.ui.pageObjectsPath (or sibling of specs)
 │   ├── login.page.[ext]
 │   └── dashboard.page.[ext]
-├── specs/           # Test specification files
-│   ├── RF-042-login.spec.[ext]
-│   └── RF-015-cart.spec.[ext]
-├── fixtures/        # Test data, users, setup helpers
-├── helpers/         # Reusable utilities (auth, navigation, waits)
-└── config/          # Environment-specific test configuration
+├── specs/                     # automation.ui.specsPath
+│   ├── RF-042-TC-001-login.spec.[ext]
+│   └── RF-015-TC-002-cart.spec.[ext]
+├── fixtures/
+└── helpers/
 ```
+
+Mobile UI automation uses the same agent with the Appium specialist when `automation.ui.framework` or `automation.mobile.framework` is `appium`.
 
 ## Implementation Rules
 
@@ -63,6 +67,7 @@ tests/ui/
 ## Done Criteria
 
 Phase is complete when:
+
 - Every UI-automatable test from the feasibility report has a corresponding spec (or implementation plan if not approved for write).
 - Page objects exist for all pages referenced in specs.
 - Tests follow existing repo patterns and conventions.

@@ -76,7 +76,7 @@ async function main() {
     const source = path.join(adaptersRoot, adapter.source);
     const target = path.join(cwd, adapter.target);
 
-    if (!await pathExists(source)) {
+    if (!(await pathExists(source))) {
       missing += 1;
       console.log(`[FAIL] Adapter ${name}: missing template ${relativeTo(cwd, source)}`);
       continue;
@@ -88,20 +88,24 @@ async function main() {
     console.log(`Adapter ${name}:`);
     for (const result of dirResults) {
       console.log(`  created ${relativeTo(cwd, result.path)}`);
-      manifestEntries.push(await manifestEntry(cwd, result.path, {
-        type: 'dir',
-        category: 'adapter',
-        source: `adapter:${name}`
-      }));
+      manifestEntries.push(
+        await manifestEntry(cwd, result.path, {
+          type: 'dir',
+          category: 'adapter',
+          source: `adapter:${name}`
+        })
+      );
     }
     for (const result of fileResults) {
       console.log(`  ${result.copied ? 'copied ' : 'skipped'} ${relativeTo(cwd, result.path)}`);
       if (result.copied) {
-        manifestEntries.push(await manifestEntry(cwd, result.path, {
-          type: 'file',
-          category: 'adapter',
-          source: `adapter:${name}`
-        }));
+        manifestEntries.push(
+          await manifestEntry(cwd, result.path, {
+            type: 'file',
+            category: 'adapter',
+            source: `adapter:${name}`
+          })
+        );
       }
     }
   }

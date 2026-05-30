@@ -44,10 +44,16 @@ Expected local artifacts:
 - `qa-ai-output/automation-implementation-plan.md`
 - `qa-ai-output/pr-summary.md`
 
-After feature changes, run:
+After feature and QA artifact changes, run the aggregated target-repository validator:
 
 ```bash
-node .qa-ai/scripts/validate-features.mjs
+node .qa-ai/scripts/validate-target.mjs
 ```
 
+For early/incomplete repositories, use `node .qa-ai/scripts/validate-target.mjs --allow-empty --allow-missing --no-strict-doctor`.
+
 Do not write to configured external tools. Ask for the official RF ID before final feature generation if it is missing.
+
+Respect `project.qaTrack` from `qa-ai.config.yaml` (see `.qa-ai/workflows/full-flow.md`).
+
+When this workflow step completes, run `/qa-help` or `node .qa-ai/scripts/qa-help.mjs` and share the recommended next phase.

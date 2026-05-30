@@ -13,35 +13,35 @@ This PR adds QA test design and automation coverage for <Requirement / RF>.
 
 Added feature files:
 
-- 
+-
 
 ## Test Management
 
 Created cases:
 
-- 
+-
 
 Reused cases:
 
-- 
+-
 
 Cases requiring future review:
 
-- 
+-
 
 ## Automation
 
 Automated tests added:
 
-- 
+-
 
 Manual tests:
 
-- 
+-
 
 Pending automation:
 
-- 
+-
 
 ## Traceability
 
@@ -57,4 +57,4 @@ Updated:
 
 ## Risks / Notes
 
-- 
+-

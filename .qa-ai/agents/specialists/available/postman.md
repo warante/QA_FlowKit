@@ -63,16 +63,16 @@ Use pre-request scripts only for: auth token refresh, dynamic test data generati
 
 ```javascript
 // Clear, tied to acceptance criteria
-pm.test("RF-042 CA-1: Login returns 200 with token", () => {
-    pm.response.to.have.status(200);
-    const body = pm.response.json();
-    pm.expect(body.token).to.be.a('string').and.not.empty;
-    pm.expect(body.expiresIn).to.be.above(0);
+pm.test('RF-042 CA-1: Login returns 200 with token', () => {
+  pm.response.to.have.status(200);
+  const body = pm.response.json();
+  pm.expect(body.token).to.be.a('string').and.not.empty;
+  pm.expect(body.expiresIn).to.be.above(0);
 });
 
-pm.test("RF-042 CA-2: Invalid credentials return 401", () => {
-    pm.response.to.have.status(401);
-    pm.expect(pm.response.json().error).to.eql('Invalid credentials');
+pm.test('RF-042 CA-2: Invalid credentials return 401', () => {
+  pm.response.to.have.status(401);
+  pm.expect(pm.response.json().error).to.eql('Invalid credentials');
 });
 ```
 

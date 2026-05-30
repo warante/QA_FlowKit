@@ -1,97 +1,66 @@
-# Karate API Specialist
+# Karate Specialist (full stack)
 
-> Framework-specific guidance for API testing with Karate DSL.
+> Framework-specific guidance for API, UI, mocks and performance with Karate DSL ([Karate docs](https://docs.karatelabs.io/getting-started/why-karate)).
 
 ## Activation
 
-Use when `automation.api.framework` is `karate`.
+Use when `automation.api.framework` is `karate` and/or `automation.ui.framework` is `karate`.
 
 ## Role
 
-Complements the API Testing Agent by providing Karate-specific patterns, feature file conventions and constraints. The API agent handles structure and workflow; this specialist handles framework-specific decisions.
+Complements the API Testing Agent and UI implementation agent. Handles Karate DSL, folder layout and runner conventions—not QA design Gherkin under `features/`.
 
-## Focus
+## Two Gherkin worlds
 
-- Follow existing Karate feature, config and runner conventions.
-- Keep reusable setup in `karate-config.js` or shared feature files according to repo patterns.
-- Prefer readable scenario steps and data tables over complex scripting.
-- Validate status, response structure and business-relevant fields.
-- Do not change build, runner or environment config without approval.
+| Path                                                 | Validator                                          |
+| ---------------------------------------------------- | -------------------------------------------------- |
+| `gherkin.featurePath` (design / traceability)        | `node .qa-ai/scripts/validate-features.mjs`        |
+| `tests/karate/features/api` and `.../ui` (execution) | `node .qa-ai/scripts/validate-karate-features.mjs` |
 
-## Feature File Pattern
+## API features (`tests/karate/features/api`)
 
 ```gherkin
-Feature: Create Order API
+@smoke @rf:RF-101
+Feature: Create post API
 
   Background:
     * url baseUrl
-    * header Authorization = 'Bearer ' + authToken
 
-  Scenario: Create order with valid payload
-    Given path '/orders'
-    And request { items: [{ sku: 'ABC', qty: 2 }] }
-    When method post
-    Then status 201
-    And match response.id == '#notnull'
-    And match response.status == 'pending'
-    And match response.items == '#[1]'
+  Scenario: Create post
+    * path 'posts'
+    * request { title: 'Test', body: 'Example' }
+    * method post
+    * status 201
+    * match response.title == 'Test'
 ```
 
-## Reusable Features (call)
+- Reuse flows with `* def login = call read('classpath:login.feature') { ... }`.
+- Data-driven: `Scenario Outline` + `Examples`.
+- Config: `karate-config.js` + `karate.env` for environments.
 
-```gherkin
-# login.feature (reusable)
-Feature: Login
-  Scenario:
-    Given url baseUrl + '/auth/login'
-    And request { email: '#(email)', password: '#(password)' }
-    When method post
-    Then status 200
-    * def authToken = response.token
-```
+## UI features (`tests/karate/features/ui`)
 
-Call from other features: `* def login = call read('classpath:login.feature') { email: '...', password: '...' }`
+- Use Karate built-in UI automation (`driver`, `click`, `input`, `waitFor`, etc.).
+- Keep scenarios independent; prefer `Background` for login/session setup via `call`.
 
-## Data-Driven Testing
+## Mocks
 
-```gherkin
-Scenario Outline: Validate order status transitions
-  Given path '/orders/' + orderId + '/status'
-  And request { status: '<newStatus>' }
-  When method patch
-  Then status <expectedCode>
+- Place mock feature files under `automation.karate.mocksPath` (default `tests/karate/mocks`).
+- Proposal-first; do not deploy mocks to shared environments without approval.
 
-  Examples:
-    | newStatus  | expectedCode |
-    | confirmed  | 200          |
-    | invalid    | 400          |
-    | shipped    | 200          |
-```
+## Performance (Gatling)
 
-## Embedded Expressions
+- Load tests may live under `automation.karate.performancePath`; often reuse Karate scenarios via Gatling integration.
+- Out of scope for `validate-karate-features.mjs` when assets are not `.feature` files.
 
-- Use `#(variable)` for simple substitution.
-- Use `#(expression)` for inline JavaScript evaluation.
-- Use `karate.set()` for dynamic values across scenarios.
-- Prefer JSON path matchers (`#notnull`, `#present`, `#[N]`, `#regex`) over custom assertions.
+## Anti-patterns
 
-## Anti-Patterns to Avoid
-
-- Complex JavaScript logic inside feature files — move to `karate-config.js` or Java helpers.
-- Hardcoded base URLs — use `karate-config.js` with environment switching.
-- Long scenario chains that depend on order — keep scenarios independent.
-- Not using Background for shared setup.
-- Ignoring response schema — always validate structure, not just status.
-
-## Environment Configuration
-
-- Use `karate-config.js` with `karate.env` for environment switching.
-- Keep sensitive values (tokens, keys) in environment variables referenced via `karate.properties`.
-- Never hardcode environment-specific values in feature files.
+- QA `Acceptance Criteria:` blocks in Karate execution features.
+- Hardcoded URLs or tokens in `.feature` files.
+- Heavy JavaScript in features—move to `karate-config.js` or helpers.
+- Cucumber-only `Given`/`When`/`Then` without Karate `*` steps when avoidable.
 
 ## Constraints
 
-- Do not change `karate-config.js`, build files (pom.xml, build.gradle) or runner config without approval.
-- Do not add Java dependencies without approval.
-- Do not hardcode credentials or environment URLs in feature files.
-- Keep features readable by non-developers (QA team members).
+- Do not change `karate-config.js`, `pom.xml`, `build.gradle` or runner config without approval.
+- See [karate.rules.md](../../rules/karate.rules.md).

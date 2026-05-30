@@ -30,17 +30,21 @@ Complements the UI Automation Implementation Agent by providing WebdriverIO-spec
 
 ```javascript
 class LoginPage {
-  get inputEmail() { return $('[data-testid="email"]'); }
-  get inputPassword() { return $('[data-testid="password"]'); }
-  get btnSubmit() { return $('[data-testid="submit"]'); }
+  get inputEmail() {
+    return $('[data-testid="email"]');
+  }
+  get inputPassword() {
+    return $('[data-testid="password"]');
+  }
+  get btnSubmit() {
+    return $('[data-testid="submit"]');
+  }
 
   async login(email, password) {
     await this.inputEmail.setValue(email);
     await this.inputPassword.setValue(password);
     await this.btnSubmit.click();
-    await browser.waitUntil(
-      async () => (await browser.getUrl()).includes('/dashboard')
-    );
+    await browser.waitUntil(async () => (await browser.getUrl()).includes('/dashboard'));
   }
 }
 module.exports = new LoginPage();

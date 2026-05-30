@@ -29,13 +29,13 @@ export const test = base.extend<{ apiClient: APIRequestContext }>({
     const context = await playwright.request.newContext({
       baseURL: process.env.API_BASE_URL,
       extraHTTPHeaders: {
-        'Authorization': `Bearer ${process.env.API_TOKEN}`,
-        'Content-Type': 'application/json',
-      },
+        Authorization: `Bearer ${process.env.API_TOKEN}`,
+        'Content-Type': 'application/json'
+      }
     });
     await use(context);
     await context.dispose();
-  },
+  }
 });
 ```
 

@@ -10,9 +10,76 @@ permissions:
   contents: read
 
 jobs:
-  validate:
-    name: Validate starter
+  npm-pack:
+    name: npm pack allowlist
     runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        if: ${{ hashFiles('package-lock.json') != '' }}
+        run: npm ci --ignore-scripts
+
+      - name: Verify npm pack allowlist
+        run: node .github/scripts/verify-npm-pack.mjs
+
+  adapter-parity:
+    name: adapter template parity
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Verify adapter parity
+        run: node .github/scripts/verify-adapter-parity.mjs
+
+  golden-target:
+    name: golden target validate-target
+    needs: npm-pack
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+
+      - name: Run golden target validation
+        run: node .github/scripts/run-golden-target-validation.mjs
+
+  karate-target:
+    name: karate target validate-target
+    needs: npm-pack
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+
+      - name: Run karate target validation
+        run: node .github/scripts/run-karate-target-validation.mjs
+
+  # Ruleset "Protect release branches" requires check context "Validate starter" (not matrix names).
+  validate-starter:
+    name: Validate starter
+    needs: [npm-pack, adapter-parity, golden-target, karate-target]
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        shell: bash
 
     steps:
       - name: Checkout
@@ -24,9 +91,8 @@ jobs:
           node-version: '20'
 
       - name: Check dependency policy
-        shell: bash
         run: |
-          node <<'NODE'
+          node -e "
           const fs = require('node:fs');
           const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
           const dependencyGroups = [
@@ -35,15 +101,13 @@ jobs:
             'optionalDependencies',
             'peerDependencies'
           ];
-          const dependencies = dependencyGroups.flatMap((group) => (
+          const dependencies = dependencyGroups.flatMap((group) =>
             Object.entries(pkg[group] || {}).map(([name, spec]) => ({ group, name, spec: String(spec) }))
-          ));
+          );
           const unsafeSpecs = dependencies.filter(({ spec }) => /^(?:git\+?|https?:|file:|link:)/i.test(spec));
           if (unsafeSpecs.length > 0) {
             console.error('Unsafe dependency specifiers are not allowed in this portable starter:');
-            for (const item of unsafeSpecs) {
-              console.error(`- ${item.group}.${item.name}: ${item.spec}`);
-            }
+            for (const item of unsafeSpecs) console.error('- ' + item.group + '.' + item.name + ': ' + item.spec);
             process.exit(1);
           }
           if (dependencies.length === 0) {
@@ -55,8 +119,8 @@ jobs:
             console.error('Add a committed lockfile so CI can run npm ci and npm audit reproducibly.');
             process.exit(1);
           }
-          console.log(`Dependency policy passed for ${dependencies.length} declared dependencies.`);
-          NODE
+          console.log('Dependency policy passed for ' + dependencies.length + ' declared dependencies.');
+          "
 
       - name: Install dependencies
         if: ${{ hashFiles('package-lock.json') != '' }}
@@ -67,9 +131,98 @@ jobs:
         run: npm audit --audit-level=low
 
       - name: Check script syntax
+        run: node .github/scripts/check-syntax.mjs
+
+      - name: Lint
+        if: ${{ hashFiles('package-lock.json') != '' }}
+        run: npm run lint
+
+      - name: Format check
+        if: ${{ hashFiles('package-lock.json') != '' }}
+        run: npm run format:check
+
+      - name: Run starter validation and smoke tests
+        run: npm run validate:oss-extraction
+
+  validate:
+    name: 'Validate (${{ matrix.os }}, Node ${{ matrix.node }})'
+    needs: [npm-pack, adapter-parity, golden-target, karate-target]
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            node: '22'
+          - os: windows-latest
+            node: '20'
+          - os: windows-latest
+            node: '22'
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Check dependency policy
         run: |
-          find .qa-ai/scripts -name '*.mjs' -print0 | xargs -0 -n1 node --check
-          node --check bin/qa-flowkit.mjs
+          node -e "
+          const fs = require('node:fs');
+          const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+          const dependencyGroups = [
+            'dependencies',
+            'devDependencies',
+            'optionalDependencies',
+            'peerDependencies'
+          ];
+          const dependencies = dependencyGroups.flatMap((group) =>
+            Object.entries(pkg[group] || {}).map(([name, spec]) => ({ group, name, spec: String(spec) }))
+          );
+          const unsafeSpecs = dependencies.filter(({ spec }) => /^(?:git\+?|https?:|file:|link:)/i.test(spec));
+          if (unsafeSpecs.length > 0) {
+            console.error('Unsafe dependency specifiers are not allowed in this portable starter:');
+            for (const item of unsafeSpecs) console.error('- ' + item.group + '.' + item.name + ': ' + item.spec);
+            process.exit(1);
+          }
+          if (dependencies.length === 0) {
+            console.log('No package dependencies declared; npm audit is not required.');
+            process.exit(0);
+          }
+          if (!fs.existsSync('package-lock.json')) {
+            console.error('Dependencies are declared, but package-lock.json is missing.');
+            console.error('Add a committed lockfile so CI can run npm ci and npm audit reproducibly.');
+            process.exit(1);
+          }
+          console.log('Dependency policy passed for ' + dependencies.length + ' declared dependencies.');
+          "
+
+      - name: Install dependencies
+        if: ${{ hashFiles('package-lock.json') != '' }}
+        run: npm ci --ignore-scripts
+
+      - name: Audit dependencies
+        if: ${{ hashFiles('package-lock.json') != '' }}
+        run: npm audit --audit-level=low
+
+      - name: Check script syntax
+        run: node .github/scripts/check-syntax.mjs
+
+      - name: Lint
+        if: ${{ hashFiles('package-lock.json') != '' }}
+        run: npm run lint
+
+      - name: Format check
+        if: ${{ hashFiles('package-lock.json') != '' }}
+        run: npm run format:check
 
       - name: Run starter validation and smoke tests
         run: npm run validate:oss-extraction

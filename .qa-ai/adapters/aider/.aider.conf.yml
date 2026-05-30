@@ -1,6 +1,10 @@
+# QA FlowKit — Aider reads a subset of rules; load the rest when doing full QA work.
 read:
   - AGENTS.md
-  - README.md
   - qa-ai.config.yaml
+  - .qa-ai/rules/README.md
   - .qa-ai/rules/approval.rules.md
+  - .qa-ai/rules/workflow.rules.md
+  - .qa-ai/rules/requirements.rules.md
   - .qa-ai/rules/gherkin.rules.md
+  - .qa-ai/agents/README.md

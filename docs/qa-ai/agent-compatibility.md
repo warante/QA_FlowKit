@@ -73,24 +73,24 @@ The framework agents under `.qa-ai/agents/` are role instructions. If a tool doe
 
 ## Supported adapters
 
-| Adapter | Generated path | Purpose |
-|---|---|---|
-| Generic | `AGENTS.md` | Cross-agent behavior and safety policy. |
-| Claude Code | `.claude/agents/`, `.claude/commands/` | Claude-specific agent and slash command documentation. |
-| Codex Desktop | `.codex/README.md`, `.codex/prompts/` | Codex onboarding prompts and local validation commands. |
-| OpenCode | `.opencode/agents/`, `.opencode/commands/` | OpenCode agent and slash command documentation. |
-| Cline | `.clinerules`, `.cline/` | Cline behavior rules and docs. |
-| Continue | `.continue/` | Review/check documentation. |
-| Aider | `.aider.conf.yml`, `.aider/` | Aider read-list and usage notes. |
-| Goose | `.goose/recipes/qa-flowkit.yaml` | Reusable Goose workflow recipe. |
-| Gemini CLI | `GEMINI.md` | Gemini CLI project context that points back to the shared QA AI instructions. |
+| Adapter       | Generated path                             | Purpose                                                                       |
+| ------------- | ------------------------------------------ | ----------------------------------------------------------------------------- |
+| Generic       | `AGENTS.md`                                | Cross-agent behavior and safety policy.                                       |
+| Claude Code   | `.claude/agents/`, `.claude/commands/`     | Claude-specific agent and slash command documentation.                        |
+| Codex Desktop | `.codex/README.md`, `.codex/prompts/`      | Codex onboarding prompts and local validation commands.                       |
+| OpenCode      | `.opencode/agents/`, `.opencode/commands/` | OpenCode agent and slash command documentation.                               |
+| Cline         | `.clinerules`, `.cline/`                   | Cline behavior rules and docs.                                                |
+| Continue      | `.continue/`                               | Review/check documentation.                                                   |
+| Aider         | `.aider.conf.yml`, `.aider/`               | Aider read-list and usage notes.                                              |
+| Goose         | `.goose/recipes/qa-flowkit.yaml`           | Reusable Goose workflow recipe.                                               |
+| Gemini CLI    | `GEMINI.md`                                | Gemini CLI project context that points back to the shared QA AI instructions. |
 
 ## Required behavior for every agent
 
 - Read `AGENTS.md` before acting.
 - Read `qa-ai.config.yaml` when present.
 - Read configured QA knowledge artifacts when `knowledge.enabled` is true.
-- Read `.qa-ai/rules/` before changing workflow behavior.
+- Read `.qa-ai/rules/README.md` and every `.qa-ai/rules/*.rules.md` file before changing workflow behavior (minimum: `approval`, `workflow`, `requirements`, `gherkin`).
 - Present a plan before modifying files.
 - Do not overwrite existing files unless explicitly approved or `--force` behavior is requested.
 - Do not perform external writes in the MVP.

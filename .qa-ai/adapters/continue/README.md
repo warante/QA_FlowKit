@@ -8,19 +8,19 @@ When `knowledge.enabled` is true in `qa-ai.config.yaml`, review `knowledge.summa
 
 ## Read First
 
-| File | Purpose |
-|---|---|
-| `AGENTS.md` | Generic behavior and safety rules |
-| `.qa-ai/rules/` | Mandatory QA workflow rules |
-| `.qa-ai/adapters/continue/checks/qa-feature-conventions.md` | Feature-file review checklist |
+| File                                                        | Purpose                                  |
+| ----------------------------------------------------------- | ---------------------------------------- |
+| `AGENTS.md`                                                 | Generic behavior and safety rules        |
+| `.qa-ai/rules/README.md` + `*.rules.md`                     | Mandatory QA workflow rules (all agents) |
+| `.qa-ai/adapters/continue/checks/qa-feature-conventions.md` | Feature-file review checklist            |
 
 ## Recommended Checks
 
-| Command | Purpose |
-|---|---|
-| `node .qa-ai/scripts/config.mjs --help` | Import/export reusable QA AI config profiles |
-| `node .qa-ai/scripts/doctor.mjs` | Check setup health |
-| `node .qa-ai/scripts/validate-features.mjs` | Validate `.feature` files |
-| `node .qa-ai/scripts/clean.mjs` | Dry-run cleanup before removal suggestions |
+| Command                                     | Purpose                                      |
+| ------------------------------------------- | -------------------------------------------- |
+| `node .qa-ai/scripts/config.mjs --help`     | Import/export reusable QA AI config profiles |
+| `node .qa-ai/scripts/doctor.mjs`            | Check setup health                           |
+| `node .qa-ai/scripts/validate-features.mjs` | Validate `.feature` files                    |
+| `node .qa-ai/scripts/clean.mjs`             | Dry-run cleanup before removal suggestions   |
 
 Do not suggest external writes in the MVP. Keep TestRail, Jira, Confluence and GitHub write actions proposal-first.

@@ -1,10 +1,11 @@
 # Automation Feasibility Agent
 
+> Load .qa-ai/rules/README.md and phase-relevant \*.rules.md before acting.
 > Analyzes which tests can be automated and classifies them by readiness and framework.
 
 ## Trigger
 
-Activated as Phase 7 of the QA workflow, after Gherkin test design (and optionally test management phases) are complete.
+Activated as Phase 9 of the QA workflow, after Gherkin test design (and optionally test management phases) are complete.
 
 ## Inputs
 
@@ -24,24 +25,26 @@ Activated as Phase 7 of the QA workflow, after Gherkin test design (and optional
 
 ## Classification Statuses
 
-| Status | Criteria |
-|---|---|
-| **Automated** | Test already exists in the repo (detected by matching feature/scenario) |
-| **Automatable** | Clear steps, stable UI/API, framework configured, no external blockers |
-| **Pending automation** | Automatable but framework is `undecided` or infrastructure not ready |
-| **Blocked** | Depends on unresolved external system, missing test environment, or missing access |
-| **Manual only** | Requires human judgment, visual verification, physical interaction, or cost of automation exceeds value |
-| **Not automatable** | Technically impossible to automate (hardware, regulatory, third-party black box) |
+| Status                 | Criteria                                                                                                |
+| ---------------------- | ------------------------------------------------------------------------------------------------------- |
+| **Automated**          | Test already exists in the repo (detected by matching feature/scenario)                                 |
+| **Automatable**        | Clear steps, stable UI/API, framework configured, no external blockers                                  |
+| **Pending automation** | Automatable but framework is `undecided` or infrastructure not ready                                    |
+| **Blocked**            | Depends on unresolved external system, missing test environment, or missing access                      |
+| **Manual only**        | Requires human judgment, visual verification, physical interaction, or cost of automation exceeds value |
+| **Not automatable**    | Technically impossible to automate (hardware, regulatory, third-party black box)                        |
 
 ## Classification Criteria
 
 A test is **Automatable** when:
+
 - Steps can be translated to framework commands without ambiguity.
 - The target system has a stable interface (UI elements with stable selectors or documented API).
 - The configured framework supports the interaction type.
 - Test data can be programmatically set up and torn down.
 
 A test is **Manual only** when:
+
 - It requires subjective human assessment (visual design, UX feel, accessibility perception).
 - The cost of automation setup exceeds the value of repeated execution.
 - It is a one-time verification with no regression value.
@@ -54,6 +57,7 @@ Produce `qa-ai-output/automation-feasibility-report.md`:
 # Automation Feasibility Report
 
 ## Summary
+
 - Total scenarios analyzed: [N]
 - Automated (existing): [N]
 - Automatable: [N] (UI: [N], API: [N], Mobile: [N])
@@ -66,41 +70,43 @@ Produce `qa-ai-output/automation-feasibility-report.md`:
 
 ### Automatable — UI/E2E ([framework name])
 
-| Feature File | Scenario | Priority | Notes |
-|---|---|---|---|
-| RF-042-login.feature | Login with valid credentials | high | Page objects exist |
+| Feature File         | Scenario                     | Priority | Notes              |
+| -------------------- | ---------------------------- | -------- | ------------------ |
+| RF-042-login.feature | Login with valid credentials | high     | Page objects exist |
 
 ### Automatable — API ([framework name])
 
-| Feature File | Scenario | Priority | Notes |
-|---|---|---|---|
-| RF-015-create-order.feature | Create order via API | high | Endpoint documented |
+| Feature File                | Scenario             | Priority | Notes               |
+| --------------------------- | -------------------- | -------- | ------------------- |
+| RF-015-create-order.feature | Create order via API | high     | Endpoint documented |
 
 ### Pending Automation
 
-| Feature File | Scenario | Blocker | Recommendation |
-|---|---|---|---|
+| Feature File               | Scenario          | Blocker             | Recommendation           |
+| -------------------------- | ----------------- | ------------------- | ------------------------ |
 | RF-030-mobile-push.feature | Push notification | Framework undecided | Evaluate Appium vs Detox |
 
 ### Blocked
 
-| Feature File | Scenario | Blocker | Unblock Action |
-|---|---|---|---|
+| Feature File           | Scenario        | Blocker                | Unblock Action         |
+| ---------------------- | --------------- | ---------------------- | ---------------------- |
 | RF-050-payment.feature | Payment gateway | No sandbox environment | Request sandbox access |
 
 ### Manual Only
 
-| Feature File | Scenario | Reason |
-|---|---|---|
+| Feature File                 | Scenario                   | Reason                   |
+| ---------------------------- | -------------------------- | ------------------------ |
 | RF-012-visual-review.feature | Homepage visual regression | Subjective design review |
 
 ## Automation Priority (Recommended Order)
+
 1. [High-priority automatable tests with existing infrastructure]
 2. [High-priority automatable tests requiring new page objects/clients]
 3. [Medium-priority tests]
 4. [Low-priority / edge-case tests]
 
 ## Recommendations
+
 - [Framework-specific recommendations]
 - [Infrastructure gaps to resolve]
 - [Tests to defer to next sprint]
@@ -109,6 +115,7 @@ Produce `qa-ai-output/automation-feasibility-report.md`:
 ## Done Criteria
 
 Phase is complete when:
+
 - Every generated feature file has been classified.
 - No test is left without a status.
 - Blocked items have clear unblock actions.

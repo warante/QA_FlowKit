@@ -1,14 +1,16 @@
 # Test Management Coverage Agent
 
+> Load .qa-ai/rules/README.md and phase-relevant \*.rules.md before acting.
 > Analyzes existing coverage in the configured test management tool and identifies gaps.
 
 ## Trigger
 
-Activated as Phase 5 of the QA workflow, after Gherkin test design is complete. Skipped if `tools.testManagement` is `none` or missing.
+Activated as Phase 7 of the QA workflow, after Gherkin test design is complete. Skipped if `tools.testManagement` is `none` or missing.
 
 ## Inputs
 
-- Generated `.feature` files in `features/` (output of Phase 4).
+- [.qa-ai/rules/test-management.rules.md](../rules/test-management.rules.md) (proposal-first sync).
+- Generated `.feature` files in `features/` (output of Phase 6).
 - `qa-ai.config.yaml` (`tools.testManagement`, `tools.testManagementProject`).
 - `.qa-ai/agents/specialists/active.md` to load test management specialist.
 - Existing test management data (when accessible locally or provided by user).
@@ -31,6 +33,7 @@ Produce the configured coverage analysis artifact (default: `qa-ai-output/testra
 # Test Management Coverage Analysis
 
 ## Summary
+
 - **Tool**: [TestRail / Zephyr / qTest / etc.]
 - **Project/Suite**: [name]
 - **Total CAs analyzed**: [N]
@@ -41,23 +44,26 @@ Produce the configured coverage analysis artifact (default: `qa-ai-output/testra
 
 ## Coverage Matrix
 
-| RF | CA | Generated Feature | Existing Case | Status |
-|---|---|---|---|---|
-| RF-042 | CA-1 | RF-042-login-valid.feature | TC-1234 | Covered |
-| RF-042 | CA-2 | RF-042-login-invalid.feature | — | Gap |
+| RF     | CA   | Generated Feature            | Existing Case    | Status    |
+| ------ | ---- | ---------------------------- | ---------------- | --------- |
+| RF-042 | CA-1 | RF-042-login-valid.feature   | TC-1234          | Covered   |
+| RF-042 | CA-2 | RF-042-login-invalid.feature | —                | Gap       |
 | RF-042 | CA-3 | RF-042-login-lockout.feature | TC-1235, TC-1240 | Duplicate |
 
 ## Gaps (New Tests Needed)
-| RF | CA | Generated Feature | Priority |
-|---|---|---|---|
-| RF-042 | CA-2 | RF-042-login-invalid.feature | high |
+
+| RF     | CA   | Generated Feature            | Priority |
+| ------ | ---- | ---------------------------- | -------- |
+| RF-042 | CA-2 | RF-042-login-invalid.feature | high     |
 
 ## Duplicates
-| Existing Cases | Overlap | Recommendation |
-|---|---|---|
+
+| Existing Cases   | Overlap                   | Recommendation                      |
+| ---------------- | ------------------------- | ----------------------------------- |
 | TC-1235, TC-1240 | Both test account lockout | Merge into TC-1235, archive TC-1240 |
 
 ## Coverage Metrics
+
 - Overall coverage: [N]%
 - High-priority coverage: [N]%
 - Regression suite coverage: [N]%
@@ -66,6 +72,7 @@ Produce the configured coverage analysis artifact (default: `qa-ai-output/testra
 ## Done Criteria
 
 Phase is complete when:
+
 - Every generated feature has been compared against existing test cases.
 - Gaps, duplicates and overlaps are identified and documented.
 - Coverage metrics are calculated.

@@ -1,0 +1,108 @@
+name: Publish npm (manual fallback)
+
+# Emergency / manual publish only. The primary path is release-please.yml:
+# merge the Release PR on main to create a tag and publish automatically.
+# Do not push version tags manually unless you intend to use this workflow.
+
+on:
+  workflow_dispatch:
+    inputs:
+      dist_tag:
+        description: 'npm dist-tag (empty = auto: alpha for prereleases, latest otherwise)'
+        required: false
+        default: ''
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: publish-npm-manual
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Publish to npm (manual)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          registry-url: https://registry.npmjs.org
+
+      - name: Upgrade npm for Trusted Publishing
+        run: npm install -g npm@latest
+
+      - name: Verify package version
+        shell: bash
+        run: |
+          set -euo pipefail
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          echo "Manual publish of package.json version ${PKG_VERSION}."
+          echo "PKG_VERSION=${PKG_VERSION}" >> "${GITHUB_ENV}"
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Lint and format check
+        run: |
+          npm run lint
+          npm run format:check
+
+      - name: Run pre-publish validation
+        run: npm run validate:oss-extraction
+
+      - name: Verify npm pack allowlist
+        run: node .github/scripts/verify-npm-pack.mjs
+
+      - name: Check version is not already on npm
+        shell: bash
+        run: |
+          set -euo pipefail
+          if npm view "qa-flowkit@${PKG_VERSION}" version >/dev/null 2>&1; then
+            echo "::error::qa-flowkit@${PKG_VERSION} is already published. Bump version in package.json before publishing."
+            exit 1
+          fi
+          echo "Version ${PKG_VERSION} is not on npm yet; proceeding."
+
+      - name: Resolve npm dist-tag
+        id: dist_tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          INPUT_TAG="${{ github.event.inputs.dist_tag }}"
+          if [[ -n "${INPUT_TAG}" ]]; then
+            echo "tag=${INPUT_TAG}" >> "${GITHUB_OUTPUT}"
+            echo "Using dist-tag from workflow input: ${INPUT_TAG}"
+            exit 0
+          fi
+          if [[ "${PKG_VERSION}" == *-* ]]; then
+            PRERELEASE_ID="${PKG_VERSION#*-}"
+            PRERELEASE_ID="${PRERELEASE_ID%%.*}"
+            echo "tag=${PRERELEASE_ID}" >> "${GITHUB_OUTPUT}"
+            echo "Prerelease detected; using dist-tag: ${PRERELEASE_ID}"
+          else
+            echo "tag=latest" >> "${GITHUB_OUTPUT}"
+            echo "Stable release; using dist-tag: latest"
+          fi
+
+      - name: Publish to npm
+        run: npm publish --provenance --access public --tag "${{ steps.dist_tag.outputs.tag }}"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Post-publish verification
+        shell: bash
+        run: |
+          set -euo pipefail
+          PUBLISHED=$(npm view "qa-flowkit@${PKG_VERSION}" version)
+          if [[ "${PUBLISHED}" != "${PKG_VERSION}" ]]; then
+            echo "::error::npm view returned ${PUBLISHED}, expected ${PKG_VERSION}."
+            exit 1
+          fi
+          echo "Published version confirmed: ${PUBLISHED}"

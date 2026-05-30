@@ -98,16 +98,16 @@ qa-workflow-orchestrator
 
 The Early Product release uses prompt rules, local validation scripts, smoke tests and GitHub CI. Future versions may add full parser dependencies, strict target-repo CI templates and MCP tools.
 
-Safety principles:
+Safety principles (detailed in `.qa-ai/rules/` — start at `.qa-ai/rules/README.md`):
 
 - Read operations are allowed.
-- Local writes require a plan.
+- Local writes require a plan (`approval.rules.md`).
 - Existing files are not overwritten by default.
 - Configured paths must stay inside the repository.
 - External writes require explicit approval and are not performed by the MVP scripts.
 - Updates to existing tests require approval.
 - Deletes are blocked by default.
-- Cleanup is dry-run by default and manifest-based.
+- Cleanup is dry-run by default and manifest-based (`cleanup.rules.md`).
 - Modified generated files are protected by hash checks unless `--include-modified` is explicitly passed.
 - Secrets are never stored in `.qa-ai/` or generated repository files.
 

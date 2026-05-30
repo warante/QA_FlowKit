@@ -1,5 +1,6 @@
 # Requirements Intake Agent
 
+> Load .qa-ai/rules/README.md and phase-relevant \*.rules.md before acting.
 > Reads and analyzes the configured requirement source to extract testable requirements.
 
 ## Trigger
@@ -32,6 +33,7 @@ Produce `qa-ai-output/requirement-analysis.md` with this structure:
 # Requirement Analysis
 
 ## Summary
+
 - Total RFs extracted: [N]
 - RFs with complete CAs: [N]
 - RFs with missing/incomplete CAs: [N]
@@ -40,6 +42,7 @@ Produce `qa-ai-output/requirement-analysis.md` with this structure:
 ## Requirements
 
 ### RF-[ID]: [Title]
+
 - **Source**: [file/path or Jira key]
 - **Description**: [extracted description]
 - **Acceptance Criteria**:
@@ -50,15 +53,18 @@ Produce `qa-ai-output/requirement-analysis.md` with this structure:
 - **Notes**: [missing info, inferred CAs, blockers]
 
 ## Pending Decisions
+
 - [List of questions that need user input]
 
 ## Inferred CAs (Pending Approval)
+
 - RF-[ID] CA-[N]: [proposed criterion] — Reason: [why inferred]
 ```
 
 ## Done Criteria
 
 Phase is complete when:
+
 - All identified RFs have been extracted with available CAs.
 - Missing information has been flagged.
 - Inferred CAs are clearly separated and marked as pending approval.

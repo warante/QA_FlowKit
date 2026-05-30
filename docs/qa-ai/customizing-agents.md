@@ -16,14 +16,14 @@ Use `qa-ai.config.yaml` for project-specific paths, frameworks, languages and to
 
 ## Agent layers
 
-| Layer | Location | Use for |
-|---|---|---|
-| Global agent protocol | `.qa-ai/agents/README.md` | Load order and phase mapping |
-| Shared rules | `.qa-ai/rules/*.rules.md` | Non-negotiable behavior across agents |
-| Phase agents | `.qa-ai/agents/*-agent.md` | Phase-specific instructions and outputs |
-| Specialists | `.qa-ai/agents/specialists/available/*.md` | Tool/framework-specific guidance |
-| Active specialists | `.qa-ai/agents/specialists/active.md` | Generated list of specialists for the current config |
-| Adapter commands | `.qa-ai/adapters/*` and generated root tool folders | Tool-specific slash commands and onboarding |
+| Layer                 | Location                                             | Use for                                                                |
+| --------------------- | ---------------------------------------------------- | ---------------------------------------------------------------------- |
+| Global agent protocol | `.qa-ai/agents/README.md`                            | Load order and phase mapping                                           |
+| Shared rules          | `.qa-ai/rules/README.md` + `.qa-ai/rules/*.rules.md` | Non-negotiable behavior across agents (see rules index for load order) |
+| Phase agents          | `.qa-ai/agents/*-agent.md`                           | Phase-specific instructions and outputs                                |
+| Specialists           | `.qa-ai/agents/specialists/available/*.md`           | Tool/framework-specific guidance                                       |
+| Active specialists    | `.qa-ai/agents/specialists/active.md`                | Generated list of specialists for the current config                   |
+| Adapter commands      | `.qa-ai/adapters/*` and generated root tool folders  | Tool-specific slash commands and onboarding                            |
 
 ## Safe customization workflow
 

@@ -18,10 +18,13 @@ import {
 const cwd = process.cwd();
 const args = parseArgs(process.argv);
 const idPattern = /\b(?:RF|TC|TEST|QA)[-_ ]?[A-Z0-9]+\b/gi;
-const writeClaimPattern = /\b(?:created|updated|deleted|synced|archived|creado|actualizado|eliminado|sincronizado|archivado)\s+(?:in|to|from|en|a|de)\s+(?:testrail|zephyr|xray|jira)\b/i;
+const writeClaimPattern =
+  /\b(?:created|updated|deleted|synced|archived|creado|actualizado|eliminado|sincronizado|archivado)\s+(?:in|to|from|en|a|de)\s+(?:testrail|zephyr|xray|jira)\b/i;
 const requiredColumns = ['ID', 'Proposed action', 'Approval status'];
-const proposalPattern = /\b(?:propose|proposed|proposal|pending|review|approve|approval|required|draft|plan|planned|proponer|propuesto|pendiente|revisar|aprobar|aprobaci[o\u00f3]n|requerida|borrador|planificado)\b/i;
-const approvalPattern = /\b(?:approval|approve|pending approval|requires approval|aprobaci[o\u00f3]n|aprobar|pendiente|requiere aprobaci[o\u00f3]n)\b/i;
+const proposalPattern =
+  /\b(?:propose|proposed|proposal|pending|review|approve|approval|required|draft|plan|planned|proponer|propuesto|pendiente|revisar|aprobar|aprobaci[o\u00f3]n|requerida|borrador|planificado)\b/i;
+const approvalPattern =
+  /\b(?:approval|approve|pending approval|requires approval|aprobaci[o\u00f3]n|aprobar|pendiente|requiere aprobaci[o\u00f3]n)\b/i;
 
 function printHelp() {
   console.log(`Usage: node .qa-ai/scripts/validate-sync-plan.mjs [options]
@@ -38,7 +41,9 @@ Validates proposal-first language, feature identifier coverage, sync-plan table 
 }
 
 function normalizeId(value) {
-  return String(value || '').replace(/\s+/g, '-').toUpperCase();
+  return String(value || '')
+    .replace(/\s+/g, '-')
+    .toUpperCase();
 }
 
 function idsFromText(value) {
@@ -65,7 +70,9 @@ function parseSyncPlanTable(content) {
       errors.push(`Line ${row.line}: approval status must clearly require or wait for approval.`);
     }
     if (writeClaimPattern.test(row.cells.join(' '))) {
-      errors.push(`Line ${row.line}: row appears to claim an external write happened; sync plans must stay proposal-first.`);
+      errors.push(
+        `Line ${row.line}: row appears to claim an external write happened; sync plans must stay proposal-first.`
+      );
     }
 
     rows.push({ ...row, ids });
@@ -110,7 +117,7 @@ async function validateMappingFile(config, errors) {
   const mappingFile = getConfigValue(config, 'testrail.mappingFile', '');
   if (!mappingFile) return;
   const mappingPath = resolveRepoPath(cwd, mappingFile, { label: 'test management mapping file' });
-  if (!await pathExists(mappingPath)) return;
+  if (!(await pathExists(mappingPath))) return;
   try {
     const parsed = JSON.parse(await readText(mappingPath));
     errors.push(...validateTestManagementMapping(parsed, { source: mappingFile }));
@@ -128,7 +135,8 @@ async function main() {
   logHeader('QA AI sync plan validator');
   const configInfo = await loadQaAiConfig(cwd);
   const featureRoot = args.features || getConfigValue(configInfo.data, 'gherkin.featurePath', 'features');
-  const syncPlanPath = args.path || getConfigValue(configInfo.data, 'testrail.syncPlanPath', 'qa-ai-output/testrail-sync-plan.md');
+  const syncPlanPath =
+    args.path || getConfigValue(configInfo.data, 'testrail.syncPlanPath', 'qa-ai-output/testrail-sync-plan.md');
   const featureRootPath = resolveRepoPath(cwd, featureRoot, { label: 'feature root' });
   const syncPlanFilePath = resolveRepoPath(cwd, syncPlanPath, { label: 'sync plan' });
   const features = await collectFeatureIds(featureRootPath);
@@ -140,7 +148,7 @@ async function main() {
     process.exit(1);
   }
 
-  if (!await pathExists(syncPlanFilePath)) {
+  if (!(await pathExists(syncPlanFilePath))) {
     console.log(`Sync plan not found at ${syncPlanPath}.`);
     if (args['allow-missing']) return;
     console.log('\nFAILED - create the sync plan or pass --allow-missing.');
@@ -155,7 +163,9 @@ async function main() {
   errors.push(...duplicatePlanErrors(syncPlan.rows));
 
   if (writeClaimPattern.test(content)) {
-    errors.push(`${syncPlanPath} appears to claim an external write happened; MVP sync plans must stay proposal-first.`);
+    errors.push(
+      `${syncPlanPath} appears to claim an external write happened; MVP sync plans must stay proposal-first.`
+    );
   }
   if (!/\b(?:approval|approve|aprobaci[o\u00f3]n|aprobar)\b/i.test(content)) {
     errors.push(`${syncPlanPath} must mention required approval before external writes.`);

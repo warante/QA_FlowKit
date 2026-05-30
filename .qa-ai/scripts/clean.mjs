@@ -85,7 +85,7 @@ function safeTarget(entry) {
 async function planFile(entry) {
   const target = safeTarget(entry);
   if (!target.ok) return { entry, action: 'skip', reason: target.reason };
-  if (!await pathExists(target.path)) return { entry, action: 'missing', removeFromManifest: true };
+  if (!(await pathExists(target.path))) return { entry, action: 'missing', removeFromManifest: true };
 
   const stat = await fs.lstat(target.path);
   if (!stat.isFile()) return { entry, action: 'skip', reason: 'not a regular file' };
@@ -108,7 +108,7 @@ async function planFile(entry) {
 async function planDirectory(entry, removalPaths) {
   const target = safeTarget(entry);
   if (!target.ok) return { entry, action: 'skip', reason: target.reason };
-  if (!await pathExists(target.path)) return { entry, action: 'missing', removeFromManifest: true };
+  if (!(await pathExists(target.path))) return { entry, action: 'missing', removeFromManifest: true };
 
   const stat = await fs.lstat(target.path);
   if (!stat.isDirectory()) return { entry, action: 'skip', reason: 'not a directory' };
@@ -132,9 +132,7 @@ async function planDirectory(entry, removalPaths) {
 
 async function planEntries(entries) {
   const files = entries.filter((entry) => entry.type === 'file');
-  const dirs = entries
-    .filter((entry) => entry.type === 'dir')
-    .sort((a, b) => b.path.length - a.path.length);
+  const dirs = entries.filter((entry) => entry.type === 'dir').sort((a, b) => b.path.length - a.path.length);
   const planned = [];
   const removalPaths = new Set();
 
@@ -195,7 +193,9 @@ async function main() {
   logHeader('QA FlowKit clean');
   const { exists, path: manifestPath, data: manifest } = await loadInitManifest(cwd);
   if (!exists) {
-    console.log(`No init manifest found at ${manifestRelativePath}. Run init before clean can safely remove generated files.`);
+    console.log(
+      `No init manifest found at ${manifestRelativePath}. Run init before clean can safely remove generated files.`
+    );
     return;
   }
 

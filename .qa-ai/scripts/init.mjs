@@ -2,11 +2,12 @@
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import {
-  activeSpecialistsContent,
-  configuredDirs,
-  isConfiguredFramework,
-  slug
-} from './lib/project-config.mjs';
+  defaultKarateApiSpecsPath,
+  defaultKarateConfigPath,
+  defaultKarateUiSpecsPath,
+  isKarateFramework
+} from './lib/automation-framework.mjs';
+import { activeSpecialistsContent, configuredDirs, isConfiguredFramework, slug } from './lib/project-config.mjs';
 import {
   commaList,
   ensureDir,
@@ -32,12 +33,26 @@ const force = Boolean(args.force);
 const withDocTemplates = Boolean(args['with-doc-templates'] || args.withDocTemplates);
 const withTestManagementMapping = Boolean(args['with-test-management-mapping'] || args.withTestManagementMapping);
 const presetName = args.preset || 'webdriverio-playwright-api';
-const interfaceLanguage = normalizeLanguage(args['interface-language'] || args.interfaceLanguage || 'en', 'interface language');
-const gherkinLanguage = normalizeLanguage(args['gherkin-language'] || args.gherkinLanguage || args.gherkin || 'en', 'Gherkin language');
+const withKarateConfig = Boolean(args['with-karate-config'] || args.withKarateConfig || presetName === 'karate-full');
+const interfaceLanguage = normalizeLanguage(
+  args['interface-language'] || args.interfaceLanguage || 'en',
+  'interface language'
+);
+const gherkinLanguage = normalizeLanguage(
+  args['gherkin-language'] || args.gherkinLanguage || args.gherkin || 'en',
+  'Gherkin language'
+);
 let validatedQaContextPath = null;
 const qaAiDir = path.join(cwd, '.qa-ai');
 const presetsDir = path.join(qaAiDir, 'presets');
 const presetPath = path.join(qaAiDir, 'presets', `${presetName}.yaml`);
+
+function isKarateConfigured(cfg) {
+  return (
+    isKarateFramework(getConfigValue(cfg, 'automation.api.framework', '')) ||
+    isKarateFramework(getConfigValue(cfg, 'automation.ui.framework', ''))
+  );
+}
 
 function printHelp() {
   console.log(`Usage: node .qa-ai/scripts/init.mjs [options]
@@ -63,13 +78,14 @@ Options:
   --no-adapters            Skip adapter generation
   --with-doc-templates     Generate starter QA docs under qa-ai-output/
   --with-test-management-mapping Generate the configured test management mapping file
+  --with-karate-config         Create tests/karate/karate-config.js from template when Karate is used
   --force                  Overwrite generated files when they already exist
   --help                   Show this help
 `);
 }
 
 async function availablePresets() {
-  if (!await pathExists(presetsDir)) return [];
+  if (!(await pathExists(presetsDir))) return [];
   const entries = await fs.readdir(presetsDir, { withFileTypes: true });
   return entries
     .filter((entry) => entry.isFile() && entry.name.endsWith('.yaml'))
@@ -78,7 +94,9 @@ async function availablePresets() {
 }
 
 function normalizeLanguage(value, label = 'language') {
-  const normalized = String(value || '').trim().toLowerCase();
+  const normalized = String(value || '')
+    .trim()
+    .toLowerCase();
   if (['es', 'esp', 'spa', 'spanish', 'espanol', 'español'].includes(normalized)) return 'es';
   if (['en', 'eng', 'english', 'ingles', 'inglés'].includes(normalized)) return 'en';
   console.error(`Unsupported ${label}: ${value}. Use "en" or "es".`);
@@ -105,7 +123,10 @@ function selectedQaContextPath() {
 }
 
 function setSimpleYamlScalar(content, keyPath, value) {
-  const parts = String(keyPath || '').split('.').map((part) => part.trim()).filter(Boolean);
+  const parts = String(keyPath || '')
+    .split('.')
+    .map((part) => part.trim())
+    .filter(Boolean);
   if (parts.length === 0) return content;
 
   const lines = content.replace(/\r/g, '').split('\n');
@@ -180,14 +201,30 @@ function configOverrides() {
     ['automation.api.specsPath', apiSpecsPath]
   ];
 
-  if (uiFramework && !uiSpecsPath && normalizedUiFramework !== 'webdriverio') {
-    overrides.push(['automation.ui.specsPath', isConfiguredFramework(uiFramework) ? ['tests', slug(uiFramework), 'specs'].join('/') : '']);
+  if (uiFramework && !uiSpecsPath && isKarateFramework(uiFramework)) {
+    overrides.push(['automation.ui.specsPath', defaultKarateUiSpecsPath()]);
+    overrides.push(['automation.ui.pageObjectsPath', '']);
+  } else if (uiFramework && !uiSpecsPath && normalizedUiFramework !== 'webdriverio') {
+    overrides.push([
+      'automation.ui.specsPath',
+      isConfiguredFramework(uiFramework) ? ['tests', slug(uiFramework), 'specs'].join('/') : ''
+    ]);
   }
-  if (uiFramework && !uiPageObjectsPath && normalizedUiFramework !== 'webdriverio') {
-    overrides.push(['automation.ui.pageObjectsPath', isConfiguredFramework(uiFramework) ? ['tests', slug(uiFramework), 'pageobjects'].join('/') : '']);
+  if (uiFramework && !uiPageObjectsPath && isKarateFramework(uiFramework)) {
+    overrides.push(['automation.ui.pageObjectsPath', '']);
+  } else if (uiFramework && !uiPageObjectsPath && normalizedUiFramework !== 'webdriverio') {
+    overrides.push([
+      'automation.ui.pageObjectsPath',
+      isConfiguredFramework(uiFramework) ? ['tests', slug(uiFramework), 'pageobjects'].join('/') : ''
+    ]);
   }
-  if (apiFramework && !apiSpecsPath && normalizedApiFramework !== 'playwright-api') {
-    overrides.push(['automation.api.specsPath', isConfiguredFramework(apiFramework) ? ['tests', slug(apiFramework), 'specs'].join('/') : '']);
+  if (apiFramework && !apiSpecsPath && isKarateFramework(apiFramework)) {
+    overrides.push(['automation.api.specsPath', defaultKarateApiSpecsPath()]);
+  } else if (apiFramework && !apiSpecsPath && normalizedApiFramework !== 'playwright-api') {
+    overrides.push([
+      'automation.api.specsPath',
+      isConfiguredFramework(apiFramework) ? ['tests', slug(apiFramework), 'specs'].join('/') : ''
+    ]);
   }
   if (testManagementTool) {
     const isTestrail = String(testManagementTool).trim().toLowerCase() === 'testrail';
@@ -204,9 +241,7 @@ function configOverrides() {
     overrides.push([item.slice(0, equalsIndex).trim(), item.slice(equalsIndex + 1).trim()]);
   }
 
-  return overrides
-    .map(([key, value]) => [key, scalarOverrideValue(value)])
-    .filter(([, value]) => value !== null);
+  return overrides.map(([key, value]) => [key, scalarOverrideValue(value)]).filter(([, value]) => value !== null);
 }
 
 function personalizeConfig(content) {
@@ -286,7 +321,10 @@ function localizeTemplate(content, language) {
   for (const [english, spanish] of spanishTemplateHeadings) {
     updated = updated.replaceAll(english, spanish);
   }
-  return updated.replaceAll('Do you approve generating the proposed `.feature` files?', 'Apruebas generar los archivos `.feature` propuestos?');
+  return updated.replaceAll(
+    'Do you approve generating the proposed `.feature` files?',
+    'Apruebas generar los archivos `.feature` propuestos?'
+  );
 }
 
 async function main() {
@@ -297,12 +335,12 @@ async function main() {
 
   logHeader('QA FlowKit init');
 
-  if (!await pathExists(qaAiDir)) {
+  if (!(await pathExists(qaAiDir))) {
     console.error('Missing .qa-ai folder. Copy it into the repository root first.');
     process.exit(1);
   }
 
-  if (!await pathExists(presetPath)) {
+  if (!(await pathExists(presetPath))) {
     const names = await availablePresets();
     console.error(`Base template not found: ${presetName}`);
     console.error(`Available base templates: ${names.length > 0 ? names.join(', ') : '(none found)'}`);
@@ -312,7 +350,7 @@ async function main() {
   const qaContextPath = selectedQaContextPath();
   if (qaContextPath) {
     const resolvedContext = resolveRepoPath(cwd, qaContextPath, { label: 'QA context folder' });
-    if (!await pathExists(resolvedContext)) {
+    if (!(await pathExists(resolvedContext))) {
       console.error(`QA context folder not found: ${relativeTo(cwd, resolvedContext)}`);
       process.exit(1);
     }
@@ -336,11 +374,13 @@ async function main() {
   const configWrite = await writeFileSafe(configPath, configContent, { force });
   writes.push(configWrite);
   if (configWrite.written) {
-    manifestEntries.push(await manifestEntry(cwd, configWrite.path, {
-      type: 'file',
-      category: 'generated',
-      source: 'init'
-    }));
+    manifestEntries.push(
+      await manifestEntry(cwd, configWrite.path, {
+        type: 'file',
+        category: 'generated',
+        source: 'init'
+      })
+    );
   }
 
   const effectiveConfigContent = configWrite.written ? configContent : (await loadQaAiConfig(cwd)).content;
@@ -353,11 +393,13 @@ async function main() {
     const result = await ensureDir(resolveRepoPath(cwd, dir, { label: `configured directory "${dir}"` }));
     dirResults.push(result);
     if (result.created) {
-      manifestEntries.push(await manifestEntry(cwd, result.path, {
-        type: 'dir',
-        category: 'generated',
-        source: 'init'
-      }));
+      manifestEntries.push(
+        await manifestEntry(cwd, result.path, {
+          type: 'dir',
+          category: 'generated',
+          source: 'init'
+        })
+      );
     }
   }
 
@@ -367,14 +409,20 @@ async function main() {
       if (await pathExists(source)) {
         const outputLanguage = getConfigValue(config, 'project.interfaceLanguage', interfaceLanguage);
         const content = localizeTemplate(await readText(source), outputLanguage);
-        const result = await writeFileSafe(resolveRepoPath(cwd, dest, { label: `generated artifact "${dest}"` }), content, { force });
+        const result = await writeFileSafe(
+          resolveRepoPath(cwd, dest, { label: `generated artifact "${dest}"` }),
+          content,
+          { force }
+        );
         writes.push(result);
         if (result.written) {
-          manifestEntries.push(await manifestEntry(cwd, result.path, {
-            type: 'file',
-            category: 'generated',
-            source: 'init'
-          }));
+          manifestEntries.push(
+            await manifestEntry(cwd, result.path, {
+              type: 'file',
+              category: 'generated',
+              source: 'init'
+            })
+          );
         }
       }
     }
@@ -389,26 +437,56 @@ async function main() {
   );
   writes.push(specialistsResult);
   if (specialistsResult.written) {
-    manifestEntries.push(await manifestEntry(cwd, specialistsResult.path, {
-      type: 'file',
-      category: 'generated',
-      source: 'init'
-    }));
+    manifestEntries.push(
+      await manifestEntry(cwd, specialistsResult.path, {
+        type: 'file',
+        category: 'generated',
+        source: 'init'
+      })
+    );
   }
 
   const mappingFile = getConfigValue(config, 'testrail.mappingFile', 'qa-ai-output/test-management-mapping.json');
   if (mappingFile && withTestManagementMapping) {
-    const result = await writeFileSafe(resolveRepoPath(cwd, mappingFile, { label: 'test management mapping file' }), '{}\n', { force });
+    const result = await writeFileSafe(
+      resolveRepoPath(cwd, mappingFile, { label: 'test management mapping file' }),
+      '{}\n',
+      { force }
+    );
     writes.push(result);
     if (result.written) {
-      manifestEntries.push(await manifestEntry(cwd, result.path, {
-        type: 'file',
-        category: 'generated',
-        source: 'init'
-      }));
+      manifestEntries.push(
+        await manifestEntry(cwd, result.path, {
+          type: 'file',
+          category: 'generated',
+          source: 'init'
+        })
+      );
     }
   } else if (mappingFile) {
     console.log('Skipping test management mapping file. Use --with-test-management-mapping to create it.');
+  }
+
+  if (withKarateConfig || isKarateConfigured(config)) {
+    const karateConfigRel = getConfigValue(config, 'automation.karate.configPath', defaultKarateConfigPath());
+    const karateTemplate = path.join(qaAiDir, 'templates/karate-config.template.js');
+    if (await pathExists(karateTemplate)) {
+      const result = await writeFileSafe(
+        resolveRepoPath(cwd, karateConfigRel, { label: 'Karate config file' }),
+        await readText(karateTemplate),
+        { force }
+      );
+      writes.push(result);
+      if (result.written) {
+        manifestEntries.push(
+          await manifestEntry(cwd, result.path, {
+            type: 'file',
+            category: 'generated',
+            source: 'init'
+          })
+        );
+      }
+    }
   }
 
   const adapters = selectedAdapters();
