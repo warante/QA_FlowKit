@@ -1,0 +1,5 @@
+node_modules/
+.qa-flowkit-npm-*/
+
+# Generado automáticamente por Release Please; no editar a mano ni reformatear.
+CHANGELOG.md
