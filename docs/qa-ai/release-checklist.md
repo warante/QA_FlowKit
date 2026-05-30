@@ -60,6 +60,10 @@ Use this section when a user asks to release, publish to npm, bump the package v
 
 Releases are driven by [Conventional Commits](https://www.conventionalcommits.org/) on `main` and the [Release Please](.github/workflows/release-please.yml) workflow.
 
+### GitHub Actions policy (this repo)
+
+The workflow uses the **release-please CLI** via `node .github/scripts/run-release-please.mjs` (devDependency), not `googleapis/release-please-action`, because repository settings only allow Actions from GitHub or `warante`. If Release Please fails with **Startup failure** and a message about an action not being allowed, do not add third-party actions; ensure this CLI workflow is on `main`.
+
 ### One-time setup (maintainers)
 
 1. **npm Trusted Publishing (recommended)**  
