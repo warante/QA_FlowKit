@@ -37,7 +37,7 @@ Every scenario must include these tags with valid values:
 | Tag          | Valid Values                                                                                        | Source                                  |
 | ------------ | --------------------------------------------------------------------------------------------------- | --------------------------------------- |
 | `@priority:` | `high`, `medium`, `low`                                                                             | From intake priority or user assignment |
-| `@type:`     | `functional`, `regression`, `smoke`, `e2e`, `negative`, `edge-case`, `accessibility`, `performance` | From normalization type                 |
+| `@type:`     | `functional`, `regression`, `smoke`, `e2e`, `integration`, `api`, `negative`, `edge-case`, `accessibility`, `performance` | From normalization type; drives subfolder (see below) |
 | `@manual:`   | `true`, `false`                                                                                     | From normalization manual-only flag     |
 
 ### Recommended (traceability and deduplication)
@@ -49,20 +49,31 @@ Every scenario must include these tags with valid values:
 
 Additional optional tags: `@api`, `@ui`, `@mobile`, `@blocked`, `@wip`.
 
-## File Naming Convention
+## File path and naming
+
+**Always** write under a type subfolder (never directly in the feature root). Map tags to folder:
+
+| Tags | Subfolder |
+| ---- | --------- |
+| `@manual:true` | `manual/` |
+| `@type:e2e` | `e2e/` |
+| `@type:integration` | `integration/` |
+| `@type:accessibility` or `a11y` | `accessibility/` |
+| `@type:api` or `@api` | `api/` |
+| `@type:functional`, `regression`, `smoke`, `negative`, `edge-case`, `performance` (default) | `functional/` |
 
 ```
-features/[RF-ID]-TC-[N]-[short-description].feature
+features/<subfolder>/[RF-ID]-TC-[N]-[short-description].feature
 ```
 
-- Use lowercase and hyphens for the description portion.
-- Keep description to 3-5 words maximum.
+- Create the subfolder if it does not exist (do not pre-create unused sibling folders).
+- Use lowercase and hyphens for the description portion (3–5 words).
 - Include RF and test case ID in the filename for traceability matrix linking.
-- Examples: `RF-042-TC-003-login-invalid-credentials.feature`, `RF-015-TC-001-cart-quantity-update.feature`.
+- Examples: `features/functional/RF-042-TC-003-login-invalid-credentials.feature`, `features/e2e/RF-015-TC-001-checkout-happy-path.feature`.
 
 ## Output
 
-Write `.feature` files to the configured `gherkin.featurePath` (default: `features/`) only—QA design Gherkin with acceptance criteria and required tags. Executable Karate tests are created later under `tests/karate/features/` by the API/UI implementation agents when Karate is configured.
+Write `.feature` files under `gherkin.featurePath/<type-subfolder>/` (default root: `features/`)—never in the bare feature root. QA design Gherkin with acceptance criteria and required tags. Executable Karate tests are created later under `tests/karate/features/` by the API/UI implementation agents when Karate is configured.
 
 ### Example (English)
 

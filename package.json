@@ -32,6 +32,7 @@
     "qa:doctor": "node .qa-ai/scripts/doctor.mjs",
     "qa:clean": "node .qa-ai/scripts/clean.mjs",
     "qa:validate-features": "node .qa-ai/scripts/validate-features.mjs",
+    "qa:organize-features": "node .qa-ai/scripts/organize-features.mjs",
     "qa:validate-karate-features": "node .qa-ai/scripts/validate-karate-features.mjs",
     "qa:validate-traceability": "node .qa-ai/scripts/validate-traceability.mjs",
     "qa:validate-sync-plan": "node .qa-ai/scripts/validate-sync-plan.mjs",

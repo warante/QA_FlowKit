@@ -299,6 +299,36 @@ If features should exist, verify the path in `qa-ai.config.yaml` matches where t
 
 ---
 
+### `.feature` files in `features/` root instead of subfolders
+
+**Symptom**
+
+Files such as `features/RF-004-TC-001-….feature` sit next to empty `functional/`, `api/`, `e2e/` folders.
+
+**Cause**
+
+`init` only needs the feature root; subfolders are created when tests are written. Older agent instructions used a flat path under `features/` without the type subfolder.
+
+**Fix**
+
+1. Re-run test design with updated agents, **or** move existing files:
+
+```bash
+node .qa-ai/scripts/organize-features.mjs --dry-run
+node .qa-ai/scripts/organize-features.mjs
+node .qa-ai/scripts/validate-features.mjs
+```
+
+2. Use `--strict-layout` in CI if you want misplaced paths to fail:
+
+```bash
+node .qa-ai/scripts/validate-features.mjs --strict-layout
+```
+
+Mapping: `@manual:true` → `manual/`; `@type:e2e` → `e2e/`; `@type:api` or `@api` → `api/`; default → `functional/`. See [gherkin.rules.md](../../.qa-ai/rules/gherkin.rules.md).
+
+---
+
 ### Karate features fail QA validation (or vice versa)
 
 **Symptom**

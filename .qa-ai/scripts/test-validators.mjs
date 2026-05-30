@@ -10,6 +10,11 @@ import { validateTestDesignProposal, validateTestDesignSystem } from './lib/test
 import { parseMarkdownTable } from './lib/markdown-table.mjs';
 import { validateTestManagementMapping } from './lib/test-management-mapping.mjs';
 import { duplicateIdErrors, languageRules, parseFeature, validateFeatureContent } from './lib/gherkin-validate.mjs';
+import {
+  parseFeatureTags,
+  resolveFeatureSubfolder,
+  validateFeatureFilePlacement
+} from './lib/feature-layout.mjs';
 import { karateDuplicateIdErrors, validateKarateFeatureContent } from './lib/karate-validate.mjs';
 import { parseSimpleYaml } from './lib/utils.mjs';
 
@@ -506,4 +511,22 @@ test('karateDuplicateIdErrors: detects duplicate @id', () => {
     { file: 'b.feature', caseIds: ['TC-001'] }
   ]);
   assert.equal(errors.length, 1);
+});
+
+// --- feature-layout ---
+
+test('resolveFeatureSubfolder: maps @type and @manual to folders', () => {
+  assert.equal(resolveFeatureSubfolder(parseFeatureTags('@type:e2e @manual:false')), 'e2e');
+  assert.equal(resolveFeatureSubfolder(parseFeatureTags('@type:functional @manual:true')), 'manual');
+  assert.equal(resolveFeatureSubfolder(parseFeatureTags('@type:api @manual:false')), 'api');
+  assert.equal(resolveFeatureSubfolder(parseFeatureTags('@type:regression @manual:false')), 'functional');
+});
+
+test('validateFeatureFilePlacement: warns on feature root file', () => {
+  const root = path.join('/repo', 'features');
+  const file = path.join(root, 'RF-101-TC-001-login.feature');
+  const content = '@priority:high @type:functional @manual:false\nFeature: Login\n';
+  const { warnings, expectedSubfolder } = validateFeatureFilePlacement(file, root, content);
+  assert.equal(expectedSubfolder, 'functional');
+  assert.ok(warnings.some((w) => w.includes('functional')));
 });

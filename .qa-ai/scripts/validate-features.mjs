@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import fs from 'node:fs/promises';
+import { validateFeatureFilePlacement } from './lib/feature-layout.mjs';
 import { duplicateIdErrors, normalizeLanguage, validateFeatureContent } from './lib/gherkin-validate.mjs';
 import {
   getConfigValue,
@@ -23,6 +24,7 @@ Options:
   --allow-empty  Return success when no .feature files exist
   --no-duplicates Skip cross-file duplicate ID validation
   --strict-tags  Require recommended @rf: and @id: tags
+  --strict-layout  Treat folder placement warnings as errors
   --help         Show this help
 
 Validates QA design .feature files under gherkin.featurePath only.
@@ -51,6 +53,7 @@ async function main() {
   const featureRootPath = resolveRepoPath(cwd, featureRoot, { label: 'feature root' });
   const files = await listFilesRecursive(featureRootPath, (filePath) => filePath.endsWith('.feature'));
   const strictTags = Boolean(args['strict-tags']);
+  const strictLayout = Boolean(args['strict-layout']);
 
   if (files.length === 0) {
     console.log(`No .feature files found under ${featureRoot}.`);
@@ -70,12 +73,26 @@ async function main() {
       ...validateFeatureContent(content, file, tagNames, language, { strictTags })
     };
     results.push(result);
-    if (result.errors.length === 0) {
+    const placement = validateFeatureFilePlacement(file, featureRootPath, content);
+    result.placementWarnings = placement.warnings;
+
+    if (result.errors.length === 0 && placement.warnings.length === 0) {
       console.log(`[PASS] ${relativeTo(cwd, file)}`);
+    } else if (result.errors.length === 0 && placement.warnings.length > 0) {
+      if (strictLayout) {
+        totalErrors += placement.warnings.length;
+        console.log(`[FAIL] ${relativeTo(cwd, file)}`);
+        for (const warning of placement.warnings) console.log(`  - ${warning}`);
+      } else {
+        console.log(`[PASS] ${relativeTo(cwd, file)}`);
+        for (const warning of placement.warnings) console.log(`  [WARN] ${warning}`);
+      }
     } else {
       totalErrors += result.errors.length;
+      if (strictLayout) totalErrors += placement.warnings.length;
       console.log(`[FAIL] ${relativeTo(cwd, file)}`);
       for (const error of result.errors) console.log(`  - ${error}`);
+      for (const warning of placement.warnings) console.log(`  - ${warning}`);
     }
   }
 

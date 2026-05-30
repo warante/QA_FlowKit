@@ -28,11 +28,10 @@ export function isConfiguredFramework(value) {
 
 export function addCommonDirs(dirs, config) {
   const featureRoot = getConfigValue(config, 'gherkin.featurePath', 'features');
-  const featureTypes = ['functional', 'integration', 'e2e', 'api', 'accessibility', 'manual'];
 
   dirs.add('qa-ai-output');
+  // Type subfolders (functional, api, e2e, …) are created when the first .feature is written.
   dirs.add(featureRoot);
-  for (const type of featureTypes) dirs.add(path.join(featureRoot, type));
 
   const matrixPath = getConfigValue(config, 'traceability.matrixPath', 'qa-ai-output/traceability-matrix.md');
   if (matrixPath) dirs.add(path.dirname(matrixPath));

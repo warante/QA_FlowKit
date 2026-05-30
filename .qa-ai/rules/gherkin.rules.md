@@ -20,6 +20,25 @@ Do not mix Karate `* method` steps into design features or QA acceptance blocks 
 - Use Spanish Gherkin keywords and `Criterios de aceptación:` for `es`.
 - Spanish `.feature` files must include `# language: es`.
 
+## Folder layout
+
+- Do **not** place `.feature` files directly in the feature root (e.g. `features/RF-004-TC-001-….feature`).
+- Use exactly one type subfolder under `gherkin.featurePath`:
+
+| Subfolder        | When to use                                                                 |
+| ---------------- | --------------------------------------------------------------------------- |
+| `functional/`    | Default: `@type:functional`, `regression`, `smoke`, `negative`, `edge-case`, `performance` |
+| `integration/`   | `@type:integration`                                                         |
+| `e2e/`           | `@type:e2e`                                                                 |
+| `api/`           | `@type:api` or tag `@api` (API behaviour at design level)                    |
+| `accessibility/` | `@type:accessibility` or `a11y`                                             |
+| `manual/`        | `@manual:true` (manual-only execution)                                      |
+
+- Init creates only the feature root; subfolders appear when the first file is written for that type.
+- Misplaced root files: `node .qa-ai/scripts/organize-features.mjs` (or `--dry-run` first).
+
+**Path pattern:** `features/<subfolder>/<RF-ID>-TC-<N>-<short-description>.feature`
+
 ## Structure
 
 - One `.feature` file per test case.

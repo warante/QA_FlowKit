@@ -11,6 +11,6 @@ Read `.qa-ai/rules/test-design.rules.md`, `.qa-ai/rules/requirements.rules.md` a
 ## Output
 
 - Per-RF proposal: `qa-ai-output/test-design-proposal.md`
-- Feature files: configured `gherkin.featurePath`, usually `features/`
+- Feature files: `gherkin.featurePath/<type>/` (e.g. `features/functional/`), not the bare feature root
 
 Run `node .qa-ai/scripts/validate-test-design.mjs` after updating proposals and `node .qa-ai/scripts/validate-features.mjs` after generating or changing `.feature` files.
