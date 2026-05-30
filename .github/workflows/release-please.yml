@@ -1,0 +1,124 @@
+name: Release Please
+
+# Primary release path: release-please opens/updates a Release PR from Conventional
+# Commits on main. Merging that PR creates a GitHub Release + tag; the publish job
+# then validates, packs, and publishes to npm (Trusted Publishing OIDC when configured).
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: release-please
+  cancel-in-progress: false
+
+jobs:
+  release-please:
+    name: Release Please
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+      version: ${{ steps.release.outputs.version }}
+    steps:
+      - name: Release Please
+        id: release
+        uses: googleapis/release-please-action@v4
+        with:
+          config-file: .release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  publish:
+    name: Publish to npm
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      PKG_VERSION: ${{ needs.release-please.outputs.version }}
+      RELEASE_TAG: ${{ needs.release-please.outputs.tag_name }}
+    steps:
+      - name: Checkout release tag
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.release-please.outputs.tag_name }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          registry-url: https://registry.npmjs.org
+
+      - name: Upgrade npm for Trusted Publishing
+        run: npm install -g npm@latest
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Lint and format check
+        run: |
+          npm run lint
+          npm run format:check
+
+      - name: Run pre-publish validation
+        run: npm run validate:oss-extraction
+
+      - name: Verify npm pack allowlist
+        run: node .github/scripts/verify-npm-pack.mjs
+
+      - name: Check version is not already on npm
+        shell: bash
+        run: |
+          set -euo pipefail
+          if npm view "qa-flowkit@${PKG_VERSION}" version >/dev/null 2>&1; then
+            echo "::error::qa-flowkit@${PKG_VERSION} is already published."
+            exit 1
+          fi
+          echo "Version ${PKG_VERSION} is not on npm yet; proceeding."
+
+      - name: Resolve npm dist-tag
+        id: dist_tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "${PKG_VERSION}" == *-* ]]; then
+            PRERELEASE_ID="${PKG_VERSION#*-}"
+            PRERELEASE_ID="${PRERELEASE_ID%%.*}"
+            echo "tag=${PRERELEASE_ID}" >> "${GITHUB_OUTPUT}"
+            echo "Prerelease detected; using dist-tag: ${PRERELEASE_ID}"
+          else
+            echo "tag=latest" >> "${GITHUB_OUTPUT}"
+            echo "Stable release; using dist-tag: latest"
+          fi
+
+      - name: Publish to npm
+        run: npm publish --provenance --access public --tag "${{ steps.dist_tag.outputs.tag }}"
+        env:
+          # Fallback when npm Trusted Publishing is not configured on npmjs.com yet.
+          # Remove NPM_TOKEN secret after enabling Trusted Publisher for this workflow.
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Post-publish verification
+        shell: bash
+        run: |
+          set -euo pipefail
+          PUBLISHED=$(npm view "qa-flowkit@${PKG_VERSION}" version)
+          if [[ "${PUBLISHED}" != "${PKG_VERSION}" ]]; then
+            echo "::error::npm view returned ${PUBLISHED}, expected ${PKG_VERSION}."
+            exit 1
+          fi
+          echo "Published version confirmed: ${PUBLISHED}"
+
+          VERIFY_DIR=$(mktemp -d)
+          npm pack "qa-flowkit@${PKG_VERSION}" --pack-destination "${VERIFY_DIR}"
+          TARBALL=$(ls "${VERIFY_DIR}"/qa-flowkit-*.tgz | head -n 1)
+          npm install --prefix "${VERIFY_DIR}/install" --ignore-scripts --no-save "${TARBALL}"
+          "${VERIFY_DIR}/install/node_modules/qa-flowkit/bin/qa-flowkit.mjs" version
+          echo "Post-publish smoke install passed."

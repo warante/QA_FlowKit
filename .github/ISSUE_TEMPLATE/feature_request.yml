@@ -1,6 +1,6 @@
 name: Feature request
 description: Suggest an improvement for QA FlowKit.
-title: "feat: "
+title: 'feat: '
 labels:
   - enhancement
 body:
