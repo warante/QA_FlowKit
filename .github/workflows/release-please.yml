@@ -126,9 +126,17 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          PUBLISHED=$(npm view "qa-flowkit@${PKG_VERSION}" version)
+          # npm registry propagation can lag a few seconds after publish; retry before failing.
+          PUBLISHED=""
+          for attempt in 1 2 3 4 5 6; do
+            if PUBLISHED=$(npm view "qa-flowkit@${PKG_VERSION}" version 2>/dev/null) && [[ -n "${PUBLISHED}" ]]; then
+              break
+            fi
+            echo "Attempt ${attempt}: version not visible yet on npm; waiting 15s..."
+            sleep 15
+          done
           if [[ "${PUBLISHED}" != "${PKG_VERSION}" ]]; then
-            echo "::error::npm view returned ${PUBLISHED}, expected ${PKG_VERSION}."
+            echo "::error::npm view returned '${PUBLISHED}', expected ${PKG_VERSION}."
             exit 1
           fi
           echo "Published version confirmed: ${PUBLISHED}"
