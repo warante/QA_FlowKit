@@ -1,16 +1,28 @@
 import path from 'node:path';
+import {
+  defaultKarateApiSpecsPath,
+  defaultKarateConfigPath,
+  defaultKarateMocksPath,
+  defaultKaratePerformancePath,
+  defaultKarateUiSpecsPath,
+  isKarateFramework
+} from './automation-framework.mjs';
 import { getConfigValue } from './utils.mjs';
 
 export function slug(value) {
-  return String(value || '')
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '') || 'custom';
+  return (
+    String(value || '')
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '') || 'custom'
+  );
 }
 
 export function isConfiguredFramework(value) {
-  const normalized = String(value || '').trim().toLowerCase();
+  const normalized = String(value || '')
+    .trim()
+    .toLowerCase();
   return Boolean(normalized) && !['none', 'undecided', 'manual', 'n/a', 'na'].includes(normalized);
 }
 
@@ -40,6 +52,11 @@ export function addUiDirs(dirs, config) {
   const pageObjectsPath = getConfigValue(config, 'automation.ui.pageObjectsPath', '');
 
   if (isConfiguredFramework(framework)) {
+    if (isKarateFramework(framework)) {
+      dirs.add(specsPath || defaultKarateUiSpecsPath());
+      addKarateSharedDirs(dirs, config);
+      return;
+    }
     const base = specsPath ? path.dirname(specsPath) : path.join('tests', slug(framework));
     dirs.add(specsPath || path.join(base, 'specs'));
     if (pageObjectsPath || framework !== 'api') dirs.add(pageObjectsPath || path.join(base, 'pageobjects'));
@@ -53,6 +70,12 @@ export function addApiDirs(dirs, config) {
   const specsPath = getConfigValue(config, 'automation.api.specsPath', '');
   if (!isConfiguredFramework(framework)) return;
 
+  if (isKarateFramework(framework)) {
+    dirs.add(specsPath || defaultKarateApiSpecsPath());
+    addKarateSharedDirs(dirs, config);
+    return;
+  }
+
   const base = specsPath ? path.dirname(specsPath) : path.join('tests', slug(framework));
   dirs.add(specsPath || path.join(base, 'specs'));
   dirs.add(path.join(base, 'clients'));
@@ -61,11 +84,31 @@ export function addApiDirs(dirs, config) {
   dirs.add(path.join(base, 'helpers'));
 }
 
+export function addKarateSharedDirs(dirs, config) {
+  const configPath = getConfigValue(config, 'automation.karate.configPath', defaultKarateConfigPath());
+  const mocksPath = getConfigValue(config, 'automation.karate.mocksPath', defaultKarateMocksPath());
+  const performancePath = getConfigValue(config, 'automation.karate.performancePath', defaultKaratePerformancePath());
+  dirs.add(path.dirname(configPath));
+  if (mocksPath) dirs.add(mocksPath);
+  if (performancePath) dirs.add(performancePath);
+}
+
+export function addKarateDirs(dirs, config) {
+  if (
+    !isKarateFramework(getConfigValue(config, 'automation.api.framework', '')) &&
+    !isKarateFramework(getConfigValue(config, 'automation.ui.framework', ''))
+  ) {
+    return;
+  }
+  addKarateSharedDirs(dirs, config);
+}
+
 export function configuredDirs(config) {
   const dirs = new Set();
   addCommonDirs(dirs, config);
   addUiDirs(dirs, config);
   addApiDirs(dirs, config);
+  addKarateDirs(dirs, config);
   return dirs;
 }
 
@@ -129,6 +172,16 @@ export const specialistCatalog = {
     title: 'Jira Specialist',
     categories: ['issue-tracker'],
     aliases: ['jira']
+  },
+  accessibility: {
+    title: 'Accessibility Testing Specialist',
+    categories: ['accessibility'],
+    aliases: ['accessibility', 'a11y', 'wcag']
+  },
+  performance: {
+    title: 'Performance Testing Specialist',
+    categories: ['performance'],
+    aliases: ['performance', 'load', 'stress', 'nfr']
   }
 };
 
@@ -139,6 +192,7 @@ export function activeSpecialists(config) {
   const wanted = [
     ['ui', getConfigValue(config, 'automation.ui.framework', '')],
     ['api', getConfigValue(config, 'automation.api.framework', '')],
+    ['mobile', getConfigValue(config, 'automation.mobile.framework', '')],
     ['test-management', getConfigValue(config, 'tools.testManagement', '')],
     ['issue-tracker', getConfigValue(config, 'tools.issueTracker', '')]
   ];
@@ -147,9 +201,9 @@ export function activeSpecialists(config) {
   for (const [category, value] of wanted) {
     const normalized = slug(value);
     if (!isConfiguredFramework(normalized)) continue;
-    const entry = Object.entries(specialistCatalog).find(([, details]) => (
-      details.categories.includes(category) && details.aliases.map(slug).includes(normalized)
-    ));
+    const entry = Object.entries(specialistCatalog).find(
+      ([, details]) => details.categories.includes(category) && details.aliases.map(slug).includes(normalized)
+    );
     if (entry) active.set(entry[0], entry[1]);
   }
 
@@ -175,7 +229,7 @@ export function activeSpecialistsContent(config, sourceCommand = 'node .qa-ai/sc
     lines.push('No specialist agents are active. Use the generic agents.');
   } else {
     for (const [id, details] of specialists) {
-      lines.push(`- \`${id}\`: ${details.title} (` + details.categories.join(', ') + `)`);
+      lines.push(`- \`${id}\`: ${details.title} (${details.categories.join(', ')})`);
       lines.push(`  - Source: \`.qa-ai/agents/specialists/available/${id}.md\``);
     }
   }

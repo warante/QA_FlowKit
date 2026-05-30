@@ -1,6 +1,6 @@
 {
   "name": "qa-flowkit",
-  "version": "0.4.0-alpha.0",
+  "version": "0.5.0-beta.0",
   "description": "Portable open-source framework and npm CLI for AI-assisted QA workflows.",
   "type": "module",
   "bin": {
@@ -22,12 +22,17 @@
     "LICENSE"
   ],
   "scripts": {
+    "lint": "eslint bin/ .qa-ai/scripts/ .github/scripts/ eslint.config.mjs",
+    "lint:fix": "eslint --fix bin/ .qa-ai/scripts/ .github/scripts/ eslint.config.mjs",
+    "format": "prettier --write \"**/*.{mjs,json,yml,yaml,md}\" \"!node_modules/**\" \"!.qa-flowkit-npm-*/**\"",
+    "format:check": "prettier --check \"**/*.{mjs,json,yml,yaml,md}\" \"!node_modules/**\" \"!.qa-flowkit-npm-*/**\"",
     "qa:init": "node .qa-ai/scripts/init.mjs",
     "qa:config": "node .qa-ai/scripts/config.mjs",
     "qa:bootstrap": "node .qa-ai/scripts/bootstrap-agent-adapters.mjs",
     "qa:doctor": "node .qa-ai/scripts/doctor.mjs",
     "qa:clean": "node .qa-ai/scripts/clean.mjs",
     "qa:validate-features": "node .qa-ai/scripts/validate-features.mjs",
+    "qa:validate-karate-features": "node .qa-ai/scripts/validate-karate-features.mjs",
     "qa:validate-traceability": "node .qa-ai/scripts/validate-traceability.mjs",
     "qa:validate-sync-plan": "node .qa-ai/scripts/validate-sync-plan.mjs",
     "qa:validate-active-specialists": "node .qa-ai/scripts/validate-active-specialists.mjs",
@@ -37,9 +42,10 @@
     "qa:validate-test-design": "node .qa-ai/scripts/validate-test-design.mjs",
     "qa:sync-adapters": "node .qa-ai/scripts/sync-agent-adapters.mjs",
     "qa:test-validators": "node .qa-ai/scripts/test-validators.mjs",
+    "qa:test-cli": "node .qa-ai/scripts/test-cli-integration.mjs",
     "qa:smoke": "node .qa-ai/scripts/smoke-test.mjs",
     "qa:smoke-npm": "node .qa-ai/scripts/smoke-npm-pack.mjs",
-    "validate:oss-extraction": "node .qa-ai/scripts/doctor.mjs && node .qa-ai/scripts/validate-features.mjs --allow-empty && node .qa-ai/scripts/validate-traceability.mjs --allow-empty --allow-missing && node .qa-ai/scripts/validate-sync-plan.mjs --allow-empty --allow-missing && node .qa-ai/scripts/validate-active-specialists.mjs --allow-missing && node .qa-ai/scripts/test-validators.mjs && node .qa-ai/scripts/smoke-test.mjs && node .qa-ai/scripts/smoke-npm-pack.mjs"
+    "validate:oss-extraction": "node .qa-ai/scripts/doctor.mjs && node .qa-ai/scripts/validate-features.mjs --allow-empty && node .qa-ai/scripts/validate-karate-features.mjs --allow-empty && node .qa-ai/scripts/validate-traceability.mjs --allow-empty --allow-missing && node .qa-ai/scripts/validate-sync-plan.mjs --allow-empty --allow-missing && node .qa-ai/scripts/validate-active-specialists.mjs --allow-missing && node .qa-ai/scripts/test-validators.mjs && node .qa-ai/scripts/test-cli-integration.mjs && node .qa-ai/scripts/smoke-test.mjs && node .qa-ai/scripts/smoke-npm-pack.mjs"
   },
   "keywords": [
     "qa",
@@ -68,5 +74,10 @@
   "license": "MIT",
   "engines": {
     "node": ">=20"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.4.1",
+    "prettier": "^3.8.3"
   }
 }

@@ -1,0 +1,75 @@
+version: 1
+project:
+  name: CHANGE_ME
+  repoMode: qa-and-automation
+  qaTrack: standard
+  defaultLanguage: en
+  interfaceLanguage: en
+tools:
+  testManagement: testrail
+  issueTracker: jira
+  documentation: markdown
+agents:
+  specialistMode: auto
+sources:
+  main: markdown
+knowledge:
+  enabled: false
+  sourcePath: ''
+  summaryPath: qa-ai-output/qa-knowledge-summary.md
+  decisionsPath: qa-ai-output/qa-init-decisions.md
+requirements:
+  requireOfficialRfId: true
+  allowInferredAcceptanceCriteria: true
+  requireApprovalForInferredCriteria: true
+gherkin:
+  language: en
+  oneScenarioPerFile: true
+  requireAcceptanceCriteria: true
+  manualTestsNeedFeatureFile: true
+  featurePath: features
+  tags:
+    required:
+      - priority
+      - type
+      - manual
+testrail:
+  enabled: true
+  projectName: CHANGE_ME
+  allowCreateSections: true
+  allowCreateCases: true
+  allowUpdateCases: approval-only
+  allowDeleteCases: never
+  mappingFile: qa-ai-output/test-management-mapping.json
+automation:
+  ui:
+    framework: karate
+    specsPath: tests/karate/features/ui
+    pageObjectsPath: ''
+  api:
+    framework: karate
+    specsPath: tests/karate/features/api
+  karate:
+    configPath: tests/karate/karate-config.js
+    mocksPath: tests/karate/mocks
+    performancePath: tests/karate/performance
+  strategy:
+    automateAllTechnicallyPossible: true
+    requireProposalBeforeImplementation: true
+    allowModifyExistingTests: approval-only
+testDesign:
+  systemPath: qa-ai-output/test-design-system.md
+  proposalPath: qa-ai-output/test-design-proposal.md
+traceability:
+  matrixPath: qa-ai-output/traceability-matrix.md
+release:
+  gatePath: qa-ai-output/release-gate.yaml
+approval:
+  beforeExternalWrite: true
+  beforeExistingFileModification: true
+  beforeTestRailSync: true
+  beforeJiraTaskCreation: true
+  beforePullRequest: true
+commands:
+  testQA: node .qa-ai/scripts/validate-features.mjs
+  testKarate: node .qa-ai/scripts/validate-karate-features.mjs

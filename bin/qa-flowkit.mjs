@@ -11,9 +11,17 @@ const cwd = process.cwd();
 const targetFramework = path.join(cwd, '.qa-ai');
 
 const commandMap = {
+  config: 'config.mjs',
+  bootstrap: 'bootstrap-agent-adapters.mjs',
   doctor: 'doctor.mjs',
   'validate-target': 'validate-target.mjs',
   'validate-features': 'validate-features.mjs',
+  'validate-karate-features': 'validate-karate-features.mjs',
+  'validate-traceability': 'validate-traceability.mjs',
+  'validate-sync-plan': 'validate-sync-plan.mjs',
+  'validate-active-specialists': 'validate-active-specialists.mjs',
+  'validate-release-gate': 'validate-release-gate.mjs',
+  'validate-test-design': 'validate-test-design.mjs',
   'sync-adapters': 'sync-agent-adapters.mjs',
   help: 'qa-help.mjs',
   clean: 'clean.mjs'
@@ -23,20 +31,38 @@ function printHelp() {
   console.log(`QA FlowKit
 
 Usage:
-  qa-flowkit init [options]
-  qa-flowkit update [options]
-  qa-flowkit doctor [options]
-  qa-flowkit validate-target [options]
-  qa-flowkit validate-features [options]
-  qa-flowkit sync-adapters [options]
-  qa-flowkit help [options]
-  qa-flowkit clean [options]
+  qa-flowkit <command> [options]
+
+Setup commands:
+  init [options]                   Copy the .qa-ai framework and run first-time setup
+  update [options]                 Upgrade .qa-ai to the installed package version
+  bootstrap [options]              Generate agent adapter files after copying .qa-ai manually
+  config [options]                 Export or import a qa-ai.config.yaml profile
+
+Validation commands:
+  doctor [options]                 Check that the .qa-ai framework is correctly installed
+  validate-target [options]        Run all target-repository validators (strict doctor + full suite)
+  validate-features [options]      Validate QA design .feature files (gherkin.featurePath)
+  validate-karate-features [options] Validate executable Karate .feature files
+  validate-traceability [options]  Validate the traceability matrix format and coverage
+  validate-sync-plan [options]     Validate the test-management sync plan is proposal-first
+  validate-active-specialists      Validate active.md matches qa-ai.config.yaml
+  validate-release-gate [options]  Validate the release-gate.yaml artifact
+  validate-test-design [options]   Validate system and per-RF test design artifacts
+
+Other commands:
+  sync-adapters [options]          Re-sync agent adapter files from the packaged templates
+  help [options]                   Show context-aware next-step guidance for the QA workflow
+  clean [options]                  Remove generated files tracked in the init manifest
+  version, -v, --version           Print the installed QA FlowKit version
 
 Examples:
   npx qa-flowkit init
   npx qa-flowkit init --preset manual-only --interface-language es --gherkin-language es
   npx qa-flowkit update
+  npx qa-flowkit doctor --strict
   npx qa-flowkit validate-target --allow-empty --allow-missing --no-strict-doctor
+  npx qa-flowkit config --export .qa-ai/config-profiles/team.yaml
 `);
 }
 
@@ -58,14 +84,14 @@ function withoutCliOnlyFlags(args) {
 }
 
 async function assertPackagedFramework() {
-  if (!await pathExists(path.join(packagedFramework, 'scripts', 'init.mjs'))) {
+  if (!(await pathExists(path.join(packagedFramework, 'scripts', 'init.mjs')))) {
     console.error(`Packaged QA FlowKit framework is incomplete: ${packagedFramework}`);
     process.exit(1);
   }
 }
 
 async function assertTargetFramework(command) {
-  if (!await pathExists(path.join(targetFramework, 'scripts'))) {
+  if (!(await pathExists(path.join(targetFramework, 'scripts')))) {
     console.error(`Missing .qa-ai framework folder. Run "qa-flowkit init" before "qa-flowkit ${command}".`);
     process.exit(1);
   }
@@ -92,14 +118,14 @@ async function copyPackagedFramework(target) {
 }
 
 async function copyIfExists(source, target) {
-  if (!await pathExists(source)) return false;
+  if (!(await pathExists(source))) return false;
   await fs.mkdir(path.dirname(target), { recursive: true });
   await fs.cp(source, target, { recursive: true, force: true });
   return true;
 }
 
 async function restoreIfExists(source, target) {
-  if (!await pathExists(source)) return false;
+  if (!(await pathExists(source))) return false;
   await fs.rm(target, { recursive: true, force: true });
   await fs.mkdir(path.dirname(target), { recursive: true });
   await fs.cp(source, target, { recursive: true, force: true });
@@ -180,6 +206,11 @@ async function update(args) {
 
 async function main() {
   const [command = 'help', ...args] = process.argv.slice(2);
+  if (command === 'help' && args.includes('--json')) {
+    await assertTargetFramework('help');
+    runNodeScript('qa-help.mjs', args);
+    return;
+  }
   if (['-h', '--help', 'help'].includes(command)) {
     printHelp();
     return;
