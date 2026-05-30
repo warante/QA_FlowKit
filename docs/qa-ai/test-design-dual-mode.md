@@ -4,10 +4,10 @@ Inspired by [BMAD Method TEA `*test-design`](https://docs.bmad-method.org/explan
 
 ## Modes
 
-| Mode | Artifact | When | Track |
-|---|---|---|---|
-| System | `qa-ai-output/test-design-system.md` | After normalization, before per-RF proposals | `standard`, `enterprise` |
-| Per RF / epic | `qa-ai-output/test-design-proposal.md` | After system design (or directly on `quick`) | All tracks |
+| Mode          | Artifact                               | When                                         | Track                    |
+| ------------- | -------------------------------------- | -------------------------------------------- | ------------------------ |
+| System        | `qa-ai-output/test-design-system.md`   | After normalization, before per-RF proposals | `standard`, `enterprise` |
+| Per RF / epic | `qa-ai-output/test-design-proposal.md` | After system design (or directly on `quick`) | All tracks               |
 
 Optional future naming: `qa-ai-output/test-design-rf-RF-101.md` for large programs. The default template path remains `test-design-proposal.md` for one active RF batch.
 
@@ -42,12 +42,12 @@ node .qa-ai/scripts/init.mjs --with-doc-templates
 
 ## Agents and workflows
 
-| Resource | Purpose |
-|---|---|
-| `.qa-ai/agents/test-design-system-agent.md` | System-wide strategy |
-| `.qa-ai/workflows/test-design-system.md` | System design steps |
-| `.qa-ai/agents/gherkin-test-design-agent.md` | Per-RF proposal + Gherkin |
-| `.qa-ai/workflows/test-design.md` | Per-RF proposal and features |
+| Resource                                     | Purpose                      |
+| -------------------------------------------- | ---------------------------- |
+| `.qa-ai/agents/test-design-system-agent.md`  | System-wide strategy         |
+| `.qa-ai/workflows/test-design-system.md`     | System design steps          |
+| `.qa-ai/agents/gherkin-test-design-agent.md` | Per-RF proposal + Gherkin    |
+| `.qa-ai/workflows/test-design.md`            | Per-RF proposal and features |
 
 ## Validation
 

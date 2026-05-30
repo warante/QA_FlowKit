@@ -40,7 +40,55 @@ All commands except `init` require `.qa-ai/` in the target repository and delega
 
 ## Release path
 
-First npm release:
+### Automated publish (release-please)
+
+The first release (`0.4.0-alpha.0`) was published manually. Subsequent releases use **release-please** on `main`.
+
+**Workflow:** [`.github/workflows/release-please.yml`](../../.github/workflows/release-please.yml)
+
+1. Merge PRs to `main` with [Conventional Commits](https://www.conventionalcommits.org/) in PR titles (`feat:`, `fix:`, `docs:`, …).
+2. Release Please opens or updates a **Release PR** that bumps `package.json`, `.release-please-manifest.json`, and `CHANGELOG.md`.
+3. Merge the Release PR. Release Please creates a GitHub Release + tag and runs the **publish** job:
+   - `npm ci`, lint, format check, `validate:oss-extraction`
+   - npm pack allowlist check (`.github/scripts/verify-npm-pack.mjs`)
+   - `npm publish --provenance --access public` with automatic dist-tag (`alpha`, `beta`, or `latest`)
+   - Post-publish verification (`npm view` + install smoke)
+
+**Configuration:**
+
+- [`.release-please-config.json`](../../.release-please-config.json) — versioning, prerelease `alpha`, changelog sections
+- [`.release-please-manifest.json`](../../.release-please-manifest.json) — last released version per package root
+
+See [release-checklist.md](release-checklist.md) for maintainer setup and post-release checks.
+
+### npm Trusted Publishing
+
+Preferred auth for CI publish is **Trusted Publishing** (OIDC) on npmjs.com:
+
+- Package: `qa-flowkit`
+- Repository: `warante/QA_FlowKit`
+- Workflow: `release-please.yml`
+
+Requires npm CLI ≥ 11.5.1 (workflow upgrades npm globally before publish). Provenance is signed via OIDC when Trusted Publishing is enabled.
+
+Until Trusted Publishing is configured, set repository secret **`NPM_TOKEN`** (automation or granular publish token). The publish job passes it as `NODE_AUTH_TOKEN` fallback.
+
+### Manual fallback
+
+**Actions → Publish npm (manual fallback) → Run workflow**
+
+Use only when release-please is unavailable. Same validations as automated publish; uses `package.json` on the selected branch. Optional `dist_tag` input overrides automatic dist-tag resolution.
+
+Do not push `v*` tags expecting publish — tag-triggered publish was removed to prevent duplicate releases.
+
+### Local validation
+
+```bash
+npm run validate:oss-extraction
+node .github/scripts/verify-npm-pack.mjs
+```
+
+### First manual publish (historical)
 
 ```bash
 npm view qa-flowkit version

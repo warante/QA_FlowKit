@@ -4,7 +4,7 @@
 
 QA FlowKit has moved beyond the folder-copy MVP. The portable `.qa-ai/` framework, init/bootstrap scripts, adapters, validation workflow, CI, GitHub repository hardening and public releases are in place.
 
-The current product phase is **Target-repo hardening**: the starter has been validated in a real pilot repository and the core workflow is correct. Current work should focus on stricter target-repository validation, clearer pilot migration notes, guided examples and packaging.
+The current product phase is **Beta** (`0.5.0-beta.x`): the starter has been validated in a real pilot repository, CI includes a golden in-repo target fixture, and the npm CLI is the primary install path. Current work focuses on stabilization, public docs, and the path to `1.0.0`.
 
 ## Completed - Portable folder MVP
 
@@ -61,25 +61,32 @@ Next:
 
 Goal: make adoption obvious for first-time users.
 
-Deliverables:
+Delivered:
 
-- Example manual-only repository.
-- Example WebdriverIO + Playwright API repository.
-- Getting-started flows by user type: manual QA, automation QA, maintainers and agent-first users.
-- Troubleshooting guide for init, adapters, feature validation and CI failures.
-- Screenshots or short terminal transcripts for common workflows.
+- In-repo golden target fixture (`test/fixtures/golden-target/`) validated in CI.
+- 5-minute quick path in [getting-started.md](docs/qa-ai/getting-started.md).
+- [config-schema.md](docs/qa-ai/config-schema.md), [extensibility.md](docs/qa-ai/extensibility.md), [stability-policy.md](docs/qa-ai/stability-policy.md).
 
-## Phase 4 - npm CLI
+Next:
+
+- Optional public example repositories (manual-only, WebdriverIO + Playwright API).
+- Documentation site (Phase 6).
+
+## Phase 4 - npm CLI (done)
 
 Goal: replace manual copy with `npx qa-flowkit init` while keeping the folder-copy workflow as a fallback.
 
-Deliverables:
+Delivered:
 
-- Node package: delivered for `0.4.0-alpha.0`.
-- Non-interactive CI-friendly install: delivered through `qa-flowkit init`.
-- Update/migration command: delivered through `qa-flowkit update`.
-- Presets: reused from `.qa-ai/presets`.
-- Interactive prompts: future enhancement after the zero-dependency alpha CLI.
+- Node package on npm (`qa-flowkit`, beta dist-tag).
+- Non-interactive CI-friendly install through `qa-flowkit init`.
+- Update/migration through `qa-flowkit update`.
+- Presets from `.qa-ai/presets`.
+- release-please + Trusted Publishing path documented.
+
+Next:
+
+- Interactive init prompts (post-1.0 enhancement).
 
 ## Phase 5 - MCP and integrations
 
@@ -93,15 +100,18 @@ Deliverables:
 - Audit logs.
 - Approval gates.
 
-## Phase 6 - Productization
+## Phase 6 - Productization (in progress)
 
 Goal: turn the starter into a stable open-source framework.
 
-Deliverables:
+Delivered:
+
+- Release automation (release-please, CI golden target, adapter parity).
+- Config contract and migration policy ([stability-policy.md](docs/qa-ai/stability-policy.md)).
+
+Next:
 
 - Public documentation site.
-- Example repositories.
+- Optional public example repositories.
 - Adapter registry.
-- Stable config contract.
-- Release automation.
-- Compatibility and migration policy.
+- `1.0.0` stable on npm `latest`.

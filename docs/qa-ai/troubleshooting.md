@@ -299,6 +299,27 @@ If features should exist, verify the path in `qa-ai.config.yaml` matches where t
 
 ---
 
+### Karate features fail QA validation (or vice versa)
+
+**Symptom**
+
+`validate-features` fails on files under `tests/karate/` with errors about `Acceptance Criteria` or `@manual:` tags.
+
+**Cause**
+
+QA design rules apply only to `gherkin.featurePath` (default `features/`). Executable Karate DSL belongs under `automation.api.specsPath` / `automation.ui.specsPath`.
+
+**Fix**
+
+```bash
+node .qa-ai/scripts/validate-features.mjs          # features/ only
+node .qa-ai/scripts/validate-karate-features.mjs   # tests/karate/... when Karate is configured
+```
+
+Use preset `karate-full` or set `automation.api.framework` and `automation.ui.framework` to `karate`. See [karate.rules.md](../../.qa-ai/rules/karate.rules.md).
+
+---
+
 ### `Missing Acceptance Criteria` or `Missing Criterios de aceptación`
 
 **Symptom**
@@ -373,30 +394,32 @@ Feature: RF-101 Login
 
 ---
 
-### `Feature title does not contain an RF-like ID`
+### `Scenario title does not contain an RF-like ID` / `Feature filename does not contain an RF-like ID`
 
 **Symptom**
 
 ```
-- Feature title does not contain an RF-like ID.
 - Scenario title does not contain an RF-like ID.
 - Feature filename does not contain an RF-like ID.
 ```
 
 **Cause**
 
-The RF identifier (e.g. `RF-101`) is missing from the Feature title, Scenario title or filename. The validator looks for a pattern matching `RF-<alphanumeric>`.
+The RF identifier (e.g. `RF-101`) is missing from the Scenario title or filename. The validator looks for a pattern matching `RF-<alphanumeric>`. The Feature title may be a clean, human-readable name; use `@rf:RF-101` for requirement traceability.
 
 **Fix**
 
-Include the RF ID in all three places:
+Include the RF ID in the filename and Scenario title, and add `@rf:` for traceability:
 
 ```
 # Filename
 RF-101-TC-001-login.feature
 
 # File content
-Feature: RF-101 Login
+@priority:high @type:functional @manual:false @rf:RF-101 @id:TC-001
+Feature: Login
+  Acceptance Criteria: ...
+
 Scenario: RF-101 TC-001 Valid login
 ```
 

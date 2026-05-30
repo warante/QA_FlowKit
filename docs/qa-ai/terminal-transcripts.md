@@ -113,6 +113,7 @@ VALID WITH WARNINGS - 22 optional checks missing.
 ```
 
 The warnings are expected for a freshly initialized repository:
+
 - Optional adapters (`[WARN] Claude adapter`) — generate with `--adapters all` when needed.
 - Framework config files (`[WARN] WebdriverIO config`) — these do not exist until you add them to your project.
 - Workflow artifacts — not yet generated; they appear after the first QA flow.
@@ -196,8 +197,8 @@ VALID - all feature files passed.
 A valid feature file looks like:
 
 ```gherkin
-@priority:high @type:functional @manual:false @id:TC-001
-Feature: RF-101 Login
+@priority:high @type:functional @manual:false @rf:RF-101 @id:TC-001
+Feature: Login
 
 Acceptance Criteria:
 - User can sign in with valid credentials.
@@ -223,7 +224,6 @@ $ node .qa-ai/scripts/validate-features.mjs
   - Missing Acceptance Criteria.
   - Missing required tag value @type:<value>
   - Missing required tag value @manual:<value>
-  - Feature title does not contain an RF-like ID.
   - Scenario title does not contain an RF-like ID.
   - Feature filename does not contain an RF-like ID.
 [PASS] features/functional/RF-101-TC-001-login.feature
@@ -279,11 +279,11 @@ VALID - target repository validation passed.
 
 Remove flags incrementally as artifacts are generated:
 
-| Stage | Command |
-|---|---|
-| After init, no features yet | `validate-target.mjs --allow-empty --allow-missing --no-strict-doctor` |
-| Features exist, no matrix yet | `validate-target.mjs --allow-missing --no-strict-doctor` |
-| Full flow completed | `validate-target.mjs` |
+| Stage                         | Command                                                                |
+| ----------------------------- | ---------------------------------------------------------------------- |
+| After init, no features yet   | `validate-target.mjs --allow-empty --allow-missing --no-strict-doctor` |
+| Features exist, no matrix yet | `validate-target.mjs --allow-missing --no-strict-doctor`               |
+| Full flow completed           | `validate-target.mjs`                                                  |
 
 ---
 

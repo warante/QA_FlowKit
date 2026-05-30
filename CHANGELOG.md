@@ -4,6 +4,53 @@
 
 ### Added
 
+- release-please automation (`.release-please-config.json`, `.release-please-manifest.json`, `.github/workflows/release-please.yml`) for version bumps, changelog, GitHub Release and npm publish from Conventional Commits.
+- `.github/scripts/verify-npm-pack.mjs` and CI `npm-pack` job for early tarball allowlist validation.
+- npm Trusted Publishing support (OIDC) with `NPM_TOKEN` fallback; post-publish verification in release workflow.
+- ESLint (flat config) + Prettier + `.editorconfig` for consistent code style across all 25 `.mjs` scripts.
+- `lint`, `lint:fix`, `format`, `format:check` npm scripts.
+- `package-lock.json` committed for reproducible CI installs and `npm audit`.
+- `.github/scripts/check-syntax.mjs` — portable Node script that replaces the `find | xargs node --check` bash step.
+
+### Changed
+
+- `publish-npm.yml` is manual fallback only (no tag trigger); primary publish path is release-please.
+- CI matrix now covers `ubuntu-latest` and `windows-latest` × Node 20 and 22 (was ubuntu-only, Node 20).
+- CI lint step runs when `package-lock.json` is present.
+- `bin/qa-flowkit.mjs` CLI command surface expanded: `config`, `bootstrap`, `validate-traceability`, `validate-sync-plan`, `validate-active-specialists`, `validate-release-gate`, `validate-test-design` now available via `npx qa-flowkit`.
+- `printHelp` lists all available commands with descriptions.
+- `parseSimpleYaml` now strips inline YAML comments (` # ...`) from unquoted scalar values.
+- `test-validators.mjs` migrated from manual `main()` to `node:test` runner (31 named test cases).
+- Removed unused `path` import from `validate-active-specialists.mjs` and `validate-release-gate.mjs`.
+- Smoke test now verifies `version`, `help --json`, unknown-command failure and `validate-active-specialists` via the installed CLI.
+
+### Changed (agent audit)
+
+- Removed RF-ID requirement in Gherkin `Feature:` titles from `validate-features.mjs`; traceability via `@rf:`, Scenario title and filename.
+- Renumbered phase references in seven phase agents to match the 14-phase orchestrator.
+- Aligned `jira-task-agent` primary output with `qa-ai-output/jira-automation-task.md`.
+- Updated `gherkin-test-design-agent` examples, config keys, tag tiers and file naming (`RF-TC-desc`).
+- Aligned UI/API implementation agents with `project-config.mjs` paths; orchestrator minimum artifacts by track.
+- Added `defect-report-agent`, `accessibility` and `performance` specialists; Appium auto-activation via `automation.mobile.framework`.
+
+### Added
+
+- Expanded `.qa-ai/rules/`: `README.md` index, `requirements`, `workflow`, `test-design`, `test-management`, `issue-tracker`, `defect`, `release-gate`, `cleanup`, `ui-automation`; legacy stubs `testrail` / `webdriverio` point to new files.
+- Strengthened `approval`, `gherkin`, `automation` and `api-testing` rules for MVP boundaries, traceability and specialists.
+
+### Documentation
+
+- `AGENTS.md` expanded: npm releases, validation/CI, documentation map, updated Gherkin and project structure for agents.
+- `adapters/generic/AGENTS.md`, Aider, Cline, Gemini, agent-compatibility and customizing-agents updated for rules index and load order.
+- `docs/qa-ai/release-checklist.md` — **For AI agents** protocol section; cross-link to `AGENTS.md`.
+- `docs/qa-ai/getting-started.md` — maintainer flow updated (`npm ci`, lint, pack verify, release pointer).
+- `docs/qa-ai/pilot-findings.md` — first pilot findings and migration notes (TASK-015).
+- `docs/qa-ai/example-repos.md` — guide and checklist for creating example repositories (TASK-027 foundation).
+
+## 0.4.0-alpha.0 - npm CLI
+
+### Added
+
 - npm CLI package identity `qa-flowkit@0.4.0-alpha.0` with `npx qa-flowkit init`.
 - `bin/qa-flowkit.mjs` with `init`, `update`, `doctor`, `validate-target`, `validate-features`, `sync-adapters`, `help` and `clean`.
 - npm pack/install smoke coverage for CLI install, safe init refusal, update preservation and package file allowlist.

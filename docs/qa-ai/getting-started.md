@@ -2,6 +2,40 @@
 
 Step-by-step setup flows for each user type. Pick the one that matches your situation. See [Terminal Transcripts](terminal-transcripts.md) for real command output from each workflow.
 
+## 5-minute quick path
+
+From your **target** repository root (Node.js 20+):
+
+```bash
+npx qa-flowkit@beta init --preset manual-only --qa-track quick
+npx qa-flowkit help
+```
+
+1. Open the repo in your AI coding tool; read `AGENTS.md` and `qa-ai.config.yaml`.
+2. Run `/qa-init` or follow [context intake](workflow.md) for one sample requirement (RF).
+3. Produce a test design proposal, then one `.feature` file with required tags.
+4. Validate: `npx qa-flowkit validate-features` and `npx qa-flowkit validate-traceability`.
+
+Reference layout: [golden target fixture](../../test/fixtures/golden-target/). Pilot notes: [pilot-findings.md](pilot-findings.md).
+
+Presets: [config-schema.md](config-schema.md) · Stability: [stability-policy.md](stability-policy.md).
+
+## Karate full (API + UI)
+
+For teams using [Karate](https://docs.karatelabs.io/getting-started/why-karate) for API and UI automation:
+
+```bash
+npx qa-flowkit@beta init --preset karate-full
+npx qa-flowkit validate-features
+npx qa-flowkit validate-karate-features
+```
+
+- **Design** Gherkin stays under `features/` (`validate-features`).
+- **Executable** Karate tests live under `tests/karate/features/api` and `.../ui` (`validate-karate-features`).
+- Reference fixture: [test/fixtures/karate-target/](../../test/fixtures/karate-target/).
+
+---
+
 - [Manual QA](#manual-qa)
 - [Automation QA](#automation-qa)
 - [Agent-First User](#agent-first-user)
@@ -286,17 +320,17 @@ The agent walks through requirements intake, test design, sync plan proposal, tr
 
 **Available slash commands after initialization**
 
-| Command | Purpose |
-|---|---|
-| `/qa-status` | Summarize config, artifacts, feature health and recommended next steps |
-| `/qa-add-tests` | Add tests for a new RF without touching existing tests |
-| `/qa-update-tests` | Review and update existing tests after RF changes |
-| `/qa-automation-plan` | Classify feature files and plan automation backlog |
-| `/qa-coverage` | Analyze functional coverage across RFs, manual and automated tests |
-| `/qa-doctor` | Health checks for the setup |
-| `/qa-validate-features` | Gherkin convention validation |
-| `/qa-clean` | Preview or execute manifest-based cleanup |
-| `/qa-config` | Import or export reusable config profiles |
+| Command                 | Purpose                                                                |
+| ----------------------- | ---------------------------------------------------------------------- |
+| `/qa-status`            | Summarize config, artifacts, feature health and recommended next steps |
+| `/qa-add-tests`         | Add tests for a new RF without touching existing tests                 |
+| `/qa-update-tests`      | Review and update existing tests after RF changes                      |
+| `/qa-automation-plan`   | Classify feature files and plan automation backlog                     |
+| `/qa-coverage`          | Analyze functional coverage across RFs, manual and automated tests     |
+| `/qa-doctor`            | Health checks for the setup                                            |
+| `/qa-validate-features` | Gherkin convention validation                                          |
+| `/qa-clean`             | Preview or execute manifest-based cleanup                              |
+| `/qa-config`            | Import or export reusable config profiles                              |
 
 **What to do next**
 
@@ -319,17 +353,31 @@ Use this flow when you are contributing to the QA FlowKit source repository, add
 - Node.js 20 or later.
 - Git clone of the `QA_FlowKit` repository.
 
-**Step 1 — Install nothing**
+**Agent and release instructions**
 
-QA FlowKit uses only native Node.js APIs. No `npm install` is required to run the scripts.
+- [AGENTS.md](../../AGENTS.md) — mandatory read for AI agents (validation, PR conventions, npm release constraints).
+- [Release checklist](release-checklist.md) — human and agent steps for publishing to npm (release-please).
+
+**Step 1 — Install dev dependencies**
+
+Lint and format use devDependencies; CI uses a committed lockfile:
+
+```bash
+npm ci
+```
 
 **Step 2 — Run the full OSS validation suite**
 
-This is the same command CI runs:
+Match CI before opening a PR:
 
 ```bash
+npm run lint
+npm run format:check
 npm run validate:oss-extraction
+node .github/scripts/verify-npm-pack.mjs
 ```
+
+`validate:oss-extraction` alone runs:
 
 It runs in order:
 
@@ -345,14 +393,14 @@ All seven steps must pass before opening a PR.
 
 **Step 3 — Run individual scripts during development**
 
-| Script | When to run |
-|---|---|
-| `node .qa-ai/scripts/doctor.mjs` | After changing framework structure or required asset paths |
-| `node .qa-ai/scripts/smoke-test.mjs` | After changing `init.mjs`, `config.mjs` or `bootstrap-agent-adapters.mjs` |
-| `node .qa-ai/scripts/test-validators.mjs` | After changing `lib/markdown-table.mjs` or `lib/test-management-mapping.mjs` |
-| `node .qa-ai/scripts/validate-features.mjs --allow-empty` | After changing `validate-features.mjs` |
-| `node .qa-ai/scripts/validate-traceability.mjs --allow-empty --allow-missing` | After changing `validate-traceability.mjs` |
-| `node .qa-ai/scripts/validate-sync-plan.mjs --allow-empty --allow-missing` | After changing `validate-sync-plan.mjs` |
+| Script                                                                        | When to run                                                                  |
+| ----------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| `node .qa-ai/scripts/doctor.mjs`                                              | After changing framework structure or required asset paths                   |
+| `node .qa-ai/scripts/smoke-test.mjs`                                          | After changing `init.mjs`, `config.mjs` or `bootstrap-agent-adapters.mjs`    |
+| `node .qa-ai/scripts/test-validators.mjs`                                     | After changing `lib/markdown-table.mjs` or `lib/test-management-mapping.mjs` |
+| `node .qa-ai/scripts/validate-features.mjs --allow-empty`                     | After changing `validate-features.mjs`                                       |
+| `node .qa-ai/scripts/validate-traceability.mjs --allow-empty --allow-missing` | After changing `validate-traceability.mjs`                                   |
+| `node .qa-ai/scripts/validate-sync-plan.mjs --allow-empty --allow-missing`    | After changing `validate-sync-plan.mjs`                                      |
 
 **Step 4 — Check strict mode separately**
 
@@ -377,6 +425,10 @@ node .qa-ai/scripts/smoke-test.mjs
 3. Add an `npm run` entry in `package.json` if the script is user-facing.
 4. Add the script to `doctor.mjs` required script checks.
 5. Cover it in `smoke-test.mjs`.
+
+**Publishing a release**
+
+Do not bump `package.json` manually for shipping. Follow [release-checklist.md](release-checklist.md) (release-please + merge Release PR).
 
 **What to do next**
 

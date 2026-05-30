@@ -145,8 +145,9 @@ The script must scan `.feature` files and validate:
 - Required tags exist: `@priority:`, `@type:`, `@manual:`.
 - Required tags include values, for example `@priority:high`.
 - Spanish Gherkin files include `# language: es`.
-- Feature title contains an RF-like identifier.
 - Scenario title contains an RF-like identifier.
+- Feature filename contains an RF-like identifier.
+- Feature title may be clean; RF traceability via `@rf:` tag is recommended.
 
 ### Step 7a - Implement smoke tests
 
