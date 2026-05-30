@@ -33,6 +33,17 @@ qa-ai-output/
 features/
 tests/
 
+# CI validation fixtures (tracked despite patterns above)
+!test/fixtures/
+!test/fixtures/**/
+!test/fixtures/**/qa-ai.config.yaml
+!test/fixtures/**/qa-ai-output/
+!test/fixtures/**/qa-ai-output/**
+!test/fixtures/**/features/
+!test/fixtures/**/features/**
+!test/fixtures/**/tests/
+!test/fixtures/**/tests/**
+
 # Test runners (when automation is added)
 test-results/
 playwright-report/
