@@ -47,6 +47,46 @@
 - `docs/qa-ai/pilot-findings.md` — first pilot findings and migration notes (TASK-015).
 - `docs/qa-ai/example-repos.md` — guide and checklist for creating example repositories (TASK-027 foundation).
 
+## [0.5.1-beta.0](https://github.com/warante/QA_FlowKit/compare/v0.5.0-beta.0...v0.5.1-beta.0) (2026-05-30)
+
+
+### Added
+
+* actualizar adaptadores para bootstrap agent-first y comandos qa-init ([b7c4a27](https://github.com/warante/QA_FlowKit/commit/b7c4a2759ca529a19eb045166fd2130212575fea))
+* **beta:** v0.5.0-beta.0 — validadores, reglas modulares, CI, Karate y release npm ([#12](https://github.com/warante/QA_FlowKit/issues/12)) ([18d1b16](https://github.com/warante/QA_FlowKit/commit/18d1b16590d1db9013c67b240da9973f6fc7c18b))
+* CLI npm qa-flowkit, rebrand QA FlowKit y README.es UTF-8 ([#10](https://github.com/warante/QA_FlowKit/issues/10)) ([92ca975](https://github.com/warante/QA_FlowKit/commit/92ca97517f55d4c43680ea4f437031a9f654b09b))
+* initial open-source QA AI starter (v0.1.0) ([726eeb4](https://github.com/warante/QA_FlowKit/commit/726eeb4511b7cec80082a959d8d2201604f04a29))
+* mejorar init, validacion, especialistas y smoke-test del framework QA AI ([16abc74](https://github.com/warante/QA_FlowKit/commit/16abc74dffc1ac8968518d2fc314f70611813cec))
+* **qa-ai:** ampliar agentes de fase, especialistas y context intake ([31b8435](https://github.com/warante/QA_FlowKit/commit/31b8435891d56e330475b2a7633275e3606bafd3))
+* **qa-ai:** context intake, agentes ampliados y adaptadores Claude/OpenCode/Gemini ([cd0f5fd](https://github.com/warante/QA_FlowKit/commit/cd0f5fdb80904b5b524955938c5c7bd51517f34a))
+* **qa-ai:** extender adaptadores Claude, OpenCode y Gemini ([becf31c](https://github.com/warante/QA_FlowKit/commit/becf31c1083b0253a42858f61a24c2a66da606be))
+* **qa-ai:** refactor init y anadir utilidades de configuracion ([eebfca9](https://github.com/warante/QA_FlowKit/commit/eebfca96991a527de8703df44b142dd3a1d82824))
+* stronger validators and early product docs ([#7](https://github.com/warante/QA_FlowKit/issues/7)) ([c1e0fa4](https://github.com/warante/QA_FlowKit/commit/c1e0fa4725913b652ae4102306818883c6ce820c))
+* stronger validators, target-repo hardening and Phase 3 guided docs ([#8](https://github.com/warante/QA_FlowKit/issues/8)) ([e26482c](https://github.com/warante/QA_FlowKit/commit/e26482caebf23d12d60b474a170f86d7abfe3a5e))
+* tramos QA, qa-help, release gate y test design dual-mode ([#9](https://github.com/warante/QA_FlowKit/issues/9)) ([59d23fa](https://github.com/warante/QA_FlowKit/commit/59d23fa2a2c00b38788facf72de3ee944e4513dd))
+
+
+### Fixed
+
+* **ci:** pasar rutas .release-please-config al CLI ([039fa25](https://github.com/warante/QA_FlowKit/commit/039fa25673de1d288864b2372e0cc3dc5cc1d488))
+* **ci:** release-please via CLI por politica de Actions ([68c2f37](https://github.com/warante/QA_FlowKit/commit/68c2f375ff8cbc786c92e78567c6bbf881f36358))
+* escape YAML override regex keys ([0f786b6](https://github.com/warante/QA_FlowKit/commit/0f786b6c24476b76e7d6113a874c576d615c2d84))
+
+
+### Changed
+
+* configure CodeQL source paths ([ff2545c](https://github.com/warante/QA_FlowKit/commit/ff2545c8eb3093383b7a711be831b150a76a4852))
+* usar qa-ai-output para artefactos y ajustar init por defecto ([b40f3ff](https://github.com/warante/QA_FlowKit/commit/b40f3fff35b7d93522e8a92514d5842a5306a669))
+
+
+### Documentation
+
+* actualizar README, AGENTS.md y documentacion del workflow QA AI ([909e487](https://github.com/warante/QA_FlowKit/commit/909e48757376fb11fba64a27543282f7e3bbe27c))
+* **ci:** aclarar permiso de Actions para abrir Release PR ([2a2e305](https://github.com/warante/QA_FlowKit/commit/2a2e305d46e3df2a9d536620eabad30e89c88b87))
+* document CI badge and local validation for contributors ([0e34597](https://github.com/warante/QA_FlowKit/commit/0e34597378dbff4246ecc59d51e887502e106d6a))
+* README bilingue y actualizacion de documentacion del workflow QA AI ([9012708](https://github.com/warante/QA_FlowKit/commit/9012708db9f85848befe8861d97e7916b6829f0e))
+* renombrar preset a plantilla base y documentar opciones de init ([4ce113c](https://github.com/warante/QA_FlowKit/commit/4ce113ce060244296797d0be0ebba7409506f44d))
+
 ## 0.4.0-alpha.0 - npm CLI
 
 ### Added
