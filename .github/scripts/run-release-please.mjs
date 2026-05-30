@@ -21,11 +21,13 @@ function runReleasePlease(args) {
   const localBin = `${process.cwd()}/node_modules/.bin/${bin}`;
   const cmd = fs.existsSync(localBin) ? localBin : 'npx';
   const cmdArgs = fs.existsSync(localBin) ? args : ['--yes', 'release-please@17.6.1', ...args];
-  console.log(`> ${cmd} ${cmdArgs.join(' ')}`);
+  const logArgs = cmdArgs.map((arg) => (arg.startsWith('--token=') ? '--token=***' : arg));
+  console.log(`> ${cmd} ${logArgs.join(' ')}`);
   return execFileSync(cmd, cmdArgs, {
     encoding: 'utf8',
     env: { ...process.env, GITHUB_TOKEN: token },
-    stdio: ['ignore', 'pipe', 'pipe']
+    stdio: ['ignore', 'pipe', 'pipe'],
+    maxBuffer: 10 * 1024 * 1024
   });
 }
 
@@ -55,7 +57,16 @@ function latestReleaseTag() {
   }
 }
 
-const baseArgs = [`--repo-url=${repo}`, `--target-branch=${targetBranch}`];
+const configFile = process.env.RELEASE_PLEASE_CONFIG_FILE || '.release-please-config.json';
+const manifestFile = process.env.RELEASE_PLEASE_MANIFEST_FILE || '.release-please-manifest.json';
+
+const baseArgs = [
+  `--token=${token}`,
+  `--repo-url=${repo}`,
+  `--target-branch=${targetBranch}`,
+  `--config-file=${configFile}`,
+  `--manifest-file=${manifestFile}`
+];
 
 console.log('=== release-please release-pr ===');
 try {
