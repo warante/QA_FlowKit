@@ -32,6 +32,24 @@ If `$ARGUMENTS` is empty or the requirement source is ambiguous, ask the user:
 
 Then present a concise plan before modifying files.
 
+When a resumable harness run is desired, start or resume it before phase work:
+
+```bash
+npx qa-flowkit run start
+npx qa-flowkit run next --json
+```
+
+After producing the phase artifacts, validate and advance with:
+
+```bash
+npx qa-flowkit run check
+```
+
+If validation blocked the active phase after repeated failures, run `npx qa-flowkit run retry` after fixing artifacts,
+then `run check` again.
+
+If an active run already exists, prefer `run next` and `run check` over inferring phase state manually.
+
 Expected local artifacts:
 
 - `qa-ai-output/requirement-analysis.md`

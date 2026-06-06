@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import path from 'node:path';
 import { isKarateFramework, karateConfigPath, karateFeatureRoots, usesKarate } from './lib/automation-framework.mjs';
+import { validateWorkflowContract } from './lib/harness-contract.mjs';
 import { inspectQaWorkflow, normalizeQaTrack } from './lib/qa-next-steps.mjs';
 import { getConfigValue, loadQaAiConfig, parseArgs, pathExists, resolveRepoPath, logHeader } from './lib/utils.mjs';
 
@@ -21,6 +22,8 @@ const requiredScripts = [
   '.qa-ai/scripts/validate-active-specialists.mjs',
   '.qa-ai/scripts/validate-target.mjs',
   '.qa-ai/scripts/qa-help.mjs',
+  '.qa-ai/scripts/qa-run.mjs',
+  '.qa-ai/scripts/validate-workflow-contract.mjs',
   '.qa-ai/scripts/validate-release-gate.mjs',
   '.qa-ai/scripts/validate-test-design.mjs',
   '.qa-ai/scripts/test-validators.mjs',
@@ -28,6 +31,15 @@ const requiredScripts = [
   '.qa-ai/scripts/smoke-npm-pack.mjs',
   '.qa-ai/scripts/sync-agent-adapters.mjs',
   '.qa-ai/scripts/lib/qa-next-steps.mjs',
+  '.qa-ai/scripts/lib/harness-contract.mjs',
+  '.qa-ai/scripts/lib/harness-controller.mjs',
+  '.qa-ai/scripts/lib/harness-context.mjs',
+  '.qa-ai/scripts/lib/harness-permissions.mjs',
+  '.qa-ai/scripts/lib/harness-paths.mjs',
+  '.qa-ai/scripts/lib/harness-modification.mjs',
+  '.qa-ai/scripts/lib/harness-run-store.mjs',
+  '.qa-ai/scripts/lib/harness-validation.mjs',
+  '.qa-ai/scripts/lib/harness-validator-allowlist.mjs',
   '.qa-ai/scripts/lib/release-gate.mjs',
   '.qa-ai/scripts/lib/test-design.mjs',
   '.qa-ai/scripts/lib/markdown-table.mjs',
@@ -111,6 +123,8 @@ const requiredPresets = [
   '.qa-ai/presets/selenium-jest-browserstack.yaml',
   '.qa-ai/presets/webdriverio-playwright-api.yaml'
 ];
+
+const requiredContracts = ['.qa-ai/contracts/workflow.v1.json'];
 
 const requiredWorkflows = [
   '.qa-ai/workflows/automation-analysis.md',
@@ -397,6 +411,7 @@ async function main() {
     pathCheck('required', 'agents folder', '.qa-ai/agents'),
     pathCheck('required', 'rules folder', '.qa-ai/rules'),
     pathCheck('required', 'templates folder', '.qa-ai/templates'),
+    pathCheck('required', 'contracts folder', '.qa-ai/contracts'),
     pathCheck('required', 'scripts folder', '.qa-ai/scripts'),
     pathCheck('required', 'presets folder', '.qa-ai/presets'),
     pathCheck('required', 'adapters folder', '.qa-ai/adapters'),
@@ -405,6 +420,7 @@ async function main() {
     pathCheck('required', 'rules index', requiredRulesIndex),
     ...requiredRules.map((relPath) => pathCheck('required', `rule ${path.basename(relPath)}`, relPath)),
     ...requiredTemplates.map((relPath) => pathCheck('required', `template ${path.basename(relPath)}`, relPath)),
+    ...requiredContracts.map((relPath) => pathCheck('required', `contract ${path.basename(relPath)}`, relPath)),
     ...requiredAgents.map((relPath) => pathCheck('required', `agent ${path.basename(relPath)}`, relPath)),
     ...requiredSpecialists.map((relPath) => pathCheck('required', `specialist ${path.basename(relPath)}`, relPath)),
     ...requiredPresets.map((relPath) => pathCheck('required', `preset ${path.basename(relPath)}`, relPath)),
@@ -436,6 +452,16 @@ async function main() {
     }
   }
 
+  const contractResult = await validateWorkflowContract(cwd);
+  if (contractResult.ok) {
+    console.log('[PASS] workflow contract: .qa-ai/contracts/workflow.v1.json');
+  } else {
+    failed += 1;
+    for (const error of contractResult.errors) {
+      console.log(`[FAIL] workflow contract: ${error}`);
+    }
+  }
+
   console.log('\nResult:');
   if (failed > 0) {
     console.log(`FAILED - ${failed} required checks failed, ${warned} warnings.`);
@@ -443,11 +469,11 @@ async function main() {
   }
   if (warned > 0) {
     console.log(`VALID WITH WARNINGS - ${warned} optional checks missing.`);
-  } else if (failed === 0) {
+  } else {
     console.log('VALID - all checks passed.');
   }
 
-  if (failed === 0 && configInfo.exists) {
+  if (configInfo.exists) {
     const report = await inspectQaWorkflow(cwd);
     const required = report.recommendations.filter((item) => item.priority === 'required');
     if (required.length > 0) {

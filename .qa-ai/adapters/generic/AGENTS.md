@@ -49,6 +49,23 @@ tests/
 
 Optional root adapters (`.claude/`, `.opencode/`, `GEMINI.md`, etc.) when bootstrapped.
 
+## Agent harness (optional)
+
+For resumable workflow runs across agent sessions, use the repository-native harness:
+
+```bash
+npx qa-flowkit run start
+npx qa-flowkit run next --json
+npx qa-flowkit run check
+npx qa-flowkit run retry
+```
+
+The harness records phase state under `.qa-ai/state/runs/`, returns phase packets with guidance paths, and runs allowlisted validators. It does not invoke models or perform external writes.
+
+When an active run exists, `npx qa-flowkit help` prioritizes harness commands. `/qa-full-flow` and stateless `qa-help` remain valid when no run is active.
+
+An agent with unrestricted shell access can bypass compatible-mode policies; strong tool-level enforcement is deferred.
+
 ## Validation
 
 After real QA artifacts exist:

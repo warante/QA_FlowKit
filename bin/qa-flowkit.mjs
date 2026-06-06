@@ -50,6 +50,9 @@ Validation commands:
   validate-release-gate [options]  Validate the release-gate.yaml artifact
   validate-test-design [options]   Validate system and per-RF test design artifacts
 
+Harness commands:
+  run <subcommand>                 Resumable QA workflow run (start, status, next, check, retry, set-rf, approve, resume)
+
 Other commands:
   sync-adapters [options]          Re-sync agent adapter files from the packaged templates
   help [options]                   Show context-aware next-step guidance for the QA workflow
@@ -61,6 +64,9 @@ Examples:
   npx qa-flowkit init --preset manual-only --interface-language es --gherkin-language es
   npx qa-flowkit update
   npx qa-flowkit doctor --strict
+  npx qa-flowkit run start --rf RF-123
+  npx qa-flowkit run next --json
+  npx qa-flowkit run retry --json
   npx qa-flowkit validate-target --allow-empty --allow-missing --no-strict-doctor
   npx qa-flowkit config --export .qa-ai/config-profiles/team.yaml
 `);
@@ -226,6 +232,11 @@ async function main() {
   }
   if (command === 'update') {
     await update(args);
+    return;
+  }
+  if (command === 'run') {
+    await assertTargetFramework('run');
+    runNodeScript('qa-run.mjs', args);
     return;
   }
   if (command in commandMap) {

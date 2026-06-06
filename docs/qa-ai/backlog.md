@@ -387,7 +387,7 @@ Acceptance Criteria:
 
 ### TASK-027 - Add example manual-only repository
 
-Status: In Progress
+Status: Deferred
 
 Acceptance Criteria:
 
@@ -395,7 +395,8 @@ Acceptance Criteria:
 - Passes `validate-target.mjs` in CI.
 - Linked from README and getting-started.
 
-Progress: `docs/qa-ai/example-repos.md` documents the target structure, acceptance criteria, CI workflow template and contribution process. The public repository itself is the remaining deliverable.
+Progress: `docs/qa-ai/example-repos.md` documents the target structure, acceptance criteria, CI workflow template and
+contribution process. The public repository itself is intentionally deferred until after the current beta release.
 
 ## Epic 9 - Test design dual-mode (BMAD TEA-inspired)
 
@@ -421,9 +422,241 @@ Acceptance Criteria:
 - Include test design validation in `validate-target.mjs` for standard and enterprise tracks.
 - Add `docs/qa-ai/test-design-dual-mode.md` and link from README files.
 
+## Epic 10 - Repository-native agent harness
+
+Design: [user guide](agent-harness.md) and [technical architecture](agent-harness-architecture.md).
+
+### TASK-035 - Add the shared workflow contract
+
+Status: Done
+
+Acceptance Criteria:
+
+- Add `.qa-ai/contracts/workflow.v1.json`.
+- Move phase order, guidance, outputs, validators and approval requirements into the contract.
+- Make `qa-next-steps.mjs` consume the shared contract without changing current `qa-help` behavior.
+- Reject unknown fields, unsafe paths, executable commands and unknown validator IDs.
+- Validate the contract from `doctor.mjs` and source-repository CI.
+
+### TASK-036 - Add persistent run state
+
+Status: Done
+
+Depends on: TASK-035.
+
+Acceptance Criteria:
+
+- Store run snapshots and append-only events under `.qa-ai/state/runs/<run-id>/`.
+- Support atomic writes and an exclusive state mutation lock.
+- Record phase transitions, approvals, validator results and artifact hashes.
+- Never store secrets, prompts, model reasoning or artifact contents.
+- Preserve run state through `qa-flowkit update`.
+
+### TASK-037 - Add the harness CLI and phase packets
+
+Status: Done
+
+Depends on: TASK-035, TASK-036.
+
+Acceptance Criteria:
+
+- Add `qa-run.mjs` with `start`, `status`, `next`, `check`, `set-rf`, `approve` and `resume`.
+- Expose it as `npx qa-flowkit run`.
+- Support human output and `--json` for status and phase packets.
+- Build minimal phase packets from config, rules, phase guidance, specialists and prior artifacts.
+- Keep existing commands functional when no run exists.
+
+### TASK-038 - Add validation and approval control
+
+Status: Done
+
+Depends on: TASK-037.
+
+Acceptance Criteria:
+
+- Execute validators only through a fixed internal allowlist.
+- Do not advance a phase when inputs, outputs, approval or validation are missing.
+- Keep failed phases active for bounded retries, then mark them blocked.
+- Deny external writes and deletes in every shipped phase contract.
+- Redact secret-like validator diagnostics before persisting events.
+
+### TASK-039 - Integrate harness guidance
+
+Status: Done
+
+Depends on: TASK-037, TASK-038.
+
+Acceptance Criteria:
+
+- Make `qa-help` prioritize the active run before stateless artifact inference.
+- Update Claude, OpenCode, Codex and generic adapters to use `run next` and `run check`.
+- Keep `/qa-full-flow`, `/qa-help` and direct validator commands backward compatible.
+- Document that shell access can bypass compatible-mode policies; MCP enforcement remains deferred.
+
+### TASK-040 - Add harness regression coverage
+
+Status: Done
+
+Depends on: TASK-035 through TASK-039.
+
+Acceptance Criteria:
+
+- Add native Node tests for contract parsing, transitions, approvals, retries, locking and path safety.
+- Add CLI integration tests for start/resume and JSON output.
+- Extend smoke and npm-pack tests for packaged harness files.
+- Cover quick, standard and enterprise tracks in fixtures.
+- Run the full repository validation suite successfully.
+
+## Epic 11 - Agent harness hardening
+
+These tasks close defects found during the post-implementation review of Epic 10.
+
+### TASK-041 - Enforce repository path isolation at runtime
+
+Status: Done
+
+Priority: P1.
+
+Acceptance Criteria:
+
+- Resolve every config-derived harness input, output, feature root, release gate and hash target with
+  `resolveRepoPath`.
+- Reject absolute paths and paths that escape the repository before filesystem access.
+- Apply the same path resolution to existence checks, output hashing and validator targets.
+- Add regression tests proving `../outside`, absolute paths and unsafe `$config.*` values are rejected.
+
+### TASK-042 - Enforce modification approvals
+
+Status: Done
+
+Priority: P1.
+
+Acceptance Criteria:
+
+- Detect whether a phase output existed before the phase was activated.
+- When `permissions.modifyExisting` is `approval`, block completion of modified pre-existing outputs until a
+  scoped approval is recorded.
+- Do not require modification approval for newly created outputs.
+- Include the required approval gate in the phase packet and event log.
+- Add tests for new output, unchanged existing output, modified existing output and approved modification.
+
+### TASK-043 - Make blocked validation phases recoverable
+
+Status: Done
+
+Priority: P1.
+
+Acceptance Criteria:
+
+- A phase blocked after the validation-attempt limit can be retried after the user corrects its artifacts.
+- Add an explicit `run retry` or `run unblock` transition; do not silently clear blocked state.
+- Record the transition and reset or increment attempts according to one documented policy.
+- Approval and missing-RF blockers must keep their current explicit resolution flows.
+- Add CLI and controller tests covering failure, block, correction, retry and successful completion.
+
+### TASK-044 - Correct command failure and JSON contracts
+
+Status: Done
+
+Priority: P2.
+
+Acceptance Criteria:
+
+- `doctor` exits non-zero when workflow-contract validation fails.
+- `validate-workflow-contract --json` prints JSON only, without a human-readable header.
+- Every harness command documented with `--json` produces parseable JSON on success.
+- Machine-readable errors use stderr and a non-zero exit code without corrupting stdout JSON.
+- Add CLI regression tests for invalid contracts and JSON parsing.
+
+### TASK-045 - Align harness documentation and backlog state
+
+Status: Done
+
+Priority: P3.
+
+Acceptance Criteria:
+
+- Replace remaining “planned commands/files” wording for implemented MVP behavior.
+- Clearly label the harness as implemented but under hardening until TASK-041 through TASK-044 pass.
+- Update ROADMAP, user guide, architecture and Epic 10 statuses consistently.
+- Preserve MCP/tool-gateway and external writes as deferred work.
+
+### TASK-046 - Close harness regression gaps
+
+Status: Done
+
+Depends on: TASK-041 through TASK-045.
+
+Acceptance Criteria:
+
+- Add tests for unsafe config paths, modification approvals, blocked-phase recovery, invalid-doctor exit code and
+  pure JSON output.
+- Test real lock contention with two concurrent mutation attempts, not only uncontended lock acquisition.
+- Verify run state survives `qa-flowkit update`, including an actual run directory and active pointer.
+- Ensure npm-pack smoke tests exercise at least one complete recoverable harness flow.
+- Run lint, format check, `validate:oss-extraction`, npm pack verification, `git diff --check` and local link checks.
+
+## Epic 12 - Agent harness review follow-up
+
+These tasks close defects found during the second post-implementation review.
+
+### TASK-047 - Capture baselines for entry-blocked phases
+
+Status: Done
+
+Priority: P1.
+
+Acceptance Criteria:
+
+- Capture the modification baseline exactly once when a phase is first selected, even when entry blockers prevent
+  activation.
+- Preserve that baseline when RF or approval gates later unblock the phase.
+- Detect and block unapproved changes to pre-existing outputs after unblocking.
+- Add a regression test covering a Gherkin phase initially blocked by RF and approval requirements.
+
+### TASK-048 - Make phase packets modification-aware and idempotent
+
+Status: Done
+
+Priority: P2.
+
+Acceptance Criteria:
+
+- Compare current output hashes with the stored baseline before adding a modification-approval blocker.
+- Do not report a blocker for unchanged pre-existing outputs.
+- Make repeated `run next`, `run status` and `run resume` calls produce consistent phase state and blockers.
+- Add tests for repeated commands with unchanged and modified pre-existing outputs.
+
+### TASK-049 - Generate collision-resistant run IDs
+
+Status: Done
+
+Priority: P2.
+
+Acceptance Criteria:
+
+- Allow two runs for the same RF to start within the same second without an ID collision.
+- Keep run IDs readable, filesystem-safe and sortable by creation time.
+- Preserve compatibility when loading existing run IDs and active-run pointers.
+- Add a deterministic regression test that starts two same-RF runs with the same second-level timestamp.
+
+### TASK-050 - Validate and close the harness follow-up
+
+Status: Done
+
+Depends on: TASK-047 through TASK-049.
+
+Acceptance Criteria:
+
+- Add focused controller and CLI regressions for every Epic 12 defect.
+- Confirm modification approval still works for normally activated phases and newly created outputs.
+- Update harness documentation only where externally observable behavior changed.
+- Mark TASK-042, TASK-046 and TASK-047 through TASK-050 Done only after all acceptance criteria pass.
+- Run lint, format check, `validate:oss-extraction`, npm pack verification, `git diff --check` and local link checks.
+
 ## Future epics
 
 - Example WebdriverIO + Playwright API repository.
 - npm CLI migration.
-- MCP read-only integration.
+- MCP/tool gateway and read-only integrations.
 - Documentation site.

@@ -94,6 +94,24 @@ qa-workflow-orchestrator
   -> pr-agent
 ```
 
+## Agent harness
+
+The repository-native harness adds a local, provider-neutral control plane around the current workflow:
+
+```text
+agent adapter
+  -> workflow contract
+  -> persistent run state
+  -> phase context packet
+  -> approval and validation gates
+  -> repository artifacts
+```
+
+The harness will not invoke a model or perform external writes. Existing artifacts remain the QA source of truth,
+while `.qa-ai/state/runs/` records resumable orchestration state and audit events.
+
+See [Agent harness](agent-harness.md) and [Agent harness architecture](agent-harness-architecture.md).
+
 ## Safety model
 
 The Early Product release uses prompt rules, local validation scripts, smoke tests and GitHub CI. Future versions may add full parser dependencies, strict target-repo CI templates and MCP tools.

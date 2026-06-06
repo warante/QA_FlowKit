@@ -34,7 +34,8 @@ Delivered:
 Follow-up:
 
 - Document friction points and migration notes from the pilot.
-- Add a second pilot when useful, preferably Selenium + Jest + BrowserStack or manual-only, to widen coverage.
+- Add a second pilot when useful, preferably Selenium + Jest + BrowserStack or manual-only, to widen coverage. This
+  is deferred and does not block the next beta release.
 
 ## Phase 2 - Stronger validators
 
@@ -69,7 +70,8 @@ Delivered:
 
 Next:
 
-- Optional public example repositories (manual-only, WebdriverIO + Playwright API).
+- Optional public example repositories (manual-only, WebdriverIO + Playwright API), deferred until after the current
+  beta release.
 - Documentation site (Phase 6).
 
 ## Phase 4 - npm CLI (done)
@@ -88,17 +90,32 @@ Next:
 
 - Interactive init prompts (post-1.0 enhancement).
 
-## Phase 5 - MCP and integrations
+## Phase 5 - Agent harness and controlled integrations
 
-Goal: add controlled integrations with Jira, Confluence, TestRail and GitHub.
+Goal: make the installed workflow resumable, deterministic and auditable before adding external writes.
 
-Deliverables:
+Delivered - local agent harness (MVP + Epic 11 hardening):
 
-- MCP configuration templates.
+- Shared, provider-neutral workflow contract.
+- Persistent local run state and append-only event log.
+- `qa-flowkit run start|status|next|check|retry|set-rf|approve|resume`.
+- Phase-specific context packets with scoped modification gates.
+- Allowlisted validator loop with bounded retries and explicit `run retry` recovery.
+- Repository path isolation for config-derived runtime paths.
+- Local approval gates; external writes and deletes remain denied.
+- Pure `--json` CLI output and non-zero `doctor` exit on invalid contracts.
+
+Deferred harness capabilities:
+
+Later - controlled integrations:
+
+- Optional MCP/tool gateway for stronger enforcement.
 - Read-only requirement intake tools.
-- Proposal-first write tools.
-- Audit logs.
-- Approval gates.
+- Proposal-first Jira, TestRail, Zephyr, Xray and GitHub write tools.
+- External action audit logs and explicit approval scopes.
+
+Design: [agent harness](docs/qa-ai/agent-harness.md) and
+[technical architecture](docs/qa-ai/agent-harness-architecture.md).
 
 ## Phase 6 - Productization (in progress)
 

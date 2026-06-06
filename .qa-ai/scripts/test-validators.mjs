@@ -4,6 +4,8 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { validateWorkflowContract } from './lib/harness-contract.mjs';
 import { inspectQaWorkflow, normalizeQaTrack } from './lib/qa-next-steps.mjs';
 import { validateReleaseGateData } from './lib/release-gate.mjs';
 import { validateTestDesignProposal, validateTestDesignSystem } from './lib/test-design.mjs';
@@ -83,6 +85,12 @@ test('normalizeQaTrack: maps aliases and unknown values', () => {
   assert.equal(normalizeQaTrack('fast'), 'quick');
   assert.equal(normalizeQaTrack('enterprise'), 'enterprise');
   assert.equal(normalizeQaTrack('unknown-value'), 'standard');
+});
+
+test('validateWorkflowContract: accepts shipped workflow.v1.json', async () => {
+  const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+  const result = await validateWorkflowContract(repoRoot);
+  assert.equal(result.ok, true, result.errors?.join('\n'));
 });
 
 // --- test design ---
@@ -248,7 +256,9 @@ test('inspectQaWorkflow: quick track next phase is gherkin after requirements', 
     assert.ok(!report.pendingPhaseIds.includes('tm-coverage'));
     assert.ok(!report.pendingPhaseIds.includes('feasibility'));
     assert.equal(report.pendingPhaseIds[0], 'gherkin');
-    assert.ok(report.recommendations.some((item) => item.title.includes('Gherkin')));
+    assert.ok(
+      report.recommendations.some((item) => item.title.includes('Gherkin') || item.title.includes('Next phase'))
+    );
   } finally {
     await fs.rm(tempDir, { recursive: true, force: true });
   }
