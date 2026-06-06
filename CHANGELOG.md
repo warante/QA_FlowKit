@@ -47,6 +47,18 @@
 - `docs/qa-ai/pilot-findings.md` — first pilot findings and migration notes (TASK-015).
 - `docs/qa-ai/example-repos.md` — guide and checklist for creating example repositories (TASK-027 foundation).
 
+## [0.5.2-beta.0](https://github.com/warante/QA_FlowKit/compare/v0.5.1-beta.0...v0.5.2-beta.0) (2026-06-06)
+
+
+### Added
+
+* add repository-native agent harness ([#15](https://github.com/warante/QA_FlowKit/issues/15)) ([4aeb743](https://github.com/warante/QA_FlowKit/commit/4aeb7436ac2a2503ac8ca212491eb5994f21a4b0))
+
+
+### Changed
+
+* **release:** reintentar verificacion post-publish por latencia de npm ([56f9704](https://github.com/warante/QA_FlowKit/commit/56f9704e298246b3d56af98d032f8cbafbb07bac))
+
 ## [0.5.1-beta.0](https://github.com/warante/QA_FlowKit/compare/v0.5.0-beta.0...v0.5.1-beta.0) (2026-05-30)
 
 
