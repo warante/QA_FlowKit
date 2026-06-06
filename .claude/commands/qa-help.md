@@ -11,6 +11,12 @@ Read these files first:
 - `qa-ai.config.yaml` when present
 - `.qa-ai/agents/qa-workflow-orchestrator.md`
 
+If a harness run is active, inspect it first:
+
+```bash
+npx qa-flowkit run status
+```
+
 Run:
 
 ```bash
