@@ -445,6 +445,10 @@ Detalle: [Test design dual-mode](docs/qa-ai/test-design-dual-mode.md).
 | `node .qa-ai/scripts/validate-sync-plan.mjs`                                      | Valida planes de sincronización proposal-first                                                      |
 | `node .qa-ai/scripts/validate-active-specialists.mjs`                             | Valida especialistas activos contra la config                                                       |
 | `node .qa-ai/scripts/validate-target.mjs`                                         | Ejecuta validación estricta de repos destino tras artefactos QA reales                              |
+| `npx qa-flowkit run start`                                                        | Inicia una ejecución reanudable del harness con paquetes de fase y gates de validación              |
+| `npx qa-flowkit run next --json`                                                  | Devuelve el paquete de contexto de la fase activa para el agente                                    |
+| `npx qa-flowkit run check`                                                        | Valida la fase activa y avanza cuando outputs y validadores pasan                                   |
+| `npx qa-flowkit run retry`                                                        | Reinicia los intentos de validación tras una fase bloqueada por validación                          |
 | `node .qa-ai/scripts/qa-help.mjs`                                                 | Recomienda la siguiente fase QA según artefactos y `project.qaTrack`                                |
 | `node .qa-ai/scripts/validate-release-gate.mjs`                                   | Valida el YAML del release gate enterprise                                                          |
 | `node .qa-ai/scripts/validate-test-design.mjs`                                    | Valida estructura de diseño de pruebas sistema y por RF                                             |
@@ -677,29 +681,31 @@ Reglas de seguridad:
 
 ## Documentación
 
-| Documento                                                      | Propósito                                                                               |
-| -------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| [Primeros pasos](docs/qa-ai/getting-started.md)                | Flujos de configuración paso a paso por tipo de usuario                                 |
-| [Notas del piloto](docs/qa-ai/pilot-findings.md)               | Hallazgos del primer piloto, puntos de fricción y guía de migración                     |
-| [Repositorios ejemplo](docs/qa-ai/example-repos.md)            | Fixture golden in-repo y plantilla de CI                                                |
-| [Esquema de config](docs/qa-ai/config-schema.md)               | Claves de `qa-ai.config.yaml` desde presets                                             |
-| [Extensibilidad](docs/qa-ai/extensibility.md)                  | Añadir especialistas, reglas, validadores y adaptadores                                 |
-| [Política de estabilidad](docs/qa-ai/stability-policy.md)      | Contrato beta y migración desde alpha                                                   |
-| [QA help y tracks](docs/qa-ai/qa-help.md)                      | Siguiente paso contextual y profundidad del flujo (`quick` / `standard` / `enterprise`) |
-| [Release gate](docs/qa-ai/release-gate.md)                     | Decisión go/no-go enterprise (`PASS` / `CONCERNS` / `FAIL` / `WAIVED`)                  |
-| [Test design dual-mode](docs/qa-ai/test-design-dual-mode.md)   | Diseño de pruebas a nivel sistema y por RF (inspirado en BMAD TEA)                      |
-| [Solución de problemas](docs/qa-ai/troubleshooting.md)         | Fallos comunes y cómo resolverlos                                                       |
-| [Transcripts de terminal](docs/qa-ai/terminal-transcripts.md)  | Salida real de comandos para flujos comunes                                             |
-| [Checklist de release](docs/qa-ai/release-checklist.md)        | Pasos para publicar una nueva versión en npm                                            |
-| [Arquitectura](docs/qa-ai/architecture.md)                     | Estructura del framework y modelo de seguridad                                          |
-| [Workflow](docs/qa-ai/workflow.md)                             | Flujo QA end-to-end                                                                     |
-| [Compatibilidad de agentes](docs/qa-ai/agent-compatibility.md) | Adaptadores y discovery de comandos                                                     |
-| [Personalización de agentes](docs/qa-ai/customizing-agents.md) | Cómo adaptar agentes, especialistas y adaptadores de forma segura                       |
-| [Limpieza](docs/qa-ai/cleanup.md)                              | Detalles de limpieza basada en manifiesto                                               |
-| [Migración CLI npm](docs/qa-ai/npm-migration-plan.md)          | Instalación npm, contrato de update y workflow de release                               |
-| [Roadmap](ROADMAP.md)                                          | Dirección del producto                                                                  |
-| [Contribuir](CONTRIBUTING.md)                                  | Guía de contribución                                                                    |
-| [Seguridad](SECURITY.md)                                       | Política de vulnerabilidades y secretos                                                 |
+| Documento                                                          | Propósito                                                                               |
+| ------------------------------------------------------------------ | --------------------------------------------------------------------------------------- |
+| [Primeros pasos](docs/qa-ai/getting-started.md)                    | Flujos de configuración paso a paso por tipo de usuario                                 |
+| [Notas del piloto](docs/qa-ai/pilot-findings.md)                   | Hallazgos del primer piloto, puntos de fricción y guía de migración                     |
+| [Repositorios ejemplo](docs/qa-ai/example-repos.md)                | Fixture golden in-repo y plantilla de CI                                                |
+| [Esquema de config](docs/qa-ai/config-schema.md)                   | Claves de `qa-ai.config.yaml` desde presets                                             |
+| [Extensibilidad](docs/qa-ai/extensibility.md)                      | Añadir especialistas, reglas, validadores y adaptadores                                 |
+| [Política de estabilidad](docs/qa-ai/stability-policy.md)          | Contrato beta y migración desde alpha                                                   |
+| [QA help y tracks](docs/qa-ai/qa-help.md)                          | Siguiente paso contextual y profundidad del flujo (`quick` / `standard` / `enterprise`) |
+| [Release gate](docs/qa-ai/release-gate.md)                         | Decisión go/no-go enterprise (`PASS` / `CONCERNS` / `FAIL` / `WAIVED`)                  |
+| [Test design dual-mode](docs/qa-ai/test-design-dual-mode.md)       | Diseño de pruebas a nivel sistema y por RF (inspirado en BMAD TEA)                      |
+| [Arnés para agentes](docs/qa-ai/agent-harness.md)                  | Workflow reanudable planificado y modelo de comandos para usuarios                      |
+| [Arquitectura del arnés](docs/qa-ai/agent-harness-architecture.md) | Contratos técnicos, estado y plan de implementación                                     |
+| [Solución de problemas](docs/qa-ai/troubleshooting.md)             | Fallos comunes y cómo resolverlos                                                       |
+| [Transcripts de terminal](docs/qa-ai/terminal-transcripts.md)      | Salida real de comandos para flujos comunes                                             |
+| [Checklist de release](docs/qa-ai/release-checklist.md)            | Pasos para publicar una nueva versión en npm                                            |
+| [Arquitectura](docs/qa-ai/architecture.md)                         | Estructura del framework y modelo de seguridad                                          |
+| [Workflow](docs/qa-ai/workflow.md)                                 | Flujo QA end-to-end                                                                     |
+| [Compatibilidad de agentes](docs/qa-ai/agent-compatibility.md)     | Adaptadores y discovery de comandos                                                     |
+| [Personalización de agentes](docs/qa-ai/customizing-agents.md)     | Cómo adaptar agentes, especialistas y adaptadores de forma segura                       |
+| [Limpieza](docs/qa-ai/cleanup.md)                                  | Detalles de limpieza basada en manifiesto                                               |
+| [Migración CLI npm](docs/qa-ai/npm-migration-plan.md)              | Instalación npm, contrato de update y workflow de release                               |
+| [Roadmap](ROADMAP.md)                                              | Dirección del producto                                                                  |
+| [Contribuir](CONTRIBUTING.md)                                      | Guía de contribución                                                                    |
+| [Seguridad](SECURITY.md)                                           | Política de vulnerabilidades y secretos                                                 |
 
 ## Licencia
 

@@ -39,6 +39,9 @@
     "qa:validate-active-specialists": "node .qa-ai/scripts/validate-active-specialists.mjs",
     "qa:validate-target": "node .qa-ai/scripts/validate-target.mjs",
     "qa:help": "node .qa-ai/scripts/qa-help.mjs",
+    "qa:run": "node .qa-ai/scripts/qa-run.mjs",
+    "qa:validate-contract": "node .qa-ai/scripts/validate-workflow-contract.mjs",
+    "qa:test-harness": "node .qa-ai/scripts/test-harness.mjs",
     "qa:validate-release-gate": "node .qa-ai/scripts/validate-release-gate.mjs",
     "qa:validate-test-design": "node .qa-ai/scripts/validate-test-design.mjs",
     "qa:sync-adapters": "node .qa-ai/scripts/sync-agent-adapters.mjs",
@@ -46,7 +49,7 @@
     "qa:test-cli": "node .qa-ai/scripts/test-cli-integration.mjs",
     "qa:smoke": "node .qa-ai/scripts/smoke-test.mjs",
     "qa:smoke-npm": "node .qa-ai/scripts/smoke-npm-pack.mjs",
-    "validate:oss-extraction": "node .qa-ai/scripts/doctor.mjs && node .qa-ai/scripts/validate-features.mjs --allow-empty && node .qa-ai/scripts/validate-karate-features.mjs --allow-empty && node .qa-ai/scripts/validate-traceability.mjs --allow-empty --allow-missing && node .qa-ai/scripts/validate-sync-plan.mjs --allow-empty --allow-missing && node .qa-ai/scripts/validate-active-specialists.mjs --allow-missing && node .qa-ai/scripts/test-validators.mjs && node .qa-ai/scripts/test-cli-integration.mjs && node .qa-ai/scripts/smoke-test.mjs && node .qa-ai/scripts/smoke-npm-pack.mjs"
+    "validate:oss-extraction": "node .qa-ai/scripts/doctor.mjs && node .qa-ai/scripts/validate-workflow-contract.mjs && node .qa-ai/scripts/validate-features.mjs --allow-empty && node .qa-ai/scripts/validate-karate-features.mjs --allow-empty && node .qa-ai/scripts/validate-traceability.mjs --allow-empty --allow-missing && node .qa-ai/scripts/validate-sync-plan.mjs --allow-empty --allow-missing && node .qa-ai/scripts/validate-active-specialists.mjs --allow-missing && node .qa-ai/scripts/test-validators.mjs && node .qa-ai/scripts/test-harness.mjs && node .qa-ai/scripts/test-cli-integration.mjs && node .qa-ai/scripts/smoke-test.mjs && node .qa-ai/scripts/smoke-npm-pack.mjs"
   },
   "keywords": [
     "qa",

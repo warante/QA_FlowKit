@@ -442,6 +442,10 @@ Details: [Test design dual-mode](docs/qa-ai/test-design-dual-mode.md).
 | `node .qa-ai/scripts/validate-sync-plan.mjs`                                      | Validate proposal-first test-management sync plans                                 |
 | `node .qa-ai/scripts/validate-active-specialists.mjs`                             | Validate active specialist list against config                                     |
 | `node .qa-ai/scripts/validate-target.mjs`                                         | Run strict target-repository validation after real QA artifacts exist              |
+| `npx qa-flowkit run start`                                                        | Start a resumable harness run with phase packets and validation gates              |
+| `npx qa-flowkit run next --json`                                                  | Return the active phase context packet for the agent                               |
+| `npx qa-flowkit run check`                                                        | Validate the active phase and advance when outputs and validators pass             |
+| `npx qa-flowkit run retry`                                                        | Reset validation attempts after a validation-blocked phase                         |
 | `node .qa-ai/scripts/qa-help.mjs`                                                 | Recommend the next QA phase from artifacts and `project.qaTrack`                   |
 | `node .qa-ai/scripts/validate-release-gate.mjs`                                   | Validate enterprise release gate YAML                                              |
 | `npm run qa:help`                                                                 | Same as `qa-help.mjs`                                                              |
@@ -674,29 +678,31 @@ Safety rules:
 
 ## Documentation
 
-| Document                                                     | Purpose                                                                 |
-| ------------------------------------------------------------ | ----------------------------------------------------------------------- |
-| [Getting started](docs/qa-ai/getting-started.md)             | Step-by-step setup flows by user type                                   |
-| [Pilot findings](docs/qa-ai/pilot-findings.md)               | First pilot notes, friction points and migration guidance               |
-| [Example repositories](docs/qa-ai/example-repos.md)          | In-repo golden target fixture and CI template                           |
-| [Config schema](docs/qa-ai/config-schema.md)                 | `qa-ai.config.yaml` keys from presets                                   |
-| [Extensibility](docs/qa-ai/extensibility.md)                 | Add specialists, rules, validators, adapters                            |
-| [Stability policy](docs/qa-ai/stability-policy.md)           | Beta contract and migration from alpha                                  |
-| [QA help and tracks](docs/qa-ai/qa-help.md)                  | Context-aware next steps, workflow tracks and phase skips               |
-| [Release gate](docs/qa-ai/release-gate.md)                   | Enterprise go/no-go decisions (`PASS` / `CONCERNS` / `FAIL` / `WAIVED`) |
-| [Test design dual-mode](docs/qa-ai/test-design-dual-mode.md) | System-level and per-RF test design artifacts (BMAD TEA-inspired)       |
-| [Terminal transcripts](docs/qa-ai/terminal-transcripts.md)   | Real command output for common workflows                                |
-| [Troubleshooting](docs/qa-ai/troubleshooting.md)             | Common failures and resolutions                                         |
-| [Release checklist](docs/qa-ai/release-checklist.md)         | Step-by-step checklist for publishing a new version to npm              |
-| [Architecture](docs/qa-ai/architecture.md)                   | Framework structure and safety model                                    |
-| [Workflow](docs/qa-ai/workflow.md)                           | End-to-end QA flow                                                      |
-| [Agent compatibility](docs/qa-ai/agent-compatibility.md)     | Adapter behavior and command discovery                                  |
-| [Customizing agents](docs/qa-ai/customizing-agents.md)       | How to adapt agents, specialists and adapters safely                    |
-| [Cleanup](docs/qa-ai/cleanup.md)                             | Manifest-based cleanup details                                          |
-| [npm CLI migration](docs/qa-ai/npm-migration-plan.md)        | npm install, update contract and release workflow                       |
-| [Roadmap](ROADMAP.md)                                        | Product direction                                                       |
-| [Contributing](CONTRIBUTING.md)                              | Contribution guidelines                                                 |
-| [Security](SECURITY.md)                                      | Vulnerability and secret-handling policy                                |
+| Document                                                               | Purpose                                                                 |
+| ---------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| [Getting started](docs/qa-ai/getting-started.md)                       | Step-by-step setup flows by user type                                   |
+| [Pilot findings](docs/qa-ai/pilot-findings.md)                         | First pilot notes, friction points and migration guidance               |
+| [Example repositories](docs/qa-ai/example-repos.md)                    | In-repo golden target fixture and CI template                           |
+| [Config schema](docs/qa-ai/config-schema.md)                           | `qa-ai.config.yaml` keys from presets                                   |
+| [Extensibility](docs/qa-ai/extensibility.md)                           | Add specialists, rules, validators, adapters                            |
+| [Stability policy](docs/qa-ai/stability-policy.md)                     | Beta contract and migration from alpha                                  |
+| [QA help and tracks](docs/qa-ai/qa-help.md)                            | Context-aware next steps, workflow tracks and phase skips               |
+| [Release gate](docs/qa-ai/release-gate.md)                             | Enterprise go/no-go decisions (`PASS` / `CONCERNS` / `FAIL` / `WAIVED`) |
+| [Test design dual-mode](docs/qa-ai/test-design-dual-mode.md)           | System-level and per-RF test design artifacts (BMAD TEA-inspired)       |
+| [Agent harness](docs/qa-ai/agent-harness.md)                           | Planned resumable workflow and user command model                       |
+| [Agent harness architecture](docs/qa-ai/agent-harness-architecture.md) | Technical contracts, state and implementation plan                      |
+| [Terminal transcripts](docs/qa-ai/terminal-transcripts.md)             | Real command output for common workflows                                |
+| [Troubleshooting](docs/qa-ai/troubleshooting.md)                       | Common failures and resolutions                                         |
+| [Release checklist](docs/qa-ai/release-checklist.md)                   | Step-by-step checklist for publishing a new version to npm              |
+| [Architecture](docs/qa-ai/architecture.md)                             | Framework structure and safety model                                    |
+| [Workflow](docs/qa-ai/workflow.md)                                     | End-to-end QA flow                                                      |
+| [Agent compatibility](docs/qa-ai/agent-compatibility.md)               | Adapter behavior and command discovery                                  |
+| [Customizing agents](docs/qa-ai/customizing-agents.md)                 | How to adapt agents, specialists and adapters safely                    |
+| [Cleanup](docs/qa-ai/cleanup.md)                                       | Manifest-based cleanup details                                          |
+| [npm CLI migration](docs/qa-ai/npm-migration-plan.md)                  | npm install, update contract and release workflow                       |
+| [Roadmap](ROADMAP.md)                                                  | Product direction                                                       |
+| [Contributing](CONTRIBUTING.md)                                        | Contribution guidelines                                                 |
+| [Security](SECURITY.md)                                                | Vulnerability and secret-handling policy                                |
 
 ## License
 

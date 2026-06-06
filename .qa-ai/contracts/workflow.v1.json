@@ -1,0 +1,334 @@
+{
+  "schemaVersion": 1,
+  "trackOrder": {
+    "quick": ["context", "intake", "normalize", "gherkin", "traceability", "pr"],
+    "standard": [
+      "context",
+      "intake",
+      "normalize",
+      "test-design-system",
+      "test-design-rf",
+      "gherkin",
+      "tm-coverage",
+      "tm-sync",
+      "traceability",
+      "feasibility",
+      "ui-impl",
+      "api-impl",
+      "jira",
+      "pr"
+    ],
+    "enterprise": [
+      "context",
+      "intake",
+      "normalize",
+      "test-design-system",
+      "test-design-rf",
+      "gherkin",
+      "tm-coverage",
+      "tm-sync",
+      "traceability",
+      "feasibility",
+      "ui-impl",
+      "api-impl",
+      "jira",
+      "pr",
+      "release-gate"
+    ]
+  },
+  "phases": [
+    {
+      "id": "context",
+      "name": "QA context intake",
+      "slashCommand": "/qa-init",
+      "guidance": [".qa-ai/agents/qa-context-intake-agent.md", ".qa-ai/workflows/context-intake.md"],
+      "inputs": [],
+      "outputs": [
+        {
+          "path": "$config.knowledge.summaryPath",
+          "fallback": "qa-ai-output/qa-knowledge-summary.md"
+        }
+      ],
+      "entryApprovals": [],
+      "validators": [],
+      "skipConditions": [{ "field": "knowledge.enabled", "equals": false }],
+      "permissions": {
+        "createLocal": "allowed",
+        "modifyExisting": "approval",
+        "externalWrite": "denied",
+        "delete": "denied"
+      }
+    },
+    {
+      "id": "intake",
+      "name": "Requirements intake",
+      "slashCommand": "/qa-full-flow",
+      "guidance": [".qa-ai/agents/requirements-intake-agent.md", ".qa-ai/workflows/intake.md"],
+      "inputs": [],
+      "outputs": [{ "path": "qa-ai-output/requirement-analysis.md" }],
+      "entryApprovals": [],
+      "validators": [],
+      "skipConditions": [],
+      "permissions": {
+        "createLocal": "allowed",
+        "modifyExisting": "approval",
+        "externalWrite": "denied",
+        "delete": "denied"
+      }
+    },
+    {
+      "id": "normalize",
+      "name": "Requirements normalization",
+      "slashCommand": "/qa-full-flow",
+      "guidance": [".qa-ai/agents/requirements-normalization-agent.md"],
+      "inputs": [],
+      "outputs": [{ "path": "qa-ai-output/normalized-requirements.md" }],
+      "entryApprovals": [],
+      "validators": [],
+      "skipConditions": [],
+      "permissions": {
+        "createLocal": "allowed",
+        "modifyExisting": "approval",
+        "externalWrite": "denied",
+        "delete": "denied"
+      }
+    },
+    {
+      "id": "test-design-system",
+      "name": "System test design",
+      "slashCommand": "/qa-full-flow",
+      "guidance": [".qa-ai/agents/test-design-system-agent.md", ".qa-ai/workflows/test-design-system.md"],
+      "inputs": [],
+      "outputs": [{ "path": "$config.testDesign.systemPath", "fallback": "qa-ai-output/test-design-system.md" }],
+      "entryApprovals": [],
+      "validators": ["validate-test-design"],
+      "skipConditions": [{ "field": "project.qaTrack", "equals": "quick" }],
+      "permissions": {
+        "createLocal": "allowed",
+        "modifyExisting": "approval",
+        "externalWrite": "denied",
+        "delete": "denied"
+      }
+    },
+    {
+      "id": "test-design-rf",
+      "name": "Per-RF test design",
+      "slashCommand": "/qa-full-flow",
+      "guidance": [".qa-ai/agents/gherkin-test-design-agent.md", ".qa-ai/workflows/test-design.md"],
+      "inputs": [],
+      "outputs": [{ "path": "$config.testDesign.proposalPath", "fallback": "qa-ai-output/test-design-proposal.md" }],
+      "entryApprovals": [],
+      "validators": ["validate-test-design"],
+      "skipConditions": [{ "field": "project.qaTrack", "equals": "quick" }],
+      "permissions": {
+        "createLocal": "allowed",
+        "modifyExisting": "approval",
+        "externalWrite": "denied",
+        "delete": "denied"
+      }
+    },
+    {
+      "id": "gherkin",
+      "name": "Gherkin feature generation",
+      "slashCommand": "/qa-full-flow",
+      "guidance": [".qa-ai/agents/gherkin-test-design-agent.md", ".qa-ai/workflows/test-design.md"],
+      "inputs": [
+        {
+          "path": "$config.testDesign.proposalPath",
+          "fallback": "qa-ai-output/test-design-proposal.md",
+          "required": false
+        }
+      ],
+      "outputs": [{ "path": "$config.gherkin.featurePath", "fallback": "features", "kind": "featureFiles" }],
+      "entryApprovals": ["test-design"],
+      "requiresRfId": true,
+      "validators": ["validate-features"],
+      "skipConditions": [],
+      "permissions": {
+        "createLocal": "allowed",
+        "modifyExisting": "approval",
+        "externalWrite": "denied",
+        "delete": "denied"
+      }
+    },
+    {
+      "id": "tm-coverage",
+      "name": "Test management coverage",
+      "slashCommand": "/qa-coverage",
+      "guidance": [".qa-ai/agents/testrail-coverage-agent.md"],
+      "inputs": [],
+      "outputs": [{ "path": "qa-ai-output/testrail-coverage-analysis.md" }],
+      "entryApprovals": [],
+      "validators": [],
+      "skipConditions": [
+        { "field": "project.qaTrack", "equals": "quick" },
+        { "field": "tools.testManagement", "notConfigured": true }
+      ],
+      "permissions": {
+        "createLocal": "allowed",
+        "modifyExisting": "approval",
+        "externalWrite": "denied",
+        "delete": "denied"
+      }
+    },
+    {
+      "id": "tm-sync",
+      "name": "Test management sync plan",
+      "slashCommand": "/qa-full-flow",
+      "guidance": [".qa-ai/agents/testrail-sync-agent.md", ".qa-ai/workflows/testrail-sync.md"],
+      "inputs": [],
+      "outputs": [{ "path": "qa-ai-output/testrail-sync-plan.md" }],
+      "entryApprovals": [],
+      "validators": ["validate-sync-plan"],
+      "skipConditions": [
+        { "field": "project.qaTrack", "equals": "quick" },
+        { "field": "tools.testManagement", "notConfigured": true }
+      ],
+      "permissions": {
+        "createLocal": "allowed",
+        "modifyExisting": "approval",
+        "externalWrite": "denied",
+        "delete": "denied"
+      }
+    },
+    {
+      "id": "traceability",
+      "name": "Traceability matrix",
+      "slashCommand": "/qa-full-flow",
+      "guidance": [".qa-ai/agents/gherkin-test-design-agent.md"],
+      "inputs": [],
+      "outputs": [
+        {
+          "path": "$config.traceability.matrixPath",
+          "fallback": "qa-ai-output/traceability-matrix.md"
+        }
+      ],
+      "entryApprovals": [],
+      "validators": ["validate-traceability"],
+      "skipConditions": [],
+      "permissions": {
+        "createLocal": "allowed",
+        "modifyExisting": "approval",
+        "externalWrite": "denied",
+        "delete": "denied"
+      }
+    },
+    {
+      "id": "feasibility",
+      "name": "Automation feasibility",
+      "slashCommand": "/qa-automation-plan",
+      "guidance": [".qa-ai/agents/automation-feasibility-agent.md", ".qa-ai/workflows/automation-analysis.md"],
+      "inputs": [],
+      "outputs": [{ "path": "qa-ai-output/automation-feasibility-report.md" }],
+      "entryApprovals": [],
+      "validators": [],
+      "skipConditions": [{ "field": "project.qaTrack", "equals": "quick" }],
+      "permissions": {
+        "createLocal": "allowed",
+        "modifyExisting": "approval",
+        "externalWrite": "denied",
+        "delete": "denied"
+      }
+    },
+    {
+      "id": "ui-impl",
+      "name": "UI/E2E automation implementation",
+      "slashCommand": "/qa-full-flow",
+      "guidance": [".qa-ai/agents/webdriverio-implementation-agent.md", ".qa-ai/workflows/implementation.md"],
+      "inputs": [],
+      "outputs": [{ "path": "qa-ai-output/automation-implementation-plan.md" }],
+      "entryApprovals": [],
+      "validators": [],
+      "skipConditions": [
+        { "field": "project.qaTrack", "equals": "quick" },
+        { "field": "automation.ui.framework", "notConfigured": true }
+      ],
+      "permissions": {
+        "createLocal": "allowed",
+        "modifyExisting": "approval",
+        "externalWrite": "denied",
+        "delete": "denied"
+      }
+    },
+    {
+      "id": "api-impl",
+      "name": "API automation implementation",
+      "slashCommand": "/qa-full-flow",
+      "guidance": [".qa-ai/agents/api-testing-agent.md", ".qa-ai/workflows/implementation.md"],
+      "inputs": [],
+      "outputs": [{ "path": "qa-ai-output/automation-implementation-plan.md" }],
+      "entryApprovals": [],
+      "validators": [],
+      "skipConditions": [
+        { "field": "project.qaTrack", "equals": "quick" },
+        { "field": "automation.api.framework", "notConfigured": true }
+      ],
+      "permissions": {
+        "createLocal": "allowed",
+        "modifyExisting": "approval",
+        "externalWrite": "denied",
+        "delete": "denied"
+      }
+    },
+    {
+      "id": "jira",
+      "name": "Issue tracker task drafts",
+      "slashCommand": "/qa-full-flow",
+      "guidance": [".qa-ai/agents/jira-task-agent.md"],
+      "inputs": [],
+      "outputs": [{ "path": "qa-ai-output/jira-automation-task.md" }],
+      "entryApprovals": [],
+      "validators": [],
+      "skipConditions": [
+        { "field": "project.qaTrack", "equals": "quick" },
+        { "field": "tools.issueTracker", "notConfigured": true }
+      ],
+      "permissions": {
+        "createLocal": "allowed",
+        "modifyExisting": "approval",
+        "externalWrite": "denied",
+        "delete": "denied"
+      }
+    },
+    {
+      "id": "pr",
+      "name": "PR summary",
+      "slashCommand": "/qa-full-flow",
+      "guidance": [".qa-ai/agents/pr-agent.md", ".qa-ai/workflows/pr.md"],
+      "inputs": [],
+      "outputs": [{ "path": "qa-ai-output/pr-summary.md" }],
+      "entryApprovals": [],
+      "validators": [],
+      "skipConditions": [],
+      "permissions": {
+        "createLocal": "allowed",
+        "modifyExisting": "approval",
+        "externalWrite": "denied",
+        "delete": "denied"
+      }
+    },
+    {
+      "id": "release-gate",
+      "name": "Release quality gate",
+      "slashCommand": "/qa-gate",
+      "guidance": [".qa-ai/agents/release-gate-agent.md", ".qa-ai/workflows/release-gate.md"],
+      "inputs": [],
+      "outputs": [
+        {
+          "path": "$config.release.gatePath",
+          "fallback": "qa-ai-output/release-gate.yaml",
+          "kind": "releaseGate"
+        }
+      ],
+      "entryApprovals": [],
+      "validators": ["validate-release-gate"],
+      "skipConditions": [{ "field": "project.qaTrack", "notEquals": "enterprise" }],
+      "permissions": {
+        "createLocal": "allowed",
+        "modifyExisting": "approval",
+        "externalWrite": "denied",
+        "delete": "denied"
+      }
+    }
+  ]
+}

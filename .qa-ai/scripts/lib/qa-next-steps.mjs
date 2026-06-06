@@ -1,197 +1,19 @@
 import path from 'node:path';
+import { getActiveRunId, readRunSnapshot } from './harness-run-store.mjs';
+import {
+  buildWorkflowContext,
+  getPhaseMap,
+  getPhaseSkipReason,
+  getTrackPhaseOrder,
+  loadLegacyWorkflowDefinitions,
+  loadWorkflowContract,
+  normalizeQaTrack,
+  QA_TRACK_IDS,
+  QA_TRACKS
+} from './harness-contract.mjs';
 import { getConfigValue, listFilesRecursive, loadQaAiConfig, parseSimpleYaml, pathExists, readText } from './utils.mjs';
 import { normalizeGateDecision } from './release-gate.mjs';
-import { isConfiguredFramework } from './project-config.mjs';
-
-export const QA_TRACK_IDS = ['quick', 'standard', 'enterprise'];
-
-export const QA_TRACKS = {
-  quick: {
-    label: 'Quick',
-    description:
-      'Requirements to Gherkin, traceability and PR summary without test-management sync or automation implementation.'
-  },
-  standard: {
-    label: 'Standard',
-    description:
-      'Full QA workflow: test-management planning, feasibility, automation phases when configured, and PR summary.'
-  },
-  enterprise: {
-    label: 'Enterprise',
-    description:
-      'Standard workflow plus strict target validation and release-readiness checks for compliance-oriented teams.'
-  }
-};
-
-const TRACK_PHASE_ORDER = {
-  quick: ['context', 'intake', 'normalize', 'gherkin', 'traceability', 'pr'],
-  standard: [
-    'context',
-    'intake',
-    'normalize',
-    'test-design-system',
-    'test-design-rf',
-    'gherkin',
-    'tm-coverage',
-    'tm-sync',
-    'traceability',
-    'feasibility',
-    'ui-impl',
-    'api-impl',
-    'jira',
-    'pr'
-  ],
-  enterprise: [
-    'context',
-    'intake',
-    'normalize',
-    'test-design-system',
-    'test-design-rf',
-    'gherkin',
-    'tm-coverage',
-    'tm-sync',
-    'traceability',
-    'feasibility',
-    'ui-impl',
-    'api-impl',
-    'jira',
-    'pr',
-    'release-gate'
-  ]
-};
-
-const PHASE_DEFINITIONS = {
-  context: {
-    name: 'QA context intake',
-    agent: 'qa-context-intake-agent.md',
-    slashCommand: '/qa-init',
-    workflow: '.qa-ai/workflows/context-intake.md'
-  },
-  intake: {
-    name: 'Requirements intake',
-    agent: 'requirements-intake-agent.md',
-    slashCommand: '/qa-full-flow',
-    workflow: '.qa-ai/workflows/intake.md',
-    artifacts: ['qa-ai-output/requirement-analysis.md']
-  },
-  normalize: {
-    name: 'Requirements normalization',
-    agent: 'requirements-normalization-agent.md',
-    slashCommand: '/qa-full-flow',
-    artifacts: ['qa-ai-output/normalized-requirements.md']
-  },
-  'test-design-system': {
-    name: 'System test design',
-    agent: 'test-design-system-agent.md',
-    slashCommand: '/qa-full-flow',
-    workflow: '.qa-ai/workflows/test-design-system.md',
-    artifacts: ['qa-ai-output/test-design-system.md'],
-    validateScript: 'node .qa-ai/scripts/validate-test-design.mjs --allow-missing'
-  },
-  'test-design-rf': {
-    name: 'Per-RF test design',
-    agent: 'gherkin-test-design-agent.md',
-    slashCommand: '/qa-full-flow',
-    workflow: '.qa-ai/workflows/test-design.md',
-    artifacts: ['qa-ai-output/test-design-proposal.md'],
-    validateScript: 'node .qa-ai/scripts/validate-test-design.mjs --allow-missing'
-  },
-  gherkin: {
-    name: 'Gherkin feature generation',
-    agent: 'gherkin-test-design-agent.md',
-    slashCommand: '/qa-full-flow',
-    workflow: '.qa-ai/workflows/test-design.md',
-    featureFiles: true
-  },
-  'tm-coverage': {
-    name: 'Test management coverage',
-    agent: 'testrail-coverage-agent.md',
-    slashCommand: '/qa-coverage',
-    artifacts: ['qa-ai-output/testrail-coverage-analysis.md']
-  },
-  'tm-sync': {
-    name: 'Test management sync plan',
-    agent: 'testrail-sync-agent.md',
-    slashCommand: '/qa-full-flow',
-    workflow: '.qa-ai/workflows/testrail-sync.md',
-    artifacts: ['qa-ai-output/testrail-sync-plan.md']
-  },
-  traceability: {
-    name: 'Traceability matrix',
-    agent: 'gherkin-test-design-agent.md',
-    slashCommand: '/qa-full-flow',
-    configArtifact: 'traceability.matrixPath',
-    validateScript: 'node .qa-ai/scripts/validate-traceability.mjs'
-  },
-  feasibility: {
-    name: 'Automation feasibility',
-    agent: 'automation-feasibility-agent.md',
-    slashCommand: '/qa-automation-plan',
-    workflow: '.qa-ai/workflows/automation-analysis.md',
-    artifacts: ['qa-ai-output/automation-feasibility-report.md']
-  },
-  'ui-impl': {
-    name: 'UI/E2E automation implementation',
-    agent: 'webdriverio-implementation-agent.md',
-    slashCommand: '/qa-full-flow',
-    workflow: '.qa-ai/workflows/implementation.md',
-    artifacts: ['qa-ai-output/automation-implementation-plan.md']
-  },
-  'api-impl': {
-    name: 'API automation implementation',
-    agent: 'api-testing-agent.md',
-    slashCommand: '/qa-full-flow',
-    workflow: '.qa-ai/workflows/implementation.md',
-    artifacts: ['qa-ai-output/automation-implementation-plan.md']
-  },
-  jira: {
-    name: 'Issue tracker task drafts',
-    agent: 'jira-task-agent.md',
-    slashCommand: '/qa-full-flow',
-    artifacts: ['qa-ai-output/jira-automation-task.md']
-  },
-  pr: {
-    name: 'PR summary',
-    agent: 'pr-agent.md',
-    slashCommand: '/qa-full-flow',
-    workflow: '.qa-ai/workflows/pr.md',
-    artifacts: ['qa-ai-output/pr-summary.md']
-  },
-  'release-gate': {
-    name: 'Release quality gate',
-    agent: 'release-gate-agent.md',
-    slashCommand: '/qa-gate',
-    workflow: '.qa-ai/workflows/release-gate.md',
-    releaseGate: true,
-    validateScript: 'node .qa-ai/scripts/validate-release-gate.mjs'
-  }
-};
-
-export function normalizeQaTrack(value) {
-  const normalized = String(value || 'standard')
-    .trim()
-    .toLowerCase();
-  if (['quick', 'fast', 'minimal', 'light'].includes(normalized)) return 'quick';
-  if (['enterprise', 'compliance', 'regulated'].includes(normalized)) return 'enterprise';
-  if (['standard', 'method', 'full', 'default'].includes(normalized)) return 'standard';
-  return QA_TRACK_IDS.includes(normalized) ? normalized : 'standard';
-}
-
-function isEnabled(value) {
-  return (
-    value === true ||
-    String(value || '')
-      .trim()
-      .toLowerCase() === 'true'
-  );
-}
-
-function isConfiguredTool(value) {
-  const normalized = String(value || '')
-    .trim()
-    .toLowerCase();
-  return Boolean(normalized) && !['none', 'undecided', 'n/a', 'na'].includes(normalized);
-}
+export { normalizeQaTrack, QA_TRACK_IDS, QA_TRACKS };
 
 function resolveConfigPath(config, keyOrPath) {
   if (!keyOrPath) return '';
@@ -215,53 +37,6 @@ async function hasFeatureFiles(cwd, config) {
   const featureRoot = resolveConfigPath(config, 'gherkin.featurePath') || 'features';
   const files = await listFilesRecursive(path.join(cwd, featureRoot), (file) => file.endsWith('.feature'));
   return files.length > 0;
-}
-
-function buildContext(config) {
-  const knowledgeEnabled = isEnabled(getConfigValue(config, 'knowledge.enabled', false));
-  const testManagement = getConfigValue(config, 'tools.testManagement', '');
-  const issueTracker = getConfigValue(config, 'tools.issueTracker', '');
-  const uiFramework = String(getConfigValue(config, 'automation.ui.framework', 'none')).toLowerCase();
-  const apiFramework = String(getConfigValue(config, 'automation.api.framework', 'none')).toLowerCase();
-  const track = normalizeQaTrack(getConfigValue(config, 'project.qaTrack', 'standard'));
-
-  return {
-    track,
-    knowledgeEnabled,
-    testManagementConfigured: isConfiguredTool(testManagement),
-    issueTrackerConfigured: isConfiguredTool(issueTracker),
-    uiAutomationConfigured: isConfiguredFramework(uiFramework),
-    apiAutomationConfigured: isConfiguredFramework(apiFramework)
-  };
-}
-
-function skipReason(phaseId, ctx) {
-  if (phaseId === 'context' && !ctx.knowledgeEnabled) {
-    return 'knowledge.enabled is false';
-  }
-  if (['tm-coverage', 'tm-sync'].includes(phaseId)) {
-    if (ctx.track === 'quick') return `not included in ${ctx.track} track`;
-    if (!ctx.testManagementConfigured) return 'tools.testManagement is none or missing';
-  }
-  if (['test-design-system', 'test-design-rf'].includes(phaseId) && ctx.track === 'quick') {
-    return `not included in ${ctx.track} track (use gherkin phase for proposal + features)`;
-  }
-  if (phaseId === 'feasibility' && ctx.track === 'quick') {
-    return `not included in ${ctx.track} track`;
-  }
-  if (phaseId === 'ui-impl') {
-    if (ctx.track === 'quick') return `not included in ${ctx.track} track`;
-    if (!ctx.uiAutomationConfigured) return 'automation.ui.framework is none or undecided';
-  }
-  if (phaseId === 'api-impl') {
-    if (ctx.track === 'quick') return `not included in ${ctx.track} track`;
-    if (!ctx.apiAutomationConfigured) return 'automation.api.framework is none or undecided';
-  }
-  if (phaseId === 'jira') {
-    if (ctx.track === 'quick') return `not included in ${ctx.track} track`;
-    if (!ctx.issueTrackerConfigured) return 'tools.issueTracker is none or missing';
-  }
-  return null;
 }
 
 async function isPhaseComplete(cwd, config, phaseId, def) {
@@ -305,6 +80,74 @@ function phaseCommand(def) {
   return parts.join(' · ');
 }
 
+function buildActiveRunRecommendations(snapshot, contract, config) {
+  const phaseMap = getPhaseMap(contract);
+  const order = getTrackPhaseOrder(contract, snapshot.track);
+  const items = [];
+
+  const activePhaseId = snapshot.activePhaseId;
+  const pendingFromRun = order.filter((phaseId) => {
+    const state = snapshot.phases?.[phaseId];
+    return state && (state.status === 'pending' || state.status === 'active' || state.status === 'blocked');
+  });
+
+  const nextId = activePhaseId || pendingFromRun[0];
+  if (nextId) {
+    const def = phaseMap.get(nextId);
+    items.push({
+      priority: 'required',
+      title: `Active run — next phase: ${def.name}`,
+      command: 'npx qa-flowkit run next',
+      detail: `Run ${snapshot.runId}. After producing artifacts, run: npx qa-flowkit run check`
+    });
+    if (def.entryApprovals?.length) {
+      items.push({
+        priority: 'required',
+        title: 'Approval may be required before advancing',
+        command: `npx qa-flowkit run approve ${def.entryApprovals[0]}`,
+        detail: 'Record explicit approval for the active phase gate when prompted.'
+      });
+    }
+    if (!snapshot.rfId && def.requiresRfId) {
+      items.push({
+        priority: 'required',
+        title: 'Record official RF ID',
+        command: 'npx qa-flowkit run set-rf <RF-ID>',
+        detail: 'Required before Gherkin generation when requireOfficialRfId is enabled.'
+      });
+    }
+  } else if (snapshot.status === 'completed') {
+    items.push({
+      priority: 'required',
+      title: 'Active run complete',
+      command: 'npx qa-flowkit run status',
+      detail: `Run ${snapshot.runId} has no remaining actionable phases.`
+    });
+  }
+
+  items.push({
+    priority: 'recommended',
+    title: 'Inspect active run status',
+    command: 'npx qa-flowkit run status',
+    detail: 'Shows phase progress, blockers and approvals for the current run.'
+  });
+
+  const ctx = buildWorkflowContext(config);
+  if (ctx.track === 'enterprise' || ctx.track === 'standard') {
+    items.push({
+      priority: ctx.track === 'enterprise' ? 'required' : 'recommended',
+      title: 'Run aggregated target validation',
+      command: 'node .qa-ai/scripts/validate-target.mjs',
+      detail:
+        ctx.track === 'enterprise'
+          ? 'Runs strict doctor, validators and release gate for CI-style hardening.'
+          : 'Runs doctor --strict and validators in sequence for initialized repositories.'
+    });
+  }
+
+  return items;
+}
+
 export async function inspectQaWorkflow(cwd) {
   const frameworkPath = path.join(cwd, '.qa-ai');
   const hasFramework = await pathExists(frameworkPath);
@@ -339,7 +182,8 @@ export async function inspectQaWorkflow(cwd) {
       ],
       completedPhaseIds: [],
       pendingPhaseIds: [],
-      skippedPhaseIds: []
+      skippedPhaseIds: [],
+      activeRun: null
     };
   }
 
@@ -366,20 +210,25 @@ export async function inspectQaWorkflow(cwd) {
       ],
       completedPhaseIds: [],
       pendingPhaseIds: [],
-      skippedPhaseIds: []
+      skippedPhaseIds: [],
+      activeRun: null
     };
   }
 
-  const ctx = buildContext(configInfo.data);
-  const order = TRACK_PHASE_ORDER[ctx.track] || TRACK_PHASE_ORDER.standard;
+  const { trackPhaseOrder, phaseDefinitions } = await loadLegacyWorkflowDefinitions(cwd);
+  const contract = await loadWorkflowContract(cwd);
+  const phaseMap = getPhaseMap(contract);
+  const ctx = buildWorkflowContext(configInfo.data);
+  const order = trackPhaseOrder[ctx.track] || trackPhaseOrder.standard;
   const phases = [];
   const completedPhaseIds = [];
   const pendingPhaseIds = [];
   const skippedPhaseIds = [];
 
   for (const phaseId of order) {
-    const def = PHASE_DEFINITIONS[phaseId];
-    const skip = skipReason(phaseId, ctx);
+    const def = phaseDefinitions[phaseId];
+    const contractPhase = phaseMap.get(phaseId);
+    const skip = getPhaseSkipReason(configInfo.data, contractPhase);
     if (skip) {
       skippedPhaseIds.push(phaseId);
       phases.push({
@@ -415,12 +264,34 @@ export async function inspectQaWorkflow(cwd) {
     }
   }
 
-  const recommendations = buildRecommendations({
-    ctx,
-    pendingPhaseIds,
-    completedPhaseIds,
-    config: configInfo.data
-  });
+  const activeRunId = await getActiveRunId(cwd);
+  let activeRun = null;
+  let recommendations;
+
+  if (activeRunId) {
+    const snapshot = await readRunSnapshot(cwd, activeRunId);
+    activeRun = {
+      runId: snapshot.runId,
+      status: snapshot.status,
+      activePhaseId: snapshot.activePhaseId,
+      rfId: snapshot.rfId || null
+    };
+    recommendations = buildActiveRunRecommendations(snapshot, contract, configInfo.data);
+  } else {
+    recommendations = buildRecommendations({
+      ctx,
+      pendingPhaseIds,
+      completedPhaseIds,
+      config: configInfo.data,
+      phaseDefinitions
+    });
+    recommendations.unshift({
+      priority: 'recommended',
+      title: 'Start a resumable harness run',
+      command: 'npx qa-flowkit run start',
+      detail: 'Optional: persist workflow state across agent sessions with phase packets and validation gates.'
+    });
+  }
 
   return {
     initialized: true,
@@ -432,16 +303,17 @@ export async function inspectQaWorkflow(cwd) {
     completedPhaseIds,
     pendingPhaseIds,
     skippedPhaseIds,
-    recommendations
+    recommendations,
+    activeRun
   };
 }
 
-function buildRecommendations({ ctx, pendingPhaseIds, completedPhaseIds, config }) {
+function buildRecommendations({ ctx, pendingPhaseIds, completedPhaseIds, config, phaseDefinitions }) {
   const items = [];
   const nextId = pendingPhaseIds[0];
 
   if (nextId) {
-    const def = PHASE_DEFINITIONS[nextId];
+    const def = phaseDefinitions[nextId];
     items.push({
       priority: 'required',
       title: `Next phase: ${def.name}`,
@@ -550,6 +422,17 @@ export function formatHelpReport(report, { query = '' } = {}) {
       lines.push('');
     }
     return lines.join('\n').trimEnd();
+  }
+
+  if (report.activeRun) {
+    lines.push(`Active run: ${report.activeRun.runId} (${report.activeRun.status})`);
+    if (report.activeRun.activePhaseId) {
+      lines.push(`Active phase: ${report.activeRun.activePhaseId}`);
+    }
+    if (report.activeRun.rfId) {
+      lines.push(`RF ID: ${report.activeRun.rfId}`);
+    }
+    lines.push('');
   }
 
   lines.push(`Track: ${report.track} (${report.trackInfo.label})`);

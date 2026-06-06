@@ -80,6 +80,10 @@ function validatePackFileList(files) {
     'bin/qa-flowkit.mjs',
     '.qa-ai/scripts/init.mjs',
     '.qa-ai/scripts/doctor.mjs',
+    '.qa-ai/contracts/workflow.v1.json',
+    '.qa-ai/scripts/qa-run.mjs',
+    '.qa-ai/scripts/lib/harness-paths.mjs',
+    '.qa-ai/scripts/lib/harness-modification.mjs',
     '.qa-ai/adapters/opencode/commands/qa-init.md',
     'README.md',
     'README.es.md',
@@ -170,6 +174,19 @@ async function main() {
     runCli(initTarget, ['unknown-command-xyzzy'], { expectFailure: true });
     runCli(initTarget, ['validate-features', '--allow-empty']);
     runCli(initTarget, ['validate-active-specialists', '--allow-missing']);
+    runCli(initTarget, ['run', 'start']);
+    const statusBefore = runCli(initTarget, ['run', 'status', '--json']);
+    JSON.parse(statusBefore.stdout);
+
+    runCli(initTarget, ['run', 'next']);
+    runCli(initTarget, ['run', 'check'], { expectFailure: true });
+    runCli(initTarget, ['run', 'check'], { expectFailure: true });
+    const blockedCheck = runCli(initTarget, ['run', 'check', '--json'], { expectFailure: true });
+    const blockedPayload = JSON.parse(blockedCheck.stdout);
+    if (!blockedPayload.retryable) throw new Error('Expected validation block to be retryable.');
+    runCli(initTarget, ['run', 'retry']);
+    await fs.writeFile(path.join(initTarget, 'qa-ai-output', 'requirement-analysis.md'), '# intake\n', 'utf8');
+    runCli(initTarget, ['run', 'check']);
 
     updateTarget = path.join(tempRoot, 'update-target');
     await fs.mkdir(updateTarget, { recursive: true });
@@ -181,7 +198,19 @@ async function main() {
     await fs.writeFile(path.join(updateTarget, '.qa-ai', 'config-profiles', 'team.yaml'), 'version: 1\n', 'utf8');
     await fs.writeFile(path.join(updateTarget, '.qa-ai', 'obsolete.txt'), 'old\n', 'utf8');
     await fs.writeFile(path.join(updateTarget, 'qa-ai-output', 'user.md'), 'USER\n', 'utf8');
+    runCli(updateTarget, ['run', 'start', '--rf', 'RF-UPDATE']);
+    runCli(updateTarget, ['run', 'next']);
+    const activePointer = path.join(updateTarget, '.qa-ai', 'state', 'runs', 'active.json');
+    const activeBefore = await fs.readFile(activePointer, 'utf8');
+    const runEntries = await fs.readdir(path.join(updateTarget, '.qa-ai', 'state', 'runs'), {
+      withFileTypes: true
+    });
+    const runDirCount = runEntries.filter((entry) => entry.isDirectory()).length;
+    if (runDirCount < 1) throw new Error('Expected at least one run directory before update.');
+
     runCli(updateTarget, ['update', '--skip-doctor']);
+    const activeAfter = await fs.readFile(activePointer, 'utf8');
+    if (activeBefore !== activeAfter) throw new Error('Active run pointer changed after update.');
     await assertExists(path.join(updateTarget, '.qa-ai', 'state', 'keep.json'), 'preserved state');
     await assertExists(path.join(updateTarget, '.qa-ai', 'config-profiles', 'team.yaml'), 'preserved config profile');
     await assertMissing(path.join(updateTarget, '.qa-ai', 'obsolete.txt'), 'obsolete framework file');

@@ -149,18 +149,20 @@ Releases are **not** done by manually bumping `package.json` and pushing tags. T
 
 ## Documentation map (agents)
 
-| Topic                                | Path                                                                   |
-| ------------------------------------ | ---------------------------------------------------------------------- |
-| Release / npm publish                | [docs/qa-ai/release-checklist.md](docs/qa-ai/release-checklist.md)     |
-| npm CLI contract                     | [docs/qa-ai/npm-migration-plan.md](docs/qa-ai/npm-migration-plan.md)   |
-| Full QA workflow                     | [docs/qa-ai/workflow.md](docs/qa-ai/workflow.md)                       |
-| Architecture                         | [docs/qa-ai/architecture.md](docs/qa-ai/architecture.md)               |
-| Agent compatibility                  | [docs/qa-ai/agent-compatibility.md](docs/qa-ai/agent-compatibility.md) |
-| Customizing agents                   | [docs/qa-ai/customizing-agents.md](docs/qa-ai/customizing-agents.md)   |
-| Troubleshooting                      | [docs/qa-ai/troubleshooting.md](docs/qa-ai/troubleshooting.md)         |
-| Framework rules index (target repos) | [.qa-ai/rules/README.md](.qa-ai/rules/README.md)                       |
-| Gherkin rules (source of truth)      | [.qa-ai/rules/gherkin.rules.md](.qa-ai/rules/gherkin.rules.md)         |
-| Phase agents index                   | [.qa-ai/agents/README.md](.qa-ai/agents/README.md)                     |
+| Topic                                | Path                                                                                 |
+| ------------------------------------ | ------------------------------------------------------------------------------------ |
+| Release / npm publish                | [docs/qa-ai/release-checklist.md](docs/qa-ai/release-checklist.md)                   |
+| npm CLI contract                     | [docs/qa-ai/npm-migration-plan.md](docs/qa-ai/npm-migration-plan.md)                 |
+| Full QA workflow                     | [docs/qa-ai/workflow.md](docs/qa-ai/workflow.md)                                     |
+| Architecture                         | [docs/qa-ai/architecture.md](docs/qa-ai/architecture.md)                             |
+| Agent harness user guide             | [docs/qa-ai/agent-harness.md](docs/qa-ai/agent-harness.md)                           |
+| Agent harness technical design       | [docs/qa-ai/agent-harness-architecture.md](docs/qa-ai/agent-harness-architecture.md) |
+| Agent compatibility                  | [docs/qa-ai/agent-compatibility.md](docs/qa-ai/agent-compatibility.md)               |
+| Customizing agents                   | [docs/qa-ai/customizing-agents.md](docs/qa-ai/customizing-agents.md)                 |
+| Troubleshooting                      | [docs/qa-ai/troubleshooting.md](docs/qa-ai/troubleshooting.md)                       |
+| Framework rules index (target repos) | [.qa-ai/rules/README.md](.qa-ai/rules/README.md)                                     |
+| Gherkin rules (source of truth)      | [.qa-ai/rules/gherkin.rules.md](.qa-ai/rules/gherkin.rules.md)                       |
+| Phase agents index                   | [.qa-ai/agents/README.md](.qa-ai/agents/README.md)                                   |
 
 ## Completion criteria
 

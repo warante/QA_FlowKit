@@ -45,6 +45,40 @@ async function main() {
     runCli(tempRoot, ['init', '--skip-doctor']);
     runCli(tempRoot, ['validate-features', '--allow-empty']);
     runCli(tempRoot, ['validate-active-specialists', '--allow-missing']);
+    runCli(tempRoot, ['run', 'start', '--rf', 'RF-CLI-INT']);
+    const statusJson = runCli(tempRoot, ['run', 'status', '--json']);
+    const statusPayload = JSON.parse(statusJson.stdout);
+    assert.ok(statusPayload.runId, 'run status --json should include runId');
+
+    const contractScript = path.join(repoRoot, '.qa-ai', 'scripts', 'validate-workflow-contract.mjs');
+    const contractJson = spawnSync(node, [contractScript, '--json'], {
+      cwd: repoRoot,
+      encoding: 'utf8',
+      shell: false
+    });
+    assert.equal(contractJson.status, 0);
+    JSON.parse(contractJson.stdout.trim());
+
+    await fs.writeFile(path.join(tempRoot, 'qa-ai-output', 'requirement-analysis.md'), '# original\n', 'utf8');
+    runCli(tempRoot, ['run', 'next']);
+    const activeRun = JSON.parse(runCli(tempRoot, ['run', 'status', '--json']).stdout);
+    runCli(tempRoot, ['run', 'resume', activeRun.runId]);
+    await fs.writeFile(path.join(tempRoot, 'qa-ai-output', 'requirement-analysis.md'), '# modified\n', 'utf8');
+    const blockedStatus = JSON.parse(runCli(tempRoot, ['run', 'status', '--json']).stdout);
+    assert.ok(blockedStatus.blockers.some((item) => item.type === 'modification'));
+
+    const checkJson = runCli(tempRoot, ['run', 'check', '--json'], { expectFailure: true });
+    const checkPayload = JSON.parse(checkJson.stdout);
+    assert.equal(checkPayload.ok, false);
+    assert.ok(checkJson.stderr === '' || checkJson.stderr.trim() === '');
+
+    await fs.writeFile(path.join(tempRoot, '.qa-ai', 'contracts', 'workflow.v1.json'), '{"schemaVersion":1}\n');
+    const brokenDoctor = spawnSync(node, [cli, 'doctor'], {
+      cwd: tempRoot,
+      encoding: 'utf8',
+      shell: false
+    });
+    assert.notEqual(brokenDoctor.status, 0);
 
     console.log('CLI integration tests passed.');
   } finally {
