@@ -32,7 +32,7 @@ const args = parseArgs(process.argv);
 const force = Boolean(args.force);
 const withDocTemplates = Boolean(args['with-doc-templates'] || args.withDocTemplates);
 const withTestManagementMapping = Boolean(args['with-test-management-mapping'] || args.withTestManagementMapping);
-const presetName = args.preset || 'webdriverio-playwright-api';
+const presetName = args.preset || 'playwright-full';
 const withKarateConfig = Boolean(args['with-karate-config'] || args.withKarateConfig || presetName === 'karate-full');
 const interfaceLanguage = normalizeLanguage(
   args['interface-language'] || args.interfaceLanguage || 'en',
@@ -58,7 +58,7 @@ function printHelp() {
   console.log(`Usage: node .qa-ai/scripts/init.mjs [options]
 
 Options:
-  --preset <name>          Base template from .qa-ai/presets (default: webdriverio-playwright-api)
+  --preset <name>          Base template from .qa-ai/presets (default: playwright-full)
   --interface-language <en|es> User-facing workflow language (default: en)
   --gherkin-language <en|es>   Gherkin feature language (default: en)
   --requirements-source <name> Primary requirement source, for example markdown, jira, confluence
@@ -68,9 +68,11 @@ Options:
   --qa-context <path>      Repo-local folder with QA working-practice docs for agent-assisted init
   --ui-framework <name>    UI/E2E framework, or none/undecided
   --api-framework <name>   API/integration framework, or none/undecided
+  --mobile-framework <name> Mobile framework, or none/undecided
   --ui-specs-path <path>   UI/E2E specs directory
   --ui-page-objects-path <path> UI page objects directory
   --api-specs-path <path>  API/integration specs directory
+  --mobile-flows-path <path> Mobile automation flows directory
   --specialist-mode <auto|off|required> Specialist agent activation mode (default from base template)
   --set <key=value>        Repeatable scalar config override, for example automation.ui.framework=cypress
   --adapters <list>        Comma-separated adapters to generate, or "all" (default: opencode)
@@ -174,15 +176,21 @@ function setSimpleYamlScalar(content, keyPath, value) {
   return lines.join('\n');
 }
 
-function configOverrides() {
+function configOverrides(currentConfig = {}) {
   const uiFramework = args['ui-framework'] || args.uiFramework;
   const apiFramework = args['api-framework'] || args.apiFramework;
+  const mobileFramework = args['mobile-framework'] || args.mobileFramework;
   const testManagementTool = args['test-management-tool'] || args.testManagementTool;
   const uiSpecsPath = args['ui-specs-path'] || args.uiSpecsPath;
   const uiPageObjectsPath = args['ui-page-objects-path'] || args.uiPageObjectsPath;
   const apiSpecsPath = args['api-specs-path'] || args.apiSpecsPath;
+  const mobileFlowsPath = args['mobile-flows-path'] || args.mobileFlowsPath;
   const normalizedUiFramework = slug(uiFramework);
   const normalizedApiFramework = slug(apiFramework);
+  const normalizedMobileFramework = slug(mobileFramework);
+  const currentUiFramework = slug(getConfigValue(currentConfig, 'automation.ui.framework', ''));
+  const currentApiFramework = slug(getConfigValue(currentConfig, 'automation.api.framework', ''));
+  const currentMobileFramework = slug(getConfigValue(currentConfig, 'automation.mobile.framework', ''));
   const overrides = [
     ['project.defaultLanguage', interfaceLanguage],
     ['project.interfaceLanguage', interfaceLanguage],
@@ -196,34 +204,67 @@ function configOverrides() {
     ['agents.specialistMode', args['specialist-mode'] || args.specialistMode],
     ['automation.ui.framework', uiFramework],
     ['automation.api.framework', apiFramework],
+    ['automation.mobile.framework', mobileFramework],
     ['automation.ui.specsPath', uiSpecsPath],
     ['automation.ui.pageObjectsPath', uiPageObjectsPath],
-    ['automation.api.specsPath', apiSpecsPath]
+    ['automation.api.specsPath', apiSpecsPath],
+    ['automation.mobile.flowsPath', mobileFlowsPath]
   ];
 
-  if (uiFramework && !uiSpecsPath && isKarateFramework(uiFramework)) {
+  if (uiFramework && normalizedUiFramework !== currentUiFramework && !uiSpecsPath && isKarateFramework(uiFramework)) {
     overrides.push(['automation.ui.specsPath', defaultKarateUiSpecsPath()]);
     overrides.push(['automation.ui.pageObjectsPath', '']);
-  } else if (uiFramework && !uiSpecsPath && normalizedUiFramework !== 'webdriverio') {
+  } else if (
+    uiFramework &&
+    normalizedUiFramework !== currentUiFramework &&
+    !uiSpecsPath &&
+    normalizedUiFramework !== 'webdriverio'
+  ) {
     overrides.push([
       'automation.ui.specsPath',
       isConfiguredFramework(uiFramework) ? ['tests', slug(uiFramework), 'specs'].join('/') : ''
     ]);
   }
-  if (uiFramework && !uiPageObjectsPath && isKarateFramework(uiFramework)) {
+  if (
+    uiFramework &&
+    normalizedUiFramework !== currentUiFramework &&
+    !uiPageObjectsPath &&
+    isKarateFramework(uiFramework)
+  ) {
     overrides.push(['automation.ui.pageObjectsPath', '']);
-  } else if (uiFramework && !uiPageObjectsPath && normalizedUiFramework !== 'webdriverio') {
+  } else if (
+    uiFramework &&
+    normalizedUiFramework !== currentUiFramework &&
+    !uiPageObjectsPath &&
+    normalizedUiFramework !== 'webdriverio'
+  ) {
     overrides.push([
       'automation.ui.pageObjectsPath',
       isConfiguredFramework(uiFramework) ? ['tests', slug(uiFramework), 'pageobjects'].join('/') : ''
     ]);
   }
-  if (apiFramework && !apiSpecsPath && isKarateFramework(apiFramework)) {
+  if (
+    apiFramework &&
+    normalizedApiFramework !== currentApiFramework &&
+    !apiSpecsPath &&
+    isKarateFramework(apiFramework)
+  ) {
     overrides.push(['automation.api.specsPath', defaultKarateApiSpecsPath()]);
-  } else if (apiFramework && !apiSpecsPath && normalizedApiFramework !== 'playwright-api') {
+  } else if (
+    apiFramework &&
+    normalizedApiFramework !== currentApiFramework &&
+    !apiSpecsPath &&
+    normalizedApiFramework !== 'playwright-api'
+  ) {
     overrides.push([
       'automation.api.specsPath',
       isConfiguredFramework(apiFramework) ? ['tests', slug(apiFramework), 'specs'].join('/') : ''
+    ]);
+  }
+  if (mobileFramework && normalizedMobileFramework !== currentMobileFramework && !mobileFlowsPath) {
+    overrides.push([
+      'automation.mobile.flowsPath',
+      isConfiguredFramework(mobileFramework) ? ['tests', slug(mobileFramework), 'flows'].join('/') : ''
     ]);
   }
   if (testManagementTool) {
@@ -246,7 +287,8 @@ function configOverrides() {
 
 function personalizeConfig(content) {
   let updated = content.replace(/^(\s*name:\s*)CHANGE_ME\s*$/m, `$1${yamlScalar(path.basename(cwd))}`);
-  for (const [key, value] of configOverrides()) {
+  const currentConfig = parseSimpleYaml(updated);
+  for (const [key, value] of configOverrides(currentConfig)) {
     updated = setSimpleYamlScalar(updated, key, value);
   }
   return updated;

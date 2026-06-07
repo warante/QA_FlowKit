@@ -50,12 +50,15 @@ The command asks for the required initialization choices, including optional QA 
 Advanced users may still pass flags directly:
 
 ```text
-/qa-init --preset webdriverio-playwright-api --interface-language es --gherkin-language en --adapters claude,opencode
+/qa-init --preset playwright-full --interface-language es --gherkin-language en --adapters claude,opencode
 /qa-init --qa-context qa-ai-knowledge --adapters claude,opencode
 ```
 
 Interactive command behavior:
 
+- Every adapter reads `.qa-ai/workflows/command-interaction.md`.
+- Closed choices use the host's interactive selector when available. Every option has a number, and custom text remains a separate `Other` choice.
+- After initialization, every command resolves `project.interfaceLanguage` before its first response and keeps that language for questions, plans, approvals, errors and summaries.
 - `/qa-init` asks for optional QA context, interface language, Gherkin language, base template, requirement source, optional UI/API framework overrides, adapters and overwrite behavior. When QA context is provided, it reads `.qa-ai/workflows/context-intake.md` and proposes defaults before running init.
 - `/qa-config` imports or exports reusable `qa-ai.config.yaml` profiles and asks for overwrite approval before using `--force`.
 - `/qa-full-flow` asks for requirement source, official RF ID, configured test management project/suite and whether to stop at proposals.
@@ -85,10 +88,37 @@ The framework agents under `.qa-ai/agents/` are role instructions. If a tool doe
 | Goose         | `.goose/recipes/qa-flowkit.yaml`           | Reusable Goose workflow recipe.                                               |
 | Gemini CLI    | `GEMINI.md`                                | Gemini CLI project context that points back to the shared QA AI instructions. |
 
+## Interaction capabilities
+
+| Adapter       | Preferred closed-choice UI                                                                                    | Portable fallback                              |
+| ------------- | ------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
+| Generic       | Host-provided question tool when one exists                                                                   | Numbered options in chat                       |
+| Claude Code   | Interactive question tool when available                                                                      | Numbered options in chat                       |
+| Codex Desktop | `request_user_input` when exposed by the current mode                                                         | Numbered options in chat                       |
+| OpenCode      | Built-in `question` tool                                                                                      | Numbered options in chat                       |
+| Cline         | `ask_followup_question` with options                                                                          | Numbered options in chat                       |
+| Continue      | Host-provided question tool when one exists                                                                   | Numbered options in chat                       |
+| Aider         | None required by the adapter                                                                                  | Numbered options in chat                       |
+| Goose         | Recipe parameters for values known before execution; interactive UI when supplied by the host or an extension | Numbered options in an interactive CLI session |
+| Gemini CLI    | `ask_user` using `choice` or `yesno`                                                                          | Numbered options in chat                       |
+
+Native UI availability can vary by host version, mode or installed extension. QA FlowKit never requires a native selector: the numbered fallback is part of the contract. Free text is reserved for `Other`, paths, official RF IDs and pasted requirement content.
+
+Host references:
+
+- [OpenCode question tool](https://opencode.ai/docs/tools#question)
+- [Gemini CLI ask_user tool](https://geminicli.com/docs/tools/ask-user/)
+- [Cline workflow questions](https://docs.cline.bot/features/slash-commands/workflows/quickstart)
+- [Aider in-chat commands](https://aider.chat/docs/usage/commands.html)
+- [Goose CLI interactive sessions](https://block.github.io/goose/docs/guides/goose-cli-commands)
+
 ## Required behavior for every agent
 
 - Read `AGENTS.md` before acting.
 - Read `qa-ai.config.yaml` when present.
+- Read `.qa-ai/workflows/command-interaction.md` before the first user-facing response.
+- Resolve `project.interfaceLanguage` / `project.defaultLanguage` once and keep it for the complete interaction.
+- Use selectable predefined options when the host supports them; otherwise use numbered options with a separate custom choice.
 - Read configured QA knowledge artifacts when `knowledge.enabled` is true.
 - Read `.qa-ai/rules/README.md` and every `.qa-ai/rules/*.rules.md` file before changing workflow behavior (minimum: `approval`, `workflow`, `requirements`, `gherkin`).
 - Present a plan before modifying files.

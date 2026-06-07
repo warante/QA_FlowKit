@@ -13,6 +13,12 @@ Related docs: [main README](../../../../README.md) | [agent compatibility](../..
 | `.qa-ai/rules/`     | Mandatory QA workflow rules       |
 | `.qa-ai/workflows/` | Task playbooks                    |
 
+## Interaction
+
+- Resolve `project.interfaceLanguage` / `project.defaultLanguage` before the first response and keep it throughout the chat.
+- Aider has a text chat prompt, so present closed choices as numbered options and accept the number.
+- Keep free text for a separate `Other` option, paths, IDs and pasted content.
+
 ## Commands
 
 | Aider Command                                    | Purpose                                         |

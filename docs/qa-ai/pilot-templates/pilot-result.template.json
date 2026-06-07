@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "pilotId": "PILOT-CHANGE_ME",
+  "status": "complete",
+  "measurementCompleteness": "complete",
+  "track": "quick",
+  "consent": {
+    "obtained": true,
+    "publication": "aggregate-only",
+    "rawDataDeleteAfter": "YYYY-MM-DD"
+  },
+  "context": {
+    "repositoryAlias": "repo-a",
+    "teamProfile": "manual-qa",
+    "automationStack": "none",
+    "agentSurface": "CHANGE_ME"
+  },
+  "windows": {
+    "baseline": {
+      "requirementToDesignMinutes": 0,
+      "timeToValidGherkinMinutes": 0,
+      "reviewCycles": 0,
+      "acceptanceCriteriaCovered": 0,
+      "acceptanceCriteriaEligible": 0,
+      "reworkMinutes": 0,
+      "retainedArtifacts": 0,
+      "escapedDesignDefects": 0,
+      "validatorFoundDefects": 0,
+      "manualAdaptationMinutes": 0
+    },
+    "assisted": {
+      "requirementToDesignMinutes": 0,
+      "timeToValidGherkinMinutes": 0,
+      "reviewCycles": 0,
+      "acceptanceCriteriaCovered": 0,
+      "acceptanceCriteriaEligible": 0,
+      "reworkMinutes": 0,
+      "retainedArtifacts": 0,
+      "escapedDesignDefects": 0,
+      "validatorFoundDefects": 0,
+      "manualAdaptationMinutes": 0
+    }
+  },
+  "qualitative": {
+    "baseline": {
+      "clarity": 1,
+      "trust": 1,
+      "ceremonyFit": 1,
+      "errorActionability": 1,
+      "adoptionIntent": 1
+    },
+    "assisted": {
+      "clarity": 1,
+      "trust": 1,
+      "ceremonyFit": 1,
+      "errorActionability": 1,
+      "adoptionIntent": 1
+    }
+  },
+  "issues": [],
+  "limitations": [],
+  "decisions": []
+}

@@ -11,9 +11,16 @@ import { validateReleaseGateData } from './lib/release-gate.mjs';
 import { validateTestDesignProposal, validateTestDesignSystem } from './lib/test-design.mjs';
 import { parseMarkdownTable } from './lib/markdown-table.mjs';
 import { validateTestManagementMapping } from './lib/test-management-mapping.mjs';
-import { duplicateIdErrors, languageRules, parseFeature, validateFeatureContent } from './lib/gherkin-validate.mjs';
+import {
+  duplicateIdErrors,
+  idsFromText,
+  languageRules,
+  parseFeature,
+  validateFeatureContent
+} from './lib/gherkin-validate.mjs';
 import { parseFeatureTags, resolveFeatureSubfolder, validateFeatureFilePlacement } from './lib/feature-layout.mjs';
 import { karateDuplicateIdErrors, validateKarateFeatureContent } from './lib/karate-validate.mjs';
+import { validateMaestroFlowContent } from './lib/maestro-validate.mjs';
 import { parseSimpleYaml } from './lib/utils.mjs';
 
 function assertIncludes(haystack, needle) {
@@ -470,6 +477,14 @@ test('duplicateIdErrors: detects duplicate TC across files', () => {
   assert.ok(errors[0].includes('TC-001'));
 });
 
+test('idsFromText: does not treat tests directory as a TEST identifier', () => {
+  assert.deepEqual(idsFromText('tests/karate/features/RF-201-TC-001.feature'), ['RF-201', 'TC-001']);
+});
+
+test('idsFromText: does not treat ordinary QA-prefixed prose as an identifier', () => {
+  assert.deepEqual(idsFromText('The QA handbook covers RF-301 and QA 123.'), ['RF-301', 'QA-123']);
+});
+
 const validKarateApi = [
   '@smoke @rf:RF-101',
   'Feature: Create post API',
@@ -517,6 +532,23 @@ test('karateDuplicateIdErrors: detects duplicate @id', () => {
     { file: 'b.feature', caseIds: ['TC-001'] }
   ]);
   assert.equal(errors.length, 1);
+});
+
+test('validateMaestroFlowContent: accepts a deterministic flow', () => {
+  const result = validateMaestroFlowContent(
+    ['appId: ${APP_ID}', '---', '- launchApp:', '    clearState: true', '- assertVisible: "Home"'].join('\n'),
+    'tests/maestro/flows/home.yaml'
+  );
+  assert.equal(result.ok, true);
+});
+
+test('validateMaestroFlowContent: rejects escaping subflow paths', () => {
+  const result = validateMaestroFlowContent(
+    ['appId: ${APP_ID}', '---', '- runFlow: ../private.yaml'].join('\n'),
+    'tests/maestro/flows/home.yaml'
+  );
+  assert.equal(result.ok, false);
+  assertIncludes(result.errors, 'must stay inside');
 });
 
 // --- feature-layout ---

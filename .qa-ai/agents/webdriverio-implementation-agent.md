@@ -7,7 +7,7 @@
 
 Activated as Phase 10 of the QA workflow, when the feasibility report contains tests classified as "Automatable — UI/E2E".
 
-When `automation.ui.framework` is `karate`, treat this as **UI implementation via Karate**: follow [karate.md](../specialists/available/karate.md), write under `automation.ui.specsPath` (default `tests/karate/features/ui/`), and validate with `validate-karate-features.mjs` instead of WebdriverIO/Playwright page objects.
+When `automation.ui.framework` is `karate`, treat this as **UI implementation via Karate**: follow [karate.md](specialists/available/karate.md), write under `automation.ui.specsPath` (default `tests/karate/features/ui/`), and validate with `validate-karate-features.mjs` instead of WebdriverIO/Playwright page objects.
 
 ## Inputs
 
@@ -45,6 +45,8 @@ tests/wdio/                    # example base when framework is webdriverio
 ```
 
 Mobile UI automation uses the same agent with the Appium specialist when `automation.ui.framework` or `automation.mobile.framework` is `appium`.
+Maestro mobile automation uses `automation.mobile.flowsPath`, the Maestro specialist and
+`.qa-ai/rules/mobile-automation.rules.md`; it does not use page objects.
 
 ## Implementation Rules
 

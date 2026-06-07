@@ -2,6 +2,10 @@
 
 Notes from the first QA FlowKit target-repository pilot. Written without exposing private repository details; all paths and identifiers are generic.
 
+These notes predate the common [pilot methodology](pilot-methodology.md). Their available evidence is mapped without
+invented timing or baseline values in
+[`pilot-records/first-pilot-retrospective.json`](pilot-records/first-pilot-retrospective.json).
+
 ## Summary
 
 The first pilot ran against a real automation repository using WebdriverIO (UI) and Playwright API. The folder-copy workflow, init scripts, adapters and validators worked correctly end-to-end. The core finding is that the framework delivers value fastest when the agent has clear context about existing tests and the team's QA process.

@@ -4,19 +4,23 @@
  * Used in CI (dry-run) and before publish in release workflows.
  */
 import { spawnSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
+import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 const node = process.execPath;
 const npmExecPath = process.env.npm_execpath || '';
+const bundledNpmCli = path.join(path.dirname(node), 'node_modules', 'npm', 'bin', 'npm-cli.js');
+const npmScriptPath = npmExecPath || (process.platform === 'win32' && existsSync(bundledNpmCli) ? bundledNpmCli : '');
 
 function runNpm(args) {
-  const command = npmExecPath ? node : npmCommand;
-  const commandArgs = npmExecPath ? [npmExecPath, ...args] : args;
+  const command = npmScriptPath ? node : npmCommand;
+  const commandArgs = npmScriptPath ? [npmScriptPath, ...args] : args;
   const result = spawnSync(command, commandArgs, {
     cwd: process.cwd(),
     encoding: 'utf8',
-    shell: process.platform === 'win32' && !npmExecPath
+    shell: process.platform === 'win32' && !npmScriptPath
   });
   if (result.status !== 0) {
     throw new Error(

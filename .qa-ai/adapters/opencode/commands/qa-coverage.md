@@ -3,6 +3,8 @@ description: Analyze QA functional coverage / Analizar cobertura funcional QA
 argument-hint: [RF ID, requirement source, or scope]
 ---
 
+Before any other action or user-facing text, read and follow `.qa-ai/workflows/command-interaction.md`.
+
 Analyze functional QA coverage across requirements, `.feature` files, manual tests and automated tests.
 
 Read these files first:

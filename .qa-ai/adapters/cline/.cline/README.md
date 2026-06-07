@@ -6,12 +6,19 @@ Related docs: [main README](../../../../README.md) | [agent compatibility](../..
 
 ## Read First
 
-| File                | Purpose                           |
-| ------------------- | --------------------------------- |
-| `.clinerules`       | Cline-specific behavior rules     |
-| `AGENTS.md`         | Generic behavior and safety rules |
-| `qa-ai.config.yaml` | Target repository configuration   |
-| `.qa-ai/rules/`     | Mandatory QA workflow rules       |
+| File                                      | Purpose                           |
+| ----------------------------------------- | --------------------------------- |
+| `.clinerules`                             | Cline-specific behavior rules     |
+| `AGENTS.md`                               | Generic behavior and safety rules |
+| `qa-ai.config.yaml`                       | Target repository configuration   |
+| `.qa-ai/rules/`                           | Mandatory QA workflow rules       |
+| `.qa-ai/workflows/command-interaction.md` | Language and question behavior    |
+
+## Interaction
+
+- Resolve the configured interface language before the first user-facing response.
+- Use Cline's `ask_followup_question` tool with options for closed choices.
+- Prefix options with numbers and keep custom text in a separate `Other` choice.
 
 ## Local Checks
 

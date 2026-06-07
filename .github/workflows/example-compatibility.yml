@@ -1,0 +1,58 @@
+name: Example compatibility
+
+on:
+  schedule:
+    - cron: '23 5 * * 1'
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: npm release channel to validate
+        required: true
+        default: beta
+        type: choice
+        options:
+          - beta
+          - rc
+          - latest
+
+permissions:
+  contents: read
+
+concurrency:
+  group: example-compatibility-${{ github.event_name }}-${{ inputs.channel || 'beta' }}
+  cancel-in-progress: false
+
+jobs:
+  validate-examples:
+    name: "Examples (${{ matrix.os }}, Node ${{ matrix.node }}, ${{ inputs.channel || 'beta' }})"
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node: ['20', '22']
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Validate examples against npm channel
+        env:
+          QA_FLOWKIT_PACKAGE_SPEC: qa-flowkit@${{ inputs.channel || 'beta' }}
+        run: node .github/scripts/run-example-channel-validation.mjs --report compatibility-report.json
+
+      - name: Upload compatibility report
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: example-compatibility-${{ matrix.os }}-node-${{ matrix.node }}-${{ inputs.channel || 'beta' }}
+          path: compatibility-report.json
+          if-no-files-found: warn
+          retention-days: 30

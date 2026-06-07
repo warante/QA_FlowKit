@@ -103,6 +103,7 @@ Run before opening or updating a PR in this repo:
 npm ci
 npm run lint
 npm run format:check
+npm run docs:check
 npm run validate:oss-extraction
 node .github/scripts/verify-npm-pack.mjs
 ```
@@ -110,6 +111,8 @@ node .github/scripts/verify-npm-pack.mjs
 GitHub Actions ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) runs the same checks on Ubuntu and Windows × Node 20/22.
 
 When changing validators, agents, or packaged files, update tests in `.qa-ai/scripts/test-validators.mjs` and/or `.qa-ai/scripts/smoke-npm-pack.mjs` as appropriate.
+When changing evergreen documentation or CI commands, update
+`.github/scripts/test-documentation-consistency.mjs` and run `npm run docs:check`.
 
 ## Pull requests and commits
 
@@ -159,6 +162,7 @@ Releases are **not** done by manually bumping `package.json` and pushing tags. T
 | Agent harness technical design       | [docs/qa-ai/agent-harness-architecture.md](docs/qa-ai/agent-harness-architecture.md) |
 | Agent compatibility                  | [docs/qa-ai/agent-compatibility.md](docs/qa-ai/agent-compatibility.md)               |
 | Customizing agents                   | [docs/qa-ai/customizing-agents.md](docs/qa-ai/customizing-agents.md)                 |
+| Documentation consistency            | [docs/qa-ai/documentation-consistency.md](docs/qa-ai/documentation-consistency.md)   |
 | Troubleshooting                      | [docs/qa-ai/troubleshooting.md](docs/qa-ai/troubleshooting.md)                       |
 | Framework rules index (target repos) | [.qa-ai/rules/README.md](.qa-ai/rules/README.md)                                     |
 | Gherkin rules (source of truth)      | [.qa-ai/rules/gherkin.rules.md](.qa-ai/rules/gherkin.rules.md)                       |

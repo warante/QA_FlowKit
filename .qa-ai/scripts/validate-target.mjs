@@ -2,6 +2,7 @@
 import fs from 'node:fs/promises';
 import { spawnSync } from 'node:child_process';
 import { karateSecretScanRoots, usesKarate } from './lib/automation-framework.mjs';
+import { usesMaestro } from './lib/mobile-automation.mjs';
 import { normalizeQaTrack } from './lib/qa-next-steps.mjs';
 import { scanPathsForSecrets } from './lib/secret-patterns.mjs';
 import {
@@ -80,13 +81,15 @@ async function main() {
     ...(usesKarate(configInfo.data)
       ? [command('karate feature validation', '.qa-ai/scripts/validate-karate-features.mjs', featureArgs)]
       : []),
+    ...(usesMaestro(configInfo.data)
+      ? [command('Maestro flow validation', '.qa-ai/scripts/validate-maestro-flows.mjs', featureArgs)]
+      : []),
+    ...(track !== 'quick'
+      ? [command('sync plan validation', '.qa-ai/scripts/validate-sync-plan.mjs', artifactArgs)]
+      : []),
     command('traceability validation', '.qa-ai/scripts/validate-traceability.mjs', artifactArgs),
     command('active specialist validation', '.qa-ai/scripts/validate-active-specialists.mjs', activeSpecialistArgs)
   ];
-
-  if (track !== 'quick') {
-    commands.splice(3, 0, command('sync plan validation', '.qa-ai/scripts/validate-sync-plan.mjs', artifactArgs));
-  }
 
   if (track === 'enterprise' && !args['skip-release-gate']) {
     const gateArgs = [
@@ -115,8 +118,9 @@ async function main() {
     const dirs = [
       'qa-ai-output',
       getConfigValue(configInfo.data, 'gherkin.featurePath', 'features'),
+      getConfigValue(configInfo.data, 'automation.mobile.flowsPath', ''),
       ...(usesKarate(configInfo.data) ? karateSecretScanRoots(configInfo.data) : [])
-    ];
+    ].filter(Boolean);
     const files = [];
     for (const dir of dirs) {
       try {

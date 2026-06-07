@@ -2,7 +2,10 @@ version: 1
 name: qa-flowkit
 description: Run the QA AI workflow for requirements-to-tests-to-automation.
 instructions: |
-  Read AGENTS.md, qa-ai.config.yaml and .qa-ai/rules/ before acting.
+  Read AGENTS.md, qa-ai.config.yaml, .qa-ai/workflows/command-interaction.md and .qa-ai/rules/ before acting.
+  Resolve project.interfaceLanguage / project.defaultLanguage before the first user-facing response and keep it for the complete interaction.
+  In interactive Goose sessions, present closed choices as numbered options and accept the number. Keep free text for Other, paths, IDs and pasted content.
+  Recipe parameters may collect known values before execution, but do not treat arbitrary free text as a predefined choice.
   Produce a plan before modifying files.
   Do not overwrite or externally write without approval.
 steps:

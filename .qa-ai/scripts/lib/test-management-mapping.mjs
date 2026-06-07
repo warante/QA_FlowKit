@@ -1,4 +1,4 @@
-const validMappingKeyPattern = /^(?:(?:RF|TC|TEST|QA)[-_ ]?[A-Z0-9]+|.*\.feature)$/i;
+const validMappingKeyPattern = /^(?:(?:RF|TC|TEST|QA)(?:[-_][A-Z0-9]+| \d[A-Z0-9]*|\d+)|.*\.feature)$/i;
 const allowedFields = new Set(['externalId', 'section', 'suite', 'status', 'lastReviewedAt', 'notes']);
 const secretKeyPattern = /(?:token|secret|password|passwd|api[_-]?key|authorization|auth)/i;
 const secretValuePattern =

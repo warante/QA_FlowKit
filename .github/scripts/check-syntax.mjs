@@ -20,7 +20,11 @@ function findMjs(dir, results = []) {
   return results;
 }
 
-const toCheck = [...findMjs(path.join('.qa-ai', 'scripts')), path.join('bin', 'qa-flowkit.mjs')];
+const toCheck = [
+  ...findMjs(path.join('.qa-ai', 'scripts')),
+  ...findMjs(path.join('.github', 'scripts')),
+  path.join('bin', 'qa-flowkit.mjs')
+];
 
 let allPassed = true;
 for (const file of toCheck) {

@@ -3,6 +3,8 @@ description: Plan automation from existing QA tests / Planificar automatizacion 
 argument-hint: [feature path, RF ID, or test filter]
 ---
 
+Before any other action or user-facing text, read and follow `.qa-ai/workflows/command-interaction.md`.
+
 Create an automation feasibility and implementation plan from existing `.feature` tests.
 
 Read these files first:

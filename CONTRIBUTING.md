@@ -6,7 +6,7 @@ Thanks for contributing to QA FlowKit.
 
 - AI coding agents working in this repository must read [AGENTS.md](AGENTS.md) first (validation, QA rules, npm release constraints, documentation map).
 - Keep the project repo-first and portable.
-- Do not require a hosted backend for the MVP.
+- Do not require a hosted backend for the current repository-first product.
 - Prefer explicit configuration over hidden behavior.
 - All generated test cases must use the configured Gherkin language (`en` or `es`).
 - Every destructive or external write operation must require user approval.
@@ -30,8 +30,23 @@ CI runs [`.github/scripts/verify-adapter-parity.mjs`](.github/scripts/verify-ada
 2. Create a branch from `main`.
 3. Add or update documentation when behavior changes.
 4. Add validation logic when adding a new rule.
-5. Run `npm run validate:oss-extraction` locally (same checks as the GitHub Actions CI workflow).
-6. Open a PR with a clear summary and manual validation steps.
+5. Follow the lifecycle and version-reference rules in [stability-policy.md](docs/qa-ai/stability-policy.md).
+6. Run `npm run docs:check` and `npm run validate:oss-extraction` locally.
+7. Open a PR with a clear summary and manual validation steps.
+
+Changes under `examples/`, presets or target validators must also keep
+[`examples/compatibility.json`](examples/compatibility.json) current. Run:
+
+```bash
+npm run test:example-compatibility
+```
+
+Published-channel regressions are owned and triaged according to
+[example maintenance](docs/qa-ai/example-repos.md).
+
+The documentation checker is described in
+[documentation-consistency.md](docs/qa-ai/documentation-consistency.md). Exact current prerelease versions belong in
+package/release metadata, not evergreen README, SECURITY, ROADMAP or CONTRIBUTING text.
 
 ## npm releases
 

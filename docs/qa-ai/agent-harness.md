@@ -28,6 +28,7 @@ The harness remains:
 - Local and repository-first.
 - Independent of model or agent provider.
 - Compatible with the existing adapters.
+- Uses the same `.qa-ai/workflows/command-interaction.md` language and choice protocol across adapters.
 - Proposal-first and read-only for external systems.
 - Optional: current `/qa-full-flow` and `qa-help` usage continue to work.
 

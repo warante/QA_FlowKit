@@ -29,6 +29,7 @@ Use this section when a user asks to release, publish to npm, bump the package v
    npm ci
    npm run lint
    npm run format:check
+   npm run docs:check
    npm run validate:oss-extraction
    node .github/scripts/verify-npm-pack.mjs
    ```
@@ -58,7 +59,7 @@ Use this section when a user asks to release, publish to npm, bump the package v
 
 ## Primary flow (release-please)
 
-Releases are driven by [Conventional Commits](https://www.conventionalcommits.org/) on `main` and the [Release Please](.github/workflows/release-please.yml) workflow.
+Releases are driven by [Conventional Commits](https://www.conventionalcommits.org/) on `main` and the [Release Please](../../.github/workflows/release-please.yml) workflow.
 
 ### GitHub Actions policy (this repo)
 
@@ -142,6 +143,7 @@ Do **not** push `v*` tags to trigger publish; tag-based publish was removed to a
 npm ci
 npm run lint
 npm run format:check
+npm run docs:check
 npm run validate:oss-extraction
 node .github/scripts/verify-npm-pack.mjs
 ```

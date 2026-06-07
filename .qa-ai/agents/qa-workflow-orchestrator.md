@@ -51,8 +51,9 @@ Execute phases in order. Each phase depends on the previous one's output.
 ## Responsibilities
 
 - Read all mandatory inputs before acting.
-- Use the configured interface language from `qa-ai.config.yaml` (`project.interfaceLanguage` / `project.defaultLanguage`) for questions and descriptions.
+- Before the first user-facing response, resolve the configured interface language from `qa-ai.config.yaml` (`project.interfaceLanguage` / `project.defaultLanguage`) and use it for the complete interaction.
 - Use `gherkin.language` only for generated `.feature` files.
+- Follow `.qa-ai/workflows/command-interaction.md` for interactive choices and free-text input.
 - Load the matching phase agent and active specialists before each phase.
 - Delegate to specialized agents conceptually (read their instructions, apply as role context).
 - Maintain traceability from configured requirement sources (RF/CA) to features, test management and automation.

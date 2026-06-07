@@ -17,6 +17,7 @@ const commandMap = {
   'validate-target': 'validate-target.mjs',
   'validate-features': 'validate-features.mjs',
   'validate-karate-features': 'validate-karate-features.mjs',
+  'validate-maestro-flows': 'validate-maestro-flows.mjs',
   'validate-traceability': 'validate-traceability.mjs',
   'validate-sync-plan': 'validate-sync-plan.mjs',
   'validate-active-specialists': 'validate-active-specialists.mjs',
@@ -44,6 +45,7 @@ Validation commands:
   validate-target [options]        Run all target-repository validators (strict doctor + full suite)
   validate-features [options]      Validate QA design .feature files (gherkin.featurePath)
   validate-karate-features [options] Validate executable Karate .feature files
+  validate-maestro-flows [options]   Validate Maestro mobile YAML flows
   validate-traceability [options]  Validate the traceability matrix format and coverage
   validate-sync-plan [options]     Validate the test-management sync plan is proposal-first
   validate-active-specialists      Validate active.md matches qa-ai.config.yaml

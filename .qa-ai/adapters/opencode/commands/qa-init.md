@@ -3,50 +3,73 @@ description: Guided QA FlowKit initialization / Inicializacion guiada de QA Flow
 argument-hint: [optional init flags]
 ---
 
+Before any other action or user-facing text, read and follow `.qa-ai/workflows/command-interaction.md`.
+
 Initialize QA FlowKit from the copied `.qa-ai/` framework folder.
 
 If the user already has an exported configuration profile from another repository with the same structure, suggest `/qa-config --import <profile-path>` instead of repeating guided init.
 
 If the user provides `--qa-context <path>` or says they have a folder describing how QA works, load `.qa-ai/workflows/context-intake.md` and `.qa-ai/agents/qa-context-intake-agent.md` before choosing init defaults. Read the repository-local QA context folder, summarize explicit versus inferred practices, propose init flags, and ask for approval before running `init.mjs`.
 
-If `$ARGUMENTS` is empty, do not run anything yet. Ask the user these questions first. Ask question 1 in both English and Spanish; after the user chooses an interface language, ask the remaining questions in that interface language.
+If `$ARGUMENTS` is empty, do not run anything yet. Use OpenCode's built-in `question` tool for every closed choice below. Prefix every option label with its number and accept either a click or the number. Use free text only for the QA context path, custom paths or a value chosen through `Other / Otro`.
+
+Ask question 1 in both English and Spanish. After the user chooses an interface language, ask every remaining question and option only in that language. Ask dependent questions in small groups so a previous answer can change the next options.
 
 1. Which language should QA FlowKit use for user-facing workflow descriptions and questions? / Que idioma debe usar QA FlowKit para las descripciones y preguntas del workflow?
-   - `en`: English.
-   - `es`: Espanol.
+   - `1. English` -> `en`.
+   - `2. Espanol` -> `es`.
 2. Do you have a repository-local folder that documents how the QA team works?
-   - If yes, ask for the path, for example `qa-ai-knowledge`, then run the QA context intake workflow before continuing.
-   - If no, continue with standard guided init.
+   - `1. No` -> continue with standard guided init.
+   - `2. Yes` -> localize the label, then ask for the path as a separate free-text question, for example `qa-ai-knowledge`, and run the QA context intake workflow before continuing.
 3. Which Gherkin language should generated `.feature` files use?
-   - `en`: English Gherkin keywords and `Acceptance Criteria:`.
-   - `es`: Spanish Gherkin keywords and `Criterios de aceptacion:`.
+   - `1. English` -> `en`, English Gherkin keywords and `Acceptance Criteria:`.
+   - `2. Espanol` -> `es`, Spanish Gherkin keywords and `Criterios de aceptacion:`.
 4. Which base template should be used?
-   - `manual-only`: QA artifact generation only; no automation folders.
-   - `webdriverio-playwright-api`: WebdriverIO UI/E2E plus Playwright API folders.
-   - `selenium-jest-browserstack`: Selenium/Jest/BrowserStack style folders.
+   - `1. Manual only` -> `manual-only`.
+   - `2. Playwright UI + API` -> `playwright-full`.
+   - `3. Maestro + Karate mobile` -> `maestro-karate-mobile`.
+   - `4. Karate full` -> `karate-full`.
+   - `5. Selenium + Jest + BrowserStack` -> `selenium-jest-browserstack`.
+   - `6. WebdriverIO + Playwright API (legacy)` -> `webdriverio-playwright-api`.
 5. What is the primary requirements source?
-   - Examples: `markdown`, `jira`, `confluence`, `pasted-text`.
+   - `1. Markdown` -> `markdown`.
+   - `2. Jira` -> `jira`.
+   - `3. Confluence` -> `confluence`.
+   - `4. Pasted text` -> `pasted-text`.
+   - `5. Other` -> localize the label and ask for a custom value.
 6. Which test management tool should be configured?
-   - Examples: `none`, `testrail`, `zephyr`, `xray`.
+   - `1. None` -> `none`; localize the label.
+   - `2. TestRail` -> `testrail`.
+   - `3. Zephyr` -> `zephyr`.
+   - `4. Xray` -> `xray`.
+   - `5. Other` -> localize the label and ask for a custom value.
 7. Which issue tracker should be configured?
-   - Examples: `none`, `jira`, `github`.
+   - `1. None` -> `none`; localize the label.
+   - `2. Jira` -> `jira`.
+   - `3. GitHub` -> `github`.
+   - `4. Other` -> localize the label and ask for a custom value.
 8. Should the base template UI/E2E framework be overridden?
-   - Examples: `none`, `undecided`, `webdriverio`, `playwright`, `cypress`, `selenium`.
+   - Offer the numbered values `none`, `undecided`, `webdriverio`, `playwright`, `cypress`, `selenium`, followed by a localized `Other` option.
 9. Should the base template API/integration framework be overridden?
-   - Examples: `none`, `undecided`, `playwright-api`, `postman`, `rest-assured`, `karate`.
-10. Should any generated paths be customized?
+   - Offer the numbered values `none`, `undecided`, `playwright`, `postman`, `rest-assured`, `karate`, followed by a localized `Other` option.
+10. Should the base template mobile framework be overridden?
 
-- Optional flags: `--ui-specs-path`, `--ui-page-objects-path`, `--api-specs-path`.
+- Offer the numbered values `none`, `undecided`, `maestro`, `appium`, followed by a localized `Other` option.
 
-11. Which agent adapters should be generated?
+11. Should any generated paths be customized?
 
+- `1. Keep defaults` -> localize the label.
+- `2. Customize paths` -> localize the label, then ask only for the paths to change as free text: `--ui-specs-path`, `--ui-page-objects-path`, `--api-specs-path`, `--mobile-flows-path`.
+
+12. Which agent adapters should be generated?
+
+- Offer numbered options for `opencode`, `opencode,claude`, `all` and `none`.
 - Recommend `opencode,claude` when the user wants both.
-- Use `opencode` when the repo will only use OpenCode.
-- Use `all` when the user wants every supported adapter.
 
-12. Should existing generated files be overwritten?
+13. Should existing generated files be overwritten?
 
-- Recommend `no`; only use `--force` if the user explicitly asks.
+- `1. No` -> do not use `--force` (recommended).
+- `2. Yes` -> localize the label and use `--force` only after this explicit selection.
 
 After the user answers, build and run:
 
@@ -54,7 +77,10 @@ After the user answers, build and run:
 node .qa-ai/scripts/init.mjs --preset <base-template> --interface-language <en|es> --gherkin-language <en|es> --requirements-source <source> --test-management-tool <tool> --issue-tracker <tool> --adapters <adapters>
 ```
 
-Add `--qa-context <path>` when a QA context folder was approved. Only add `--ui-framework`, `--api-framework`, path override flags or `--set key=value` when the user asks for custom configuration that differs from the base template or the approved QA context recommendation. Only add `--force` if the user explicitly approved overwriting.
+Add `--qa-context <path>` when a QA context folder was approved. Only add `--ui-framework`, `--api-framework`,
+`--mobile-framework`, path override flags or `--set key=value` when the user asks for custom configuration that
+differs from the base template or the approved QA context recommendation. Only add `--force` if the user explicitly
+approved overwriting.
 
 If `$ARGUMENTS` is not empty, treat it as advanced mode and run:
 

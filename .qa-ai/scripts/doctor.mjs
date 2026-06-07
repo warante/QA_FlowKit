@@ -17,6 +17,7 @@ const requiredScripts = [
   '.qa-ai/scripts/clean.mjs',
   '.qa-ai/scripts/validate-features.mjs',
   '.qa-ai/scripts/validate-karate-features.mjs',
+  '.qa-ai/scripts/validate-maestro-flows.mjs',
   '.qa-ai/scripts/validate-traceability.mjs',
   '.qa-ai/scripts/validate-sync-plan.mjs',
   '.qa-ai/scripts/validate-active-specialists.mjs',
@@ -43,6 +44,8 @@ const requiredScripts = [
   '.qa-ai/scripts/lib/release-gate.mjs',
   '.qa-ai/scripts/lib/test-design.mjs',
   '.qa-ai/scripts/lib/markdown-table.mjs',
+  '.qa-ai/scripts/lib/maestro-validate.mjs',
+  '.qa-ai/scripts/lib/mobile-automation.mjs',
   '.qa-ai/scripts/lib/project-config.mjs',
   '.qa-ai/scripts/lib/test-management-mapping.mjs',
   '.qa-ai/scripts/lib/utils.mjs'
@@ -57,6 +60,7 @@ const requiredRules = [
   '.qa-ai/rules/defect.rules.md',
   '.qa-ai/rules/gherkin.rules.md',
   '.qa-ai/rules/karate.rules.md',
+  '.qa-ai/rules/mobile-automation.rules.md',
   '.qa-ai/rules/issue-tracker.rules.md',
   '.qa-ai/rules/release-gate.rules.md',
   '.qa-ai/rules/requirements.rules.md',
@@ -108,6 +112,7 @@ const requiredSpecialists = [
   '.qa-ai/agents/specialists/available/generic-test-design.md',
   '.qa-ai/agents/specialists/available/jira.md',
   '.qa-ai/agents/specialists/available/karate.md',
+  '.qa-ai/agents/specialists/available/maestro.md',
   '.qa-ai/agents/specialists/available/playwright-api.md',
   '.qa-ai/agents/specialists/available/playwright-ui.md',
   '.qa-ai/agents/specialists/available/postman.md',
@@ -120,15 +125,18 @@ const requiredSpecialists = [
 const requiredPresets = [
   '.qa-ai/presets/manual-only.yaml',
   '.qa-ai/presets/karate-full.yaml',
+  '.qa-ai/presets/maestro-karate-mobile.yaml',
+  '.qa-ai/presets/playwright-full.yaml',
   '.qa-ai/presets/selenium-jest-browserstack.yaml',
   '.qa-ai/presets/webdriverio-playwright-api.yaml'
 ];
 
-const requiredContracts = ['.qa-ai/contracts/workflow.v1.json'];
+const requiredContracts = ['.qa-ai/contracts/workflow.v1.json', '.qa-ai/contracts/public-contracts.v1.json'];
 
 const requiredWorkflows = [
   '.qa-ai/workflows/automation-analysis.md',
   '.qa-ai/workflows/cleanup.md',
+  '.qa-ai/workflows/command-interaction.md',
   '.qa-ai/workflows/context-intake.md',
   '.qa-ai/workflows/full-flow.md',
   '.qa-ai/workflows/implementation.md',
@@ -299,6 +307,8 @@ function addConfiguredChecks(checks, config) {
   const uiPageObjectsPath = getConfigValue(config, 'automation.ui.pageObjectsPath', '');
   const apiFramework = String(getConfigValue(config, 'automation.api.framework', 'none')).toLowerCase();
   const apiSpecsPath = getConfigValue(config, 'automation.api.specsPath', '');
+  const mobileFramework = String(getConfigValue(config, 'automation.mobile.framework', 'none')).toLowerCase();
+  const mobileFlowsPath = getConfigValue(config, 'automation.mobile.flowsPath', '');
   const knowledgeEnabled = isEnabled(getConfigValue(config, 'knowledge.enabled', false));
   const knowledgeSourcePath = getConfigValue(config, 'knowledge.sourcePath', '');
   const knowledgeSummaryPath = getConfigValue(config, 'knowledge.summaryPath', 'qa-ai-output/qa-knowledge-summary.md');
@@ -329,6 +339,10 @@ function addConfiguredChecks(checks, config) {
 
   if (isConfiguredFramework(apiFramework)) {
     if (apiSpecsPath) checks.push(pathCheck('required', 'configured API specs path', apiSpecsPath));
+  }
+
+  if (isConfiguredFramework(mobileFramework) && mobileFlowsPath) {
+    checks.push(pathCheck('required', 'configured mobile flows path', mobileFlowsPath));
   }
 
   if (usesKarate(config)) {
@@ -367,6 +381,16 @@ function addConfiguredChecks(checks, config) {
       anyPathCheck(checkLevel('optional'), 'Playwright API config', [
         'playwright.api.config.ts',
         'playwright.api.config.js',
+        'playwright.config.ts',
+        'playwright.config.js',
+        'playwright.config.mjs'
+      ])
+    );
+  }
+
+  if (uiFramework === 'playwright' || uiFramework === 'playwright-ui') {
+    checks.push(
+      anyPathCheck(checkLevel('optional'), 'Playwright UI config', [
         'playwright.config.ts',
         'playwright.config.js',
         'playwright.config.mjs'

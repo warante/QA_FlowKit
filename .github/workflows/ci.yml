@@ -71,10 +71,145 @@ jobs:
       - name: Run karate target validation
         run: node .github/scripts/run-karate-target-validation.mjs
 
+  karate-example:
+    name: 'Karate example (${{ matrix.os }})'
+    needs: npm-pack
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Validate and execute Karate public example
+        run: npm run test:e2e-karate -- --runtime
+
+  playwright-example:
+    name: 'Playwright example (${{ matrix.os }})'
+    needs: npm-pack
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+
+      - name: Validate and execute Playwright UI + API example
+        run: npm run test:e2e-playwright -- --runtime
+
+  mobile-example:
+    name: 'Maestro + Karate mobile example (${{ matrix.os }})'
+    needs: npm-pack
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Validate Maestro flows and execute Karate API example
+        run: npm run test:e2e-mobile -- --runtime
+
+  quick-path:
+    name: 'Quick path (${{ matrix.os }}, Node ${{ matrix.node }})'
+    needs: npm-pack
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node: ['20', '22']
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Run deterministic five-minute quick path
+        run: npm run test:e2e-quick
+
+  manual-example:
+    name: 'Manual example (${{ matrix.os }}, Node ${{ matrix.node }})'
+    needs: npm-pack
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node: ['20', '22']
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Validate packed manual-only public example
+        run: npm run test:e2e-manual-example
+
   # Ruleset "Protect release branches" requires check context "Validate starter" (not matrix names).
   validate-starter:
     name: Validate starter
-    needs: [npm-pack, adapter-parity, golden-target, karate-target]
+    needs:
+      [
+        npm-pack,
+        adapter-parity,
+        golden-target,
+        karate-target,
+        karate-example,
+        playwright-example,
+        mobile-example,
+        quick-path,
+        manual-example
+      ]
     runs-on: ubuntu-latest
 
     defaults:
@@ -130,6 +265,9 @@ jobs:
         if: ${{ hashFiles('package-lock.json') != '' }}
         run: npm audit --audit-level=low
 
+      - name: Check documentation consistency
+        run: npm run docs:check
+
       - name: Check script syntax
         run: node .github/scripts/check-syntax.mjs
 
@@ -146,7 +284,18 @@ jobs:
 
   validate:
     name: 'Validate (${{ matrix.os }}, Node ${{ matrix.node }})'
-    needs: [npm-pack, adapter-parity, golden-target, karate-target]
+    needs:
+      [
+        npm-pack,
+        adapter-parity,
+        golden-target,
+        karate-target,
+        karate-example,
+        playwright-example,
+        mobile-example,
+        quick-path,
+        manual-example
+      ]
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -212,6 +361,9 @@ jobs:
       - name: Audit dependencies
         if: ${{ hashFiles('package-lock.json') != '' }}
         run: npm audit --audit-level=low
+
+      - name: Check documentation consistency
+        run: npm run docs:check
 
       - name: Check script syntax
         run: node .github/scripts/check-syntax.mjs

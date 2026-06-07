@@ -36,15 +36,24 @@ async function copyFramework(targetRoot) {
   });
 }
 
+async function assertFileContains(root, relPath, expected) {
+  const content = await fs.readFile(path.join(root, relPath), 'utf8');
+  if (!content.includes(expected)) {
+    throw new Error(`Expected ${relPath} to include: ${expected}`);
+  }
+}
+
 async function main() {
   const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-flowkit-smoke-'));
   let unsafeRoot = null;
   let defaultTarget = null;
   let geminiTarget = null;
+  let allAdaptersTarget = null;
   let qaContextTarget = null;
   let optionalDocsTarget = null;
   let strictTarget = null;
   let quickStrictTarget = null;
+  let mobileTarget = null;
   let importProfileTarget = null;
   let validatorTarget = null;
   try {
@@ -53,25 +62,25 @@ async function main() {
     run(tempRoot, [
       '.qa-ai/scripts/init.mjs',
       '--preset',
-      'webdriverio-playwright-api',
+      'playwright-full',
       '--interface-language',
       'en',
       '--gherkin-language',
       'en',
       '--ui-framework',
-      'webdriverio',
+      'playwright',
       '--api-framework',
-      'playwright-api',
+      'playwright',
       '--adapters',
       'generic'
     ]);
 
     const config = parseSimpleYaml(await readText(path.join(tempRoot, 'qa-ai.config.yaml')));
-    if (config.automation.ui.specsPath !== 'tests/wdio/specs') {
-      throw new Error(`Expected preset UI path tests/wdio/specs, got ${config.automation.ui.specsPath}`);
+    if (config.automation.ui.specsPath !== 'tests/playwright/ui') {
+      throw new Error(`Expected preset UI path tests/playwright/ui, got ${config.automation.ui.specsPath}`);
     }
-    if (config.automation.api.specsPath !== 'tests/api/specs') {
-      throw new Error(`Expected preset API path tests/api/specs, got ${config.automation.api.specsPath}`);
+    if (config.automation.api.specsPath !== 'tests/playwright/api') {
+      throw new Error(`Expected preset API path tests/playwright/api, got ${config.automation.api.specsPath}`);
     }
 
     run(tempRoot, ['.qa-ai/scripts/config.mjs', '--export', '.qa-ai/config-profiles/team.yaml']);
@@ -84,15 +93,15 @@ async function main() {
     );
     run(importProfileTarget, ['.qa-ai/scripts/config.mjs', '--import', '.qa-ai/config-profiles/team.yaml']);
     const importedConfig = parseSimpleYaml(await readText(path.join(importProfileTarget, 'qa-ai.config.yaml')));
-    if (importedConfig.automation.ui.specsPath !== 'tests/wdio/specs') {
+    if (importedConfig.automation.ui.specsPath !== 'tests/playwright/ui') {
       throw new Error(`Imported config did not preserve UI specs path, got ${importedConfig.automation.ui.specsPath}`);
     }
     const expectedImportPaths = [
       '.qa-ai/agents/specialists/active.md',
       'features',
       'qa-ai-output',
-      'tests/wdio/specs',
-      'tests/api/specs'
+      'tests/playwright/ui',
+      'tests/playwright/api'
     ];
     for (const relPath of expectedImportPaths) {
       try {
@@ -135,6 +144,30 @@ async function main() {
     }
     run(defaultTarget, ['.qa-ai/scripts/doctor.mjs']);
 
+    mobileTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-flowkit-mobile-'));
+    await copyFramework(mobileTarget);
+    run(mobileTarget, [
+      '.qa-ai/scripts/init.mjs',
+      '--preset',
+      'maestro-karate-mobile',
+      '--no-adapters',
+      '--skip-doctor'
+    ]);
+    const expectedMobilePaths = [
+      'tests/karate/features/api',
+      'tests/maestro/flows',
+      '.qa-ai/agents/specialists/active.md'
+    ];
+    for (const relPath of expectedMobilePaths) {
+      try {
+        await fs.access(path.join(mobileTarget, relPath));
+      } catch {
+        throw new Error(`Mobile preset did not create expected path: ${relPath}`);
+      }
+    }
+    await assertFileContains(mobileTarget, '.qa-ai/agents/specialists/active.md', '`karate`');
+    await assertFileContains(mobileTarget, '.qa-ai/agents/specialists/active.md', '`maestro`');
+
     geminiTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-flowkit-gemini-'));
     await copyFramework(geminiTarget);
     run(geminiTarget, ['.qa-ai/scripts/init.mjs', '--adapters', 'gemini']);
@@ -145,6 +178,26 @@ async function main() {
       } catch {
         throw new Error(`Gemini adapter init did not create expected path: ${relPath}`);
       }
+    }
+    await assertFileContains(geminiTarget, 'GEMINI.md', 'ask_user');
+
+    allAdaptersTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-flowkit-all-adapters-'));
+    await copyFramework(allAdaptersTarget);
+    run(allAdaptersTarget, ['.qa-ai/scripts/init.mjs', '--adapters', 'all']);
+    const adapterInteractionContracts = [
+      ['AGENTS.md', '.qa-ai/workflows/command-interaction.md'],
+      ['.claude/commands/qa-init.md', 'interactive question tool'],
+      ['.codex/README.md', 'request_user_input'],
+      ['.opencode/commands/qa-init.md', 'built-in `question` tool'],
+      ['.clinerules', 'ask_followup_question'],
+      ['.continue/README.md', 'numbered options'],
+      ['.aider.conf.yml', '.qa-ai/workflows/command-interaction.md'],
+      ['.aider/README.md', 'numbered options'],
+      ['.goose/recipes/qa-flowkit.yaml', 'numbered options'],
+      ['GEMINI.md', 'ask_user']
+    ];
+    for (const [relPath, expected] of adapterInteractionContracts) {
+      await assertFileContains(allAdaptersTarget, relPath, expected);
     }
 
     qaContextTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-flowkit-context-'));
@@ -192,13 +245,12 @@ async function main() {
     run(strictTarget, [
       '.qa-ai/scripts/init.mjs',
       '--preset',
-      'webdriverio-playwright-api',
+      'playwright-full',
       '--with-doc-templates',
       '--with-test-management-mapping',
       '--adapters',
       'generic'
     ]);
-    await fs.writeFile(path.join(strictTarget, 'wdio.conf.js'), 'export const config = {};\n', 'utf8');
     await fs.writeFile(path.join(strictTarget, 'playwright.config.js'), 'export default {};\n', 'utf8');
     run(strictTarget, ['.qa-ai/scripts/doctor.mjs', '--strict']);
     await fs.rm(path.join(strictTarget, 'qa-ai-output', 'traceability-matrix.md'), { force: true });
@@ -423,7 +475,7 @@ async function main() {
     run(tempRoot, [
       '.qa-ai/scripts/init.mjs',
       '--preset',
-      'webdriverio-playwright-api',
+      'playwright-full',
       '--interface-language',
       'en',
       '--gherkin-language',
@@ -467,10 +519,12 @@ async function main() {
     if (unsafeRoot) await fs.rm(unsafeRoot, { recursive: true, force: true });
     if (defaultTarget) await fs.rm(defaultTarget, { recursive: true, force: true });
     if (geminiTarget) await fs.rm(geminiTarget, { recursive: true, force: true });
+    if (allAdaptersTarget) await fs.rm(allAdaptersTarget, { recursive: true, force: true });
     if (qaContextTarget) await fs.rm(qaContextTarget, { recursive: true, force: true });
     if (optionalDocsTarget) await fs.rm(optionalDocsTarget, { recursive: true, force: true });
     if (strictTarget) await fs.rm(strictTarget, { recursive: true, force: true });
     if (quickStrictTarget) await fs.rm(quickStrictTarget, { recursive: true, force: true });
+    if (mobileTarget) await fs.rm(mobileTarget, { recursive: true, force: true });
     if (importProfileTarget) await fs.rm(importProfileTarget, { recursive: true, force: true });
     if (validatorTarget) await fs.rm(validatorTarget, { recursive: true, force: true });
   }

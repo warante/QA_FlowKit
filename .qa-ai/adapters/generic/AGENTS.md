@@ -30,6 +30,7 @@ Detailed rules live under `.qa-ai/rules/`. Do not rely on this summary alone.
 - Gherkin: configured `gherkin.language`; required tags `@priority:`, `@type:`, `@manual:`; recommended `@rf:`, `@id:`; see [gherkin.rules.md](.qa-ai/rules/gherkin.rules.md).
 - Requirements: official RF ID before final `.feature` generation; maintain traceability matrix; see [requirements.rules.md](.qa-ai/rules/requirements.rules.md).
 - Languages: `project.interfaceLanguage` for artifacts and questions; `gherkin.language` only for `.feature` files; see [workflow.rules.md](.qa-ai/rules/workflow.rules.md).
+- Command interactions: resolve the interface language before the first response and follow [.qa-ai/workflows/command-interaction.md](.qa-ai/workflows/command-interaction.md) for selectable and free-text questions.
 
 ## Preferred implementation stack
 

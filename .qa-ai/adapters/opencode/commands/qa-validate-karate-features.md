@@ -3,6 +3,8 @@ description: Validate executable Karate feature files / Validar features ejecuta
 argument-hint: [optional validator flags]
 ---
 
+Before any other action or user-facing text, read and follow `.qa-ai/workflows/command-interaction.md`.
+
 Validate Karate executable `.feature` files under the configured API/UI specs paths.
 
 Read `qa-ai.config.yaml` when Karate is configured (`automation.api.framework` or `automation.ui.framework` is `karate`).

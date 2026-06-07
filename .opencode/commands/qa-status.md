@@ -3,6 +3,8 @@ description: Summarize QA AI repo status / Resumir estado del repo QA AI
 argument-hint: [optional scope]
 ---
 
+Before any other action or user-facing text, read and follow `.qa-ai/workflows/command-interaction.md`.
+
 Summarize the current QA FlowKit status for this repository.
 
 Read these files first:

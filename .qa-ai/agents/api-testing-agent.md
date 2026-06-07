@@ -30,7 +30,7 @@ Activated as Phase 11 of the QA workflow, when the feasibility report contains t
 
 Use `automation.api.specsPath` from config.
 
-**When `automation.api.framework` is `karate`:** write executable `.feature` files under `tests/karate/features/api/` (or the configured specs path). Follow [karate.md](../specialists/available/karate.md) and run `validate-karate-features.mjs`. Do not use Playwright/REST Assured spec file layouts.
+**When `automation.api.framework` is `karate`:** write executable `.feature` files under `tests/karate/features/api/` (or the configured specs path). Follow [karate.md](specialists/available/karate.md) and run `validate-karate-features.mjs`. Do not use Playwright/REST Assured spec file layouts.
 
 **Otherwise** `init.mjs` creates sibling folders under the API test base (for example `tests/api/`):
 

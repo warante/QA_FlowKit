@@ -63,4 +63,4 @@ Feature: Create post API
 ## Constraints
 
 - Do not change `karate-config.js`, `pom.xml`, `build.gradle` or runner config without approval.
-- See [karate.rules.md](../../rules/karate.rules.md).
+- See [karate.rules.md](../../../rules/karate.rules.md).

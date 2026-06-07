@@ -4,8 +4,8 @@
 import path from 'node:path';
 
 export const rfPattern = /\bRF[-_ ]?[A-Z0-9]+\b/i;
-export const idPattern = /\b(?:RF|TC|TEST|QA)[-_ ]?[A-Z0-9]+\b/gi;
-export const caseIdPattern = /\b(?:TC|TEST|QA)[-_ ]?[A-Z0-9]+\b/gi;
+export const idPattern = /\b(?:RF|TC|TEST|QA)(?:[-_][A-Z0-9]+| \d[A-Z0-9]*|\d+)\b/gi;
+export const caseIdPattern = /\b(?:TC|TEST|QA)(?:[-_][A-Z0-9]+| \d[A-Z0-9]*|\d+)\b/gi;
 
 export function requiredTagName(tag) {
   const normalized = String(tag).trim();

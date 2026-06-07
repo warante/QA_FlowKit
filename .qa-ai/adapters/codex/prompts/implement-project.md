@@ -1,4 +1,6 @@
-Read `AGENTS.md`, `README.md`, `ROADMAP.md`, `docs/qa-ai/implementation-guide-for-codex.md`, `docs/qa-ai/backlog.md` and all files under `.qa-ai/rules/`.
+Read `AGENTS.md`, `qa-ai.config.yaml`, `.qa-ai/workflows/command-interaction.md`, `README.md`, `ROADMAP.md`, `docs/qa-ai/implementation-guide-for-codex.md`, `docs/qa-ai/backlog.md` and all files under `.qa-ai/rules/`.
+
+Before the first user-facing response, resolve `project.interfaceLanguage` / `project.defaultLanguage` and keep that language throughout the interaction. Use `request_user_input` for closed choices when the current mode exposes it; otherwise use numbered options with a separate custom choice.
 
 Then implement the QA FlowKit MVP from beginning to end.
 

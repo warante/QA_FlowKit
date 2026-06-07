@@ -12,7 +12,14 @@ When `knowledge.enabled` is true in `qa-ai.config.yaml`, review `knowledge.summa
 | ----------------------------------------------------------- | ---------------------------------------- |
 | `AGENTS.md`                                                 | Generic behavior and safety rules        |
 | `.qa-ai/rules/README.md` + `*.rules.md`                     | Mandatory QA workflow rules (all agents) |
+| `.qa-ai/workflows/command-interaction.md`                   | Language and question behavior           |
 | `.qa-ai/adapters/continue/checks/qa-feature-conventions.md` | Feature-file review checklist            |
+
+## Interaction
+
+- Resolve `project.interfaceLanguage` / `project.defaultLanguage` before the first response.
+- Use a host-provided structured question tool when the active Continue surface exposes one.
+- Otherwise show numbered options and accept the number. Use free text only for `Other`, paths, IDs and pasted content.
 
 ## Recommended Checks
 

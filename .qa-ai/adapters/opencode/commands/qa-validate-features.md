@@ -3,6 +3,8 @@ description: Validate QA FlowKit Gherkin feature files / Validar archivos Gherki
 argument-hint: [optional validator flags]
 ---
 
+Before any other action or user-facing text, read and follow `.qa-ai/workflows/command-interaction.md`.
+
 Validate QA FlowKit `.feature` files.
 
 Read `qa-ai.config.yaml` when present and use its configured interface language (`project.interfaceLanguage` / `project.defaultLanguage`, `en` or `es`) for questions, descriptions and summaries. The validator itself uses `gherkin.language` for `.feature` rules.

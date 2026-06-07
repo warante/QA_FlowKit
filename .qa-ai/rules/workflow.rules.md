@@ -9,6 +9,14 @@ Apply to every QA workflow phase and every generated artifact.
 - Use `project.interfaceLanguage` / `project.defaultLanguage` from `qa-ai.config.yaml` for user-facing questions, summaries and markdown artifacts under `qa-ai-output/`.
 - Use `gherkin.language` (`en` or `es`) **only** for `.feature` file content, Gherkin keywords and acceptance-criteria labels.
 - Do not mix languages inside a single `.feature` file.
+- Resolve the interface language before the first user-facing response and keep it for the complete command interaction.
+
+## Command interaction
+
+- Every slash command must read and follow `.qa-ai/workflows/command-interaction.md` before emitting user-facing text.
+- Use the host's interactive question tool for closed choices when available.
+- Prefix predefined options with numbers and accept a click, option number, short label or exact value.
+- Keep free text for paths, IDs, pasted content and a separate `Other / Otro` custom choice.
 
 ## QA track (`project.qaTrack`)
 

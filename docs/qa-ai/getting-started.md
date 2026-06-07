@@ -4,19 +4,75 @@ Step-by-step setup flows for each user type. Pick the one that matches your situ
 
 ## 5-minute quick path
 
+This path uses one public requirement:
+
+```markdown
+# RF-101 - User login
+
+A registered user can sign in with a valid email address and password.
+
+Acceptance criteria:
+
+- Valid credentials open the account dashboard.
+```
+
 From your **target** repository root (Node.js 20+):
 
 ```bash
-npx qa-flowkit@beta init --preset manual-only --qa-track quick
-npx qa-flowkit help
+npx qa-flowkit@beta init --preset manual-only --qa-track quick --adapters generic
+npx qa-flowkit doctor
+npx qa-flowkit run start --rf RF-101
+npx qa-flowkit run next
 ```
 
-1. Open the repo in your AI coding tool; read `AGENTS.md` and `qa-ai.config.yaml`.
-2. Run `/qa-init` or follow [context intake](workflow.md) for one sample requirement (RF).
-3. Produce a test design proposal, then one `.feature` file with required tags.
-4. Validate: `npx qa-flowkit validate-features` and `npx qa-flowkit validate-traceability`.
+1. Save the requirement as `requirements/RF-101-login.md`.
+2. Open the repo in your AI coding tool and ask it to read `AGENTS.md`, `qa-ai.config.yaml` and the phase packet.
+3. After each generated output, run `npx qa-flowkit run check`, then `npx qa-flowkit run next`.
+4. Before Gherkin generation, approve the quick-path proposal with
+   `npx qa-flowkit run approve test-design --note "RF-101 design approved"`.
+5. Finish with `npx qa-flowkit validate-target`.
 
-Reference layout: [golden target fixture](../../test/fixtures/golden-target/). Pilot notes: [pilot-findings.md](pilot-findings.md).
+Expected artifacts:
+
+```text
+qa-ai-output/requirement-analysis.md
+qa-ai-output/normalized-requirements.md
+features/functional/RF-101-TC-001-login.feature
+qa-ai-output/traceability-matrix.md
+qa-ai-output/pr-summary.md
+```
+
+The feature must include:
+
+```gherkin
+@priority:high @type:functional @manual:true @rf:RF-101 @id:TC-001
+```
+
+If `@manual:true` is omitted, `run check` fails and keeps the Gherkin phase active. Add the tag and run `check` again;
+the corrected phase advances without restarting the workflow.
+
+### Reproduce the verified path
+
+From a QA FlowKit source checkout:
+
+```bash
+npm run test:e2e-quick
+```
+
+PowerShell uses the same command. The E2E creates a temporary target repository, performs clean init, completes every
+quick-track phase, proves the intentional validator failure, corrects it and runs strict target validation. CI runs
+this scenario on Ubuntu and Windows with Node.js 20 and 22.
+
+Fixture: [`test/fixtures/quick-path/`](../../test/fixtures/quick-path/). Static demo:
+[demo.md](demo.md). Pilot notes: [pilot-findings.md](pilot-findings.md). Future pilots use the common
+[pilot methodology](pilot-methodology.md).
+
+For the reviewed final repository rather than the phase-by-phase fixture, see the
+[manual-only public example](../../examples/manual-only/README.md). Its packed-package E2E can be replayed with:
+
+```bash
+npm run test:e2e-manual-example
+```
 
 Presets: [config-schema.md](config-schema.md) · Stability: [stability-policy.md](stability-policy.md).
 
@@ -97,7 +153,7 @@ All checks should pass. A warning for missing automation config files is expecte
 With any supported agent (Claude Code, OpenCode, Codex, etc.), start with:
 
 ```text
-Read AGENTS.md, qa-ai.config.yaml and .qa-ai/workflows/full-flow.md. Follow .qa-ai/rules/ before making changes.
+Read AGENTS.md, qa-ai.config.yaml, .qa-ai/workflows/command-interaction.md and .qa-ai/workflows/full-flow.md. Resolve the configured interface language before responding. Use the host's selectable question tool for closed choices when available; otherwise show numbered options. Follow .qa-ai/rules/ before making changes.
 ```
 
 Then provide a requirement (RF or user story) and run the full QA flow.
@@ -151,10 +207,10 @@ Copy-Item -Recurse -LiteralPath C:\path\to\QA_FlowKit\.qa-ai -Destination .\.qa-
 
 **Step 2 — Initialize with your automation preset**
 
-For WebdriverIO UI/E2E + Playwright API (default):
+For Playwright UI/E2E + Playwright API (default):
 
 ```bash
-node .qa-ai/scripts/init.mjs --preset webdriverio-playwright-api
+node .qa-ai/scripts/init.mjs --preset playwright-full
 ```
 
 For Selenium + Jest + BrowserStack:
@@ -166,7 +222,7 @@ node .qa-ai/scripts/init.mjs --preset selenium-jest-browserstack
 To override specific frameworks without changing the full preset:
 
 ```bash
-node .qa-ai/scripts/init.mjs --preset webdriverio-playwright-api --api-framework postman
+node .qa-ai/scripts/init.mjs --preset playwright-full --api-framework postman
 ```
 
 **Step 3 — Verify setup**
@@ -297,7 +353,7 @@ The guided command asks for:
 For a non-interactive direct form:
 
 ```text
-/qa-init --preset webdriverio-playwright-api --interface-language en --gherkin-language en --adapters claude,opencode
+/qa-init --preset playwright-full --interface-language en --gherkin-language en --adapters claude,opencode
 ```
 
 **Step 4 — (Optional) Add QA context through the agent**
