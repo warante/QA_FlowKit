@@ -1,0 +1,5 @@
+appId: ${APP_ID}
+name: Open home
+---
+- tapOn: 'Home'
+- assertVisible: 'Account balance'

@@ -80,6 +80,61 @@ function validateManifest(manifest) {
   }
 }
 
+async function filesUnder(directory) {
+  const files = [];
+
+  async function visit(current) {
+    for (const entry of await fs.readdir(current, { withFileTypes: true })) {
+      const absolutePath = path.join(current, entry.name);
+      if (entry.isDirectory()) {
+        await visit(absolutePath);
+      } else {
+        files.push(absolutePath);
+      }
+    }
+  }
+
+  await visit(directory);
+  return files;
+}
+
+async function verifyCanonicalExampleSources(manifest) {
+  const tracked = new Set(
+    run('git', ['ls-files', '--', 'examples'], { cwd: repoRoot })
+      .stdout.split(/\r?\n/)
+      .filter(Boolean)
+      .map((file) => file.replaceAll('\\', '/'))
+  );
+
+  for (const example of manifest.examples) {
+    const exampleRoot = path.join(repoRoot, example.path);
+    const requiredEntries = ['qa-ai.config.yaml', 'features', 'qa-ai-output'];
+    if (example.preset !== 'manual-only') requiredEntries.push('tests');
+
+    for (const entry of requiredEntries) {
+      const absolutePath = path.join(exampleRoot, entry);
+      let stats;
+      try {
+        stats = await fs.stat(absolutePath);
+      } catch {
+        throw new Error(`Canonical example source is missing: ${example.path}/${entry}`);
+      }
+
+      const files = stats.isDirectory() ? await filesUnder(absolutePath) : [absolutePath];
+      if (files.length === 0) {
+        throw new Error(`Canonical example source is empty: ${example.path}/${entry}`);
+      }
+
+      for (const file of files) {
+        const relativePath = path.relative(repoRoot, file).replaceAll(path.sep, '/');
+        if (!tracked.has(relativePath)) {
+          throw new Error(`Canonical example source is not tracked by Git: ${relativePath}`);
+        }
+      }
+    }
+  }
+}
+
 async function packageToInstall(packageSpec, tempRoot, npmCache) {
   if (packageSpec !== 'local') return packageSpec;
 
@@ -104,6 +159,7 @@ async function main() {
   const packageSpec = validatePackageSpec(requestedSpec);
   const manifest = JSON.parse(await fs.readFile(path.join(repoRoot, 'examples', 'compatibility.json'), 'utf8'));
   validateManifest(manifest);
+  await verifyCanonicalExampleSources(manifest);
   const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-flowkit-channel-compatibility-'));
   const npmCache = path.join(tempRoot, 'npm-cache');
   const cliRoot = path.join(tempRoot, 'cli');
