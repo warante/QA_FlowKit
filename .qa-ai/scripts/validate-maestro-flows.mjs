@@ -1,0 +1,88 @@
+#!/usr/bin/env node
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import { validateMaestroFlowContent } from './lib/maestro-validate.mjs';
+import { maestroFlowsPath, usesMaestro } from './lib/mobile-automation.mjs';
+import {
+  listFilesRecursive,
+  loadQaAiConfig,
+  logHeader,
+  parseArgs,
+  pathExists,
+  relativeTo,
+  resolveRepoPath
+} from './lib/utils.mjs';
+
+const cwd = process.cwd();
+const args = parseArgs(process.argv);
+
+function printHelp() {
+  console.log(`Usage: node .qa-ai/scripts/validate-maestro-flows.mjs [options]
+
+Options:
+  --path <dir>     Override automation.mobile.flowsPath
+  --allow-empty    Return success when no Maestro YAML flows exist
+  --help           Show this help
+
+Validates Maestro flow front matter, sequence commands and repository-local runFlow references.
+`);
+}
+
+async function main() {
+  if (args.help) {
+    printHelp();
+    return;
+  }
+
+  logHeader('QA AI Maestro flow validator');
+  const configInfo = await loadQaAiConfig(cwd);
+  if (!usesMaestro(configInfo.data)) {
+    console.log('Maestro is not configured (automation.mobile.framework is not maestro). Skipping.');
+    return;
+  }
+
+  const flowsRoot = args.path || maestroFlowsPath(configInfo.data);
+  const flowsRootPath = resolveRepoPath(cwd, flowsRoot, { label: 'Maestro flows root' });
+  if (!(await pathExists(flowsRootPath))) {
+    console.log(`Maestro flows root not found at ${flowsRoot}.`);
+    if (args['allow-empty']) return;
+    process.exit(1);
+  }
+
+  const files = await listFilesRecursive(flowsRootPath, (filePath) => /\.ya?ml$/i.test(filePath));
+  if (files.length === 0) {
+    console.log(`No Maestro YAML flows found under ${flowsRoot}.`);
+    if (args['allow-empty']) return;
+    process.exit(1);
+  }
+
+  const errors = [];
+  for (const file of files) {
+    const relativePath = relativeTo(cwd, file);
+    const content = await fs.readFile(file, 'utf8');
+    const result = validateMaestroFlowContent(content, relativePath);
+    for (const warning of result.warnings) console.log(`[WARN] ${relativePath}: ${warning}`);
+    for (const error of result.errors) errors.push(`${relativePath}: ${error}`);
+
+    for (const referencedFlow of result.referencedFlows) {
+      const target = resolveRepoPath(path.dirname(file), referencedFlow, { label: 'Maestro runFlow target' });
+      if (!(await pathExists(target))) {
+        errors.push(`${relativePath}: runFlow target does not exist: ${referencedFlow}`);
+      }
+    }
+    if (result.ok) console.log(`[PASS] ${relativePath}`);
+  }
+
+  if (errors.length > 0) {
+    for (const error of errors) console.log(`[FAIL] ${error}`);
+    console.log(`\nFAILED - ${errors.length} Maestro validation issue(s).`);
+    process.exit(1);
+  }
+
+  console.log('\nVALID - all Maestro flows passed.');
+}
+
+main().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});

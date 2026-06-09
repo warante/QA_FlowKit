@@ -1,0 +1,13 @@
+{
+  "name": "qa-flowkit-playwright-reference",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "playwright test",
+    "test:api": "playwright test --project=api",
+    "test:e2e": "playwright test --project=chromium"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.60.0"
+  }
+}

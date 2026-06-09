@@ -17,7 +17,7 @@ import {
 
 const cwd = process.cwd();
 const args = parseArgs(process.argv);
-const idPattern = /\b(?:RF|TC|TEST|QA)[-_ ]?[A-Z0-9]+\b/gi;
+const idPattern = /\b(?:RF|TC|TEST|QA)(?:[-_][A-Z0-9]+| \d[A-Z0-9]*|\d+)\b/gi;
 const writeClaimPattern =
   /\b(?:created|updated|deleted|synced|archived|creado|actualizado|eliminado|sincronizado|archivado)\s+(?:in|to|from|en|a|de)\s+(?:testrail|zephyr|xray|jira)\b/i;
 const requiredColumns = ['ID', 'Proposed action', 'Approval status'];

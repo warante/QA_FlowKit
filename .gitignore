@@ -44,6 +44,15 @@ tests/
 !test/fixtures/**/tests/
 !test/fixtures/**/tests/**
 
+# Public examples are canonical source fixtures, not local init output.
+!examples/**/qa-ai.config.yaml
+!examples/**/qa-ai-output/
+!examples/**/qa-ai-output/**
+!examples/**/features/
+!examples/**/features/**
+!examples/**/tests/
+!examples/**/tests/**
+
 # Test runners (when automation is added)
 test-results/
 playwright-report/

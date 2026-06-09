@@ -356,7 +356,10 @@ function buildRecommendations({ ctx, pendingPhaseIds, completedPhaseIds, config,
   }
 
   if (ctx.track === 'enterprise' || ctx.track === 'standard') {
-    if (pendingPhaseIds.length === 0 || ['traceability', 'pr', 'jira', 'api-impl', 'ui-impl'].includes(nextId)) {
+    if (
+      pendingPhaseIds.length === 0 ||
+      ['traceability', 'pr', 'jira', 'api-impl', 'ui-impl', 'mobile-impl'].includes(nextId)
+    ) {
       items.push({
         priority: ctx.track === 'enterprise' ? 'required' : 'recommended',
         title: 'Run aggregated target validation',

@@ -1,3 +1,3 @@
 # QA FlowKit — Cline
 
-Read `AGENTS.md`, `qa-ai.config.yaml`, and all files under `.qa-ai/rules/` (start with `.qa-ai/rules/README.md`) before QA workflow changes. Follow `approval.rules.md` before modifying files.
+Read `AGENTS.md`, `qa-ai.config.yaml`, `.qa-ai/workflows/command-interaction.md`, and all files under `.qa-ai/rules/` (start with `.qa-ai/rules/README.md`) before QA workflow changes. Resolve `project.interfaceLanguage` / `project.defaultLanguage` before the first response and keep it for the complete interaction. Use `ask_followup_question` with numbered predefined options for closed choices. Keep free text for `Other`, paths, IDs and pasted content. Follow `approval.rules.md` before modifying files.

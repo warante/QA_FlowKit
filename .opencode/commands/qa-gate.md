@@ -3,6 +3,8 @@ description: Release quality gate decision / Decisión de release gate
 argument-hint: [optional scope or RF ID]
 ---
 
+Before any other action or user-facing text, read and follow `.qa-ai/workflows/command-interaction.md`.
+
 Produce or update the formal release gate for this repository.
 
 Read first:

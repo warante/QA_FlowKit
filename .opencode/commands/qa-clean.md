@@ -3,6 +3,8 @@ description: Guided manifest-based QA AI cleanup / Limpieza guiada de QA FlowKit
 argument-hint: [optional clean flags]
 ---
 
+Before any other action or user-facing text, read and follow `.qa-ai/workflows/command-interaction.md`.
+
 Preview or execute cleanup for generated QA FlowKit artifacts.
 
 Read `qa-ai.config.yaml` when present and use its configured interface language (`project.interfaceLanguage` / `project.defaultLanguage`, `en` or `es`) for questions, descriptions and summaries.

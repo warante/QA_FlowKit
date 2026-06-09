@@ -387,7 +387,7 @@ Acceptance Criteria:
 
 ### TASK-027 - Add example manual-only repository
 
-Status: Deferred
+Status: Done
 
 Acceptance Criteria:
 
@@ -395,8 +395,9 @@ Acceptance Criteria:
 - Passes `validate-target.mjs` in CI.
 - Linked from README and getting-started.
 
-Progress: `docs/qa-ai/example-repos.md` documents the target structure, acceptance criteria, CI workflow template and
-contribution process. The public repository itself is intentionally deferred until after the current beta release.
+Progress: [`examples/manual-only/`](../../examples/manual-only/) is now the first-class in-repo reference. Its E2E
+installs the locally packed package, preserves the reviewed artifacts and runs strict target validation on the
+supported CI matrix.
 
 ## Epic 9 - Test design dual-mode (BMAD TEA-inspired)
 
@@ -654,9 +655,15 @@ Acceptance Criteria:
 - Mark TASK-042, TASK-046 and TASK-047 through TASK-050 Done only after all acceptance criteria pass.
 - Run lint, format check, `validate:oss-extraction`, npm pack verification, `git diff --check` and local link checks.
 
-## Future epics
+## Future planning
 
-- Example WebdriverIO + Playwright API repository.
-- npm CLI migration.
+This backlog records the implementation history through Epic 12. The executable plan from the current beta to stable
+`1.0.0` continues in [`tasks/README.md`](../../tasks/README.md), beginning with Epic 13.
+
+Post-1.0 candidates remain:
+
 - MCP/tool gateway and read-only integrations.
-- Documentation site.
+- Controlled external writes after permission, audit, idempotency and rollback design.
+- Interactive init.
+- Adapter registry.
+- Documentation site enhancements.

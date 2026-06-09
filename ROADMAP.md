@@ -1,134 +1,82 @@
 # Roadmap
 
-## Current status - Target-repo hardening
+## Current status
 
-QA FlowKit has moved beyond the folder-copy MVP. The portable `.qa-ai/` framework, init/bootstrap scripts, adapters, validation workflow, CI, GitHub repository hardening and public releases are in place.
+QA FlowKit is in **Beta**. The portable framework, npm CLI, deterministic validators, repository-native harness,
+release automation and first real target-repository pilot are complete.
 
-The current product phase is **Beta** (`0.5.0-beta.x`): the starter has been validated in a real pilot repository, CI includes a golden in-repo target fixture, and the npm CLI is the primary install path. Current work focuses on stabilization, public docs, and the path to `1.0.0`.
+The remaining path to `1.0.0` is product stabilization, not broad feature expansion. Stable `1.0.0` requires:
 
-## Completed - Portable folder MVP
+- coherent product and security documentation;
+- a concise first-use experience and reproducible public demonstration;
+- evidence from multiple target repositories and QA team profiles;
+- stable CLI, config, workflow, state and validator contracts;
+- explicit security and agent-compatibility claims backed by tests;
+- release-candidate soak time and a rehearsed stable release.
 
-Goal: create a folder that can be copied into any QA/automation repository.
+The executable implementation plan, owners, dependencies and acceptance criteria live in
+[`tasks/`](tasks/README.md).
 
-Delivered:
+## Delivered foundation
 
-- `.qa-ai/` portable framework structure.
-- `qa-ai.config.yaml` generation.
-- Agent adapter generation for Claude Code, OpenCode, Codex, Cline, Continue, Aider, Goose and Gemini CLI.
-- Agent-first bootstrap through `/qa-init` for Claude Code and OpenCode.
-- Documentation, rules, templates and validation scripts.
-- Manifest-based cleanup with dry-run default.
-- CI workflow running doctor, validators and smoke tests.
-- GitHub repository hardening with branch rules, CodeQL, Dependabot and secret scanning.
+- Portable `.qa-ai/` framework and `qa-ai.config.yaml` generation.
+- npm CLI with `init`, `update`, `doctor`, validators, guided help and resumable `run` commands.
+- Agent adapters for Claude Code, OpenCode, Codex, Cline, Continue, Aider, Goose and Gemini CLI.
+- Quick, standard and enterprise workflow tracks.
+- Gherkin, traceability, test-design, sync-plan, Karate, Maestro and release-gate validators.
+- Persistent local run state, approval gates, bounded validation retries and repository path isolation.
+- Linux and Windows CI on Node.js 20 and 22.
+- Golden manual target and Karate target fixtures.
+- Manual, Playwright UI+API, Karate and Maestro+Karate public references in validation for the 1.0 adoption gate.
+- npm package verification, release-please, CodeQL, Dependabot and secret scanning.
+- First real pilot using WebdriverIO and Playwright API.
 
-## Completed - Pilot repositories
+## Path to 1.0
 
-Goal: validate that the workflow works across different QA and automation setups.
+| Milestone                | Scope                                                               | Exit gate                                                                                      |
+| ------------------------ | ------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| M1 - Product baseline    | Epic 13: documentation, version and security consistency            | No contradictory version, maturity, audit or support claims; automated consistency checks pass |
+| M2 - Adoption path       | Epics 14-15: concise README, demo and public reference repositories | A new evaluator can understand and run a complete example without maintainer assistance        |
+| M3 - External validation | Epic 16: three representative pilots and before/after metrics       | Pilot evidence covers quick, standard and enterprise usage with published anonymized findings  |
+| M4 - Contract freeze     | Epic 17: CLI/config/workflow/state stability and migration coverage | Public contracts are versioned, compatibility-tested and frozen for the release candidate      |
+| M5 - Trust baseline      | Epic 18: threat model, agent compatibility and E2E/CI hardening     | Security boundaries and compatibility claims are explicit and verified at their stated level   |
+| M6 - Release candidate   | Epic 19: `1.0.0-rc` validation and soak                             | RC passes the full support matrix with no unresolved P0/P1 defects                             |
+| M7 - Stable release      | Epic 20: stable release and post-release verification               | `1.0.0` is published through release-please on `latest` and install/update smoke tests pass    |
 
-Delivered:
+## Scope guardrails
 
-- Pilot with WebdriverIO + Playwright API.
-- Feedback from generated Gherkin, traceability and automation planning.
-- Confirmation that the folder-copy workflow, init scripts, adapters and validators work correctly in a target repository.
+The following are **not required for 1.0.0**:
 
-Follow-up:
+- model hosting or model selection;
+- unrestricted Jira, TestRail, Zephyr, Xray, Confluence or GitHub writes;
+- a hosted QA FlowKit backend;
+- full tool-level enforcement against an agent with unrestricted shell access;
+- interactive CLI prompts;
+- an adapter marketplace or registry.
 
-- Document friction points and migration notes from the pilot.
-- Add a second pilot when useful, preferably Selenium + Jest + BrowserStack or manual-only, to widen coverage. This
-  is deferred and does not block the next beta release.
+Read-only integrations may be prototyped after the contract freeze only when they do not delay the release candidate.
+External writes remain proposal-first and deferred until an audited permission, idempotency and rollback design exists.
 
-## Phase 2 - Stronger validators
+## Release gates
 
-Goal: make the framework reliable without trusting prompts only.
+`1.0.0` may proceed only when all of the following are true:
 
-Delivered:
+- Epics 13 through 19 are complete and their evidence is linked from [`tasks/README.md`](tasks/README.md).
+- CI and CodeQL are green on `main`.
+- Clean install, update, harness recovery and npm-pack E2E scenarios pass on the supported OS/Node matrix.
+- No unresolved P0 or P1 defects remain; accepted P2 risks are documented with owners.
+- The beta-to-1.0 migration guide has been tested from the oldest supported beta fixture.
+- Public docs describe capabilities and limitations accurately.
+- A human maintainer has confirmed npm Trusted Publishing and the release-please stable configuration.
 
-- Parsed Gherkin structure validation for feature files.
-- Duplicate explicit test case ID validation.
-- Traceability matrix coverage validation.
-- Traceability matrix row shape and duplicate matrix entry validation.
-- Proposal-first test-management sync plan validation.
-- Test-management sync plan table shape and duplicate ID validation.
-- Test-management mapping file shape, duplicate external ID and secret-like value validation.
-- Active specialist index validation against `qa-ai.config.yaml`.
-- `doctor --strict` for fully initialized target repositories.
+## After 1.0
 
-Next:
+Post-1.0 candidates are prioritized separately and do not block stable release:
 
-- Replace lightweight parsing with a full Gherkin parser when the project accepts dependencies or ships an npm CLI.
-- Validate dry-run TestRail/Zephyr/Xray plans against richer mapping schemas.
-
-## Phase 3 - Guided examples and public docs
-
-Goal: make adoption obvious for first-time users.
-
-Delivered:
-
-- In-repo golden target fixture (`test/fixtures/golden-target/`) validated in CI.
-- 5-minute quick path in [getting-started.md](docs/qa-ai/getting-started.md).
-- [config-schema.md](docs/qa-ai/config-schema.md), [extensibility.md](docs/qa-ai/extensibility.md), [stability-policy.md](docs/qa-ai/stability-policy.md).
-
-Next:
-
-- Optional public example repositories (manual-only, WebdriverIO + Playwright API), deferred until after the current
-  beta release.
-- Documentation site (Phase 6).
-
-## Phase 4 - npm CLI (done)
-
-Goal: replace manual copy with `npx qa-flowkit init` while keeping the folder-copy workflow as a fallback.
-
-Delivered:
-
-- Node package on npm (`qa-flowkit`, beta dist-tag).
-- Non-interactive CI-friendly install through `qa-flowkit init`.
-- Update/migration through `qa-flowkit update`.
-- Presets from `.qa-ai/presets`.
-- release-please + Trusted Publishing path documented.
-
-Next:
-
-- Interactive init prompts (post-1.0 enhancement).
-
-## Phase 5 - Agent harness and controlled integrations
-
-Goal: make the installed workflow resumable, deterministic and auditable before adding external writes.
-
-Delivered - local agent harness (MVP + Epic 11 hardening):
-
-- Shared, provider-neutral workflow contract.
-- Persistent local run state and append-only event log.
-- `qa-flowkit run start|status|next|check|retry|set-rf|approve|resume`.
-- Phase-specific context packets with scoped modification gates.
-- Allowlisted validator loop with bounded retries and explicit `run retry` recovery.
-- Repository path isolation for config-derived runtime paths.
-- Local approval gates; external writes and deletes remain denied.
-- Pure `--json` CLI output and non-zero `doctor` exit on invalid contracts.
-
-Deferred harness capabilities:
-
-Later - controlled integrations:
-
-- Optional MCP/tool gateway for stronger enforcement.
-- Read-only requirement intake tools.
-- Proposal-first Jira, TestRail, Zephyr, Xray and GitHub write tools.
-- External action audit logs and explicit approval scopes.
-
-Design: [agent harness](docs/qa-ai/agent-harness.md) and
-[technical architecture](docs/qa-ai/agent-harness-architecture.md).
-
-## Phase 6 - Productization (in progress)
-
-Goal: turn the starter into a stable open-source framework.
-
-Delivered:
-
-- Release automation (release-please, CI golden target, adapter parity).
-- Config contract and migration policy ([stability-policy.md](docs/qa-ai/stability-policy.md)).
-
-Next:
-
-- Public documentation site.
-- Optional public example repositories.
-- Adapter registry.
-- `1.0.0` stable on npm `latest`.
+- read-only requirement intake integrations;
+- optional MCP/tool gateway;
+- approved, idempotent external write integrations;
+- interactive init;
+- adapter registry;
+- documentation site enhancements;
+- richer test-management schemas and a full Gherkin parser.

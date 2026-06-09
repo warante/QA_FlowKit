@@ -3,6 +3,8 @@ description: Guided full QA FlowKit workflow / Workflow completo guiado de QA Fl
 argument-hint: [optional requirement source]
 ---
 
+Before any other action or user-facing text, read and follow `.qa-ai/workflows/command-interaction.md`.
+
 Run the complete QA AI workflow for the configured requirement source, Markdown PRD/RF or pasted requirement.
 
 Read these files first:

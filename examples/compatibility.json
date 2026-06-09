@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "examples": [
+    {
+      "id": "manual-only",
+      "path": "examples/manual-only",
+      "preset": "manual-only",
+      "supportLevel": "maintained"
+    },
+    {
+      "id": "playwright-full",
+      "path": "examples/playwright-full",
+      "preset": "playwright-full",
+      "supportLevel": "in-validation"
+    },
+    {
+      "id": "karate-full",
+      "path": "examples/karate-full",
+      "preset": "karate-full",
+      "supportLevel": "in-validation"
+    },
+    {
+      "id": "maestro-karate-mobile",
+      "path": "examples/maestro-karate-mobile",
+      "preset": "maestro-karate-mobile",
+      "supportLevel": "in-validation"
+    }
+  ],
+  "channels": {
+    "local": {
+      "status": "required",
+      "purpose": "Pull request and source-tree validation"
+    },
+    "beta": {
+      "status": "scheduled",
+      "purpose": "Current adopter release channel"
+    },
+    "rc": {
+      "status": "manual-until-rc",
+      "purpose": "Release-candidate rehearsal"
+    },
+    "latest": {
+      "status": "deferred-until-1.0",
+      "purpose": "Stable channel after 1.0.0"
+    }
+  }
+}

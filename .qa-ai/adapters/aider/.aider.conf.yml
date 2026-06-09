@@ -7,4 +7,5 @@ read:
   - .qa-ai/rules/workflow.rules.md
   - .qa-ai/rules/requirements.rules.md
   - .qa-ai/rules/gherkin.rules.md
+  - .qa-ai/workflows/command-interaction.md
   - .qa-ai/agents/README.md

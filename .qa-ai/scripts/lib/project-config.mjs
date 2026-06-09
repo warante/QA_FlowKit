@@ -83,6 +83,17 @@ export function addApiDirs(dirs, config) {
   dirs.add(path.join(base, 'helpers'));
 }
 
+export function addMobileDirs(dirs, config) {
+  const framework = String(getConfigValue(config, 'automation.mobile.framework', 'none')).toLowerCase();
+  if (!isConfiguredFramework(framework)) return;
+
+  const flowsPath = getConfigValue(config, 'automation.mobile.flowsPath', '');
+  const base = flowsPath ? path.dirname(flowsPath) : path.join('tests', slug(framework));
+  dirs.add(flowsPath || path.join(base, 'flows'));
+  dirs.add(path.join(base, 'subflows'));
+  dirs.add(path.join(base, 'fixtures'));
+}
+
 export function addKarateSharedDirs(dirs, config) {
   const configPath = getConfigValue(config, 'automation.karate.configPath', defaultKarateConfigPath());
   const mocksPath = getConfigValue(config, 'automation.karate.mocksPath', defaultKarateMocksPath());
@@ -107,6 +118,7 @@ export function configuredDirs(config) {
   addCommonDirs(dirs, config);
   addUiDirs(dirs, config);
   addApiDirs(dirs, config);
+  addMobileDirs(dirs, config);
   addKarateDirs(dirs, config);
   return dirs;
 }
@@ -149,13 +161,18 @@ export const specialistCatalog = {
   },
   karate: {
     title: 'Karate API Specialist',
-    categories: ['api'],
+    categories: ['api', 'ui'],
     aliases: ['karate']
   },
   appium: {
     title: 'Appium Specialist',
     categories: ['mobile'],
     aliases: ['appium']
+  },
+  maestro: {
+    title: 'Maestro Mobile Specialist',
+    categories: ['mobile'],
+    aliases: ['maestro']
   },
   'generic-test-design': {
     title: 'Generic Test Design Specialist',

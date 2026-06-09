@@ -1,0 +1,142 @@
+{
+  "schemaVersion": 1,
+  "classifications": ["stable", "experimental", "internal", "deprecated"],
+  "cli": {
+    "commands": {
+      "stable": [
+        "init",
+        "update",
+        "bootstrap",
+        "config",
+        "doctor",
+        "validate-target",
+        "validate-features",
+        "validate-karate-features",
+        "validate-maestro-flows",
+        "validate-traceability",
+        "validate-sync-plan",
+        "validate-active-specialists",
+        "validate-release-gate",
+        "validate-test-design",
+        "sync-adapters",
+        "help",
+        "clean",
+        "version",
+        "run"
+      ],
+      "experimental": [],
+      "deprecated": []
+    },
+    "runSubcommands": {
+      "stable": ["start", "status", "next", "check", "retry", "set-rf", "approve", "resume"],
+      "experimental": [],
+      "deprecated": []
+    },
+    "exitCodes": {
+      "stable": {
+        "0": "Command completed successfully, including valid skip or allow-empty outcomes.",
+        "1": "Validation, usage, safety or runtime failure."
+      }
+    },
+    "jsonOutputs": {
+      "stable": [
+        "help --json",
+        "run start --json",
+        "run status --json",
+        "run next --json",
+        "run check --json",
+        "run retry --json",
+        "run set-rf --json",
+        "run approve --json",
+        "run resume --json"
+      ],
+      "experimental": ["Exact optional fields inside phase packets and diagnostic objects."]
+    }
+  },
+  "configuration": {
+    "stable": [
+      "qa-ai.config.yaml version: 1",
+      "project",
+      "tools",
+      "agents",
+      "sources",
+      "knowledge",
+      "requirements",
+      "gherkin",
+      "testrail",
+      "automation",
+      "testDesign",
+      "traceability",
+      "release",
+      "approval",
+      "commands"
+    ],
+    "experimental": ["Additional optional keys introduced during beta with documented defaults."],
+    "deprecated": []
+  },
+  "schemas": {
+    "stable": [".qa-ai/contracts/workflow.v1.json schemaVersion 1"],
+    "experimental": [
+      ".qa-ai/state/runs/<run-id>/run.json schemaVersion 1",
+      ".qa-ai/state/runs/<run-id>/events.jsonl event payload fields",
+      ".qa-ai/state/init-manifest.json version 1"
+    ],
+    "internal": [".qa-ai/state/runs/<run-id>/.lock", "atomic temporary files"]
+  },
+  "paths": {
+    "stable": [
+      ".qa-ai/",
+      "qa-ai.config.yaml",
+      "qa-ai-output/",
+      "features/",
+      ".qa-ai/config-profiles/",
+      ".qa-ai/state/runs/"
+    ],
+    "experimental": ["Framework-specific automation paths selected by presets or config."],
+    "internal": [".qa-ai/state/runs/<run-id>/.lock", ".qa-ai/state/**/*.tmp"]
+  },
+  "collections": {
+    "presets": {
+      "path": ".qa-ai/presets",
+      "classification": "stable",
+      "policy": "Preset IDs and generated config shape are public; framework dependency versions are example-owned."
+    },
+    "rules": {
+      "path": ".qa-ai/rules",
+      "classification": "stable",
+      "policy": "Rule filenames and deterministic validator requirements are public contracts."
+    },
+    "adapters": {
+      "path": ".qa-ai/adapters",
+      "classification": "experimental",
+      "policy": "Locations are public; prompt wording may evolve without compatibility guarantees."
+    },
+    "agents": {
+      "path": ".qa-ai/agents",
+      "classification": "experimental",
+      "policy": "Agent and specialist locations are public; prose and reasoning guidance may evolve."
+    },
+    "templates": {
+      "path": ".qa-ai/templates",
+      "classification": "stable",
+      "policy": "Required artifact fields remain compatible; explanatory prose may improve."
+    }
+  },
+  "deprecated": [
+    {
+      "id": "preset.webdriverio-playwright-api",
+      "replacement": "playwright-full",
+      "removal": "No earlier than the first documented post-1.0 major release."
+    },
+    {
+      "id": "rules.webdriverio.rules.md",
+      "replacement": "rules/ui-automation.rules.md",
+      "removal": "Compatibility alias retained through 1.x."
+    },
+    {
+      "id": "rules.testrail.rules.md",
+      "replacement": "rules/test-management.rules.md",
+      "removal": "Compatibility alias retained through 1.x."
+    }
+  ]
+}

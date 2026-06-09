@@ -16,8 +16,8 @@ import {
 
 const cwd = process.cwd();
 const args = parseArgs(process.argv);
-const idPattern = /\b(?:RF|TC|TEST|QA)[-_ ]?[A-Z0-9]+\b/gi;
-const caseIdPattern = /\b(?:TC|TEST|QA)[-_ ]?[A-Z0-9]+\b/gi;
+const idPattern = /\b(?:RF|TC|TEST|QA)(?:[-_][A-Z0-9]+| \d[A-Z0-9]*|\d+)\b/gi;
+const caseIdPattern = /\b(?:TC|TEST|QA)(?:[-_][A-Z0-9]+| \d[A-Z0-9]*|\d+)\b/gi;
 const requiredColumns = [
   'Requirement Source',
   'RF',

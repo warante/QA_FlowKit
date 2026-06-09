@@ -3,6 +3,8 @@ description: Import or export QA FlowKit configuration / Importar o exportar con
 argument-hint: [--export path | --import path]
 ---
 
+Before any other action or user-facing text, read and follow `.qa-ai/workflows/command-interaction.md`.
+
 Import or export a reusable QA FlowKit configuration profile.
 
 Read these files first:

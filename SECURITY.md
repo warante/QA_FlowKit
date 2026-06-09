@@ -2,24 +2,36 @@
 
 ## Supported versions
 
-The project is currently in MVP stage. Security fixes target the latest version of `main`.
+The project is currently in Beta. Security fixes target the latest published `beta` release and the latest version of
+`main`. Older prereleases receive fixes only when maintainers determine that a backport is practical.
 
 ## Reporting a vulnerability
 
-Do not open public issues for secrets, credential leaks or high-impact security problems. Contact the maintainers privately.
+Do not open a public issue or discussion for a suspected vulnerability.
+
+Use [GitHub Private Vulnerability Reporting](https://github.com/warante/QA_FlowKit/security/advisories/new) to send the
+report privately. Include affected versions, reproduction steps, impact and any suggested mitigation, but do not
+include real credentials or personal data.
+
+If the private reporting form is unavailable, contact the
+[repository owner](https://github.com/warante) through a private contact method listed on their GitHub profile before
+sharing technical details. The project does not currently promise a response SLA; maintainers will acknowledge and
+coordinate disclosure as soon as practical.
 
 ## Security principles
 
 - Never commit credentials, API tokens or personal data.
 - `.qa-ai/` must not store secrets.
 - Generated `.mcp.json` files must use environment variables.
-- External writes to Jira, Confluence, TestRail or GitHub must require explicit user approval.
+- Current QA FlowKit scripts do not perform external writes to Jira, Confluence, TestRail or GitHub.
+- Future external-write integrations must require explicit user approval and auditable scopes.
 - Deletion operations should be disabled by default.
 - Scripts must prefer dry-run or proposal-first behavior.
 
 ## Automated checks (source repository)
 
-- Pull requests run `npm audit --audit-level=high` in [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
+- Pull requests run `npm audit --audit-level=low` in [`.github/workflows/ci.yml`](.github/workflows/ci.yml), so any
+  reported low, moderate, high or critical vulnerability fails the audit step.
 - `validate-target` with `doctor --strict` scans `qa-ai-output/` and `features/` for secret-like values (see `.qa-ai/scripts/lib/secret-patterns.mjs`).
 - The golden target fixture in `test/fixtures/golden-target/` is validated in CI without permissive allow flags.
 

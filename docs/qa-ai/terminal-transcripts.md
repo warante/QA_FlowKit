@@ -2,7 +2,8 @@
 
 Real command output for the most common QA FlowKit workflows. All transcripts were captured from a clean temporary directory with only `.qa-ai/` copied in.
 
-- [Default init (WebdriverIO + Playwright API)](#default-init-webdriverio--playwright-api)
+- [Deterministic RF-101 quick path](#deterministic-rf-101-quick-path)
+- [Default init (Playwright UI + API)](#default-init-playwright-ui--api)
 - [Manual-only init](#manual-only-init)
 - [Agent-first bootstrap](#agent-first-bootstrap)
 - [Feature validation — passing](#feature-validation--passing)
@@ -12,14 +13,33 @@ Real command output for the most common QA FlowKit workflows. All transcripts we
 
 ---
 
-## Default init (WebdriverIO + Playwright API)
+## Deterministic RF-101 quick path
+
+Run from the QA FlowKit source repository:
+
+```text
+$ npm run test:e2e-quick
+
+[PASS] clean quick-track target initialized
+[PASS] intentional missing @manual tag was rejected
+[PASS] corrected Gherkin passed
+[PASS] completed run and strict target validation
+Quick path E2E passed in <duration>ms.
+```
+
+The runner creates and removes a clean temporary repository. It uses
+[`test/fixtures/quick-path/`](../../test/fixtures/quick-path/) and executes the same workflow on Ubuntu and Windows CI.
+
+---
+
+## Default init (Playwright UI + API)
 
 ```
 $ node .qa-ai/scripts/init.mjs
 
 === QA FlowKit init ===
 
-Using base template: webdriverio-playwright-api
+Using base template: playwright-full
 Using interface language: en
 Using Gherkin language: en
 
@@ -59,15 +79,9 @@ created features/functional
 created features/integration
 created features/manual
 created qa-ai-output
-created tests/api/specs
-created tests/wdio/pageobjects
-created tests/wdio/specs
-created tests/api/clients
-created tests/api/fixtures
-created tests/api/helpers
-created tests/api/schemas
-created tests/wdio/fixtures
-created tests/wdio/helpers
+created tests/playwright/api
+created tests/playwright/pages
+created tests/playwright/ui
 created qa-ai.config.yaml
 created .qa-ai/agents/specialists/active.md
 updated .qa-ai/state/init-manifest.json
@@ -100,11 +114,10 @@ $ node .qa-ai/scripts/doctor.mjs
 [PASS] configured feature root: features
 [PASS] configured QA output path: qa-ai-output
 [WARN] configured traceability matrix: qa-ai-output/traceability-matrix.md
-[WARN] WebdriverIO config: wdio.conf.ts or wdio.conf.js or wdio.conf.mjs or wdio.conf.cjs
-[WARN] Playwright API config: playwright.api.config.ts or ...
-[PASS] configured UI specs path: tests/wdio/specs
-[PASS] configured UI page objects path: tests/wdio/pageobjects
-[PASS] configured API specs path: tests/api/specs
+[WARN] Playwright config: playwright.config.ts or playwright.config.js or playwright.config.mjs
+[PASS] configured UI specs path: tests/playwright/ui
+[PASS] configured UI page objects path: tests/playwright/pages
+[PASS] configured API specs path: tests/playwright/api
 [PASS] init manifest: .qa-ai/state/init-manifest.json
 [PASS] active specialists index: .qa-ai/agents/specialists/active.md
 
@@ -115,7 +128,7 @@ VALID WITH WARNINGS - 22 optional checks missing.
 The warnings are expected for a freshly initialized repository:
 
 - Optional adapters (`[WARN] Claude adapter`) — generate with `--adapters all` when needed.
-- Framework config files (`[WARN] WebdriverIO config`) — these do not exist until you add them to your project.
+- Framework config files (`[WARN] Playwright config`) — these do not exist until you add them to your project.
 - Workflow artifacts — not yet generated; they appear after the first QA flow.
 
 ---

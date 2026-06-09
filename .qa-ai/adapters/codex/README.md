@@ -6,21 +6,28 @@ Related docs: [main README](../../../README.md) | [agent compatibility](../../..
 
 ## Primary Instructions
 
-| File                                    | Purpose                                                                |
-| --------------------------------------- | ---------------------------------------------------------------------- |
-| `AGENTS.md`                             | Cross-agent rules and safety policy                                    |
-| `qa-ai.config.yaml`                     | Target repository configuration                                        |
-| `qa-ai-output/qa-knowledge-summary.md`  | Team QA practice summary when `knowledge.enabled` is true              |
-| `qa-ai-output/qa-init-decisions.md`     | Approved context-based init decisions when `knowledge.enabled` is true |
-| `.qa-ai/rules/README.md` + `*.rules.md` | Mandatory QA workflow rules (all agents)                               |
-| `.qa-ai/workflows/`                     | Phase playbooks                                                        |
-| `.qa-ai/agents/README.md`               | Agent loading protocol                                                 |
+| File                                      | Purpose                                                                |
+| ----------------------------------------- | ---------------------------------------------------------------------- |
+| `AGENTS.md`                               | Cross-agent rules and safety policy                                    |
+| `qa-ai.config.yaml`                       | Target repository configuration                                        |
+| `qa-ai-output/qa-knowledge-summary.md`    | Team QA practice summary when `knowledge.enabled` is true              |
+| `qa-ai-output/qa-init-decisions.md`       | Approved context-based init decisions when `knowledge.enabled` is true |
+| `.qa-ai/rules/README.md` + `*.rules.md`   | Mandatory QA workflow rules (all agents)                               |
+| `.qa-ai/workflows/`                       | Phase playbooks                                                        |
+| `.qa-ai/workflows/command-interaction.md` | Interface language, selectable choices and free-text fallback          |
+| `.qa-ai/agents/README.md`                 | Agent loading protocol                                                 |
 
 ## Recommended Opening Prompt
 
 ```text
-Read AGENTS.md, qa-ai.config.yaml, docs/qa-ai/implementation-guide-for-codex.md and .qa-ai/rules/. Then implement the next pending task from docs/qa-ai/backlog.md. Present a plan before editing files.
+Read AGENTS.md, qa-ai.config.yaml, .qa-ai/workflows/command-interaction.md, docs/qa-ai/implementation-guide-for-codex.md and .qa-ai/rules/. Resolve project.interfaceLanguage before your first response. Use request_user_input for closed choices when the current mode exposes it; otherwise show numbered options with a separate Other choice. Then implement the next pending task from docs/qa-ai/backlog.md. Present a plan before editing files.
 ```
+
+## Interaction
+
+- Use `project.interfaceLanguage`, falling back to `project.defaultLanguage`, for the complete interaction.
+- Use `request_user_input` for closed choices when it is available in the current Codex mode.
+- When it is unavailable, present numbered options and accept the number; reserve free text for `Other`, paths, IDs and pasted content.
 
 ## Useful Commands
 

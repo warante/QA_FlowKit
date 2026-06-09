@@ -1,5 +1,7 @@
 # /qa-doctor
 
+Before any other action or user-facing text, read and follow `.qa-ai/workflows/command-interaction.md`.
+
 Run the QA FlowKit doctor script and explain the results.
 
 Read `qa-ai.config.yaml` when present and explain results in its configured interface language (`project.interfaceLanguage` / `project.defaultLanguage`, `en` or `es`).

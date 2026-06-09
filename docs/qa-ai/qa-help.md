@@ -34,17 +34,19 @@ Set during `init` (from preset or `--qa-track`):
 
 ### Preset defaults
 
-| Preset                       | Default track |
-| ---------------------------- | ------------- |
-| `manual-only`                | `quick`       |
-| `webdriverio-playwright-api` | `standard`    |
-| `selenium-jest-browserstack` | `standard`    |
+| Preset                       | Default track       |
+| ---------------------------- | ------------------- |
+| `manual-only`                | `quick`             |
+| `playwright-full`            | `standard`          |
+| `maestro-karate-mobile`      | `standard`          |
+| `webdriverio-playwright-api` | `standard` (legacy) |
+| `selenium-jest-browserstack` | `standard`          |
 
 Override at init:
 
 ```bash
 node .qa-ai/scripts/init.mjs --preset manual-only --qa-track quick
-node .qa-ai/scripts/init.mjs --preset webdriverio-playwright-api --qa-track enterprise
+node .qa-ai/scripts/init.mjs --preset playwright-full --qa-track enterprise
 ```
 
 ## How `qa-help` decides the next step

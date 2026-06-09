@@ -1,0 +1,10 @@
+appId: ${APP_ID}
+name: RF-401 account balance
+tags:
+  - smoke
+---
+- launchApp:
+    clearState: true
+- runFlow: subflows/open-home.yaml
+- assertVisible: 'Account balance'
+- assertVisible: '125.50 EUR'

@@ -30,10 +30,11 @@ Reusable repository configuration profiles can be imported or exported with `nod
 | 8   | Test management sync planning  | `.qa-ai/agents/testrail-sync-agent.md`              |
 | 9   | Automation feasibility         | `.qa-ai/agents/automation-feasibility-agent.md`     |
 | 10  | UI/E2E implementation          | `.qa-ai/agents/webdriverio-implementation-agent.md` |
-| 11  | API/integration implementation | `.qa-ai/agents/api-testing-agent.md`                |
-| 12  | Issue task draft               | `.qa-ai/agents/jira-task-agent.md`                  |
-| 13  | PR summary                     | `.qa-ai/agents/pr-agent.md`                         |
-| 14  | Release quality gate           | `.qa-ai/agents/release-gate-agent.md`               |
+| 11  | Mobile implementation          | `.qa-ai/agents/webdriverio-implementation-agent.md` |
+| 12  | API/integration implementation | `.qa-ai/agents/api-testing-agent.md`                |
+| 13  | Issue task draft               | `.qa-ai/agents/jira-task-agent.md`                  |
+| 14  | PR summary                     | `.qa-ai/agents/pr-agent.md`                         |
+| 15  | Release quality gate           | `.qa-ai/agents/release-gate-agent.md`               |
 
 ## Optional agents
 
@@ -46,7 +47,8 @@ Reusable repository configuration profiles can be imported or exported with `nod
 Auto-activated specialists are listed in `.qa-ai/agents/specialists/active.md` (generated from `qa-ai.config.yaml`). Available sources live under `.qa-ai/agents/specialists/available/`.
 
 - **UI/E2E**: WebdriverIO, Playwright UI, Cypress, Selenium.
-- **Mobile**: Appium (via `automation.mobile.framework` or UI framework `appium`). The Phase 10 UI implementation agent covers mobile when Appium is the active specialist.
+- **Mobile**: Maestro and Appium via `automation.mobile.framework`. The mobile implementation phase uses the generic
+  UI implementation agent plus the active mobile specialist.
 - **API**: Playwright API, Postman, REST Assured, Karate.
 - **Test management / issue tracker**: TestRail, Jira.
 - **Cross-cutting** (load on demand or add to `active.md`): `accessibility.md`, `performance.md` for `@type:accessibility` and `@type:performance` scenarios.

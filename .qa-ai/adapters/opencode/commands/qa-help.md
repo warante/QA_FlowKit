@@ -3,6 +3,8 @@ description: QA workflow guidance — what to do next / Guía del flujo QA
 argument-hint: [optional question]
 ---
 
+Before any other action or user-facing text, read and follow `.qa-ai/workflows/command-interaction.md`.
+
 Provide context-aware guidance for the next QA workflow step in this repository.
 
 Read these files first:

@@ -65,6 +65,67 @@ async function assertMissing(filePath, label = filePath) {
   throw new Error(`Expected ${label} to be absent.`);
 }
 
+async function assertIncludes(filePath, expected, label = filePath) {
+  const content = await fs.readFile(filePath, 'utf8');
+  if (!content.includes(expected)) {
+    throw new Error(`Expected ${label} to include: ${expected}`);
+  }
+}
+
+async function validateCommandInteractionContract(packageRoot) {
+  const protocolPath = path.join(packageRoot, '.qa-ai', 'workflows', 'command-interaction.md');
+  await assertIncludes(protocolPath, 'Before emitting any user-facing text', 'command interaction protocol');
+  await assertIncludes(protocolPath, 'interactive question tool', 'command interaction protocol');
+  await assertIncludes(protocolPath, 'Other / Otro', 'command interaction protocol');
+
+  const instruction =
+    'Before any other action or user-facing text, read and follow `.qa-ai/workflows/command-interaction.md`.';
+  for (const adapter of ['opencode', 'claude']) {
+    const commandsDir = path.join(packageRoot, '.qa-ai', 'adapters', adapter, 'commands');
+    const commandFiles = (await fs.readdir(commandsDir)).filter((name) => name.endsWith('.md'));
+    if (commandFiles.length === 0) throw new Error(`Expected ${adapter} command templates.`);
+    for (const commandFile of commandFiles) {
+      await assertIncludes(path.join(commandsDir, commandFile), instruction, `${adapter}/${commandFile}`);
+    }
+  }
+
+  const adapterContracts = [
+    ['generic/AGENTS.md', '.qa-ai/workflows/command-interaction.md'],
+    ['codex/README.md', 'request_user_input'],
+    ['codex/prompts/implement-project.md', '.qa-ai/workflows/command-interaction.md'],
+    ['gemini/GEMINI.md', 'ask_user'],
+    ['cline/.clinerules', 'ask_followup_question'],
+    ['cline/.cline/README.md', '.qa-ai/workflows/command-interaction.md'],
+    ['continue/README.md', '.qa-ai/workflows/command-interaction.md'],
+    ['aider/.aider.conf.yml', '.qa-ai/workflows/command-interaction.md'],
+    ['aider/.aider/README.md', 'numbered options'],
+    ['goose/recipes/qa-flowkit.yaml', '.qa-ai/workflows/command-interaction.md']
+  ];
+  for (const [relPath, expected] of adapterContracts) {
+    await assertIncludes(
+      path.join(packageRoot, '.qa-ai', 'adapters', relPath),
+      expected,
+      `${relPath} interaction contract`
+    );
+  }
+
+  await assertIncludes(
+    path.join(packageRoot, '.qa-ai', 'adapters', 'opencode', 'commands', 'qa-init.md'),
+    "OpenCode's built-in `question` tool",
+    'OpenCode qa-init selector contract'
+  );
+  await assertIncludes(
+    path.join(packageRoot, '.qa-ai', 'adapters', 'opencode', 'commands', 'qa-add-tests.md'),
+    "Use OpenCode's `question` tool",
+    'OpenCode qa-add-tests selector contract'
+  );
+  await assertIncludes(
+    path.join(packageRoot, '.qa-ai', 'adapters', 'opencode', 'commands', 'qa-add-tests.md'),
+    'Before asking anything, resolve `project.interfaceLanguage`',
+    'OpenCode qa-add-tests language contract'
+  );
+}
+
 function parsePackOutput(stdout) {
   const parsed = JSON.parse(stdout);
   const item = Array.isArray(parsed) ? parsed[0] : parsed;
@@ -85,6 +146,7 @@ function validatePackFileList(files) {
     '.qa-ai/scripts/lib/harness-paths.mjs',
     '.qa-ai/scripts/lib/harness-modification.mjs',
     '.qa-ai/adapters/opencode/commands/qa-init.md',
+    '.qa-ai/workflows/command-interaction.md',
     'README.md',
     'README.es.md',
     'LICENSE',
@@ -142,6 +204,7 @@ async function main() {
   let updateTarget;
 
   try {
+    await validateCommandInteractionContract(sourceRoot);
     await fs.mkdir(packDir, { recursive: true });
     await fs.mkdir(npmCache, { recursive: true });
 
@@ -157,12 +220,18 @@ async function main() {
     initTarget = path.join(tempRoot, 'init-target');
     await fs.mkdir(initTarget, { recursive: true });
     await installPackedCli(initTarget, tarball, npmCache);
+    await validateCommandInteractionContract(path.join(initTarget, 'node_modules', 'qa-flowkit'));
     runCli(initTarget, ['init', '--skip-doctor']);
     await assertExists(path.join(initTarget, '.qa-ai', 'scripts', 'init.mjs'), '.qa-ai framework');
     await assertExists(path.join(initTarget, 'qa-ai.config.yaml'), 'generated config');
     await assertExists(path.join(initTarget, 'features'), 'features directory');
     await assertExists(path.join(initTarget, 'qa-ai-output'), 'qa-ai-output directory');
     await assertExists(path.join(initTarget, '.opencode', 'commands', 'qa-init.md'), 'default OpenCode adapter');
+    await assertIncludes(
+      path.join(initTarget, '.opencode', 'commands', 'qa-add-tests.md'),
+      'Before any other action or user-facing text',
+      'generated OpenCode command interaction contract'
+    );
     runCli(initTarget, ['init', '--skip-doctor'], { expectFailure: true });
     runCli(initTarget, ['doctor']);
     runCli(initTarget, ['validate-target', '--allow-empty', '--allow-missing', '--no-strict-doctor']);

@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "pilotId": "PILOT-RETROSPECTIVE-001",
+  "status": "complete",
+  "measurementCompleteness": "retrospective-partial",
+  "track": "standard",
+  "consent": {
+    "obtained": true,
+    "publication": "aggregate-only",
+    "rawDataDeleteAfter": null
+  },
+  "context": {
+    "repositoryAlias": "private-automation-repo-a",
+    "teamProfile": "automation-qa",
+    "automationStack": "webdriverio-playwright-api",
+    "agentSurface": "claude-code-and-opencode"
+  },
+  "windows": {
+    "baseline": null,
+    "assisted": {
+      "requirementToDesignMinutes": null,
+      "timeToValidGherkinMinutes": null,
+      "reviewCycles": null,
+      "acceptanceCriteriaCovered": null,
+      "acceptanceCriteriaEligible": null,
+      "reworkMinutes": null,
+      "retainedArtifacts": 4,
+      "escapedDesignDefects": null,
+      "validatorFoundDefects": 3,
+      "manualAdaptationMinutes": null
+    }
+  },
+  "qualitative": {
+    "baseline": null,
+    "assisted": null
+  },
+  "issues": [
+    {
+      "id": "RETRO-001",
+      "severity": "P2",
+      "attribution": "repository",
+      "summary": "Draft requirement identifiers had to be replaced with an official RF identifier."
+    },
+    {
+      "id": "RETRO-002",
+      "severity": "P2",
+      "attribution": "agent",
+      "summary": "A retrospective sync plan used completed-write language instead of proposal-first language."
+    }
+  ],
+  "limitations": [
+    "No baseline window was recorded.",
+    "Timing, review-cycle, rework and qualitative scores were not captured prospectively.",
+    "The retained-artifact count includes Gherkin, traceability, configuration and adapter outputs explicitly described in the notes."
+  ],
+  "decisions": [
+    {
+      "classification": "implemented",
+      "summary": "Keep sync plans proposal-first and store completed external mappings separately."
+    }
+  ]
+}

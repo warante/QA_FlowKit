@@ -3,6 +3,8 @@ description: Review and update QA tests after RF changes / Revisar y actualizar 
 argument-hint: [updated requirement source or RF ID]
 ---
 
+Before any other action or user-facing text, read and follow `.qa-ai/workflows/command-interaction.md`.
+
 Review existing QA tests when an RF or its acceptance criteria has changed.
 
 Read these files first:

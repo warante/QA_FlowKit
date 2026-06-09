@@ -73,6 +73,7 @@ node .qa-ai/scripts/init.mjs --qa-context qa-ai-knowledge
 - Requirements source: configured source from `qa-ai.config.yaml`.
 - QA working-practice source: optional `knowledge.sourcePath`, summarized into `knowledge.summaryPath` and `knowledge.decisionsPath`.
 - Interface language: configured by `project.interfaceLanguage` for generated QA artifact headings and user-facing workflow text.
+- Agent interaction: `.qa-ai/workflows/command-interaction.md` defines interface-language persistence, native selector use and the numbered fallback shared by every adapter.
 - Complementary sources: PRD, RF markdown, configured documentation tools and attachments.
 - Test design source: versioned `.feature` files in the repository.
 - Test management: configured tool for execution/reporting, not as the only source of truth.

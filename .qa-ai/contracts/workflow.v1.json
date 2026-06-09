@@ -14,6 +14,7 @@
       "traceability",
       "feasibility",
       "ui-impl",
+      "mobile-impl",
       "api-impl",
       "jira",
       "pr"
@@ -30,6 +31,7 @@
       "traceability",
       "feasibility",
       "ui-impl",
+      "mobile-impl",
       "api-impl",
       "jira",
       "pr",
@@ -242,6 +244,30 @@
       "skipConditions": [
         { "field": "project.qaTrack", "equals": "quick" },
         { "field": "automation.ui.framework", "notConfigured": true }
+      ],
+      "permissions": {
+        "createLocal": "allowed",
+        "modifyExisting": "approval",
+        "externalWrite": "denied",
+        "delete": "denied"
+      }
+    },
+    {
+      "id": "mobile-impl",
+      "name": "Mobile automation implementation",
+      "slashCommand": "/qa-full-flow",
+      "guidance": [
+        ".qa-ai/agents/webdriverio-implementation-agent.md",
+        ".qa-ai/workflows/implementation.md",
+        ".qa-ai/rules/mobile-automation.rules.md"
+      ],
+      "inputs": [],
+      "outputs": [{ "path": "qa-ai-output/automation-implementation-plan.md" }],
+      "entryApprovals": [],
+      "validators": [],
+      "skipConditions": [
+        { "field": "project.qaTrack", "equals": "quick" },
+        { "field": "automation.mobile.framework", "notConfigured": true }
       ],
       "permissions": {
         "createLocal": "allowed",
