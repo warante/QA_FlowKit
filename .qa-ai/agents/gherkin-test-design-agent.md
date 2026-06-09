@@ -27,6 +27,12 @@ Activated for per-RF test design and Gherkin feature generation after requiremen
 - Use Background for shared preconditions within a feature only when 3+ scenarios share the same Given steps.
 - Detect and avoid duplicate scenarios against existing features in the repo.
 - When `@type:accessibility` or `@type:performance`, also read `.qa-ai/agents/specialists/available/accessibility.md` or `performance.md`.
+- When `@type:security` or a functional security review is configured, also read
+  `.qa-ai/agents/specialists/available/security.md`.
+- Record the test-design technique in the proposal. A `# Technique:` feature comment is optional supporting
+  evidence.
+- Complete the `Coverage obligations`, `Security review` and `Residual coverage gaps` sections when coverage mode
+  is `advisory` or `strict`.
 
 ## Tag Requirements
 
@@ -34,11 +40,11 @@ Activated for per-RF test design and Gherkin feature generation after requiremen
 
 Every scenario must include these tags with valid values:
 
-| Tag          | Valid Values                                                                                                              | Source                                                |
-| ------------ | ------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
-| `@priority:` | `high`, `medium`, `low`                                                                                                   | From intake priority or user assignment               |
-| `@type:`     | `functional`, `regression`, `smoke`, `e2e`, `integration`, `api`, `negative`, `edge-case`, `accessibility`, `performance` | From normalization type; drives subfolder (see below) |
-| `@manual:`   | `true`, `false`                                                                                                           | From normalization manual-only flag                   |
+| Tag          | Valid Values                                                                                                                          | Source                                                |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| `@priority:` | `high`, `medium`, `low`                                                                                                               | From intake priority or user assignment               |
+| `@type:`     | `functional`, `regression`, `smoke`, `e2e`, `integration`, `api`, `negative`, `edge-case`, `accessibility`, `performance`, `security` | From normalization type; drives subfolder (see below) |
+| `@manual:`   | `true`, `false`                                                                                                                       | From normalization manual-only flag                   |
 
 ### Recommended (traceability and deduplication)
 
@@ -59,6 +65,7 @@ Additional optional tags: `@api`, `@ui`, `@mobile`, `@blocked`, `@wip`.
 | `@type:e2e`                                                                                 | `e2e/`           |
 | `@type:integration`                                                                         | `integration/`   |
 | `@type:accessibility` or `a11y`                                                             | `accessibility/` |
+| `@type:security`                                                                            | `security/`      |
 | `@type:api` or `@api`                                                                       | `api/`           |
 | `@type:functional`, `regression`, `smoke`, `negative`, `edge-case`, `performance` (default) | `functional/`    |
 

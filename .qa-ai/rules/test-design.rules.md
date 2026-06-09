@@ -15,6 +15,15 @@ Apply during system-level and per-RF test design before final Gherkin generation
 - One official RF ID per design pass unless the user explicitly combines RFs.
 - Search existing `.feature` files and automation tests to avoid duplicate coverage.
 - Cover positive, negative and edge cases called out in normalized requirements; call out gaps explicitly.
+- Apply `testDesign.coverage` from `qa-ai.config.yaml`. `advisory` reports gaps without blocking; `strict` makes
+  configured obligations mandatory; `off` preserves the legacy behavior.
+- Record applicable coverage obligations in `## Coverage obligations`. Use an explicit rationale for
+  `not-applicable` decisions.
+- Record the design technique for each proposed test when technique traceability is enabled. Supported techniques:
+  equivalence partitioning, boundary value analysis, decision tables, state transitions, pairwise, error guessing
+  and use-case testing.
+- Perform a functional security review when configured. This does not replace penetration testing or establish
+  OWASP compliance.
 
 ## Relationship to other rules
 
@@ -26,6 +35,7 @@ Apply during system-level and per-RF test design before final Gherkin generation
 
 ```bash
 node .qa-ai/scripts/validate-test-design.mjs
+node .qa-ai/scripts/validate-test-coverage.mjs
 node .qa-ai/scripts/validate-features.mjs
 ```
 

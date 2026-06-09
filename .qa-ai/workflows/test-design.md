@@ -14,3 +14,5 @@ Read `.qa-ai/rules/test-design.rules.md`, `.qa-ai/rules/requirements.rules.md` a
 - Feature files: `gherkin.featurePath/<type>/` (e.g. `features/functional/`), not the bare feature root
 
 Run `node .qa-ai/scripts/validate-test-design.mjs` after updating proposals and `node .qa-ai/scripts/validate-features.mjs` after generating or changing `.feature` files.
+When `testDesign.coverage.mode` is not `off`, also run
+`node .qa-ai/scripts/validate-test-coverage.mjs`. Advisory mode reports gaps; strict mode blocks completion.

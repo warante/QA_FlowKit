@@ -17,9 +17,12 @@ Activated as Phase 3 of the QA workflow, after requirements intake is complete a
 
 - Normalize each requirement into a consistent structure: Actor, Action, Business Value, Expected Behavior.
 - Split complex acceptance criteria into individually testable criteria (one assertion per criterion).
-- Classify each criterion by test type: `functional`, `regression`, `smoke`, `e2e`, `negative`, `edge-case`, `accessibility`, `performance`.
+- Classify each criterion by test type: `functional`, `regression`, `smoke`, `e2e`, `negative`, `edge-case`,
+  `accessibility`, `performance`, `security`.
 - Identify and exclude unit-test-level criteria (mark as "out of scope for QA tests").
 - Identify criteria that need multiple test scenarios (data variations, boundary values).
+- Identify coverage obligations derived from product risk, but keep them separate from source requirements.
+- Record whether boundary, accessibility, performance and functional security coverage is applicable and why.
 - Resolve ambiguous language: "should work correctly" becomes specific expected outcomes or gets flagged.
 - Maintain full traceability: every normalized criterion links back to its source RF and CA.
 

@@ -32,6 +32,7 @@ Do not mix Karate `* method` steps into design features or QA acceptance blocks 
 | `e2e/`           | `@type:e2e`                                                                                |
 | `api/`           | `@type:api` or tag `@api` (API behaviour at design level)                                  |
 | `accessibility/` | `@type:accessibility` or `a11y`                                                            |
+| `security/`      | `@type:security`                                                                           |
 | `manual/`        | `@manual:true` (manual-only execution)                                                     |
 
 - Init creates only the feature root; subfolders appear when the first file is written for that type.
@@ -66,6 +67,7 @@ When `@type:` indicates specialized testing, also read the matching specialist u
 | ------------------------------- | ------------------ |
 | `accessibility`, `a11y`         | `accessibility.md` |
 | `performance`, `load`, `stress` | `performance.md`   |
+| `security`                      | `security.md`      |
 
 UI, API and mobile implementation still follow [ui-automation.rules.md](ui-automation.rules.md), [api-testing.rules.md](api-testing.rules.md) and the active Appium/WebdriverIO/Playwright specialists.
 

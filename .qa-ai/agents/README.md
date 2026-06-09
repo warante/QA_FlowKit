@@ -51,10 +51,11 @@ Auto-activated specialists are listed in `.qa-ai/agents/specialists/active.md` (
   UI implementation agent plus the active mobile specialist.
 - **API**: Playwright API, Postman, REST Assured, Karate.
 - **Test management / issue tracker**: TestRail, Jira.
-- **Cross-cutting** (load on demand or add to `active.md`): `accessibility.md`, `performance.md` for `@type:accessibility` and `@type:performance` scenarios.
+- **Cross-cutting** (load on demand or add to `active.md`): `accessibility.md`, `performance.md`, `security.md`.
 
 ## Usage Rule
 
 Before starting a QA workflow phase, read the matching phase agent and any active specialists. Apply those instructions as role context for the work. Do not skip this just because the current tool cannot call subagents directly.
 
 When generating Gherkin with `@type:accessibility` or `@type:performance`, also read the matching specialist file even if it is not listed in `active.md`.
+Load `security.md` for `@type:security` scenarios or when the configured coverage policy requires a security review.

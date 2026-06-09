@@ -13,6 +13,7 @@ agents:
   specialistMode: auto
 sources:
   main: markdown
+  analysisPath: qa-ai-output/source-analysis.md
 knowledge:
   enabled: false
   sourcePath: ''
@@ -60,6 +61,16 @@ automation:
 testDesign:
   systemPath: qa-ai-output/test-design-system.md
   proposalPath: qa-ai-output/test-design-proposal.md
+  coverage:
+    mode: advisory
+    requirePositive: true
+    requireNegative: true
+    requireAlternative: true
+    requireBoundaryWhenApplicable: true
+    requireAccessibilityWhenApplicable: false
+    requirePerformanceWhenApplicable: false
+    requireSecurityReview: false
+    requireTechniqueTraceability: false
 traceability:
   matrixPath: qa-ai-output/traceability-matrix.md
 release:

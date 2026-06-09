@@ -10,8 +10,25 @@
 
 ## Proposed tests
 
-| RF  | CA  | Test ID | Title | Type | Priority | Manual | Action |
-| --- | --- | ------- | ----- | ---- | -------- | ------ | ------ |
+| RF  | CA  | Test ID | Title | Type | Technique | Risk | Applicability | Priority | Manual | Action |
+| --- | --- | ------- | ----- | ---- | --------- | ---- | ------------- | -------- | ------ | ------ |
+
+## Coverage obligations
+
+| RF  | Obligation | Applicable | Evidence | Rationale |
+| --- | ---------- | ---------- | -------- | --------- |
+
+Use `positive`, `negative`, `alternative`, `boundary`, `accessibility`, `performance` and `security` as obligation
+values. When an obligation is not applicable, set `Applicable` to `no` and explain why.
+
+## Security review
+
+| RF  | Category | Applicable | Evidence or test | Rationale |
+| --- | -------- | ---------- | ---------------- | --------- |
+
+This is a functional security review, not penetration testing or a compliance claim.
+
+## Residual coverage gaps
 
 ## Existing tests to reuse
 

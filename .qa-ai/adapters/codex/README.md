@@ -21,6 +21,9 @@ Related docs: [main README](../../../README.md) | [agent compatibility](../../..
 
 ```text
 Read AGENTS.md, qa-ai.config.yaml, .qa-ai/workflows/command-interaction.md, docs/qa-ai/implementation-guide-for-codex.md and .qa-ai/rules/. Resolve project.interfaceLanguage before your first response. Use request_user_input for closed choices when the current mode exposes it; otherwise show numbered options with a separate Other choice. Then implement the next pending task from docs/qa-ai/backlog.md. Present a plan before editing files.
+
+For QA workflow work, inspect mixed requirement/design inputs before normalization, write `sources.analysisPath` when
+needed, load the functional security specialist when applicable and run `validate-test-coverage.mjs` when configured.
 ```
 
 ## Interaction

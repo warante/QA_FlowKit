@@ -13,6 +13,7 @@ agents:
   specialistMode: auto
 sources:
   main: jira
+  analysisPath: qa-ai-output/source-analysis.md
   jira:
     enabled: true
     projectKey: CHANGE_ME
@@ -70,6 +71,16 @@ traceability:
 testDesign:
   systemPath: qa-ai-output/test-design-system.md
   proposalPath: qa-ai-output/test-design-proposal.md
+  coverage:
+    mode: advisory
+    requirePositive: true
+    requireNegative: true
+    requireAlternative: true
+    requireBoundaryWhenApplicable: true
+    requireAccessibilityWhenApplicable: false
+    requirePerformanceWhenApplicable: false
+    requireSecurityReview: false
+    requireTechniqueTraceability: false
 release:
   gatePath: qa-ai-output/release-gate.yaml
 approval:

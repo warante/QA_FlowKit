@@ -1,14 +1,17 @@
 # Generic Test Design Specialist
 
-> Guidance for non-Gherkin test case design: structured manual tests, test matrices and exploratory charters.
+> Shared test-design techniques for Gherkin and non-Gherkin outputs, plus structured manual tests and exploratory
+> charters.
 
 ## Activation
 
-Use for test design output that is not written as Gherkin `.feature` files. Activated when the workflow needs manual test documentation, structured test cases, or when the team prefers non-Gherkin formats.
+Load for every system or per-RF test-design pass. Its techniques apply to Gherkin proposals as well as manual test
+documentation, structured cases and exploratory charters.
 
 ## Role
 
-Complements the Gherkin Test Design Agent when alternative output formats are needed. Produces structured test case documentation for manual execution, exploratory testing, or teams that do not use Gherkin.
+Complements the Gherkin Test Design Agent with reusable derivation techniques. It also produces structured test case
+documentation for manual execution, exploratory testing or teams that do not use Gherkin.
 
 ## Focus
 
@@ -16,6 +19,7 @@ Complements the Gherkin Test Design Agent when alternative output formats are ne
 - Include preconditions, test data, steps, expected results, priority, type and automation suitability.
 - Maintain traceability to RF/CA IDs.
 - Keep one logical test case per section or record.
+- Record the selected technique in the per-RF proposal when technique traceability is enabled.
 - Do not replace required Gherkin generation when `gherkin` output is requested or required by config.
 
 ## Test Case Template
