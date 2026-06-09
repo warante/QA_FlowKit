@@ -88,5 +88,49 @@ export function validateTestDesignProposal(content, options = {}) {
   if (options.requireOfficialRfId && !/RF-\d+/i.test(text)) {
     errors.push('Per-RF test design must mention the official RF ID before final .feature generation.');
   }
+  const proposedTests = parseSectionTable(text, 'Proposed tests', ['RF']);
+  if (proposedTests.exists) {
+    errors.push(...proposedTests.errors);
+    if (proposedTests.header.some((column) => column.trim().toLowerCase() === 'technique')) {
+      for (const row of proposedTests.rows) {
+        const techniques = String(row.values.technique || '')
+          .split(/[+,]/)
+          .map((value) => value.trim())
+          .filter(Boolean);
+        for (const technique of techniques) {
+          if (!techniqueIsKnown(technique)) {
+            errors.push(`Unknown test-design technique "${technique}" in Proposed tests.`);
+          }
+        }
+      }
+    }
+  }
+  if (options.requireCoverageSections) {
+    const obligations = parseSectionTable(text, 'Coverage obligations', [
+      'RF',
+      'Obligation',
+      'Applicable',
+      'Evidence',
+      'Rationale'
+    ]);
+    if (!obligations.exists) errors.push('Missing section: ## Coverage obligations');
+    errors.push(...obligations.errors);
+    if (!extractSectionExists(text, 'Security review')) errors.push('Missing section: ## Security review');
+    if (!extractSectionExists(text, 'Residual coverage gaps')) {
+      errors.push('Missing section: ## Residual coverage gaps');
+    }
+  }
   return { ok: errors.length === 0, errors };
 }
+
+function extractSectionExists(content, heading) {
+  const aliases = {
+    'Security review': ['Revision de seguridad', 'Revisión de seguridad'],
+    'Residual coverage gaps': ['Brechas de cobertura residual']
+  };
+  return [heading, ...(aliases[heading] || [])].some((candidate) => {
+    const escaped = String(candidate).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return new RegExp(`^##\\s+${escaped}\\s*$`, 'im').test(content);
+  });
+}
+import { parseSectionTable, techniqueIsKnown } from './test-coverage.mjs';

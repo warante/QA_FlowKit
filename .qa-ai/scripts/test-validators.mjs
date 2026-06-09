@@ -21,6 +21,7 @@ import {
 import { parseFeatureTags, resolveFeatureSubfolder, validateFeatureFilePlacement } from './lib/feature-layout.mjs';
 import { karateDuplicateIdErrors, validateKarateFeatureContent } from './lib/karate-validate.mjs';
 import { validateMaestroFlowContent } from './lib/maestro-validate.mjs';
+import { featureCoverageRecord, normalizeCoverageMode, validateCoverage } from './lib/test-coverage.mjs';
 import { parseSimpleYaml } from './lib/utils.mjs';
 
 function assertIncludes(haystack, needle) {
@@ -169,6 +170,96 @@ test('validateTestDesignProposal: accepts valid Spanish proposal', () => {
     ].join('\n\n')}\n`
   );
   assert.equal(proposal.ok, true);
+});
+
+test('validateCoverage: strict mode accepts complete evidence and justified exclusions', () => {
+  const proposal = `# Test Design Proposal
+
+## Proposed tests
+
+| RF | CA | Test ID | Title | Type | Technique |
+| --- | --- | --- | --- | --- | --- |
+| RF-101 | CA-1 | TC-1 | Valid value | functional | boundary-value-analysis |
+| RF-101 | CA-1 | TC-2 | Invalid value | negative | error-guessing |
+
+## Coverage obligations
+
+| RF | Obligation | Applicable | Evidence | Rationale |
+| --- | --- | --- | --- | --- |
+| RF-101 | alternative | no | | Single-state operation |
+| RF-101 | boundary | yes | TC-1 | Input has a documented maximum |
+| RF-101 | accessibility | no | | API-only requirement |
+| RF-101 | performance | no | | No asynchronous or volume behavior |
+| RF-101 | security | no | | Public, read-only data |
+`;
+  const features = [
+    featureCoverageRecord(
+      'features/functional/RF-101-TC-1-valid.feature',
+      `# Technique: boundary-value-analysis
+@priority:high @type:functional @manual:false @rf:RF-101 @id:TC-1
+Feature: Valid
+  Acceptance Criteria: CA-1
+  Scenario: RF-101 TC-1 valid
+    Given a value
+    When it is submitted
+    Then it is accepted`
+    ),
+    featureCoverageRecord(
+      'features/functional/RF-101-TC-2-invalid.feature',
+      `# Technique: error-guessing
+@priority:high @type:negative @manual:false @rf:RF-101 @id:TC-2
+Feature: Invalid
+  Acceptance Criteria: CA-1
+  Scenario: RF-101 TC-2 invalid
+    Given an invalid value
+    When it is submitted
+    Then a validation message is shown`
+    )
+  ];
+  const result = validateCoverage({
+    features,
+    proposalContent: proposal,
+    mode: 'strict',
+    policy: {
+      requirePositive: true,
+      requireNegative: true,
+      requireAlternative: true,
+      requireBoundaryWhenApplicable: true,
+      requireAccessibilityWhenApplicable: true,
+      requirePerformanceWhenApplicable: true,
+      requireSecurityReview: true,
+      requireTechniqueTraceability: true
+    }
+  });
+  assert.equal(result.ok, true, result.findings.map((item) => item.message).join('\n'));
+});
+
+test('validateCoverage: advisory mode warns without failing', () => {
+  const features = [
+    featureCoverageRecord(
+      'features/functional/RF-102-TC-1-valid.feature',
+      `@priority:high @type:functional @manual:false @rf:RF-102 @id:TC-1
+Feature: Valid
+  Acceptance Criteria: CA-1
+  Scenario: RF-102 TC-1 valid
+    Given a value
+    When it is submitted
+    Then it is accepted`
+    )
+  ];
+  const result = validateCoverage({
+    features,
+    proposalContent: '',
+    mode: 'advisory',
+    policy: { requirePositive: true, requireNegative: true }
+  });
+  assert.equal(result.ok, true);
+  assert.ok(result.warnings.some((item) => item.rule === 'negative'));
+});
+
+test('normalizeCoverageMode: unknown values use the safe fallback', () => {
+  assert.equal(normalizeCoverageMode('strict'), 'strict');
+  assert.equal(normalizeCoverageMode('unknown'), 'off');
 });
 
 // --- release gate ---
@@ -557,6 +648,7 @@ test('resolveFeatureSubfolder: maps @type and @manual to folders', () => {
   assert.equal(resolveFeatureSubfolder(parseFeatureTags('@type:e2e @manual:false')), 'e2e');
   assert.equal(resolveFeatureSubfolder(parseFeatureTags('@type:functional @manual:true')), 'manual');
   assert.equal(resolveFeatureSubfolder(parseFeatureTags('@type:api @manual:false')), 'api');
+  assert.equal(resolveFeatureSubfolder(parseFeatureTags('@type:security @manual:false')), 'security');
   assert.equal(resolveFeatureSubfolder(parseFeatureTags('@type:regression @manual:false')), 'functional');
 });
 

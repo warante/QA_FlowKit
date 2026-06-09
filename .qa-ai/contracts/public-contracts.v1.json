@@ -24,7 +24,7 @@
         "version",
         "run"
       ],
-      "experimental": [],
+      "experimental": ["validate-test-coverage"],
       "deprecated": []
     },
     "runSubcommands": {
@@ -71,7 +71,11 @@
       "approval",
       "commands"
     ],
-    "experimental": ["Additional optional keys introduced during beta with documented defaults."],
+    "experimental": [
+      "sources.analysisPath",
+      "testDesign.coverage",
+      "Additional optional keys introduced during beta with documented defaults."
+    ],
     "deprecated": []
   },
   "schemas": {
@@ -92,7 +96,11 @@
       ".qa-ai/config-profiles/",
       ".qa-ai/state/runs/"
     ],
-    "experimental": ["Framework-specific automation paths selected by presets or config."],
+    "experimental": [
+      "qa-ai-output/source-analysis.md",
+      "features/security/",
+      "Framework-specific automation paths selected by presets or config."
+    ],
     "internal": [".qa-ai/state/runs/<run-id>/.lock", ".qa-ai/state/**/*.tmp"]
   },
   "collections": {

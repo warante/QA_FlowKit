@@ -14,7 +14,7 @@ function printHelp() {
   console.log(`Usage: node .qa-ai/scripts/organize-features.mjs [options]
 
 Moves .feature files sitting directly under gherkin.featurePath into type subfolders
-(functional, integration, e2e, api, accessibility, manual) based on @type and @manual tags.
+(functional, integration, e2e, api, accessibility, security, manual) based on @type and @manual tags.
 
 Options:
   --path <dir>   Override feature root

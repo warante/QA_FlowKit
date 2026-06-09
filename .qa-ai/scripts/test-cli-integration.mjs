@@ -44,6 +44,8 @@ async function main() {
 
     runCli(tempRoot, ['init', '--skip-doctor']);
     runCli(tempRoot, ['validate-features', '--allow-empty']);
+    const coverageJson = runCli(tempRoot, ['validate-test-coverage', '--allow-empty', '--allow-missing', '--json']);
+    JSON.parse(coverageJson.stdout);
     runCli(tempRoot, ['validate-active-specialists', '--allow-missing']);
     runCli(tempRoot, ['run', 'start', '--rf', 'RF-CLI-INT']);
     const statusJson = runCli(tempRoot, ['run', 'status', '--json']);

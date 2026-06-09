@@ -27,6 +27,7 @@ const requiredScripts = [
   '.qa-ai/scripts/validate-workflow-contract.mjs',
   '.qa-ai/scripts/validate-release-gate.mjs',
   '.qa-ai/scripts/validate-test-design.mjs',
+  '.qa-ai/scripts/validate-test-coverage.mjs',
   '.qa-ai/scripts/test-validators.mjs',
   '.qa-ai/scripts/smoke-test.mjs',
   '.qa-ai/scripts/smoke-npm-pack.mjs',
@@ -43,6 +44,7 @@ const requiredScripts = [
   '.qa-ai/scripts/lib/harness-validator-allowlist.mjs',
   '.qa-ai/scripts/lib/release-gate.mjs',
   '.qa-ai/scripts/lib/test-design.mjs',
+  '.qa-ai/scripts/lib/test-coverage.mjs',
   '.qa-ai/scripts/lib/markdown-table.mjs',
   '.qa-ai/scripts/lib/maestro-validate.mjs',
   '.qa-ai/scripts/lib/mobile-automation.mjs',
@@ -79,6 +81,7 @@ const requiredTemplates = [
   '.qa-ai/templates/jira-automation-task.template.md',
   '.qa-ai/templates/pr-template.md',
   '.qa-ai/templates/requirement-analysis.template.md',
+  '.qa-ai/templates/source-analysis.template.md',
   '.qa-ai/templates/test-design-system.template.md',
   '.qa-ai/templates/test-design-proposal.template.md',
   '.qa-ai/templates/testrail-coverage-analysis.template.md',
@@ -118,6 +121,7 @@ const requiredSpecialists = [
   '.qa-ai/agents/specialists/available/postman.md',
   '.qa-ai/agents/specialists/available/rest-assured.md',
   '.qa-ai/agents/specialists/available/selenium.md',
+  '.qa-ai/agents/specialists/available/security.md',
   '.qa-ai/agents/specialists/available/testrail.md',
   '.qa-ai/agents/specialists/available/webdriverio.md'
 ];

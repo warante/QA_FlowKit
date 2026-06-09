@@ -23,6 +23,7 @@ const commandMap = {
   'validate-active-specialists': 'validate-active-specialists.mjs',
   'validate-release-gate': 'validate-release-gate.mjs',
   'validate-test-design': 'validate-test-design.mjs',
+  'validate-test-coverage': 'validate-test-coverage.mjs',
   'sync-adapters': 'sync-agent-adapters.mjs',
   help: 'qa-help.mjs',
   clean: 'clean.mjs'
@@ -51,6 +52,7 @@ Validation commands:
   validate-active-specialists      Validate active.md matches qa-ai.config.yaml
   validate-release-gate [options]  Validate the release-gate.yaml artifact
   validate-test-design [options]   Validate system and per-RF test design artifacts
+  validate-test-coverage [options] Validate configured cross-feature coverage obligations
 
 Harness commands:
   run <subcommand>                 Resumable QA workflow run (start, status, next, check, retry, set-rf, approve, resume)

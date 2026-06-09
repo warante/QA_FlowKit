@@ -305,6 +305,7 @@ function selectedAdapters() {
 function generatedDocs() {
   return [
     ['templates/requirement-analysis.template.md', 'qa-ai-output/requirement-analysis.md'],
+    ['templates/source-analysis.template.md', 'qa-ai-output/source-analysis.md'],
     ['templates/testrail-coverage-analysis.template.md', 'qa-ai-output/testrail-coverage-analysis.md'],
     ['templates/test-design-system.template.md', 'qa-ai-output/test-design-system.md'],
     ['templates/test-design-proposal.template.md', 'qa-ai-output/test-design-proposal.md'],
@@ -320,6 +321,14 @@ function generatedDocs() {
 
 const spanishTemplateHeadings = new Map([
   ['# Requirement Analysis', '# Analisis de requisitos'],
+  ['# Source Analysis', '# Analisis de fuentes'],
+  ['## Inputs', '## Entradas'],
+  ['## Facts by source', '## Hechos por fuente'],
+  ['## Cross-source agreements', '## Acuerdos entre fuentes'],
+  ['## Contradictions', '## Contradicciones'],
+  ['## Unsupported design observations', '## Observaciones de diseno no respaldadas'],
+  ['## Extraction limitations', '## Limitaciones de extraccion'],
+  ['## Pending decisions', '## Decisiones pendientes'],
   ['## Main source', '## Fuente principal'],
   ['## Complementary sources', '## Fuentes complementarias'],
   ['## Functional scope', '## Alcance funcional'],
@@ -341,6 +350,9 @@ const spanishTemplateHeadings = new Map([
   ['## Official RF ID', '## RF oficial'],
   ['## Scope', '## Alcance'],
   ['## Proposed tests', '## Pruebas propuestas'],
+  ['## Coverage obligations', '## Obligaciones de cobertura'],
+  ['## Security review', '## Revision de seguridad'],
+  ['## Residual coverage gaps', '## Brechas de cobertura residual'],
   ['## Existing tests to reuse', '## Pruebas existentes para reutilizar'],
   ['## Existing tests requiring modification', '## Pruebas existentes que requieren modificacion'],
   ['## New tests to create', '## Nuevas pruebas a crear'],

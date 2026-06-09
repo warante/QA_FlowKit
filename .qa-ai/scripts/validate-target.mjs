@@ -27,6 +27,7 @@ Options:
   --no-strict-doctor  Run doctor without --strict
   --skip-release-gate Skip release gate validation (enterprise track only)
   --skip-test-design   Skip test design markdown validation
+  --skip-test-coverage Skip configured cross-feature coverage validation
   --allow-pending     Pass --allow-pending to release gate validator
   --scan-secrets      Scan qa-ai-output and features for secret-like values
   --no-scan-secrets   Skip secret scan (overrides default on --strict doctor)
@@ -40,6 +41,7 @@ Runs the target-repository validation pipeline:
   validate-active-specialists
   validate-release-gate (enterprise track only)
   validate-test-design (standard and enterprise tracks)
+  validate-test-coverage (when testDesign.coverage.mode is not off)
 `);
 }
 
@@ -70,6 +72,7 @@ async function main() {
   const strictDoctor = !args['no-strict-doctor'];
   const configInfo = await loadQaAiConfig(process.cwd());
   const track = normalizeQaTrack(getConfigValue(configInfo.data, 'project.qaTrack', 'standard'));
+  const coverageMode = String(getConfigValue(configInfo.data, 'testDesign.coverage.mode', 'off')).toLowerCase();
 
   const featureArgs = allowEmpty ? ['--allow-empty'] : [];
   const artifactArgs = [...(allowEmpty ? ['--allow-empty'] : []), ...(allowMissing ? ['--allow-missing'] : [])];
@@ -78,6 +81,14 @@ async function main() {
   const commands = [
     command('doctor', '.qa-ai/scripts/doctor.mjs', strictDoctor ? ['--strict'] : []),
     command('feature validation', '.qa-ai/scripts/validate-features.mjs', featureArgs),
+    ...(coverageMode !== 'off' && !args['skip-test-coverage']
+      ? [
+          command('test coverage validation', '.qa-ai/scripts/validate-test-coverage.mjs', [
+            ...featureArgs,
+            ...(allowMissing ? ['--allow-missing'] : [])
+          ])
+        ]
+      : []),
     ...(usesKarate(configInfo.data)
       ? [command('karate feature validation', '.qa-ai/scripts/validate-karate-features.mjs', featureArgs)]
       : []),
