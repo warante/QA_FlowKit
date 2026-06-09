@@ -28,6 +28,8 @@ reliable validation. QA FlowKit installs those controls inside the target reposi
 - quick, standard and enterprise workflow tracks;
 - persistent, resumable run state and an append-only event log;
 - validation for Gherkin, traceability, test design, sync plans and release gates;
+- configurable cross-feature coverage checks and traceable test-design techniques;
+- functional security review and mixed-source requirement intake;
 - overwrite, path traversal, deletion and secret-handling safeguards;
 - proposal-first planning for Jira, TestRail, Zephyr, Xray and similar tools.
 
@@ -125,6 +127,7 @@ See the [configuration schema](docs/qa-ai/config-schema.md) for all generated ke
 | `qa-flowkit run start\|next\|check` | Execute a resumable controlled workflow      |
 | `qa-flowkit validate-target`        | Run the target-repository quality gate       |
 | `qa-flowkit validate-features`      | Validate QA design Gherkin                   |
+| `qa-flowkit validate-test-coverage` | Validate configured coverage obligations     |
 | `qa-flowkit validate-traceability`  | Validate RF-to-test coverage                 |
 | `qa-flowkit validate-release-gate`  | Validate the enterprise release decision     |
 
@@ -191,20 +194,21 @@ outside `.qa-ai/`. Review the [upgrade and migration guide](docs/qa-ai/getting-s
 
 ## Documentation
 
-| Topic                    | Document                                                          |
-| ------------------------ | ----------------------------------------------------------------- |
-| First workflow           | [Getting Started](docs/qa-ai/getting-started.md)                  |
-| CLI commands and options | [CLI Reference](docs/qa-ai/cli-reference.md)                      |
-| Architecture             | [Architecture](docs/qa-ai/architecture.md)                        |
-| Workflow                 | [Full Workflow](docs/qa-ai/workflow.md)                           |
-| Resumable harness        | [Agent Harness](docs/qa-ai/agent-harness.md)                      |
-| Troubleshooting          | [Troubleshooting](docs/qa-ai/troubleshooting.md)                  |
-| Product stability        | [Stability Policy](docs/qa-ai/stability-policy.md)                |
-| Public contracts         | [Contract Inventory](docs/qa-ai/public-contracts.md)              |
-| Pilot measurement        | [Pilot Methodology](docs/qa-ai/pilot-methodology.md)              |
-| Path to 1.0              | [Roadmap](ROADMAP.md) and [implementation tasks](tasks/README.md) |
-| Security                 | [Security Policy](SECURITY.md)                                    |
-| Contributing             | [Contributing Guide](CONTRIBUTING.md)                             |
+| Topic                    | Document                                                                    |
+| ------------------------ | --------------------------------------------------------------------------- |
+| First workflow           | [Getting Started](docs/qa-ai/getting-started.md)                            |
+| CLI commands and options | [CLI Reference](docs/qa-ai/cli-reference.md)                                |
+| Architecture             | [Architecture](docs/qa-ai/architecture.md)                                  |
+| Workflow                 | [Full Workflow](docs/qa-ai/workflow.md)                                     |
+| Advanced test design     | [Coverage, techniques and mixed inputs](docs/qa-ai/advanced-test-design.md) |
+| Resumable harness        | [Agent Harness](docs/qa-ai/agent-harness.md)                                |
+| Troubleshooting          | [Troubleshooting](docs/qa-ai/troubleshooting.md)                            |
+| Product stability        | [Stability Policy](docs/qa-ai/stability-policy.md)                          |
+| Public contracts         | [Contract Inventory](docs/qa-ai/public-contracts.md)                        |
+| Pilot measurement        | [Pilot Methodology](docs/qa-ai/pilot-methodology.md)                        |
+| Path to 1.0              | [Roadmap](ROADMAP.md) and [implementation tasks](tasks/README.md)           |
+| Security                 | [Security Policy](SECURITY.md)                                              |
+| Contributing             | [Contributing Guide](CONTRIBUTING.md)                                       |
 
 ## Source Repository
 

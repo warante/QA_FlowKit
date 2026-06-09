@@ -37,6 +37,8 @@ tests/                          automation code when configured
 - `doctor.mjs --strict` is intended for initialized target repositories and CI. It requires `qa-ai.config.yaml`, configured workflow artifacts, configured mapping/traceability files, QA knowledge artifacts when enabled and framework config files for configured automation stacks. Optional adapters remain warnings unless explicitly generated and required by the team.
 - `clean.mjs` reads `.qa-ai/state/init-manifest.json`, previews cleanup by default, and removes only tracked generated files or empty directories when `--force` is passed.
 - `validate-features.mjs` parses configured `.feature` files for one Feature, one Scenario, acceptance criteria, required tag values, language directives, RF IDs and duplicate explicit test case IDs.
+- `validate-test-coverage.mjs` groups design features by RF and evaluates configured positive, negative, alternative,
+  conditional and technique-traceability obligations against the per-RF proposal.
 - `validate-traceability.mjs` checks that feature RF/test identifiers are represented in the configured traceability matrix, validates the Markdown table shape and detects duplicate test case or feature-file rows.
 - `validate-sync-plan.mjs` checks that test-management sync plans remain proposal-first, mention approval, cover feature identifiers, validate Markdown table shape, detect duplicate plan IDs and validate the optional test-management mapping file shape.
 - `validate-active-specialists.mjs` checks that `.qa-ai/agents/specialists/active.md` matches the configured tools/frameworks.
@@ -75,6 +77,8 @@ node .qa-ai/scripts/init.mjs --qa-context qa-ai-knowledge
 - Interface language: configured by `project.interfaceLanguage` for generated QA artifact headings and user-facing workflow text.
 - Agent interaction: `.qa-ai/workflows/command-interaction.md` defines interface-language persistence, native selector use and the numbered fallback shared by every adapter.
 - Complementary sources: PRD, RF markdown, configured documentation tools and attachments.
+- Mixed supporting sources: PDFs, images, HTML, spreadsheets, URLs and design references when the active agent host
+  can inspect them. Extraction status and contradictions are recorded in `sources.analysisPath`.
 - Test design source: versioned `.feature` files in the repository.
 - Test management: configured tool for execution/reporting, not as the only source of truth.
 - Traceability: `qa-ai-output/traceability-matrix.md`.

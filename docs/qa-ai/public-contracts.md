@@ -28,6 +28,12 @@ validate-release-gate validate-test-design
 sync-adapters help clean version run
 ```
 
+Experimental command:
+
+```text
+validate-test-coverage
+```
+
 Stable `run` subcommands:
 
 ```text
@@ -53,6 +59,9 @@ automation testDesign traceability release approval commands
 
 New optional keys may be introduced with safe defaults. Removing a key, changing its type or changing an existing
 default requires a migration path. See [Configuration Schema](config-schema.md).
+
+`sources.analysisPath` and `testDesign.coverage` are additive experimental keys. They do not reinterpret existing
+configuration.
 
 Preset IDs are public. The `webdriverio-playwright-api` preset remains available as a deprecated compatibility preset;
 new projects should use `playwright-full`.
