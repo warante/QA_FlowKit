@@ -52,7 +52,9 @@ export async function validateTestDesignArtifacts(cwd, options = {}) {
 
   const allowMissing = Boolean(options.allowMissing);
   const validatorOptions = {
-    requireOfficialRfId: Boolean(options.requireRfId)
+    requireOfficialRfId: Boolean(options.requireRfId),
+    requireCoverageSections:
+      String(getConfigValue(config, 'testDesign.coverage.mode', 'off')).toLowerCase() === 'strict'
   };
 
   const system = await validateFile(cwd, systemPath, validateTestDesignSystem, {

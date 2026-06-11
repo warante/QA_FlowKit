@@ -20,6 +20,9 @@ Add an AI-assisted QA workflow to an existing QA or automation repository: requi
 - Present a plan before modifying files.
 - Do not overwrite existing files unless explicitly approved or `--force` behavior is requested by the user.
 - Do not create external writes to configured external tools in the MVP.
+- When mixed requirement and design inputs are used, record extraction status and contradictions in
+  `sources.analysisPath`; never claim an inaccessible source was read.
+- Apply `testDesign.coverage` and run `validate-test-coverage.mjs` when its mode is not `off`.
 - Never store secrets in repository files.
 - Keep generated artifacts open-source ready (no credentials in examples).
 

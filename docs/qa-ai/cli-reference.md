@@ -120,6 +120,7 @@ npx qa-flowkit run check
 | `validate-sync-plan`          | Validate proposal-first test-management plans and mappings         |
 | `validate-active-specialists` | Compare generated specialists with config                          |
 | `validate-test-design`        | Validate system and per-RF design artifacts                        |
+| `validate-test-coverage`      | Validate configured cross-feature coverage obligations             |
 | `validate-release-gate`       | Validate enterprise release evidence and decision                  |
 
 Validators intended for in-progress work may expose `--allow-empty` or `--allow-missing`. Do not use permissive flags

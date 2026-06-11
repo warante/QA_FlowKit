@@ -5,7 +5,7 @@
 import path from 'node:path';
 
 /** Subfolders allowed directly under gherkin.featurePath */
-export const FEATURE_SUBFOLDERS = ['functional', 'integration', 'e2e', 'api', 'accessibility', 'manual'];
+export const FEATURE_SUBFOLDERS = ['functional', 'integration', 'e2e', 'api', 'accessibility', 'security', 'manual'];
 
 const TYPE_TO_FOLDER = {
   functional: 'functional',
@@ -22,6 +22,7 @@ const TYPE_TO_FOLDER = {
   api: 'api',
   accessibility: 'accessibility',
   a11y: 'accessibility',
+  security: 'security',
   compatibility: 'functional',
   manual: 'manual'
 };

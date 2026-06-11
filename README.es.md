@@ -29,6 +29,8 @@ aprobaciones y validación fiable. QA FlowKit instala esos controles dentro del 
 - tracks `quick`, `standard` y `enterprise`;
 - estado persistente, reanudable y con registro de eventos;
 - validación de Gherkin, trazabilidad, diseño de pruebas, planes de sync y release gates;
+- validaciones configurables de cobertura entre features y técnicas de diseño de pruebas trazables;
+- revisión de seguridad funcional e ingesta de requisitos desde fuentes mixtas;
 - protección frente a sobrescritura, rutas externas, borrados y secretos;
 - planificación proposal-first para Jira, TestRail, Zephyr, Xray y herramientas similares.
 
@@ -127,6 +129,7 @@ Consulta el [esquema de configuración](docs/qa-ai/config-schema.md).
 | `qa-flowkit run start\|next\|check` | Ejecutar un workflow controlado y reanudable     |
 | `qa-flowkit validate-target`        | Ejecutar el quality gate del repositorio destino |
 | `qa-flowkit validate-features`      | Validar el Gherkin de diseño QA                  |
+| `qa-flowkit validate-test-coverage` | Validar obligaciones configuradas de cobertura   |
 | `qa-flowkit validate-traceability`  | Validar cobertura entre RF y pruebas             |
 | `qa-flowkit validate-release-gate`  | Validar la decisión enterprise de release        |
 
@@ -195,20 +198,21 @@ Consulta la [guía de actualización](docs/qa-ai/getting-started.md#upgrading-an
 
 ## Documentación
 
-| Tema                    | Documento                                                 |
-| ----------------------- | --------------------------------------------------------- |
-| Primer workflow         | [Primeros pasos](docs/qa-ai/getting-started.md)           |
-| Comandos y opciones CLI | [Referencia CLI](docs/qa-ai/cli-reference.md)             |
-| Arquitectura            | [Arquitectura](docs/qa-ai/architecture.md)                |
-| Workflow                | [Workflow completo](docs/qa-ai/workflow.md)               |
-| Harness reanudable      | [Arnés para agentes](docs/qa-ai/agent-harness.md)         |
-| Solución de problemas   | [Troubleshooting](docs/qa-ai/troubleshooting.md)          |
-| Estabilidad             | [Política de estabilidad](docs/qa-ai/stability-policy.md) |
-| Contratos públicos      | [Inventario de contratos](docs/qa-ai/public-contracts.md) |
-| Medición de pilotos     | [Metodología de pilotos](docs/qa-ai/pilot-methodology.md) |
-| Camino a 1.0            | [Roadmap](ROADMAP.md) y [tareas](tasks/README.md)         |
-| Seguridad               | [Política de seguridad](SECURITY.md)                      |
-| Contribución            | [Guía de contribución](CONTRIBUTING.md)                   |
+| Tema                    | Documento                                                                  |
+| ----------------------- | -------------------------------------------------------------------------- |
+| Primer workflow         | [Primeros pasos](docs/qa-ai/getting-started.md)                            |
+| Comandos y opciones CLI | [Referencia CLI](docs/qa-ai/cli-reference.md)                              |
+| Arquitectura            | [Arquitectura](docs/qa-ai/architecture.md)                                 |
+| Workflow                | [Workflow completo](docs/qa-ai/workflow.md)                                |
+| Diseño avanzado         | [Cobertura, técnicas y fuentes mixtas](docs/qa-ai/advanced-test-design.md) |
+| Harness reanudable      | [Arnés para agentes](docs/qa-ai/agent-harness.md)                          |
+| Solución de problemas   | [Troubleshooting](docs/qa-ai/troubleshooting.md)                           |
+| Estabilidad             | [Política de estabilidad](docs/qa-ai/stability-policy.md)                  |
+| Contratos públicos      | [Inventario de contratos](docs/qa-ai/public-contracts.md)                  |
+| Medición de pilotos     | [Metodología de pilotos](docs/qa-ai/pilot-methodology.md)                  |
+| Camino a 1.0            | [Roadmap](ROADMAP.md) y [tareas](tasks/README.md)                          |
+| Seguridad               | [Política de seguridad](SECURITY.md)                                       |
+| Contribución            | [Guía de contribución](CONTRIBUTING.md)                                    |
 
 ## Repositorio Fuente
 

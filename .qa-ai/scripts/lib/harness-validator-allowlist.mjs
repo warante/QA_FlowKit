@@ -15,6 +15,10 @@ export const VALIDATOR_ALLOWLIST = {
     script: '.qa-ai/scripts/validate-test-design.mjs',
     defaultArgs: ['--allow-missing']
   },
+  'validate-test-coverage': {
+    script: '.qa-ai/scripts/validate-test-coverage.mjs',
+    defaultArgs: ['--allow-missing']
+  },
   'validate-release-gate': {
     script: '.qa-ai/scripts/validate-release-gate.mjs',
     defaultArgs: []

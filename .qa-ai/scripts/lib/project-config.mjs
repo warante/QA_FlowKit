@@ -41,8 +41,10 @@ export function addCommonDirs(dirs, config) {
 
   const knowledgeSummaryPath = getConfigValue(config, 'knowledge.summaryPath', 'qa-ai-output/qa-knowledge-summary.md');
   const knowledgeDecisionsPath = getConfigValue(config, 'knowledge.decisionsPath', 'qa-ai-output/qa-init-decisions.md');
+  const sourceAnalysisPath = getConfigValue(config, 'sources.analysisPath', 'qa-ai-output/source-analysis.md');
   if (knowledgeSummaryPath) dirs.add(path.dirname(knowledgeSummaryPath));
   if (knowledgeDecisionsPath) dirs.add(path.dirname(knowledgeDecisionsPath));
+  if (sourceAnalysisPath) dirs.add(path.dirname(sourceAnalysisPath));
 }
 
 export function addUiDirs(dirs, config) {
@@ -198,6 +200,11 @@ export const specialistCatalog = {
     title: 'Performance Testing Specialist',
     categories: ['performance'],
     aliases: ['performance', 'load', 'stress', 'nfr']
+  },
+  security: {
+    title: 'Functional Security Testing Specialist',
+    categories: ['security'],
+    aliases: ['security', 'functional-security', 'owasp-functional']
   }
 };
 
@@ -228,6 +235,9 @@ export function activeSpecialists(config) {
   }
 
   active.set('generic-test-design', specialistCatalog['generic-test-design']);
+  if (getConfigValue(config, 'testDesign.coverage.requireSecurityReview', false)) {
+    active.set('security', specialistCatalog.security);
+  }
   return [...active.entries()].sort(([a], [b]) => a.localeCompare(b));
 }
 

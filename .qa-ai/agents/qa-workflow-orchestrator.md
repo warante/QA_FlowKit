@@ -57,6 +57,10 @@ Execute phases in order. Each phase depends on the previous one's output.
 - Load the matching phase agent and active specialists before each phase.
 - Delegate to specialized agents conceptually (read their instructions, apply as role context).
 - Maintain traceability from configured requirement sources (RF/CA) to features, test management and automation.
+- When mixed sources are supplied, keep requirements authoritative and record source extraction, contradictions and
+  limitations in `sources.analysisPath`.
+- Apply `testDesign.coverage` after per-RF design and Gherkin generation. Advisory findings are reported; strict
+  findings block completion.
 - Present a plan before every change.
 - Ask for approval before writes or modifications.
 - Stop and ask when official RF ID is missing.
@@ -102,16 +106,17 @@ Maintain a mental model of workflow state:
 
 Every workflow run must produce or update artifacts under `qa-ai-output/` and `features/`. Minimum by track:
 
-| Artifact                                        | `quick`     | `standard` | `enterprise` |
-| ----------------------------------------------- | ----------- | ---------- | ------------ |
-| `qa-ai-output/requirement-analysis.md`          | yes         | yes        | yes          |
-| `qa-ai-output/normalized-requirements.md`       | yes         | yes        | yes          |
-| `features/*.feature`                            | yes         | yes        | yes          |
-| `qa-ai-output/traceability-matrix.md`           | recommended | yes        | yes          |
-| `qa-ai-output/test-design-system.md`            | no          | yes        | yes          |
-| `qa-ai-output/automation-feasibility-report.md` | no          | yes        | yes          |
-| `qa-ai-output/pr-summary.md`                    | yes         | yes        | yes          |
-| `qa-ai-output/release-gate.yaml`                | no          | no         | yes          |
+| Artifact                                        | `quick`                     | `standard`                  | `enterprise`                |
+| ----------------------------------------------- | --------------------------- | --------------------------- | --------------------------- |
+| `qa-ai-output/requirement-analysis.md`          | yes                         | yes                         | yes                         |
+| `qa-ai-output/source-analysis.md`               | when mixed sources are used | when mixed sources are used | when mixed sources are used |
+| `qa-ai-output/normalized-requirements.md`       | yes                         | yes                         | yes                         |
+| `features/*.feature`                            | yes                         | yes                         | yes                         |
+| `qa-ai-output/traceability-matrix.md`           | recommended                 | yes                         | yes                         |
+| `qa-ai-output/test-design-system.md`            | no                          | yes                         | yes                         |
+| `qa-ai-output/automation-feasibility-report.md` | no                          | yes                         | yes                         |
+| `qa-ai-output/pr-summary.md`                    | yes                         | yes                         | yes                         |
+| `qa-ai-output/release-gate.yaml`                | no                          | no                          | yes                         |
 
 When test management or issue tracker tools are configured, include their phase artifacts (`testrail-coverage-analysis.md`, `testrail-sync-plan.md`, `jira-automation-task.md`) as applicable.
 

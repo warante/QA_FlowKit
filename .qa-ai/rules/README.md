@@ -53,6 +53,7 @@ Each `*.rules.md` includes an **Enforced by** line. Critical rules must map to a
 | [workflow.rules.md](workflow.rules.md)                   | `doctor.mjs`, `validate-target.mjs`                                               |
 | [requirements.rules.md](requirements.rules.md)           | `validate-traceability.mjs`                                                       |
 | [test-design.rules.md](test-design.rules.md)             | `validate-test-design.mjs`                                                        |
+| [test-design.rules.md](test-design.rules.md)             | `validate-test-coverage.mjs` for configured cross-feature obligations             |
 | [gherkin.rules.md](gherkin.rules.md)                     | `validate-features.mjs`, `lib/gherkin-validate.mjs`                               |
 | [test-management.rules.md](test-management.rules.md)     | `validate-sync-plan.mjs`, `lib/test-management-mapping.mjs`                       |
 | [issue-tracker.rules.md](issue-tracker.rules.md)         | prompt-only (MVP)                                                                 |

@@ -143,6 +143,10 @@ function validatePackFileList(files) {
     '.qa-ai/scripts/doctor.mjs',
     '.qa-ai/contracts/workflow.v1.json',
     '.qa-ai/scripts/qa-run.mjs',
+    '.qa-ai/scripts/validate-test-coverage.mjs',
+    '.qa-ai/scripts/lib/test-coverage.mjs',
+    '.qa-ai/agents/specialists/available/security.md',
+    '.qa-ai/templates/source-analysis.template.md',
     '.qa-ai/scripts/lib/harness-paths.mjs',
     '.qa-ai/scripts/lib/harness-modification.mjs',
     '.qa-ai/adapters/opencode/commands/qa-init.md',
@@ -242,6 +246,7 @@ async function main() {
     if (!helpResult.stdout) throw new Error('qa-flowkit help produced no output.');
     runCli(initTarget, ['unknown-command-xyzzy'], { expectFailure: true });
     runCli(initTarget, ['validate-features', '--allow-empty']);
+    runCli(initTarget, ['validate-test-coverage', '--allow-empty', '--allow-missing']);
     runCli(initTarget, ['validate-active-specialists', '--allow-missing']);
     runCli(initTarget, ['run', 'start']);
     const statusBefore = runCli(initTarget, ['run', 'status', '--json']);

@@ -5,7 +5,8 @@ argument-hint: [optional requirement source]
 
 Before any other action or user-facing text, read and follow `.qa-ai/workflows/command-interaction.md`.
 
-Run the complete QA AI workflow for the configured requirement source, Markdown PRD/RF or pasted requirement.
+Run the complete QA AI workflow for the configured requirement source, Markdown PRD/RF, pasted requirement or mixed
+supporting inputs such as PDFs, images, HTML, spreadsheets, URLs and design references.
 
 Read these files first:
 
@@ -55,6 +56,7 @@ If an active run already exists, prefer `run next` and `run check` over inferrin
 Expected local artifacts:
 
 - `qa-ai-output/requirement-analysis.md`
+- `qa-ai-output/source-analysis.md` when mixed sources are used
 - `qa-ai-output/testrail-coverage-analysis.md`
 - `qa-ai-output/test-design-proposal.md`
 - `.feature` files under the configured feature path after approval
@@ -69,6 +71,15 @@ After feature and QA artifact changes, run the aggregated target-repository vali
 ```bash
 node .qa-ai/scripts/validate-target.mjs
 ```
+
+When `testDesign.coverage.mode` is not `off`, also review:
+
+```bash
+node .qa-ai/scripts/validate-test-coverage.mjs
+```
+
+Requirements remain authoritative. Supporting sources may add visual states and UI edge cases, but contradictions
+must be reported and resolved. Never claim an inaccessible source was read.
 
 For early/incomplete repositories, use `node .qa-ai/scripts/validate-target.mjs --allow-empty --allow-missing --no-strict-doctor`.
 

@@ -34,6 +34,7 @@ Inputs:
 Outputs:
 
 - `qa-ai-output/requirement-analysis.md`
+- `qa-ai-output/source-analysis.md` when mixed sources are used
 
 Requirements:
 
@@ -41,6 +42,8 @@ Requirements:
 - Extract RFs and Acceptance Criteria.
 - Detect ambiguity.
 - Proposed inferred CA must be approved before use.
+- Requirements remain authoritative; design and visual inputs are supporting evidence.
+- Record extraction limitations and contradictions instead of silently merging incompatible sources.
 
 ## Step 2 - Official RF ID validation
 
@@ -117,6 +120,7 @@ Requirements:
 - UI/E2E framework: use `automation.ui.framework` from `qa-ai.config.yaml`.
 - API/integration framework: use `automation.api.framework` from `qa-ai.config.yaml`.
 - Provide technical proposal before coding.
+- Run `validate-test-coverage.mjs` after per-RF design and feature generation when coverage mode is enabled.
 
 ## Step 8 - Implementation and validation
 

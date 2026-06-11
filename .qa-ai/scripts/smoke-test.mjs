@@ -227,6 +227,7 @@ async function main() {
     ]);
     const expectedOptionalDocPaths = [
       'qa-ai-output/requirement-analysis.md',
+      'qa-ai-output/source-analysis.md',
       'qa-ai-output/test-design-system.md',
       'qa-ai-output/test-design-proposal.md',
       'qa-ai-output/traceability-matrix.md',
