@@ -50,7 +50,7 @@ jobs:
 
       - name: Upload compatibility report
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: example-compatibility-${{ matrix.os }}-node-${{ matrix.node }}-${{ inputs.channel || 'beta' }}
           path: compatibility-report.json
