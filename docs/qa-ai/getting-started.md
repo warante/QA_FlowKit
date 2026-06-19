@@ -2,9 +2,39 @@
 
 Step-by-step setup flows for each user type. Pick the one that matches your situation. See [Terminal Transcripts](terminal-transcripts.md) for real command output from each workflow.
 
-## 5-minute quick path
+## 5-minute agent-first start
 
-This path uses one public requirement:
+From your **target** repository root (Node.js 20+):
+
+```bash
+npx qa-flowkit init
+# choose your AI coding CLI adapter in the setup menu
+npx qa-flowkit doctor # optional
+```
+
+Open the repository in your AI coding CLI and use the generated command surface:
+
+```text
+/qa-help
+/qa-add-tests
+/qa-full-flow
+```
+
+`/qa-help` displays the available QA FlowKit commands and recommends the next workflow step. Claude Code and OpenCode
+expose project slash commands through generated adapters; agents without slash-command support use their generated
+adapter instructions (`AGENTS.md`, `GEMINI.md`, `.codex/README.md`, etc.).
+
+After the agent creates or updates QA artifacts, run the target quality gate:
+
+```bash
+npx qa-flowkit validate-target
+```
+
+During Beta, pin reproducible setup or CI to `npx qa-flowkit@beta ...` when you need the beta channel explicitly.
+
+## Deterministic RF-101 demo
+
+This source-repository demo uses one public requirement:
 
 ```markdown
 # RF-101 - User login
@@ -16,7 +46,7 @@ Acceptance criteria:
 - Valid credentials open the account dashboard.
 ```
 
-From your **target** repository root (Node.js 20+):
+From a temporary **target** repository root:
 
 ```bash
 npx qa-flowkit@beta init --preset manual-only --qa-track quick

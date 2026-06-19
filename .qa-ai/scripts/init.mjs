@@ -86,6 +86,7 @@ Options:
   --adapters <list>        Comma-separated adapters to generate, or "all" (default: detected hosts plus generic)
   --adapter <name>         Repeatable single adapter name
   --no-adapters            Skip adapter generation
+  --no-interactive         Do not show interactive setup prompts
   --no-feature-folders     Skip canonical feature subfolder and .gitkeep creation
   --with-doc-templates     Generate starter QA docs under qa-ai-output/
   --with-test-management-mapping Generate the configured test management mapping file
@@ -367,10 +368,76 @@ async function assertValidConfig(content) {
   process.exit(1);
 }
 
+function shouldPromptForAdapters() {
+  return Boolean(process.stdin.isTTY && process.stdout.isTTY && !process.env.CI && !args['no-interactive']);
+}
+
+async function promptAdapterSelection(defaultAdapters) {
+  if (!shouldPromptForAdapters()) return defaultAdapters;
+
+  const choices = [
+    ['1', 'Auto-detect this repository', '__auto__'],
+    ['2', 'Claude Code slash commands', 'claude'],
+    ['3', 'OpenCode slash commands', 'opencode'],
+    ['4', 'Codex adapter instructions', 'codex'],
+    ['5', 'Gemini CLI context', 'gemini'],
+    ['6', 'Generic AGENTS.md only', 'generic'],
+    ['7', 'All adapters', 'all'],
+    ['8', 'None', '__none__']
+  ];
+  const choiceMap = new Map([
+    ...choices.map(([number, , value]) => [number, value]),
+    ['auto', '__auto__'],
+    ['detect', '__auto__'],
+    ['none', '__none__']
+  ]);
+  const valueSet = new Set(choices.map(([, , value]) => value));
+  const defaultLabel = defaultAdapters.length > 0 ? defaultAdapters.join(', ') : 'none';
+
+  console.log('\nSelect AI coding CLI adapter(s):');
+  for (const [number, label, value] of choices) {
+    const suffix = value === '__auto__' ? ` (default: ${defaultLabel})` : '';
+    console.log(`  ${number}. ${label}${suffix}`);
+  }
+  console.log('Use comma-separated numbers or adapter names, for example "2,3".');
+
+  const { createInterface } = await import('node:readline/promises');
+  const rl = createInterface({ input: process.stdin, output: process.stdout });
+  let answer;
+  try {
+    answer = await rl.question('Adapter selection [1]: ');
+  } finally {
+    rl.close();
+  }
+
+  const tokens = String(answer || '1')
+    .split(/[,\s]+/)
+    .map((token) => token.trim().toLowerCase())
+    .filter(Boolean);
+  const selected = tokens.map((token) => choiceMap.get(token) || token);
+
+  const invalid = selected.filter((value) => !valueSet.has(value));
+  if (invalid.length > 0) {
+    console.error(`Unknown adapter selection: ${invalid.join(', ')}`);
+    console.error('Use one or more of: claude, opencode, codex, gemini, generic, all, none.');
+    process.exit(1);
+  }
+  if (selected.includes('__auto__')) return defaultAdapters;
+  if (selected.includes('__none__')) {
+    if (selected.length > 1) {
+      console.error('Adapter selection "none" cannot be combined with other adapters.');
+      process.exit(1);
+    }
+    return [];
+  }
+  if (selected.includes('all')) return ['all'];
+  return [...new Set(selected)];
+}
+
 async function selectedAdapters() {
   if (args['no-adapters']) return [];
   const requested = [...commaList(args.adapters), ...commaList(args.adapter)].map((name) => name.toLowerCase());
-  if (requested.length === 0) return defaultInitAdapters(cwd);
+  if (requested.length === 0) return promptAdapterSelection(await defaultInitAdapters(cwd));
   if (requested.includes('all')) return ['all'];
   return [...new Set(requested)];
 }
@@ -586,6 +653,8 @@ async function main() {
   console.log(`Using interface language: ${interfaceLanguage}`);
   console.log(`Using Gherkin language: ${gherkinLanguage}`);
 
+  const adapters = await selectedAdapters();
+
   const configPath = path.join(cwd, 'qa-ai.config.yaml');
   const projectName = await derivedProjectName();
   console.log(`Using project name: ${projectName}`);
@@ -761,7 +830,6 @@ async function main() {
     }
   }
 
-  const adapters = await selectedAdapters();
   if (adapters.length > 0) {
     console.log('\nSyncing agent adapters...');
     console.log(`Selected adapters: ${adapters.join(', ')}`);

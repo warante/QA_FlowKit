@@ -43,28 +43,30 @@ resultado de las validaciones.
 Desde el repositorio donde quieres instalar QA FlowKit:
 
 ```bash
-npx qa-flowkit@beta init --preset manual-only --qa-track quick
-npx qa-flowkit doctor
-npx qa-flowkit run start --rf RF-101
-npx qa-flowkit run next
+npx qa-flowkit init
+# elige tu CLI de IA en el menú de instalación
+npx qa-flowkit doctor # opcional
 ```
 
-Abre el repositorio con tu agente y pídele que lea el paquete de fase devuelto, `AGENTS.md` y
-`qa-ai.config.yaml`. Cuando cree el artefacto solicitado:
+Abre el repositorio en tu CLI de IA y usa la superficie de comandos generada:
 
-```bash
-npx qa-flowkit run check
-npx qa-flowkit run next
+```text
+/qa-help
+/qa-add-tests
+/qa-full-flow
 ```
 
-Repite `next -> trabajo del agente -> check` hasta completar el run y ejecuta:
+`/qa-help` muestra los comandos del framework y recomienda el siguiente paso QA. Claude Code y OpenCode exponen slash
+commands de proyecto mediante adaptadores generados; para agentes sin soporte de slash commands, usa las instrucciones
+de adaptador generadas (`AGENTS.md`, `GEMINI.md`, `.codex/README.md`, etc.).
 
-```bash
-npx qa-flowkit validate-target
-```
+Durante Beta, fija instalaciones reproducibles o CI a `npx qa-flowkit@beta ...` cuando necesites el canal beta
+explícitamente. Cuando el agente cree o actualice artefactos QA, ejecuta `npx qa-flowkit validate-target` como quality
+gate del repositorio.
 
-El ejemplo determinista RF-101, incluido un fallo intencionado del validador y su corrección, está documentado en
-[Primeros pasos](docs/qa-ai/getting-started.md#5-minute-quick-path). Desde este repositorio fuente puedes repetirlo:
+El demo determinista RF-101, incluido un fallo intencionado del validador y su corrección, está documentado en
+[Primeros pasos](docs/qa-ai/getting-started.md#reproduce-the-verified-path). Desde este repositorio fuente puedes
+repetirlo:
 
 ```bash
 npm run test:e2e-quick
@@ -87,9 +89,10 @@ features/              diseño QA manual y automatizado en Gherkin
 AGENTS.md              instrucciones genéricas cuando no se elige un override de host específico
 ```
 
-Las carpetas de automatización se generan solo cuando el preset elegido las requiere. `init` detecta carpetas de
-hosts de agentes existentes y sincroniza esos adaptadores junto con `generic`; si no hay hosts, solo genera
-`generic`. Los archivos existentes se omiten salvo que el usuario indique explícitamente `--force`.
+Las carpetas de automatización se generan solo cuando el preset elegido las requiere. En una terminal interactiva,
+`init` muestra un selector de adaptador para tu CLI de IA; en entornos no interactivos detecta carpetas de agentes
+existentes y sincroniza esos adaptadores junto con `generic`. Si no hay hosts, solo genera `generic`. Los archivos
+existentes se omiten salvo que el usuario indique explícitamente `--force`.
 
 ## Elegir Un Track
 

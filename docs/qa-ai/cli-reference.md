@@ -44,6 +44,7 @@ Common options:
 | `--mobile-flows-path <path>`       | Mobile flow root, for example `tests/maestro/flows`                                      |
 | `--adapters <list>`                | Explicit comma-separated adapter IDs or `all`                                            |
 | `--no-adapters`                    | Do not generate root adapter files                                                       |
+| `--no-interactive`                 | Skip terminal prompts and use detected/default adapters                                  |
 | `--no-feature-folders`             | Do not create canonical `features/<category>/.gitkeep` folders                           |
 | `--qa-context <path>`              | Repository-local QA practice folder                                                      |
 | `--with-ci <platform>`             | Generate pipeline workflow file (e.g. `github`). See [CI Integration](ci-integration.md) |
@@ -53,8 +54,10 @@ Common options:
 | `--force`                          | Explicitly allow overwrite of generated files                                            |
 | `--skip-doctor`                    | CLI-only option that skips the post-init doctor run                                      |
 
-Default init uses the Playwright UI + API preset, detects existing host folders such as `.claude/` and `.opencode/`,
-and syncs those adapters plus `generic`. When no host folder exists, only `generic` is generated. Passing
+Default init uses the Playwright UI + API preset. In an interactive terminal, it shows an AI CLI adapter selector
+before syncing root command/instruction files. In non-interactive environments it detects existing host folders such
+as `.claude/` and `.opencode/`, then syncs those adapters plus `generic`; when no host folder exists, only `generic`
+is generated. Passing
 `--adapters` is an explicit override and does not add `generic` unless requested. Existing target files are not
 overwritten unless `--force` is explicit. Generated `qa-ai.config.yaml` files must not contain `CHANGE_ME`; init
 derives supported placeholders and fails with the offending key paths when an unresolved placeholder remains.
