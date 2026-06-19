@@ -2135,6 +2135,20 @@ test('validate-external-intake: valid fixtures pass', async () => {
   }
 });
 
+test('validate-external-intake: rejects unsupported RF patterns without evaluating dynamic regex', async () => {
+  const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-intake-rf-pattern-'));
+  try {
+    await fs.writeFile(path.join(tmp, 'imported-requirements.md'), VALID_REQ_TABLE, 'utf8');
+    await fs.writeFile(path.join(tmp, 'imported-cases.md'), VALID_CASES_TABLE, 'utf8');
+
+    const res = runIntake(tmp, ['--rf-pattern', '^(RF-)+$']);
+    assert.notEqual(res.status, 0);
+    assert.match(res.stderr, /Unsupported RF ID pattern/);
+  } finally {
+    await fs.rm(tmp, { recursive: true, force: true });
+  }
+});
+
 test('validate-external-intake: duplicate RF ID fails', async () => {
   const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-intake-dup-'));
   try {
@@ -2331,6 +2345,21 @@ test('parseJUnitXml: handles nested suites and malformed XML errors', () => {
   assert.throws(() => {
     parseJUnitXml('not xml', 'bad.xml');
   }, /Malformed XML in file bad.xml/);
+});
+
+test('parseJUnitXml: sanitizes executable XML-like failure text', () => {
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Security Suite">
+  <testcase name="rejects script" classname="Security" time="0.01">
+    <failure message="Assertion failed"><![CDATA[<script>alert(1)</script><script]]></failure>
+  </testcase>
+</testsuite>`;
+
+  const result = parseJUnitXml(xml, 'test-security.xml');
+  assert.equal(result.cases.length, 1);
+  assert.equal(result.cases[0].status, 'failed');
+  assert.doesNotMatch(result.cases[0].message, /<script/i);
+  assert.match(result.cases[0].message, /&lt;script/);
 });
 
 test('parseCucumberJson: parses standard Cucumber JSON', () => {

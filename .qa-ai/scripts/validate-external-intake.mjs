@@ -20,7 +20,7 @@ function printHelp() {
 Options:
   --requirements-path <file>  Override imported requirements path
   --cases-path <file>         Override imported cases path
-  --rf-pattern <regex>        Override RF ID pattern (default: RF-\\\\d+)
+  --rf-pattern <pattern>      Override RF ID pattern (safe form: PREFIX-\\\\d+, default: RF-\\\\d+)
   --allow-missing             Return success if artifacts are missing
   --strict                    Treat injection-scan findings as errors
   --json                      Print machine-readable JSON only
@@ -41,12 +41,26 @@ function isValidIso(value) {
   return ISO_TIMESTAMP_RE.test(String(value || '').trim());
 }
 
-function validateRfId(id, pattern) {
-  try {
-    return new RegExp(pattern).test(id);
-  } catch {
-    return false;
+function compileRfIdMatcher(pattern) {
+  const source = String(pattern || '').trim();
+  const match = /^\^?([A-Za-z][A-Za-z0-9_-]*)-\\d\+\$?$/.exec(source);
+
+  if (!match) {
+    return {
+      ok: false,
+      error: `Unsupported RF ID pattern "${source}". Supported form: PREFIX-\\\\d+ with optional ^ and $ anchors.`
+    };
   }
+
+  const prefix = `${match[1]}-`;
+  return {
+    ok: true,
+    pattern: source,
+    test(id) {
+      const value = String(id || '');
+      return value.startsWith(prefix) && /^\d+$/.test(value.slice(prefix.length));
+    }
+  };
 }
 
 async function main() {
@@ -71,6 +85,7 @@ async function main() {
   const casesPath =
     args['cases-path'] || getConfigValue(config, 'sources.external.casesImportPath', 'qa-ai-output/imported-cases.md');
   const rfPattern = args['rf-pattern'] || getConfigValue(config, 'requirements.rfIdPattern', 'RF-\\d+');
+  const rfMatcher = compileRfIdMatcher(rfPattern);
   const strictMode = Boolean(args.strict);
   const allowMissing = Boolean(args['allow-missing']);
 
@@ -113,6 +128,10 @@ async function main() {
   const errors = [];
   const warnings = [];
 
+  if (!rfMatcher.ok) {
+    errors.push(rfMatcher.error);
+  }
+
   // ─────────────────────────────────────────────
   // Validate imported-requirements.md
   // ─────────────────────────────────────────────
@@ -148,7 +167,7 @@ async function main() {
       if (!rfId) {
         errors.push(`Requirements: Row ${row.line} is missing an RF ID.`);
       } else {
-        if (!validateRfId(rfId, rfPattern) && !rfId.startsWith('RF-PENDING')) {
+        if (rfMatcher.ok && !rfMatcher.test(rfId) && !rfId.startsWith('RF-PENDING')) {
           errors.push(
             `Requirements: Row ${row.line}: RF ID "${rfId}" does not match configured pattern "${rfPattern}".`
           );

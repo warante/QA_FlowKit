@@ -11,18 +11,48 @@ function extractXmlMessage(attributesStr, bodyStr) {
   if (attributesStr) {
     const attrMatch = /message\s*=\s*(?:"([^"]*)"|'([^']*)')/i.exec(attributesStr);
     if (attrMatch) {
-      msg = attrMatch[1] || attrMatch[2] || '';
+      msg = sanitizeReportText(attrMatch[1] || attrMatch[2] || '');
     }
   }
   if (bodyStr) {
     const cdataMatch = /<!\[CDATA\[([\s\S]*?)\]\]>/i.exec(bodyStr);
-    const bodyText = cdataMatch ? cdataMatch[1] : bodyStr;
-    const cleanBodyText = bodyText.replace(/<[^>]*>/g, '').trim();
+    const bodyText = cdataMatch ? cdataMatch[1] : stripXmlMarkup(bodyStr);
+    const cleanBodyText = sanitizeReportText(bodyText).trim();
     if (cleanBodyText) {
       return msg ? `${msg}\n${cleanBodyText}` : cleanBodyText;
     }
   }
   return msg;
+}
+
+function sanitizeReportText(value) {
+  return String(value || '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;');
+}
+
+function stripXmlMarkup(value) {
+  let output = '';
+  let inMarkup = false;
+
+  for (const char of String(value || '')) {
+    if (inMarkup) {
+      if (char === '>') {
+        inMarkup = false;
+      }
+      continue;
+    }
+
+    if (char === '<') {
+      inMarkup = true;
+      continue;
+    }
+
+    output += char;
+  }
+
+  return output;
 }
 
 /**

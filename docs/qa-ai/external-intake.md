@@ -73,7 +73,7 @@ The cases table columns are:
 `validate-external-intake.mjs` checks:
 
 - Table columns are present in both files.
-- RF IDs are unique and match `requirements.rfIdPattern` (default `RF-\d+`).
+- RF IDs are unique and match `requirements.rfIdPattern` (safe form `PREFIX-\d+`; default `RF-\d+`).
 - External IDs are unique within the cases table.
 - All `Imported at` values are valid ISO 8601 UTC timestamps.
 - Imported text is scanned for prompt-injection phrases (findings are warnings by default; use
