@@ -211,27 +211,27 @@ Consulta la [guía de actualización](docs/qa-ai/getting-started.md#upgrading-an
 
 ## Documentación
 
-| Tema                                | Documento                                                                           |
-| ----------------------------------- | ----------------------------------------------------------------------------------- |
-| Primer workflow                     | [Primeros pasos](docs/qa-ai/getting-started.md)                                     |
-| Comandos y opciones CLI             | [Referencia CLI](docs/qa-ai/cli-reference.md)                                       |
-| Integración con CI/CD               | [Guía de CI/CD](docs/qa-ai/ci-integration.md)                                       |
-| Plugin para Claude Code             | [Plugin para Claude Code](docs/qa-ai/claude-plugin.md)                              |
-| Arquitectura                        | [Arquitectura](docs/qa-ai/architecture.md)                                          |
-| Workflow                            | [Workflow completo](docs/qa-ai/workflow.md)                                         |
-| Diseño avanzado                     | [Cobertura, técnicas y fuentes mixtas](docs/qa-ai/advanced-test-design.md)          |
-| Rubrica de calidad Gherkin          | [Rubrica de calidad](docs/qa-ai/quality-rubric.md)                                  |
-| Harness reanudable                  | [Arnés para agentes](docs/qa-ai/agent-harness.md)                                   |
-| Solución de problemas               | [Troubleshooting](docs/qa-ai/troubleshooting.md)                                    |
-| Estabilidad                         | [Política de estabilidad](docs/qa-ai/stability-policy.md)                           |
-| Contratos públicos                  | [Inventario de contratos](docs/qa-ai/public-contracts.md)                           |
-| Medición de pilotos                 | [Metodología de pilotos](docs/qa-ai/pilot-methodology.md)                           |
-| Ingesta externa                     | [External Intake](docs/qa-ai/external-intake.md)                                    |
-| Sync gobernado de pruebas           | [Governed Sync](docs/qa-ai/governed-sync.md)                                        |
-| Puente de automatización / sanación | [Automation Bridge](docs/qa-ai/automation-bridge.md)                                |
-| Roadmap y plan de mejora            | [Roadmap](ROADMAP.md), [tareas](tasks/README.md) y [plan de mejora](plan/README.md) |
-| Seguridad                           | [Política de seguridad](SECURITY.md)                                                |
-| Contribución                        | [Guía de contribución](CONTRIBUTING.md)                                             |
+| Tema                                | Documento                                                                  |
+| ----------------------------------- | -------------------------------------------------------------------------- |
+| Primer workflow                     | [Primeros pasos](docs/qa-ai/getting-started.md)                            |
+| Comandos y opciones CLI             | [Referencia CLI](docs/qa-ai/cli-reference.md)                              |
+| Integración con CI/CD               | [Guía de CI/CD](docs/qa-ai/ci-integration.md)                              |
+| Plugin para Claude Code             | [Plugin para Claude Code](docs/qa-ai/claude-plugin.md)                     |
+| Arquitectura                        | [Arquitectura](docs/qa-ai/architecture.md)                                 |
+| Workflow                            | [Workflow completo](docs/qa-ai/workflow.md)                                |
+| Diseño avanzado                     | [Cobertura, técnicas y fuentes mixtas](docs/qa-ai/advanced-test-design.md) |
+| Rubrica de calidad Gherkin          | [Rubrica de calidad](docs/qa-ai/quality-rubric.md)                         |
+| Harness reanudable                  | [Arnés para agentes](docs/qa-ai/agent-harness.md)                          |
+| Solución de problemas               | [Troubleshooting](docs/qa-ai/troubleshooting.md)                           |
+| Estabilidad                         | [Política de estabilidad](docs/qa-ai/stability-policy.md)                  |
+| Contratos públicos                  | [Inventario de contratos](docs/qa-ai/public-contracts.md)                  |
+| Medición de pilotos                 | [Metodología de pilotos](docs/qa-ai/pilot-methodology.md)                  |
+| Ingesta externa                     | [External Intake](docs/qa-ai/external-intake.md)                           |
+| Sync gobernado de pruebas           | [Governed Sync](docs/qa-ai/governed-sync.md)                               |
+| Puente de automatización / sanación | [Automation Bridge](docs/qa-ai/automation-bridge.md)                       |
+| Roadmap e implementación            | [Roadmap](ROADMAP.md) y [tareas](tasks/README.md)                          |
+| Seguridad                           | [Política de seguridad](SECURITY.md)                                       |
+| Contribución                        | [Guía de contribución](CONTRIBUTING.md)                                    |
 
 ## Repositorio Fuente
 
