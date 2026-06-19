@@ -47,7 +47,7 @@ The first release (`0.4.0-alpha.0`) was published manually. Subsequent releases 
 **Workflow:** [`.github/workflows/release-please.yml`](../../.github/workflows/release-please.yml)
 
 1. Merge PRs to `main` with [Conventional Commits](https://www.conventionalcommits.org/) in PR titles (`feat:`, `fix:`, `docs:`, …).
-2. Release Please opens or updates a **Release PR** that bumps `package.json`, `.release-please-manifest.json`, and `CHANGELOG.md`.
+2. Release Please opens or updates a **Release PR** that bumps `package.json`, plugin version manifests, `.release-please-manifest.json`, and `CHANGELOG.md`.
 3. Merge the Release PR. Release Please creates a GitHub Release + tag and runs the **publish** job:
    - `npm ci`, lint, format check, `validate:oss-extraction`
    - npm pack allowlist check (`.github/scripts/verify-npm-pack.mjs`)
