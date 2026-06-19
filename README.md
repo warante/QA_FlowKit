@@ -41,28 +41,29 @@ The AI reasons and edits files. QA FlowKit controls phase order, required output
 From the repository where you want QA FlowKit:
 
 ```bash
-npx qa-flowkit@beta init --preset manual-only --qa-track quick
-npx qa-flowkit doctor
-npx qa-flowkit run start --rf RF-101
-npx qa-flowkit run next
+npx qa-flowkit init
+# choose your AI coding CLI adapter in the setup menu
+npx qa-flowkit doctor # optional
 ```
 
-Open the repository in your AI coding tool and ask it to read the returned phase packet, `AGENTS.md` and
-`qa-ai.config.yaml`. After it creates the requested artifact:
+Open the repository in your AI coding CLI. Use the generated QA command surface:
 
-```bash
-npx qa-flowkit run check
-npx qa-flowkit run next
+```text
+/qa-help
+/qa-add-tests
+/qa-full-flow
 ```
 
-Repeat `next -> agent work -> check` until the run completes, then execute:
+`/qa-help` shows the available framework commands and recommends the next QA step. Claude Code and OpenCode expose
+project slash commands through generated adapters; agents without slash-command support use generated adapter
+instructions (`AGENTS.md`, `GEMINI.md`, `.codex/README.md`, etc.).
 
-```bash
-npx qa-flowkit validate-target
-```
+During Beta, pin reproducible setup or CI to `npx qa-flowkit@beta ...` when you need the beta channel explicitly.
+After the agent creates or updates QA artifacts, run `npx qa-flowkit validate-target` as the repository quality gate.
 
-The deterministic RF-101 example, including an intentional validator failure and correction, is documented in
-[Getting Started](docs/qa-ai/getting-started.md#5-minute-quick-path). From this source repository you can replay it:
+The deterministic RF-101 demo, including an intentional validator failure and correction, is documented in
+[Getting Started](docs/qa-ai/getting-started.md#reproduce-the-verified-path). From this source repository you can
+replay it:
 
 ```bash
 npm run test:e2e-quick
@@ -85,9 +86,10 @@ features/              manual and automated QA design in Gherkin
 AGENTS.md              generic agent instructions when no host-specific override is selected
 ```
 
-Automation folders are generated only when the selected preset requires them. `init` detects existing agent host
-folders and syncs matching adapters plus `generic`; when no host folder exists, it generates only `generic`.
-Existing files are skipped unless the user explicitly passes `--force`.
+Automation folders are generated only when the selected preset requires them. In an interactive terminal, `init`
+shows an AI CLI adapter selector; in non-interactive environments it detects existing agent host folders and syncs
+matching adapters plus `generic`. When no host folder exists, it generates only `generic`. Existing files are skipped
+unless the user explicitly passes `--force`.
 
 ## Choose a Track
 
