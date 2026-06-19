@@ -29,3 +29,7 @@ Related docs: [main README](../../../../README.md) | [agent compatibility](../..
 | `/run node .qa-ai/scripts/clean.mjs`             | Preview cleanup before removing generated files |
 
 Never overwrite existing files or delete generated artifacts without explicit user approval.
+
+## Self-Validation (Hookless Host)
+
+Aider does not support automatic settings-level hooks. You must manually run the appropriate validation scripts (e.g., `/run node .qa-ai/scripts/validate-features.mjs` or `/run node .qa-ai/scripts/validate-target.mjs`) after every file edit and before finishing your turn.

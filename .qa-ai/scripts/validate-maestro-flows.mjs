@@ -21,6 +21,7 @@ function printHelp() {
 
 Options:
   --path <dir>     Override automation.mobile.flowsPath
+  --file <path>    Validate a single Maestro flow file
   --allow-empty    Return success when no Maestro YAML flows exist
   --help           Show this help
 
@@ -49,7 +50,27 @@ async function main() {
     process.exit(1);
   }
 
-  const files = await listFilesRecursive(flowsRootPath, (filePath) => /\.ya?ml$/i.test(filePath));
+  let files;
+  if (args.file) {
+    const resolvedFile = resolveRepoPath(cwd, args.file, { label: 'single Maestro flow file' });
+    if (!resolvedFile.startsWith(flowsRootPath)) {
+      console.log(`FAILED - file "${args.file}" is not under Maestro flows root "${flowsRoot}".`);
+      process.exit(1);
+    }
+    try {
+      const stat = await fs.stat(resolvedFile);
+      if (!stat.isFile()) {
+        console.log(`FAILED - file "${args.file}" is not a file.`);
+        process.exit(1);
+      }
+    } catch {
+      console.log(`FAILED - file "${args.file}" does not exist.`);
+      process.exit(1);
+    }
+    files = [resolvedFile];
+  } else {
+    files = await listFilesRecursive(flowsRootPath, (filePath) => /\.ya?ml$/i.test(filePath));
+  }
   if (files.length === 0) {
     console.log(`No Maestro YAML flows found under ${flowsRoot}.`);
     if (args['allow-empty']) return;

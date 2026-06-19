@@ -1,0 +1,146 @@
+name: 'QA FlowKit Target Validation'
+description: 'Validates a target repository using QA FlowKit rules and validators.'
+inputs:
+  working-directory:
+    description: 'The directory where qa-ai.config.yaml is located.'
+    required: false
+    default: '.'
+  strict:
+    description: 'Fails on prompt injection scanner and runs strict doctor.'
+    required: false
+    default: 'true'
+  allow-empty:
+    description: 'Allows empty features or artifacts.'
+    required: false
+    default: 'false'
+  allow-missing:
+    description: 'Allows missing optional artifacts.'
+    required: false
+    default: 'false'
+  release-gate:
+    description: 'Whether to validate release gate (true, false, auto).'
+    required: false
+    default: 'auto'
+  version:
+    description: 'The qa-flowkit package version or tag to run.'
+    required: false
+    default: 'beta'
+outputs:
+  result:
+    description: 'Whether validation passed or failed (pass or fail).'
+    value: ${{ steps.process-results.outputs.result }}
+  findings-count:
+    description: 'Total number of errors found.'
+    value: ${{ steps.process-results.outputs.findings-count }}
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+
+    - name: Run QA FlowKit Validation
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: |
+        # Construct arguments
+        ARGS="--json"
+
+        if [ "${{ inputs.allow-empty }}" = "true" ]; then
+          ARGS="$ARGS --allow-empty"
+        fi
+
+        if [ "${{ inputs.allow-missing }}" = "true" ]; then
+          ARGS="$ARGS --allow-missing"
+        fi
+
+        if [ "${{ inputs.strict }}" = "false" ]; then
+          ARGS="$ARGS --no-strict-doctor"
+        fi
+
+        if [ "${{ inputs.strict }}" = "true" ]; then
+          ARGS="$ARGS --strict-untrusted-content"
+        fi
+
+        if [ "${{ inputs.release-gate }}" = "false" ]; then
+          ARGS="$ARGS --skip-release-gate"
+        fi
+
+        # Run validate-target and capture JSON to runner temp
+        npx -y qa-flowkit@${{ inputs.version }} validate-target $ARGS > "${{ runner.temp }}/qa-ai-validation-results.json" || true
+
+    - name: Process Validation Results
+      id: process-results
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: |
+        node -e '
+        const fs = require("fs");
+        const path = require("path");
+        const resultsPath = path.join("${{ runner.temp }}", "qa-ai-validation-results.json");
+        if (!fs.existsSync(resultsPath)) {
+          console.log("::error::Validation results file not found.");
+          process.exit(1);
+        }
+        let data;
+        try {
+          data = JSON.parse(fs.readFileSync(resultsPath, "utf8"));
+        } catch (err) {
+          console.log("::error::Failed to parse validation results: " + err.message);
+          process.exit(1);
+        }
+        let errorCount = 0;
+        let warningCount = 0;
+
+        for (const val of data.validators || []) {
+          for (const finding of val.findings || []) {
+            const severity = finding.severity === "warning" ? "warning" : "error";
+            if (severity === "error") errorCount++;
+            else warningCount++;
+
+            let annotation = `::${severity}`;
+            const file = finding.file;
+            const line = finding.line;
+            if (file) {
+              annotation += ` file=${file}`;
+              if (line) {
+                annotation += `,line=${line}`;
+              }
+            }
+            annotation += `::[${val.name}] ${finding.message}`;
+            console.log(annotation);
+          }
+        }
+
+        const summaryLines = [
+          "# QA FlowKit Validation Summary",
+          "",
+          `**Result:** ${data.ok ? "✅ PASS" : "❌ FAIL"}`,
+          `**Errors:** ${errorCount} | **Warnings:** ${warningCount}`,
+          "",
+          "| Validator | Status | Findings |",
+          "| --- | --- | --- |"
+        ];
+
+        for (const val of data.validators || []) {
+          const statusEmoji = val.status === "passed" ? "✅ PASS" : "❌ FAIL";
+          const findingsCount = (val.findings || []).length;
+          summaryLines.push(`| ${val.name} | ${statusEmoji} | ${findingsCount} |`);
+        }
+
+        const summaryFile = process.env.GITHUB_STEP_SUMMARY;
+        if (summaryFile) {
+          fs.writeFileSync(summaryFile, summaryLines.join("\n") + "\n");
+        }
+
+        const outputFile = process.env.GITHUB_OUTPUT;
+        if (outputFile) {
+          fs.appendFileSync(outputFile, `result=${data.ok ? "pass" : "fail"}\n`);
+          fs.appendFileSync(outputFile, `findings-count=${errorCount}\n`);
+        }
+
+        if (!data.ok) {
+          process.exit(1);
+        }
+        '

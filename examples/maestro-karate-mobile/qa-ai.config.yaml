@@ -20,8 +20,7 @@ knowledge:
   decisionsPath: qa-ai-output/qa-init-decisions.md
 requirements:
   requireOfficialRfId: true
-  allowInferredAcceptanceCriteria: false
-  requireApprovalForInferredCriteria: true
+  inferredAcceptanceCriteria: forbid
 gherkin:
   language: en
   oneScenarioPerFile: true
@@ -50,7 +49,7 @@ automation:
   mobile:
     framework: maestro
     flowsPath: tests/maestro/flows
-    appId: CHANGE_ME
+    appId: com.example.qaflowkit
   karate:
     configPath: tests/karate/karate-config.js
     mocksPath: tests/karate/mocks
@@ -74,3 +73,20 @@ commands:
   testQA: node .qa-ai/scripts/validate-features.mjs
   testKarate: node .qa-ai/scripts/validate-karate-features.mjs
   testMobile: maestro test tests/maestro/flows
+testManagementSync:
+  mode: proposal-only
+  diffPath: qa-ai-output/test-management-sync-diff.md
+  applyLogPath: qa-ai-output/test-management-apply-log.md
+  rollbackPath: qa-ai-output/test-management-rollback-plan.md
+  remoteSnapshotPath: qa-ai-output/test-management-remote-snapshot.md
+aiTesting:
+  enabled: false
+  requiredTechniques:
+    - adversarial
+    - statistical-consistency
+    - robustness-paraphrase
+    - safety-guardrails
+  optionalTechniques:
+    - fairness-bias
+    - degradation-fallback
+    - pii-leakage

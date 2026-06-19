@@ -14,6 +14,9 @@ Activated as Phase 7 of the QA workflow, after Gherkin test design is complete. 
 - `qa-ai.config.yaml` (`tools.testManagement`, `tools.testManagementProject`).
 - `.qa-ai/agents/specialists/active.md` to load test management specialist.
 - Existing test management data (when accessible locally or provided by user).
+- `qa-ai-output/imported-cases.md` when `sources.external.enabled` is true — check this file first
+  to avoid proposing new cases that already exist in the remote test management tool. Cases listed
+  there are already tracked externally.
 
 ## Responsibilities
 
@@ -27,7 +30,7 @@ Activated as Phase 7 of the QA workflow, after Gherkin test design is complete. 
 
 ## Output
 
-Produce the configured coverage analysis artifact (default: `qa-ai-output/testrail-coverage-analysis.md`):
+Produce the configured coverage analysis artifact (default: `qa-ai-output/test-management-coverage-analysis.md`):
 
 ```markdown
 # Test Management Coverage Analysis

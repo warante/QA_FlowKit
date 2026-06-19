@@ -1,0 +1,26 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"const fs=require('node:fs');const cp=require('node:child_process');const script='.qa-ai/scripts/hooks/post-edit-validate.mjs';if(!fs.existsSync(script)){console.error('QA FlowKit framework not installed in this repository. Run: npx qa-flowkit init');process.exit(0)};const res=cp.spawnSync(process.execPath,[script],{stdio:'inherit'});process.exit(res.status ?? 1)\"",
+            "timeout": 30000
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"const fs=require('node:fs');const cp=require('node:child_process');const script='.qa-ai/scripts/hooks/stop-gate.mjs';if(!fs.existsSync(script)){console.error('QA FlowKit framework not installed in this repository. Run: npx qa-flowkit init');process.exit(0)};const res=cp.spawnSync(process.execPath,[script],{stdio:'inherit'});process.exit(res.status ?? 1)\""
+          }
+        ]
+      }
+    ]
+  }
+}

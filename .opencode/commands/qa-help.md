@@ -1,7 +1,10 @@
 ---
 description: QA workflow guidance — what to do next / Guía del flujo QA
 argument-hint: [optional question]
+allowed-tools: [view_file, list_dir, grep_search, glob, run_command]
 ---
+
+!`npx qa-flowkit help --json`
 
 Before any other action or user-facing text, read and follow `.qa-ai/workflows/command-interaction.md`.
 

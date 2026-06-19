@@ -28,6 +28,7 @@ import {
   startRun
 } from './lib/harness-controller.mjs';
 import { modificationApprovalGateId } from './lib/harness-modification.mjs';
+import { BLOCKER_TYPES, renderBlocker } from './lib/harness-messages.mjs';
 import { resolveConfigHarnessPath, resolveHarnessRelativePath } from './lib/harness-paths.mjs';
 import { inspectQaWorkflow } from './lib/qa-next-steps.mjs';
 import { atomicWriteJson, withRunLock, writeRunSnapshot } from './lib/harness-run-store.mjs';
@@ -35,9 +36,10 @@ import {
   assertConfigPathsSafe,
   assertNoteHasNoSecrets,
   isValidatorAllowed,
-  redactDiagnostics
+  redactDiagnostics,
+  runPhaseValidators
 } from './lib/harness-validation.mjs';
-import { parseSimpleYaml } from './lib/utils.mjs';
+import { hashFile, parseSimpleYaml } from './lib/utils.mjs';
 
 const sourceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const cli = path.join(sourceRoot, 'bin', 'qa-flowkit.mjs');
@@ -59,11 +61,23 @@ async function writeConfig(targetRoot, overrides = {}) {
     },
     tools: { testManagement: 'none', issueTracker: 'none', documentation: 'markdown' },
     knowledge: { enabled: false },
+    sources: {
+      external: {
+        enabled: false,
+        requirementsImportPath: 'qa-ai-output/imported-requirements.md',
+        casesImportPath: 'qa-ai-output/imported-cases.md'
+      }
+    },
     requirements: { requireOfficialRfId: true },
     gherkin: { language: 'en', featurePath: 'features' },
     testDesign: {
       proposalPath: 'qa-ai-output/test-design-proposal.md',
-      systemPath: 'qa-ai-output/test-design-system.md'
+      systemPath: 'qa-ai-output/test-design-system.md',
+      quality: {
+        mode: 'off',
+        reportPath: 'qa-ai-output/gherkin-quality-report.md',
+        minDimensionsPassed: 7
+      }
     },
     traceability: { matrixPath: 'qa-ai-output/traceability-matrix.md' },
     automation: { ui: { framework: 'none' }, api: { framework: 'none' } },
@@ -73,8 +87,11 @@ async function writeConfig(targetRoot, overrides = {}) {
   Object.assign(merged.project, overrides.project || {});
   if (overrides.tools) Object.assign(merged.tools, overrides.tools);
   if (overrides.knowledge) Object.assign(merged.knowledge, overrides.knowledge);
+  if (overrides.sources?.external) Object.assign(merged.sources.external, overrides.sources.external);
   if (overrides.automation) Object.assign(merged.automation, overrides.automation);
   if (overrides.gherkin) Object.assign(merged.gherkin, overrides.gherkin);
+  if (overrides.testDesign?.quality) Object.assign(merged.testDesign.quality, overrides.testDesign.quality);
+  if (overrides.testManagementSync) merged.testManagementSync = overrides.testManagementSync;
 
   const lines = [
     'version: 1',
@@ -89,6 +106,11 @@ async function writeConfig(targetRoot, overrides = {}) {
     `  issueTracker: ${merged.tools.issueTracker}`,
     'knowledge:',
     `  enabled: ${merged.knowledge.enabled}`,
+    'sources:',
+    '  external:',
+    `    enabled: ${merged.sources.external.enabled}`,
+    `    requirementsImportPath: ${merged.sources.external.requirementsImportPath}`,
+    `    casesImportPath: ${merged.sources.external.casesImportPath}`,
     'requirements:',
     '  requireOfficialRfId: true',
     'gherkin:',
@@ -97,6 +119,10 @@ async function writeConfig(targetRoot, overrides = {}) {
     'testDesign:',
     '  proposalPath: qa-ai-output/test-design-proposal.md',
     '  systemPath: qa-ai-output/test-design-system.md',
+    '  quality:',
+    `    mode: ${merged.testDesign.quality.mode}`,
+    `    reportPath: ${merged.testDesign.quality.reportPath}`,
+    `    minDimensionsPassed: ${merged.testDesign.quality.minDimensionsPassed}`,
     'traceability:',
     '  matrixPath: qa-ai-output/traceability-matrix.md',
     'automation:',
@@ -105,9 +131,20 @@ async function writeConfig(targetRoot, overrides = {}) {
     '  api:',
     `    framework: ${merged.automation.api.framework}`,
     'release:',
-    '  gatePath: qa-ai-output/release-gate.yaml',
-    ''
+    `  gatePath: ${merged.release.gatePath}`
   ];
+
+  if (merged.testManagementSync) {
+    lines.push('testManagementSync:');
+    lines.push(`  mode: ${merged.testManagementSync.mode}`);
+    lines.push(`  diffPath: ${merged.testManagementSync.diffPath}`);
+    lines.push(`  applyLogPath: ${merged.testManagementSync.applyLogPath}`);
+    lines.push(`  rollbackPath: ${merged.testManagementSync.rollbackPath}`);
+    lines.push(`  remoteSnapshotPath: ${merged.testManagementSync.remoteSnapshotPath}`);
+  }
+
+  lines.push('');
+
   await fs.mkdir(path.join(targetRoot, 'qa-ai-output'), { recursive: true });
   await fs.mkdir(path.join(targetRoot, 'features'), { recursive: true });
   await fs.writeFile(path.join(targetRoot, 'qa-ai.config.yaml'), lines.join('\n'), 'utf8');
@@ -118,6 +155,25 @@ async function prepareRepo(track = 'standard', extra = {}) {
   await copyFramework(dir);
   await writeConfig(dir, { project: { qaTrack: track }, ...extra });
   return dir;
+}
+
+async function writeCustomValidator(cwd, { exitCode = 1, ok = false } = {}) {
+  await fs.mkdir(path.join(cwd, 'qa-custom'), { recursive: true });
+  await fs.writeFile(
+    path.join(cwd, 'qa-custom', 'validate-custom.mjs'),
+    [
+      '#!/usr/bin/env node',
+      'const args = new Set(process.argv.slice(2));',
+      'if (args.has("--self-test")) {',
+      '  console.log(JSON.stringify({ ok: true, findings: [] }));',
+      '  process.exit(0);',
+      '}',
+      `console.log(JSON.stringify({ ok: ${ok}, findings: ${ok ? '[]' : '[{ file: "features/bad.feature", message: "Custom warning", severity: "error" }]'} }));`,
+      `process.exit(${exitCode});`,
+      ''
+    ].join('\n'),
+    'utf8'
+  );
 }
 
 function runCli(cwd, args, { expectFailure = false } = {}) {
@@ -154,9 +210,88 @@ Feature: Sample
   );
 }
 
+async function writeValidQualityReport(cwd, featureRel = 'features/functional/RF-9-TC-001-sample.feature') {
+  await writeValidGherkinFeature(cwd, featureRel);
+  const hash = await hashFile(path.join(cwd, featureRel));
+  const dimensions = [
+    'requirement-fidelity',
+    'observability',
+    'atomicity',
+    'determinism',
+    'data-independence',
+    'ui-overspecification',
+    'language-clarity'
+  ];
+  const rows = dimensions.map(
+    (dimension) => `| ${dimension} | ${dimension} criterion | pass | "Then the outcome is visible" |`
+  );
+  await fs.mkdir(path.join(cwd, 'qa-ai-output'), { recursive: true });
+  await fs.writeFile(
+    path.join(cwd, 'qa-ai-output', 'gherkin-quality-report.md'),
+    [
+      '# Gherkin Quality Report',
+      '- Rubric Version: 1',
+      '- Run ID: RUN-001',
+      '- RF ID: RF-9',
+      '- Evaluation Date: 2026-06-18T00:00:00Z',
+      '',
+      '## Evaluated Files',
+      '',
+      '| File | Content hash |',
+      '| ---- | ------------ |',
+      `| ${featureRel} | ${hash} |`,
+      '',
+      `## File: ${featureRel}`,
+      '',
+      '| Dimension | Criterion | Verdict (pass/fail) | Evidence (quoted line) |',
+      '| --------- | --------- | ------------------- | ---------------------- |',
+      ...rows,
+      '',
+      '## Summary',
+      '',
+      '| File | Dimensions passed | Verdict |',
+      '| ---- | ----------------- | ------- |',
+      `| ${featureRel} | 7 | pass |`,
+      ''
+    ].join('\n'),
+    'utf8'
+  );
+}
+
 test('workflow contract validates in source repository', async () => {
   const result = await validateWorkflowContract(sourceRoot);
   assert.equal(result.ok, true, result.errors?.join('\n'));
+});
+
+test('renderBlocker covers all blocker types in English and Spanish', () => {
+  const samples = {
+    approval: { type: 'approval', gate: 'test-design', phaseName: 'Gherkin test design' },
+    rf: { type: 'rf', phaseName: 'Gherkin test design' },
+    validation: { type: 'validation', phaseName: 'Requirements intake' },
+    modification: {
+      type: 'modification',
+      gate: 'modify-existing:intake',
+      phaseName: 'Requirements intake',
+      paths: ['qa-ai-output/requirement-analysis.md']
+    },
+    'missing-inputs': {
+      type: 'missing-inputs',
+      phaseName: 'Requirements normalization',
+      missing: ['qa-ai-output/requirement-analysis.md']
+    }
+  };
+
+  for (const type of BLOCKER_TYPES) {
+    const en = renderBlocker(samples[type], 'en');
+    const es = renderBlocker(samples[type], 'es');
+    assert.ok(en.trim(), `${type} English message should not be empty`);
+    assert.ok(es.trim(), `${type} Spanish message should not be empty`);
+    assert.notEqual(en, es, `${type} messages should be localized`);
+    assert.doesNotMatch(en, /\{|\}|\[[A-Z_]+\]|<[^>]+>/);
+    assert.doesNotMatch(es, /\{|\}|\[[A-Z_]+\]|<[^>]+>/);
+    assert.match(en, /npx qa-flowkit run/);
+    assert.match(es, /npx qa-flowkit run/);
+  }
 });
 
 test('contract rejects unknown validator and unsafe paths', async () => {
@@ -192,6 +327,50 @@ test('contract rejects unknown validator and unsafe paths', async () => {
   }
 });
 
+test('contract permits externalWrite approval only for sync-apply', async () => {
+  const cwd = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-harness-permissions-'));
+  try {
+    const phase = {
+      id: 'sync-diff',
+      name: 'Sync diff',
+      guidance: [],
+      inputs: [],
+      outputs: [],
+      entryApprovals: [],
+      validators: [],
+      skipConditions: [],
+      permissions: {
+        createLocal: 'allowed',
+        modifyExisting: 'approval',
+        externalWrite: 'approval',
+        delete: 'denied'
+      }
+    };
+    const badNonApply = validateWorkflowContractData(cwd, {
+      schemaVersion: 1,
+      trackOrder: { standard: ['sync-diff'] },
+      phases: [phase]
+    });
+    assert.ok(badNonApply.some((item) => item.includes('deny externalWrite')));
+
+    const badApply = validateWorkflowContractData(cwd, {
+      schemaVersion: 1,
+      trackOrder: { standard: ['sync-apply'] },
+      phases: [
+        {
+          ...phase,
+          id: 'sync-apply',
+          name: 'Sync apply',
+          permissions: { ...phase.permissions, externalWrite: 'denied' }
+        }
+      ]
+    });
+    assert.ok(badApply.some((item) => item.includes('sync-apply permissions must declare externalWrite as approval')));
+  } finally {
+    await fs.rm(cwd, { recursive: true, force: true });
+  }
+});
+
 test('quick track skips test-management and automation phases', async () => {
   const cwd = await prepareRepo('quick');
   try {
@@ -221,6 +400,72 @@ test('enterprise track includes release-gate phase', async () => {
     assert.equal(snapshot.phases['release-gate'].status, 'pending');
   } finally {
     await fs.rm(cwd, { recursive: true, force: true });
+  }
+});
+
+test('external intake phase is enabled only when configured and precedes coverage', async () => {
+  const defaultCwd = await prepareRepo('standard');
+  const enabledCwd = await prepareRepo('standard', {
+    sources: {
+      external: {
+        enabled: true
+      }
+    },
+    tools: { testManagement: 'testrail' }
+  });
+  try {
+    await startRun(defaultCwd, { rfId: 'RF-EXT' });
+    const defaultStatus = await getRunStatus(defaultCwd);
+    assert.equal(
+      defaultStatus.phases.some((phase) => phase.id === 'external-intake'),
+      false
+    );
+
+    await startRun(enabledCwd, { rfId: 'RF-EXT' });
+    const enabledStatus = await getRunStatus(enabledCwd);
+    const phaseIds = enabledStatus.phases.map((phase) => phase.id);
+    const externalIndex = phaseIds.indexOf('external-intake');
+    const coverageIndex = phaseIds.indexOf('tm-coverage');
+    assert.notEqual(externalIndex, -1);
+    assert.notEqual(coverageIndex, -1);
+    assert.ok(externalIndex < coverageIndex, 'external-intake must run before coverage analysis');
+  } finally {
+    await fs.rm(defaultCwd, { recursive: true, force: true });
+    await fs.rm(enabledCwd, { recursive: true, force: true });
+  }
+});
+
+test('quality report phase is conditional and runs validator in gate mode', async () => {
+  const offCwd = await prepareRepo('standard');
+  const gateCwd = await prepareRepo('standard', { testDesign: { quality: { mode: 'gate' } } });
+  try {
+    const offRun = await startRun(offCwd, { rfId: 'RF-9' });
+    const offStatus = await getRunStatus(offCwd, offRun.runId);
+    assert.ok(!offStatus.phases.some((phase) => phase.id === 'gherkin-quality'));
+
+    const gateRun = await startRun(gateCwd, { rfId: 'RF-9' });
+    const gateStatus = await getRunStatus(gateCwd, gateRun.runId);
+    const phaseIds = gateStatus.phases.map((phase) => phase.id);
+    assert.ok(phaseIds.includes('gherkin-quality'));
+    assert.ok(phaseIds.indexOf('gherkin') < phaseIds.indexOf('gherkin-quality'));
+    assert.ok(phaseIds.indexOf('gherkin-quality') < phaseIds.indexOf('traceability'));
+
+    await writeValidQualityReport(gateCwd);
+    const snapshot = await getActiveRunSnapshot(gateCwd);
+    for (const phaseId of phaseIds) {
+      if (phaseId === 'gherkin-quality') break;
+      snapshot.phases[phaseId].status = 'completed';
+    }
+    snapshot.activePhaseId = 'gherkin-quality';
+    snapshot.phases['gherkin-quality'].status = 'active';
+    await writeRunSnapshot(gateCwd, snapshot);
+
+    const result = await checkPhase(gateCwd, gateRun.runId);
+    assert.equal(result.ok, true, JSON.stringify(result));
+    assert.equal(result.phaseId, 'gherkin-quality');
+  } finally {
+    await fs.rm(offCwd, { recursive: true, force: true });
+    await fs.rm(gateCwd, { recursive: true, force: true });
   }
 });
 
@@ -294,6 +539,29 @@ test('set-rf and approve gate unblock gherkin phase', async () => {
     const blockerTypes = unblocked.blockers.map((item) => item.type);
     assert.ok(!blockerTypes.includes('rf'));
     assert.ok(!blockerTypes.includes('approval'));
+  } finally {
+    await fs.rm(cwd, { recursive: true, force: true });
+  }
+});
+
+test('run next prints localized blocker help and JSON adds blockerHelp', async () => {
+  const cwd = await prepareRepo('quick', {
+    project: { qaTrack: 'quick', interfaceLanguage: 'es', defaultLanguage: 'es' }
+  });
+  try {
+    await startRun(cwd);
+    await advanceToPhase(cwd, 'gherkin');
+
+    const human = runCli(cwd, ['run', 'next']);
+    assert.match(human.stdout, /Bloqueado/);
+    assert.match(human.stdout, /npx qa-flowkit run set-rf RF-123/);
+    assert.match(human.stdout, /npx qa-flowkit run approve test-design/);
+
+    const json = runCli(cwd, ['run', 'next', '--json']);
+    const payload = JSON.parse(json.stdout);
+    assert.ok(payload.blockers.some((item) => item.type === 'rf'));
+    assert.ok(payload.blockers.some((item) => item.type === 'approval'));
+    assert.ok(payload.blockerHelp.some((item) => item.includes('Bloqueado')));
   } finally {
     await fs.rm(cwd, { recursive: true, force: true });
   }
@@ -532,6 +800,7 @@ test('status reports current modification blockers without changing the baseline
     await fs.writeFile(outputPath, '# v2\n', 'utf8');
     const status = await getRunStatus(cwd);
     assert.ok(status.blockers?.some((item) => item.type === 'modification'));
+    assert.ok(status.blockerHelp?.some((item) => item.includes('npx qa-flowkit run approve modify-existing:intake')));
 
     const afterStatus = await getActiveRunSnapshot(cwd);
     assert.deepEqual(afterStatus.phases.intake.baselineOutputs, baseline.phases.intake.baselineOutputs);
@@ -702,6 +971,143 @@ test('validator allowlist and redaction', () => {
   assert.ok(!redacted.includes('supersecretvalue123456') || redacted.includes('[REDACTED]'));
 });
 
+test('phase validators run custom validators and keep non-blocking failures advisory', async () => {
+  const cwd = await prepareRepo('quick');
+  try {
+    await writeCustomValidator(cwd, { exitCode: 1, ok: false });
+    const config = {
+      validators: {
+        custom: [
+          {
+            id: 'custom-warning',
+            script: 'qa-custom/validate-custom.mjs',
+            phases: ['gherkin'],
+            blocking: false
+          }
+        ]
+      }
+    };
+    const result = await runPhaseValidators(cwd, config, { id: 'gherkin', validators: [] });
+    assert.equal(result.ok, true);
+    assert.equal(result.results.length, 1);
+    assert.equal(result.results[0].custom, true);
+    assert.equal(result.results[0].ok, false);
+    assert.equal(result.results[0].findings[0].severity, 'warning');
+  } finally {
+    await fs.rm(cwd, { recursive: true, force: true });
+  }
+});
+
+test('checkPhase records warning events for non-blocking custom validator failures', async () => {
+  const cwd = await prepareRepo('quick');
+  try {
+    await writeCustomValidator(cwd, { exitCode: 1, ok: false });
+    await fs.appendFile(
+      path.join(cwd, 'qa-ai.config.yaml'),
+      [
+        'validators:',
+        '  custom:',
+        '    - id: custom-warning',
+        '      script: qa-custom/validate-custom.mjs',
+        '      phases:',
+        '        - gherkin',
+        '      blocking: false',
+        ''
+      ].join('\n'),
+      'utf8'
+    );
+
+    const snapshot = await startRun(cwd);
+    await advanceToPhase(cwd, 'normalize');
+    await setRfId(cwd, 'RF-9');
+    await approveGate(cwd, 'test-design');
+    await advanceToPhase(cwd, 'gherkin');
+    await writeValidGherkinFeature(cwd);
+
+    const result = await checkPhase(cwd);
+    assert.equal(result.ok, true);
+
+    const eventsPath = path.join(cwd, '.qa-ai', 'state', 'runs', snapshot.runId, 'events.jsonl');
+    const events = (await fs.readFile(eventsPath, 'utf8'))
+      .trim()
+      .split(/\r?\n/)
+      .map((line) => JSON.parse(line));
+    assert.ok(events.some((event) => event.type === 'phase.validation_warning' && event.phaseId === 'gherkin'));
+  } finally {
+    await fs.rm(cwd, { recursive: true, force: true });
+  }
+});
+
+test('validate-target --json includes custom validator results', async () => {
+  const cwd = await prepareRepo('quick');
+  try {
+    await writeCustomValidator(cwd, { exitCode: 1, ok: false });
+    await fs.appendFile(
+      path.join(cwd, 'qa-ai.config.yaml'),
+      [
+        'validators:',
+        '  custom:',
+        '    - id: custom-warning',
+        '      script: qa-custom/validate-custom.mjs',
+        '      phases:',
+        '        - gherkin',
+        '      blocking: false',
+        ''
+      ].join('\n'),
+      'utf8'
+    );
+
+    const result = spawnSync(
+      node,
+      [
+        '.qa-ai/scripts/validate-target.mjs',
+        '--json',
+        '--allow-empty',
+        '--allow-missing',
+        '--no-strict-doctor',
+        '--skip-test-design',
+        '--skip-test-coverage',
+        '--skip-quality-report',
+        '--no-scan-secrets'
+      ],
+      { cwd, encoding: 'utf8', shell: false }
+    );
+    assert.notEqual(result.stdout.trim(), '', result.stderr);
+    const parsed = JSON.parse(result.stdout);
+    const custom = parsed.validators.find((validator) => validator.name === 'custom validator custom-warning');
+    assert.equal(custom.status, 'warning');
+    assert.equal(custom.custom, true);
+    assert.equal(custom.blocking, false);
+    assert.equal(custom.findings[0].severity, 'warning');
+  } finally {
+    await fs.rm(cwd, { recursive: true, force: true });
+  }
+});
+
+test('phase validators block on blocking custom validator failures', async () => {
+  const cwd = await prepareRepo('quick');
+  try {
+    await writeCustomValidator(cwd, { exitCode: 1, ok: false });
+    const config = {
+      validators: {
+        custom: [
+          {
+            id: 'custom-block',
+            script: 'qa-custom/validate-custom.mjs',
+            phases: ['gherkin'],
+            blocking: true
+          }
+        ]
+      }
+    };
+    const result = await runPhaseValidators(cwd, config, { id: 'gherkin', validators: [] });
+    assert.equal(result.ok, false);
+    assert.equal(result.results[0].blocking, true);
+  } finally {
+    await fs.rm(cwd, { recursive: true, force: true });
+  }
+});
+
 test('atomic write and exclusive lock', async () => {
   const cwd = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-harness-lock-'));
   try {
@@ -811,6 +1217,243 @@ tools:
   testManagement: none
 `);
   assert.equal(evaluateSkipCondition(config, { field: 'tools.testManagement', notConfigured: true }), true);
+});
+
+test('governed sync plan approval and invalidation on modification', async () => {
+  const cwd = await prepareRepo('enterprise', {
+    tools: { testManagement: 'testrail' },
+    testManagementSync: {
+      mode: 'governed',
+      diffPath: 'qa-ai-output/test-management-sync-diff.md',
+      applyLogPath: 'qa-ai-output/test-management-apply-log.md',
+      rollbackPath: 'qa-ai-output/test-management-rollback-plan.md',
+      remoteSnapshotPath: 'qa-ai-output/test-management-remote-snapshot.md'
+    }
+  });
+  try {
+    await startRun(cwd, { rfId: 'RF-GOV' });
+    const initialStatus = await getRunStatus(cwd);
+    const phaseIds = initialStatus.phases.map((phase) => phase.id);
+    assert.ok(phaseIds.includes('sync-diff'));
+    assert.ok(phaseIds.includes('sync-apply'));
+    assert.ok(phaseIds.includes('sync-verify'));
+
+    // Helper to write outputs and complete phases up to sync-apply
+    const phasesToComplete = [
+      { id: 'intake', file: 'qa-ai-output/requirement-analysis.md', content: '# analysis' },
+      { id: 'normalize', file: 'qa-ai-output/normalized-requirements.md', content: '# normalized' },
+      {
+        id: 'test-design-system',
+        file: 'qa-ai-output/test-design-system.md',
+        content:
+          '# System Test Design\n## Scope\n## Architecture alignment\n## Testability risks\n## Cross-RF coverage strategy\n## Shared fixtures and data\n## Non-functional focus\n## Open questions'
+      },
+      {
+        id: 'test-design-rf',
+        file: 'qa-ai-output/test-design-proposal.md',
+        content:
+          '# Test Design Proposal\n## Official RF ID\nRF-GOV\n## Scope\n## Proposed tests\n## Existing tests to reuse\n## Existing tests requiring modification\n## New tests to create\n## Ambiguities requiring user decision\n## Approval request'
+      },
+      { id: 'gherkin', file: 'features/functional/RF-GOV-TC-001.feature', content: '@rf:RF-GOV\nFeature: Test\n' },
+      { id: 'tm-coverage', file: 'qa-ai-output/test-management-coverage-analysis.md', content: '# coverage' },
+      {
+        id: 'tm-sync',
+        file: 'qa-ai-output/test-management-sync-plan.md',
+        content:
+          '# Sync Plan\nRequires approval before execution.\n\n| ID | Proposed action | Approval status |\n| --- | --- | --- |\n| RF-GOV | Plan to sync | Pending approval |\n| RF-9 | Plan to sync | Pending approval |\n| TC-001 | Plan to sync | Pending approval |\n'
+      }
+    ];
+
+    for (const phase of phasesToComplete) {
+      const packet = await nextPhase(cwd);
+      assert.equal(packet.phase.id, phase.id);
+
+      const absPath = path.join(cwd, phase.file);
+      await fs.mkdir(path.dirname(absPath), { recursive: true });
+      if (phase.id === 'gherkin') {
+        await writeValidGherkinFeature(cwd, phase.file);
+      } else {
+        await fs.writeFile(absPath, phase.content, 'utf8');
+      }
+
+      if (phase.id === 'gherkin') {
+        await setRfId(cwd, 'RF-GOV');
+        await approveGate(cwd, 'test-design');
+      }
+
+      const checkRes = await checkPhase(cwd);
+      assert.equal(checkRes.ok, true, `Phase ${phase.id} check failed: ${JSON.stringify(checkRes)}`);
+    }
+
+    // Now at sync-diff phase
+    const diffPacket = await nextPhase(cwd);
+    assert.equal(diffPacket.phase.id, 'sync-diff');
+    await fs.writeFile(
+      path.join(cwd, 'qa-ai-output/test-management-remote-snapshot.md'),
+      '# Remote Snapshot\n- Tool: testrail\n- Project: Harness\n- Capture Timestamp: 2026-06-18T13:00:00Z\n- Run ID: RUN-001\n\n| External ID | Title | Section/Suite | Status | Hash |\n| ----------- | ----- | ------------- | ------ | ---- |\n| 12345 | TC1 | Suite1 | Active | h1 |\n',
+      'utf8'
+    );
+    await fs.writeFile(
+      path.join(cwd, 'qa-ai-output/test-management-sync-diff.md'),
+      '# Sync Diff\n- Generated at: 2026-06-18T13:00:00Z\n- Sync Mode: governed\n\n| ID | Action | External ID | Field changes | Idempotency key |\n| --- | ------ | ----------- | ------------- | --------------- |\n| RF-GOV | create | | Title: TC1 | idemp-1 |\n| RF-9 | skip | | | |\n| TC-001 | skip | | | |\n',
+      'utf8'
+    );
+    const diffCheck = await checkPhase(cwd);
+    assert.equal(diffCheck.ok, true, `Sync-diff check failed: ${JSON.stringify(diffCheck)}`);
+
+    // Now at sync-apply phase, which is blocked by external-write:test-management entry approval
+    const applyPacket = await nextPhase(cwd);
+    assert.equal(applyPacket.phase.id, 'sync-apply');
+    assert.equal(applyPacket.phase.status, 'blocked');
+    assert.ok(applyPacket.blockers.some((b) => b.gate === 'external-write:test-management'));
+
+    // Approve the gate: records the planHash of qa-ai-output/test-management-sync-plan.md (# sync plan v1)
+    const approveRes = await approveGate(cwd, 'external-write:test-management');
+    const approval = approveRes.approvals.find((a) => a.gate === 'external-write:test-management');
+    assert.ok(approval.planHash, 'Approval must record planHash');
+
+    // Run next again: should be active now (unblocked)
+    const applyStillBlocked = await nextPhase(cwd);
+    assert.equal(applyStillBlocked.phase.status, 'blocked');
+    assert.ok(
+      applyStillBlocked.blockers.some(
+        (b) => b.type === 'missing-inputs' && b.missing.includes('qa-ai-output/test-management-rollback-plan.md')
+      ),
+      'sync-apply must remain blocked until rollback plan exists'
+    );
+
+    await fs.writeFile(
+      path.join(cwd, 'qa-ai-output/test-management-rollback-plan.md'),
+      '# Rollback\n| ID | Action | External ID | Rollback action | Rollback details | Status |\n| --- | ------ | ----------- | --------------- | ---------------- | ------ |\n| RF-GOV | create | | deactivate | Deactivate by idempotency key idemp-1 | pending |\n| RF-9 | skip | | none | No change | pending |\n| TC-001 | skip | | none | No change | pending |\n',
+      'utf8'
+    );
+
+    const applyUnblocked = await nextPhase(cwd);
+    assert.equal(applyUnblocked.phase.status, 'active');
+    assert.equal(applyUnblocked.blockers.length, 0);
+
+    // Modify the sync plan file!
+    await fs.writeFile(
+      path.join(cwd, 'qa-ai-output/test-management-sync-plan.md'),
+      '# Sync Plan\nRequires approval before execution.\n\n| ID | Proposed action | Approval status |\n| --- | --- | --- |\n| RF-GOV | Plan to sync - modified | Pending approval |\n| RF-9 | Plan to sync - modified | Pending approval |\n| TC-001 | Plan to sync - modified | Pending approval |\n',
+      'utf8'
+    );
+
+    // Calling checkPhase (or nextPhase) should trigger invalidation!
+    const checkAfterModify = await checkPhase(cwd);
+    assert.equal(checkAfterModify.ok, false);
+    assert.ok(
+      checkAfterModify.blockers.some((b) => b.gate === 'external-write:test-management'),
+      'Approval should be invalidated and blocked again'
+    );
+
+    // Verify snapshot doesn't have the approval anymore
+    const snap = await getActiveRunSnapshot(cwd);
+    assert.ok(
+      !snap.approvals.some((a) => a.gate === 'external-write:test-management'),
+      'Approval must be removed from approvals list'
+    );
+
+    // Verify run event log contains approval_invalidated event
+    const logPath = path.join(cwd, '.qa-ai', 'state', 'runs', snap.runId, 'events.jsonl');
+    const eventsContent = await fs.readFile(logPath, 'utf8');
+    assert.ok(eventsContent.includes('approval_invalidated'), 'Events log must contain approval_invalidated');
+  } finally {
+    await fs.rm(cwd, { recursive: true, force: true });
+  }
+});
+
+test('governed sync apply and verify emit ordered audit events', async () => {
+  const cwd = await prepareRepo('enterprise', {
+    tools: { testManagement: 'testrail' },
+    testManagementSync: {
+      mode: 'governed',
+      diffPath: 'qa-ai-output/test-management-sync-diff.md',
+      applyLogPath: 'qa-ai-output/test-management-apply-log.md',
+      rollbackPath: 'qa-ai-output/test-management-rollback-plan.md',
+      remoteSnapshotPath: 'qa-ai-output/test-management-remote-snapshot.md'
+    }
+  });
+  try {
+    await startRun(cwd, { rfId: 'RF-GOV' });
+    const contract = await loadWorkflowContract(cwd);
+    const order = getTrackPhaseOrder(contract, 'enterprise');
+    const snapshot = await getActiveRunSnapshot(cwd);
+    for (const phaseId of order) {
+      if (phaseId === 'sync-apply' || phaseId === 'sync-verify') break;
+      snapshot.phases[phaseId].status = 'completed';
+    }
+    snapshot.activePhaseId = null;
+    snapshot.status = 'active';
+    await writeRunSnapshot(cwd, snapshot);
+
+    await fs.mkdir(path.join(cwd, 'qa-ai-output'), { recursive: true });
+    await fs.writeFile(
+      path.join(cwd, 'qa-ai-output/test-management-sync-plan.md'),
+      '# Sync Plan\n| ID | Proposed action | Approval status |\n| --- | --- | --- |\n| TC-001 | Plan to create | Approved |\n',
+      'utf8'
+    );
+    await fs.writeFile(
+      path.join(cwd, 'qa-ai-output/test-management-sync-diff.md'),
+      '# Sync Diff\n| ID | Action | External ID | Field changes | Idempotency key |\n| --- | ------ | ----------- | ------------- | --------------- |\n| TC-001 | create | | Title: Created | idemp-1 |\n',
+      'utf8'
+    );
+    await fs.writeFile(
+      path.join(cwd, 'qa-ai-output/test-management-remote-snapshot.md'),
+      '# Pre Snapshot\n- Capture Timestamp: 2026-06-18T12:00:00Z\n| External ID | Title | Section/Suite | Status | Hash |\n| ----------- | ----- | ------------- | ------ | ---- |\n',
+      'utf8'
+    );
+    await fs.writeFile(
+      path.join(cwd, 'qa-ai-output/test-management-rollback-plan.md'),
+      '# Rollback\n| ID | Action | External ID | Rollback action | Rollback details | Status |\n| --- | ------ | ----------- | --------------- | ---------------- | ------ |\n| TC-001 | create | | deactivate | Deactivate by idempotency key idemp-1 | pending |\n',
+      'utf8'
+    );
+
+    await approveGate(cwd, 'external-write:test-management');
+    const applyPacket = await nextPhase(cwd);
+    assert.equal(applyPacket.phase.id, 'sync-apply');
+    assert.equal(applyPacket.phase.status, 'active');
+
+    await fs.writeFile(
+      path.join(cwd, 'qa-ai-output/test-management-apply-log.md'),
+      '# Apply Log\n| ID | Action | External ID | Result | Timestamp |\n| --- | ------ | ----------- | ------ | --------- |\n| TC-001 | create | C124 | applied | 2026-06-18T12:05:00Z |\n',
+      'utf8'
+    );
+    await fs.writeFile(
+      path.join(cwd, 'qa-ai-output/test-management-mapping.json'),
+      `{"TC-001":{"externalId":"C124","idempotencyKey":"idemp-1","lastAppliedAt":"2026-06-18T12:05:00Z","lastAppliedRunId":"${snapshot.runId}"}}\n`,
+      'utf8'
+    );
+
+    const applyCheck = await checkPhase(cwd);
+    assert.equal(applyCheck.ok, true, `sync-apply check failed: ${JSON.stringify(applyCheck)}`);
+
+    const verifyPacket = await nextPhase(cwd);
+    assert.equal(verifyPacket.phase.id, 'sync-verify');
+    assert.equal(verifyPacket.phase.status, 'active');
+    await fs.writeFile(
+      path.join(cwd, 'qa-ai-output/test-management-remote-snapshot.post.md'),
+      '# Post Snapshot\n- Capture Timestamp: 2026-06-18T13:00:00Z\n| External ID | Title | Section/Suite | Status | Hash |\n| ----------- | ----- | ------------- | ------ | ---- |\n| C124 | Created | Suite | Active | hash-created |\n',
+      'utf8'
+    );
+
+    const verifyCheck = await checkPhase(cwd);
+    assert.equal(verifyCheck.ok, true, `sync-verify check failed: ${JSON.stringify(verifyCheck)}`);
+
+    const eventsPath = path.join(cwd, '.qa-ai/state/runs', snapshot.runId, 'events.jsonl');
+    const eventTypes = (await fs.readFile(eventsPath, 'utf8'))
+      .trim()
+      .split('\n')
+      .map((line) => JSON.parse(line).type);
+    const approvalIndex = eventTypes.indexOf('approval.recorded');
+    const applyIndex = eventTypes.indexOf('sync_apply.started');
+    const verifyIndex = eventTypes.indexOf('sync_verify.started');
+    assert.ok(approvalIndex !== -1, 'approval event must be recorded');
+    assert.ok(applyIndex > approvalIndex, 'apply-start event must follow approval');
+    assert.ok(verifyIndex > applyIndex, 'verify event must follow apply-start');
+  } finally {
+    await fs.rm(cwd, { recursive: true, force: true });
+  }
 });
 
 clearContractCache();

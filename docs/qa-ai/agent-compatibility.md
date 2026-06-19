@@ -47,6 +47,8 @@ After copying `.qa-ai/` and running the bootstrap script, start the agent and ru
 
 The command asks for the required initialization choices, including optional QA context folder, interface language, Gherkin language, base template, requirement source, optional framework overrides and adapter selection, then runs `node .qa-ai/scripts/init.mjs`. Use `/qa-init`, not `/init`, because `/init` is a built-in command in both Claude Code and OpenCode.
 
+Claude Code users can alternatively install the generated QA FlowKit plugin from this repository's marketplace. The plugin provides namespaced skills, hooks and the orchestrator agent, but it does not replace target-repository initialization: the repo still needs `.qa-ai/` and `qa-ai.config.yaml` from `npx qa-flowkit init`. See [Claude Code Plugin](claude-plugin.md).
+
 Advanced users may still pass flags directly:
 
 ```text
@@ -76,17 +78,31 @@ The framework agents under `.qa-ai/agents/` are role instructions. If a tool doe
 
 ## Supported adapters
 
-| Adapter       | Generated path                             | Purpose                                                                       |
-| ------------- | ------------------------------------------ | ----------------------------------------------------------------------------- |
-| Generic       | `AGENTS.md`                                | Cross-agent behavior and safety policy.                                       |
-| Claude Code   | `.claude/agents/`, `.claude/commands/`     | Claude-specific agent and slash command documentation.                        |
-| Codex Desktop | `.codex/README.md`, `.codex/prompts/`      | Codex onboarding prompts and local validation commands.                       |
-| OpenCode      | `.opencode/agents/`, `.opencode/commands/` | OpenCode agent and slash command documentation.                               |
-| Cline         | `.clinerules`, `.cline/`                   | Cline behavior rules and docs.                                                |
-| Continue      | `.continue/`                               | Review/check documentation.                                                   |
-| Aider         | `.aider.conf.yml`, `.aider/`               | Aider read-list and usage notes.                                              |
-| Goose         | `.goose/recipes/qa-flowkit.yaml`           | Reusable Goose workflow recipe.                                               |
-| Gemini CLI    | `GEMINI.md`                                | Gemini CLI project context that points back to the shared QA AI instructions. |
+| Adapter       | Generated path                                                 | Purpose                                                                       |
+| ------------- | -------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| Generic       | `AGENTS.md`                                                    | Cross-agent behavior and safety policy.                                       |
+| Claude Code   | `.claude/agents/`, `.claude/commands/` or the generated plugin | Claude-specific agent, slash command and hook integration.                    |
+| Codex Desktop | `.codex/README.md`, `.codex/prompts/`                          | Codex onboarding prompts and local validation commands.                       |
+| OpenCode      | `.opencode/agents/`, `.opencode/commands/`                     | OpenCode agent and slash command documentation.                               |
+| Cline         | `.clinerules`, `.cline/`                                       | Cline behavior rules and docs.                                                |
+| Continue      | `.continue/`                                                   | Review/check documentation.                                                   |
+| Aider         | `.aider.conf.yml`, `.aider/`                                   | Aider read-list and usage notes.                                              |
+| Goose         | `.goose/recipes/qa-flowkit.yaml`                               | Reusable Goose workflow recipe.                                               |
+| Gemini CLI    | `GEMINI.md`                                                    | Gemini CLI project context that points back to the shared QA AI instructions. |
+
+## Command Metadata and Execution
+
+Slash commands for supported adapters (such as Claude Code and OpenCode) are defined using Markdown files in `.claude/commands/` and `.opencode/commands/`. These commands support standardized frontmatter keys for access control and invocation:
+
+- `allowed-tools`: Restricts the tools available to the agent during command execution. Read-only commands (e.g. status, help, validation) restrict tools to `[view_file, list_dir, grep_search, glob, run_command]` to prevent accidental file modifications. Modifying commands allow write/edit tools.
+- `disable-model-invocation`: Set to `true` (specifically for `/qa-gate`) to prevent the AI model from initiating the command autonomously, ensuring quality gate decisions require human interaction.
+
+### Context Injection
+
+Where supported by the host (like Claude Code or OpenCode), commands can execute utility scripts to inject live state directly into the agent's context when a command is loaded. This is done by placing backtick-escaped bang commands at the top of the command file:
+
+- `!`npx qa-flowkit run status --json``: Injects the current resumable workflow status.
+- `!`npx qa-flowkit help --json``: Injects the workflow's next-step recommendations.
 
 ## Interaction capabilities
 
@@ -111,6 +127,13 @@ Host references:
 - [Cline workflow questions](https://docs.cline.bot/features/slash-commands/workflows/quickstart)
 - [Aider in-chat commands](https://aider.chat/docs/usage/commands.html)
 - [Goose CLI interactive sessions](https://block.github.io/goose/docs/guides/goose-cli-commands)
+
+## Enforcement Hooks and Graceful Degradation
+
+Some agent hosts support native interception mechanisms (hooks) to run verification steps automatically before or after tool executions, or at the end of a turn.
+
+- **Claude Code**: Supports native `PostToolUse` and `Stop` hooks. We automatically configure these hooks in `.claude/settings.json` to trigger post-edit validation (`post-edit-validate.mjs`) and the release stop gate (`stop-gate.mjs`). This provides deterministic interception of invalid files or pending verification checks.
+- **OpenCode and Hookless Hosts**: OpenCode and other hosts (e.g. Codex, Cline, Continue, Aider, Goose, Gemini CLI) do not currently support project-level settings hooks for intercepting edits or turn completion. In these environments, the system falls back to documented instructions. The agent must manually run the appropriate validation scripts (e.g., `node .qa-ai/scripts/validate-target.mjs`) after every file modification and before finalizing its work.
 
 ## Required behavior for every agent
 

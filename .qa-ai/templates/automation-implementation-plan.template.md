@@ -2,6 +2,11 @@
 
 ## Tests to automate
 
+### [Test ID] [Test Title]
+
+- **Steps**:
+  1. [User Action] -> [Expected Outcome]
+
 ## New files
 
 ## Existing files to modify

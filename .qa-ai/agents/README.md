@@ -26,21 +26,23 @@ Reusable repository configuration profiles can be imported or exported with `nod
 | 4   | System test design             | `.qa-ai/agents/test-design-system-agent.md`         |
 | 5   | Per-RF test design             | `.qa-ai/agents/gherkin-test-design-agent.md`        |
 | 6   | Gherkin feature generation     | `.qa-ai/agents/gherkin-test-design-agent.md`        |
-| 7   | Test management coverage       | `.qa-ai/agents/testrail-coverage-agent.md`          |
-| 8   | Test management sync planning  | `.qa-ai/agents/testrail-sync-agent.md`              |
-| 9   | Automation feasibility         | `.qa-ai/agents/automation-feasibility-agent.md`     |
-| 10  | UI/E2E implementation          | `.qa-ai/agents/webdriverio-implementation-agent.md` |
-| 11  | Mobile implementation          | `.qa-ai/agents/webdriverio-implementation-agent.md` |
-| 12  | API/integration implementation | `.qa-ai/agents/api-testing-agent.md`                |
-| 13  | Issue task draft               | `.qa-ai/agents/jira-task-agent.md`                  |
-| 14  | PR summary                     | `.qa-ai/agents/pr-agent.md`                         |
-| 15  | Release quality gate           | `.qa-ai/agents/release-gate-agent.md`               |
+| 7   | Gherkin quality evaluation     | `.qa-ai/agents/gherkin-quality-agent.md`            |
+| 8   | Test management coverage       | `.qa-ai/agents/test-management-coverage-agent.md`   |
+| 9   | Test management sync planning  | `.qa-ai/agents/test-management-sync-agent.md`       |
+| 10  | Automation feasibility         | `.qa-ai/agents/automation-feasibility-agent.md`     |
+| 11  | UI/E2E implementation          | `.qa-ai/agents/webdriverio-implementation-agent.md` |
+| 12  | Mobile implementation          | `.qa-ai/agents/webdriverio-implementation-agent.md` |
+| 13  | API/integration implementation | `.qa-ai/agents/api-testing-agent.md`                |
+| 14  | Issue task draft               | `.qa-ai/agents/jira-task-agent.md`                  |
+| 15  | PR summary                     | `.qa-ai/agents/pr-agent.md`                         |
+| 16  | Release quality gate           | `.qa-ai/agents/release-gate-agent.md`               |
 
 ## Optional agents
 
-| Agent         | File                                   | When to load                           |
-| ------------- | -------------------------------------- | -------------------------------------- |
-| Defect report | `.qa-ai/agents/defect-report-agent.md` | After failures or exploratory findings |
+| Agent           | File                                     | When to load                                                         |
+| --------------- | ---------------------------------------- | -------------------------------------------------------------------- |
+| Defect report   | `.qa-ai/agents/defect-report-agent.md`   | After failures or exploratory findings                               |
+| Gherkin quality | `.qa-ai/agents/gherkin-quality-agent.md` | After Gherkin generation when `testDesign.quality.mode` is not `off` |
 
 ## Specialists
 
@@ -51,6 +53,7 @@ Auto-activated specialists are listed in `.qa-ai/agents/specialists/active.md` (
   UI implementation agent plus the active mobile specialist.
 - **API**: Playwright API, Postman, REST Assured, Karate.
 - **Test management / issue tracker**: TestRail, Jira.
+- **AI system testing**: AI eval suites and authorized AI red-team design when `aiTesting.enabled: true`.
 - **Cross-cutting** (load on demand or add to `active.md`): `accessibility.md`, `performance.md`, `security.md`.
 
 ## Usage Rule
@@ -59,3 +62,4 @@ Before starting a QA workflow phase, read the matching phase agent and any activ
 
 When generating Gherkin with `@type:accessibility` or `@type:performance`, also read the matching specialist file even if it is not listed in `active.md`.
 Load `security.md` for `@type:security` scenarios or when the configured coverage policy requires a security review.
+When `aiTesting.enabled: true`, load `ai-evals.md` and `ai-red-team.md` through the generated active specialists list.

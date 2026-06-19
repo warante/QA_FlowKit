@@ -1,6 +1,7 @@
 ---
 description: Guided manifest-based QA AI cleanup / Limpieza guiada de QA FlowKit
 argument-hint: [optional clean flags]
+allowed-tools: [view_file, write_file, edit_file, list_dir, grep_search, glob, run_command]
 ---
 
 Before any other action or user-facing text, read and follow `.qa-ai/workflows/command-interaction.md`.

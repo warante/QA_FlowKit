@@ -1,0 +1,10 @@
+{
+  "language": "en",
+  "rubricDimensions": ["requirement-fidelity"],
+  "structuralRules": [
+    {
+      "rule": "scenario-rf",
+      "messageIncludes": "Scenario title does not contain an RF-like ID."
+    }
+  ]
+}

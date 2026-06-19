@@ -1,0 +1,10 @@
+{
+  "language": "en",
+  "rubricDimensions": ["language-clarity"],
+  "structuralRules": [
+    {
+      "rule": "filename-rf",
+      "messageIncludes": "Feature filename does not contain an RF-like ID."
+    }
+  ]
+}

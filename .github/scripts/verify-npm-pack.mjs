@@ -20,6 +20,10 @@ function runNpm(args) {
   const result = spawnSync(command, commandArgs, {
     cwd: process.cwd(),
     encoding: 'utf8',
+    env: {
+      ...process.env,
+      npm_config_cache: process.env.npm_config_cache || path.join(process.cwd(), '.npm-cache')
+    },
     shell: process.platform === 'win32' && !npmScriptPath
   });
   if (result.status !== 0) {
@@ -36,6 +40,11 @@ export function validatePackFileList(files) {
     'bin/qa-flowkit.mjs',
     '.qa-ai/scripts/init.mjs',
     '.qa-ai/scripts/doctor.mjs',
+    '.qa-ai/scripts/validate-config.mjs',
+    '.qa-ai/scripts/validate-untrusted-content.mjs',
+    '.qa-ai/contracts/config.v1.schema.json',
+    '.qa-ai/scripts/lib/injection-patterns.mjs',
+    '.qa-ai/rules/untrusted-content.rules.md',
     '.qa-ai/adapters/opencode/commands/qa-init.md',
     'README.md',
     'README.es.md',
@@ -49,7 +58,11 @@ export function validatePackFileList(files) {
     '.npm-cache/',
     'qa-ai-output/',
     'features/',
-    'tests/'
+    'test/',
+    'tests/',
+    'actions/',
+    'plugin/',
+    '.claude-plugin/'
   ];
   const forbiddenExact = [
     'qa-ai.config.yaml',

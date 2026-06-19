@@ -55,3 +55,7 @@ Agent files in `.qa-ai/agents/` are required role instructions for QA workflow p
 Use `.qa-ai/workflows/full-flow.md` for end-to-end QA delivery and keep all external writes proposal-first.
 
 When initializing with a QA context folder, use `/qa-init --qa-context <path>` so OpenCode reads `.qa-ai/workflows/context-intake.md` before choosing defaults.
+
+## Self-Validation (Hookless Host)
+
+OpenCode does not support automatic settings-level hooks. You must manually run the appropriate validation scripts (e.g., `node .qa-ai/scripts/validate-target.mjs` or `node .qa-ai/scripts/validate-features.mjs`) after every file edit and before finishing your turn.

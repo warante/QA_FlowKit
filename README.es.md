@@ -30,6 +30,7 @@ aprobaciones y validación fiable. QA FlowKit instala esos controles dentro del 
 - estado persistente, reanudable y con registro de eventos;
 - validación de Gherkin, trazabilidad, diseño de pruebas, planes de sync y release gates;
 - validaciones configurables de cobertura entre features y técnicas de diseño de pruebas trazables;
+- soporte opcional para pruebas de sistemas de IA con tags de componente AI, cobertura de técnicas y evidencia de evals;
 - revisión de seguridad funcional e ingesta de requisitos desde fuentes mixtas;
 - protección frente a sobrescritura, rutas externas, borrados y secretos;
 - planificación proposal-first para Jira, TestRail, Zephyr, Xray y herramientas similares.
@@ -42,7 +43,7 @@ resultado de las validaciones.
 Desde el repositorio donde quieres instalar QA FlowKit:
 
 ```bash
-npx qa-flowkit@beta init --preset manual-only --qa-track quick --adapters generic
+npx qa-flowkit@beta init --preset manual-only --qa-track quick
 npx qa-flowkit doctor
 npx qa-flowkit run start --rf RF-101
 npx qa-flowkit run next
@@ -83,11 +84,12 @@ npm run test:e2e-manual-example
 qa-ai.config.yaml      configuración del repositorio destino
 qa-ai-output/          análisis, planes y trazabilidad generados
 features/              diseño QA manual y automatizado en Gherkin
-AGENTS.md              instrucciones genéricas cuando se solicitan
+AGENTS.md              instrucciones genéricas cuando no se elige un override de host específico
 ```
 
-Las carpetas de automatización y los adaptadores específicos se generan solo cuando el preset o adaptador elegido los
-requiere. Los archivos existentes se omiten salvo que el usuario indique explícitamente `--force`.
+Las carpetas de automatización se generan solo cuando el preset elegido las requiere. `init` detecta carpetas de
+hosts de agentes existentes y sincroniza esos adaptadores junto con `generic`; si no hay hosts, solo genera
+`generic`. Los archivos existentes se omiten salvo que el usuario indique explícitamente `--force`.
 
 ## Elegir Un Track
 
@@ -120,20 +122,26 @@ Consulta el [esquema de configuración](docs/qa-ai/config-schema.md).
 
 ## Comandos Principales
 
-| Comando                             | Propósito                                        |
-| ----------------------------------- | ------------------------------------------------ |
-| `qa-flowkit init`                   | Instalar y configurar el framework               |
-| `qa-flowkit update`                 | Actualizar `.qa-ai/` conservando el estado       |
-| `qa-flowkit doctor`                 | Diagnosticar instalación y configuración         |
-| `qa-flowkit help`                   | Recomendar el siguiente paso del workflow        |
-| `qa-flowkit run start\|next\|check` | Ejecutar un workflow controlado y reanudable     |
-| `qa-flowkit validate-target`        | Ejecutar el quality gate del repositorio destino |
-| `qa-flowkit validate-features`      | Validar el Gherkin de diseño QA                  |
-| `qa-flowkit validate-test-coverage` | Validar obligaciones configuradas de cobertura   |
-| `qa-flowkit validate-traceability`  | Validar cobertura entre RF y pruebas             |
-| `qa-flowkit validate-release-gate`  | Validar la decisión enterprise de release        |
+| Comando                                               | Propósito                                                  |
+| ----------------------------------------------------- | ---------------------------------------------------------- |
+| `qa-flowkit init`                                     | Instalar y configurar el framework                         |
+| `qa-flowkit update`                                   | Actualizar `.qa-ai/` conservando el estado                 |
+| `qa-flowkit doctor`                                   | Diagnosticar instalación y configuración                   |
+| `qa-flowkit help`                                     | Recomendar el siguiente paso del workflow                  |
+| `qa-flowkit run start\|next\|check`                   | Ejecutar un workflow controlado y reanudable               |
+| `qa-flowkit metrics`                                  | Reportar KPIs locales desde los eventos de runs            |
+| `qa-flowkit validate-target`                          | Ejecutar el quality gate del repositorio destino           |
+| `qa-flowkit validate-untrusted-content`               | Escanear requisitos/contexto contra prompt injection       |
+| `qa-flowkit validate-features`                        | Validar el Gherkin de diseño QA                            |
+| `qa-flowkit validate-test-coverage`                   | Validar obligaciones configuradas de cobertura             |
+| `qa-flowkit validate-traceability`                    | Validar cobertura entre RF y pruebas                       |
+| `qa-flowkit validate-release-gate`                    | Validar la decisión enterprise de release                  |
+| [`qa-flowkit export-report`](docs/qa-ai/reporting.md) | Exportar casos de prueba Gherkin y resultados de ejecución |
 
 La referencia completa está en [Referencia CLI](docs/qa-ai/cli-reference.md).
+
+`qa-flowkit metrics` solo lee estado local bajo `.qa-ai/state/runs/`; nunca lee contenido de artefactos ni envia
+telemetria.
 
 ## Reglas Deterministas
 
@@ -144,9 +152,10 @@ QA FlowKit valida, entre otras cosas:
 - pruebas manuales también representadas como `.feature`;
 - bloques de criterios de aceptación;
 - tags obligatorios `@priority:`, `@type:` y `@manual:`;
+- instrucciones parecidas a prompt injection en requisitos y contexto QA;
 - trazabilidad con RF oficial e IDs de test duplicados;
 - lenguaje proposal-first en planes de sincronización;
-- evidencias obligatorias del release gate enterprise.
+- evidencias obligatorias del release gate enterprise y resultados de ejecución de pruebas.
 
 Consulta las [reglas Gherkin](.qa-ai/rules/gherkin.rules.md) y el
 [índice de reglas](.qa-ai/rules/README.md).
@@ -180,7 +189,11 @@ QA FlowKit:
 - rechaza rutas configuradas que escapen del repositorio;
 - exige aprobación específica para modificar outputs preexistentes;
 - deniega escrituras externas y borrados en el contrato actual;
-- escanea artefactos QA en busca de valores parecidos a secretos durante la validación estricta.
+- trata archivos de requisitos, carpetas de contexto QA y contenido externo importado como datos no confiables;
+- escanea esas fuentes no confiables contra instrucciones parecidas a prompt injection, con `--strict` disponible para
+  convertirlo en bloqueo;
+- escanea artefactos QA en busca de valores parecidos a secretos durante la validación estricta;
+- admite hooks nativos de control a nivel de configuración en Claude Code para evitar finalizar el turno con fallos de validación o comprobaciones pendientes.
 
 No aloja ni ejecuta un modelo de IA. Un agente con acceso libre al shell puede operar fuera del harness; consulta
 [Arnés para agentes](docs/qa-ai/agent-harness.md) para conocer el límite exacto.
@@ -198,21 +211,27 @@ Consulta la [guía de actualización](docs/qa-ai/getting-started.md#upgrading-an
 
 ## Documentación
 
-| Tema                    | Documento                                                                  |
-| ----------------------- | -------------------------------------------------------------------------- |
-| Primer workflow         | [Primeros pasos](docs/qa-ai/getting-started.md)                            |
-| Comandos y opciones CLI | [Referencia CLI](docs/qa-ai/cli-reference.md)                              |
-| Arquitectura            | [Arquitectura](docs/qa-ai/architecture.md)                                 |
-| Workflow                | [Workflow completo](docs/qa-ai/workflow.md)                                |
-| Diseño avanzado         | [Cobertura, técnicas y fuentes mixtas](docs/qa-ai/advanced-test-design.md) |
-| Harness reanudable      | [Arnés para agentes](docs/qa-ai/agent-harness.md)                          |
-| Solución de problemas   | [Troubleshooting](docs/qa-ai/troubleshooting.md)                           |
-| Estabilidad             | [Política de estabilidad](docs/qa-ai/stability-policy.md)                  |
-| Contratos públicos      | [Inventario de contratos](docs/qa-ai/public-contracts.md)                  |
-| Medición de pilotos     | [Metodología de pilotos](docs/qa-ai/pilot-methodology.md)                  |
-| Camino a 1.0            | [Roadmap](ROADMAP.md) y [tareas](tasks/README.md)                          |
-| Seguridad               | [Política de seguridad](SECURITY.md)                                       |
-| Contribución            | [Guía de contribución](CONTRIBUTING.md)                                    |
+| Tema                                | Documento                                                                           |
+| ----------------------------------- | ----------------------------------------------------------------------------------- |
+| Primer workflow                     | [Primeros pasos](docs/qa-ai/getting-started.md)                                     |
+| Comandos y opciones CLI             | [Referencia CLI](docs/qa-ai/cli-reference.md)                                       |
+| Integración con CI/CD               | [Guía de CI/CD](docs/qa-ai/ci-integration.md)                                       |
+| Plugin para Claude Code             | [Plugin para Claude Code](docs/qa-ai/claude-plugin.md)                              |
+| Arquitectura                        | [Arquitectura](docs/qa-ai/architecture.md)                                          |
+| Workflow                            | [Workflow completo](docs/qa-ai/workflow.md)                                         |
+| Diseño avanzado                     | [Cobertura, técnicas y fuentes mixtas](docs/qa-ai/advanced-test-design.md)          |
+| Rubrica de calidad Gherkin          | [Rubrica de calidad](docs/qa-ai/quality-rubric.md)                                  |
+| Harness reanudable                  | [Arnés para agentes](docs/qa-ai/agent-harness.md)                                   |
+| Solución de problemas               | [Troubleshooting](docs/qa-ai/troubleshooting.md)                                    |
+| Estabilidad                         | [Política de estabilidad](docs/qa-ai/stability-policy.md)                           |
+| Contratos públicos                  | [Inventario de contratos](docs/qa-ai/public-contracts.md)                           |
+| Medición de pilotos                 | [Metodología de pilotos](docs/qa-ai/pilot-methodology.md)                           |
+| Ingesta externa                     | [External Intake](docs/qa-ai/external-intake.md)                                    |
+| Sync gobernado de pruebas           | [Governed Sync](docs/qa-ai/governed-sync.md)                                        |
+| Puente de automatización / sanación | [Automation Bridge](docs/qa-ai/automation-bridge.md)                                |
+| Roadmap y plan de mejora            | [Roadmap](ROADMAP.md), [tareas](tasks/README.md) y [plan de mejora](plan/README.md) |
+| Seguridad                           | [Política de seguridad](SECURITY.md)                                                |
+| Contribución                        | [Guía de contribución](CONTRIBUTING.md)                                             |
 
 ## Repositorio Fuente
 

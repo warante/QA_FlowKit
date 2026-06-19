@@ -22,8 +22,8 @@ Stable command names:
 
 ```text
 init update bootstrap config doctor
-validate-target validate-features validate-karate-features validate-maestro-flows
-validate-traceability validate-sync-plan validate-active-specialists
+validate-config validate-untrusted-content validate-external-intake validate-target validate-features validate-karate-features validate-maestro-flows
+validate-traceability validate-sync-plan validate-sync-diff validate-sync-result validate-active-specialists
 validate-release-gate validate-test-design
 sync-adapters help clean version run
 ```
@@ -71,6 +71,7 @@ new projects should use `playwright-full`.
 | Surface                                         | Level          | Notes                                                     |
 | ----------------------------------------------- | -------------- | --------------------------------------------------------- |
 | `workflow.v1.json`, `schemaVersion: 1`          | `stable`       | Phase IDs, ordering semantics, permissions and validators |
+| `config.v1.schema.json`, JSON Schema 2020-12    | `experimental` | Machine-readable config contract used by init and doctor  |
 | `run.json`, `schemaVersion: 1`                  | `experimental` | Preserved by update; migration support required before RC |
 | `events.jsonl`                                  | `experimental` | Append-only audit events; individual optional fields vary |
 | `.lock` and atomic temporary files              | `internal`     | Never parse or commit                                     |

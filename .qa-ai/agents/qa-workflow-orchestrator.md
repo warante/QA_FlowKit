@@ -39,14 +39,15 @@ Execute phases in order. Each phase depends on the previous one's output.
 | 4   | System test design         | `test-design-system-agent.md`         | `quick` track                                                                                        |
 | 5   | Per-RF test design         | `gherkin-test-design-agent.md`        | Never skip (proposal); on `quick` may combine with phase 6                                           |
 | 6   | Gherkin feature generation | `gherkin-test-design-agent.md`        | Never skip                                                                                           |
-| 7   | Test management coverage   | `testrail-coverage-agent.md`          | `quick` track, or `tools.testManagement` is `none` or missing                                        |
-| 8   | Test management sync       | `testrail-sync-agent.md`              | `quick` track, or `tools.testManagement` is `none` or missing                                        |
-| 9   | Automation feasibility     | `automation-feasibility-agent.md`     | `quick` track                                                                                        |
-| 10  | UI/E2E implementation      | `webdriverio-implementation-agent.md` | `quick` track, no UI automatable tests, or `automation.ui.framework` is `none`/`undecided`           |
-| 11  | API implementation         | `api-testing-agent.md`                | `quick` track, no API automatable tests, or `automation.api.framework` is `none`/`undecided`         |
-| 12  | Issue task drafts          | `jira-task-agent.md`                  | `quick` track, no pending automation tests, or `tools.issueTracker` is `none`/missing                |
-| 13  | PR summary                 | `pr-agent.md`                         | User explicitly skips                                                                                |
-| 14  | Release quality gate       | `release-gate-agent.md`               | `project.qaTrack` is not `enterprise`                                                                |
+| 7   | Gherkin quality evaluation | `gherkin-quality-agent.md`            | `quick` track, or `testDesign.quality.mode` is `off`                                                 |
+| 8   | Test management coverage   | `test-management-coverage-agent.md`   | `quick` track, or `tools.testManagement` is `none` or missing                                        |
+| 9   | Test management sync       | `test-management-sync-agent.md`       | `quick` track, or `tools.testManagement` is `none` or missing                                        |
+| 10  | Automation feasibility     | `automation-feasibility-agent.md`     | `quick` track                                                                                        |
+| 11  | UI/E2E implementation      | `webdriverio-implementation-agent.md` | `quick` track, no UI automatable tests, or `automation.ui.framework` is `none`/`undecided`           |
+| 12  | API implementation         | `api-testing-agent.md`                | `quick` track, no API automatable tests, or `automation.api.framework` is `none`/`undecided`         |
+| 13  | Issue task drafts          | `jira-task-agent.md`                  | `quick` track, no pending automation tests, or `tools.issueTracker` is `none`/missing                |
+| 14  | PR summary                 | `pr-agent.md`                         | User explicitly skips                                                                                |
+| 15  | Release quality gate       | `release-gate-agent.md`               | `project.qaTrack` is not `enterprise`                                                                |
 
 ## Responsibilities
 
@@ -61,6 +62,8 @@ Execute phases in order. Each phase depends on the previous one's output.
   limitations in `sources.analysisPath`.
 - Apply `testDesign.coverage` after per-RF design and Gherkin generation. Advisory findings are reported; strict
   findings block completion.
+- Apply `testDesign.quality` after Gherkin generation when enabled. Advisory findings are reported; gate findings block
+  completion.
 - Present a plan before every change.
 - Ask for approval before writes or modifications.
 - Stop and ask when official RF ID is missing.
@@ -70,7 +73,7 @@ Execute phases in order. Each phase depends on the previous one's output.
 Between phases, report to the user:
 
 ```
-Phase [N/14]: [Phase Name] — [Status]
+Phase [N/15]: [Phase Name] — [Status]
 Artifacts produced: [list]
 Pending decisions: [list or "none"]
 Next phase: [Name] (or "complete")
@@ -78,8 +81,8 @@ Next phase: [Name] (or "complete")
 
 ## Decision Rules
 
-- If `project.qaTrack` is `quick`: skip phases 4 and 7–12 unless the user explicitly requests a deeper pass; still produce per-RF proposal (optional), features, traceability and PR summary.
-- If `project.qaTrack` is `enterprise`: run phase 14 (`release-gate-agent.md`) after PR summary, then `node .qa-ai/scripts/validate-target.mjs` and `node .qa-ai/scripts/validate-release-gate.mjs`.
+- If `project.qaTrack` is `quick`: skip phases 4 and 7–13 unless the user explicitly requests a deeper pass; still produce per-RF proposal (optional), features, traceability and PR summary.
+- If `project.qaTrack` is `enterprise`: run phase 15 (`release-gate-agent.md`) after PR summary, then `node .qa-ai/scripts/validate-target.mjs` and `node .qa-ai/scripts/validate-release-gate.mjs`.
 - If `automation.ui.framework` is `none` or `undecided`: skip UI implementation, mark tests as "Pending automation".
 - If `automation.api.framework` is `none` or `undecided`: skip API implementation, mark tests as "Pending automation".
 - If `tools.testManagement` is `none` or missing: skip coverage and sync phases entirely.
@@ -112,13 +115,14 @@ Every workflow run must produce or update artifacts under `qa-ai-output/` and `f
 | `qa-ai-output/source-analysis.md`               | when mixed sources are used | when mixed sources are used | when mixed sources are used |
 | `qa-ai-output/normalized-requirements.md`       | yes                         | yes                         | yes                         |
 | `features/*.feature`                            | yes                         | yes                         | yes                         |
+| `qa-ai-output/gherkin-quality-report.md`        | no                          | when configured             | when configured             |
 | `qa-ai-output/traceability-matrix.md`           | recommended                 | yes                         | yes                         |
 | `qa-ai-output/test-design-system.md`            | no                          | yes                         | yes                         |
 | `qa-ai-output/automation-feasibility-report.md` | no                          | yes                         | yes                         |
 | `qa-ai-output/pr-summary.md`                    | yes                         | yes                         | yes                         |
 | `qa-ai-output/release-gate.yaml`                | no                          | no                          | yes                         |
 
-When test management or issue tracker tools are configured, include their phase artifacts (`testrail-coverage-analysis.md`, `testrail-sync-plan.md`, `jira-automation-task.md`) as applicable.
+When test management or issue tracker tools are configured, include their phase artifacts (`test-management-coverage-analysis.md`, `test-management-sync-plan.md`, `jira-automation-task.md`) as applicable.
 
 ## Constraints
 

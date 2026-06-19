@@ -1,0 +1,419 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/warante/QA_FlowKit/.qa-ai/contracts/config.v1.schema.json",
+  "title": "QA FlowKit config",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "project",
+    "tools",
+    "agents",
+    "sources",
+    "knowledge",
+    "requirements",
+    "gherkin",
+    "testrail",
+    "automation",
+    "testDesign",
+    "traceability",
+    "approval",
+    "commands",
+    "testManagementSync"
+  ],
+  "properties": {
+    "version": { "type": "number", "enum": [1] },
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "repoMode", "qaTrack", "defaultLanguage", "interfaceLanguage"],
+      "properties": {
+        "name": { "type": "string", "pattern": "^.+$" },
+        "repoMode": { "type": "string" },
+        "qaTrack": { "type": "string", "enum": ["quick", "standard", "enterprise"] },
+        "defaultLanguage": { "type": "string", "enum": ["en", "es"] },
+        "interfaceLanguage": { "type": "string", "enum": ["en", "es"] }
+      }
+    },
+    "tools": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["testManagement", "issueTracker", "documentation"],
+      "properties": {
+        "testManagement": { "type": "string" },
+        "issueTracker": { "type": "string" },
+        "documentation": { "type": "string" }
+      }
+    },
+    "agents": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["specialistMode"],
+      "properties": {
+        "specialistMode": { "type": "string" }
+      }
+    },
+    "sources": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["main"],
+      "properties": {
+        "main": { "type": "string" },
+        "analysisPath": { "type": "string", "x-stability": "experimental" },
+        "jira": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["enabled", "projectKey", "storyIsSourceOfTruth", "readAttachments"],
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "projectKey": { "type": "string" },
+            "storyIsSourceOfTruth": { "type": "boolean" },
+            "readAttachments": { "type": "boolean" }
+          }
+        },
+        "confluence": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["enabled"],
+          "properties": {
+            "enabled": { "type": "boolean" }
+          }
+        },
+        "markdown": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["enabled", "paths"],
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "paths": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "knowledge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled", "sourcePath", "summaryPath", "decisionsPath"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "sourcePath": { "type": "string" },
+        "summaryPath": { "type": "string" },
+        "decisionsPath": { "type": "string" }
+      }
+    },
+    "requirements": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["requireOfficialRfId"],
+      "properties": {
+        "requireOfficialRfId": { "type": "boolean" },
+        "inferredAcceptanceCriteria": { "type": "string", "enum": ["forbid", "require-approval", "allow"] },
+        "allowInferredAcceptanceCriteria": { "type": "boolean", "x-stability": "deprecated" },
+        "requireApprovalForInferredCriteria": { "type": "boolean", "x-stability": "deprecated" }
+      }
+    },
+    "gherkin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "language",
+        "oneScenarioPerFile",
+        "requireAcceptanceCriteria",
+        "manualTestsNeedFeatureFile",
+        "featurePath",
+        "tags"
+      ],
+      "properties": {
+        "language": { "type": "string", "enum": ["en", "es"] },
+        "oneScenarioPerFile": { "type": "boolean" },
+        "requireAcceptanceCriteria": { "type": "boolean" },
+        "manualTestsNeedFeatureFile": { "type": "boolean" },
+        "featurePath": { "type": "string" },
+        "tags": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["required"],
+          "properties": {
+            "required": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "testrail": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enabled",
+        "projectName",
+        "allowCreateSections",
+        "allowCreateCases",
+        "allowUpdateCases",
+        "allowDeleteCases",
+        "mappingFile"
+      ],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "projectName": { "type": "string" },
+        "allowCreateSections": { "type": "boolean" },
+        "allowCreateCases": { "type": "boolean" },
+        "allowUpdateCases": { "type": "string" },
+        "allowDeleteCases": { "type": "string" },
+        "mappingFile": { "type": "string" }
+      }
+    },
+    "automation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ui", "api", "strategy"],
+      "properties": {
+        "ui": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["framework"],
+          "properties": {
+            "framework": { "type": "string" },
+            "specsPath": { "type": "string" },
+            "pageObjectsPath": { "type": "string" }
+          }
+        },
+        "api": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["framework"],
+          "properties": {
+            "framework": { "type": "string" },
+            "specsPath": { "type": "string" }
+          }
+        },
+        "mobile": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["framework"],
+          "properties": {
+            "framework": { "type": "string" },
+            "flowsPath": { "type": "string" },
+            "appId": { "type": "string" }
+          }
+        },
+        "karate": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["configPath", "mocksPath", "performancePath"],
+          "properties": {
+            "configPath": { "type": "string" },
+            "mocksPath": { "type": "string" },
+            "performancePath": { "type": "string" },
+            "featuresRoots": {
+              "type": "array",
+              "items": { "type": "string" },
+              "x-stability": "experimental"
+            }
+          }
+        },
+        "healing": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["enabled"],
+          "properties": {
+            "enabled": { "type": "boolean" }
+          }
+        },
+        "strategy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "automateAllTechnicallyPossible",
+            "requireProposalBeforeImplementation",
+            "allowModifyExistingTests"
+          ],
+          "properties": {
+            "automateAllTechnicallyPossible": { "type": "boolean" },
+            "requireProposalBeforeImplementation": { "type": "boolean" },
+            "allowModifyExistingTests": { "type": "string" }
+          }
+        }
+      }
+    },
+    "testDesign": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["systemPath", "proposalPath"],
+      "properties": {
+        "systemPath": { "type": "string" },
+        "proposalPath": { "type": "string" },
+        "coverage": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "mode",
+            "requirePositive",
+            "requireNegative",
+            "requireAlternative",
+            "requireBoundaryWhenApplicable",
+            "requireAccessibilityWhenApplicable",
+            "requirePerformanceWhenApplicable",
+            "requireSecurityReview",
+            "requireTechniqueTraceability"
+          ],
+          "x-stability": "experimental",
+          "properties": {
+            "mode": { "type": "string", "enum": ["off", "advisory", "strict"] },
+            "requirePositive": { "type": "boolean" },
+            "requireNegative": { "type": "boolean" },
+            "requireAlternative": { "type": "boolean" },
+            "requireBoundaryWhenApplicable": { "type": "boolean" },
+            "requireAccessibilityWhenApplicable": { "type": "boolean" },
+            "requirePerformanceWhenApplicable": { "type": "boolean" },
+            "requireSecurityReview": { "type": "boolean" },
+            "requireTechniqueTraceability": { "type": "boolean" }
+          }
+        },
+        "quality": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["mode", "reportPath", "minDimensionsPassed"],
+          "x-stability": "experimental",
+          "properties": {
+            "mode": { "type": "string", "enum": ["off", "advisory", "gate"] },
+            "reportPath": { "type": "string" },
+            "minDimensionsPassed": { "type": "integer", "minimum": 0, "maximum": 7 }
+          }
+        }
+      }
+    },
+    "traceability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["matrixPath"],
+      "properties": {
+        "matrixPath": { "type": "string" }
+      }
+    },
+    "release": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["gatePath"],
+      "properties": {
+        "gatePath": { "type": "string" }
+      }
+    },
+    "approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "beforeExternalWrite",
+        "beforeExistingFileModification",
+        "beforeTestRailSync",
+        "beforeJiraTaskCreation",
+        "beforePullRequest"
+      ],
+      "properties": {
+        "beforeExternalWrite": { "type": "boolean" },
+        "beforeExistingFileModification": { "type": "boolean" },
+        "beforeTestRailSync": { "type": "boolean" },
+        "beforeJiraTaskCreation": { "type": "boolean" },
+        "beforePullRequest": { "type": "boolean" }
+      }
+    },
+    "commands": {
+      "type": "object",
+      "additionalProperties": { "type": "string" },
+      "required": ["testQA"],
+      "properties": {
+        "lint": { "type": "string" },
+        "testApi": { "type": "string" },
+        "testE2E": { "type": "string" },
+        "testQA": { "type": "string" },
+        "testKarate": { "type": "string" },
+        "testMobile": { "type": "string" }
+      }
+    },
+    "testManagementSync": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "diffPath", "applyLogPath", "rollbackPath", "remoteSnapshotPath"],
+      "properties": {
+        "mode": { "type": "string", "enum": ["proposal-only", "governed"] },
+        "diffPath": { "type": "string" },
+        "applyLogPath": { "type": "string" },
+        "rollbackPath": { "type": "string" },
+        "remoteSnapshotPath": { "type": "string" }
+      }
+    },
+    "execution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["resultsPaths", "quarantine"],
+      "x-stability": "experimental",
+      "properties": {
+        "resultsPaths": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "evalResultsPaths": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "quarantine": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["mappingField"],
+          "properties": {
+            "mappingField": { "type": "string" }
+          }
+        }
+      }
+    },
+    "validators": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-stability": "experimental",
+      "properties": {
+        "custom": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "script", "phases"],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]{2,40}$"
+              },
+              "script": { "type": "string" },
+              "phases": {
+                "type": "array",
+                "items": { "type": "string" },
+                "minItems": 1
+              },
+              "blocking": { "type": "boolean" }
+            }
+          }
+        }
+      }
+    },
+    "aiTesting": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-stability": "experimental",
+      "required": ["enabled"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "requiredTechniques": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "optionalTechniques": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    }
+  }
+}

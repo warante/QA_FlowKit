@@ -47,6 +47,9 @@ async function main() {
   const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-flowkit-smoke-'));
   let unsafeRoot = null;
   let defaultTarget = null;
+  let detectedClaudeTarget = null;
+  let explicitOpenCodeTarget = null;
+  let noAdaptersTarget = null;
   let geminiTarget = null;
   let allAdaptersTarget = null;
   let qaContextTarget = null;
@@ -114,13 +117,7 @@ async function main() {
     defaultTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-flowkit-default-'));
     await copyFramework(defaultTarget);
     run(defaultTarget, ['.qa-ai/scripts/init.mjs']);
-    const expectedDefaultPaths = [
-      '.opencode/README.md',
-      '.opencode/commands/qa-init.md',
-      'qa-ai.config.yaml',
-      'qa-ai-output',
-      'features'
-    ];
+    const expectedDefaultPaths = ['AGENTS.md', 'qa-ai.config.yaml', 'qa-ai-output', 'features'];
     for (const relPath of expectedDefaultPaths) {
       try {
         await fs.access(path.join(defaultTarget, relPath));
@@ -131,6 +128,7 @@ async function main() {
     const unexpectedDefaultPaths = [
       '.claude',
       '.codex',
+      '.opencode',
       'qa-ai-output/requirement-analysis.md',
       'qa-ai-output/test-management-mapping.json'
     ];
@@ -144,12 +142,73 @@ async function main() {
     }
     run(defaultTarget, ['.qa-ai/scripts/doctor.mjs']);
 
+    detectedClaudeTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-flowkit-detected-claude-'));
+    await copyFramework(detectedClaudeTarget);
+    await fs.mkdir(path.join(detectedClaudeTarget, '.claude'), { recursive: true });
+    const detectedClaude = run(detectedClaudeTarget, ['.qa-ai/scripts/init.mjs', '--preset', 'manual-only']);
+    if (!detectedClaude.stdout.includes('Selected adapters: generic, claude')) {
+      throw new Error(`Detected adapter list was not printed as expected:\n${detectedClaude.stdout}`);
+    }
+    for (const relPath of ['AGENTS.md', '.claude/commands/qa-init.md']) {
+      try {
+        await fs.access(path.join(detectedClaudeTarget, relPath));
+      } catch {
+        throw new Error(`Detected Claude init did not create expected path: ${relPath}`);
+      }
+    }
+
+    const settingsPath = path.join(detectedClaudeTarget, '.claude/settings.json');
+    try {
+      await fs.access(settingsPath);
+    } catch {
+      throw new Error('Detected Claude init did not create .claude/settings.json');
+    }
+    const settingsContent1 = await fs.readFile(settingsPath, 'utf8');
+    const settingsObj = JSON.parse(settingsContent1);
+    if (!settingsObj.hooks || !settingsObj.hooks.PostToolUse || !settingsObj.hooks.Stop) {
+      throw new Error('.claude/settings.json does not contain hooks section or expected keys');
+    }
+
+    // Re-run init (should be idempotent)
+    run(detectedClaudeTarget, ['.qa-ai/scripts/init.mjs', '--preset', 'manual-only']);
+    const settingsContent2 = await fs.readFile(settingsPath, 'utf8');
+    if (settingsContent1 !== settingsContent2) {
+      throw new Error('.claude/settings.json changed on second init (not idempotent)');
+    }
+
+    run(detectedClaudeTarget, ['.qa-ai/scripts/doctor.mjs']);
+
+    explicitOpenCodeTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-flowkit-explicit-opencode-'));
+    await copyFramework(explicitOpenCodeTarget);
+    run(explicitOpenCodeTarget, ['.qa-ai/scripts/init.mjs', '--preset', 'manual-only', '--adapters', 'opencode']);
+    await fs.access(path.join(explicitOpenCodeTarget, '.opencode', 'commands', 'qa-init.md'));
+    try {
+      await fs.access(path.join(explicitOpenCodeTarget, 'AGENTS.md'));
+      throw new Error('Explicit OpenCode init unexpectedly generated AGENTS.md');
+    } catch (error) {
+      if (error.code !== 'ENOENT') throw error;
+    }
+
+    noAdaptersTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-flowkit-no-adapters-'));
+    await copyFramework(noAdaptersTarget);
+    run(noAdaptersTarget, ['.qa-ai/scripts/init.mjs', '--preset', 'manual-only', '--no-adapters']);
+    for (const relPath of ['AGENTS.md', '.opencode', '.claude']) {
+      try {
+        await fs.access(path.join(noAdaptersTarget, relPath));
+        throw new Error(`--no-adapters unexpectedly generated ${relPath}`);
+      } catch (error) {
+        if (error.code !== 'ENOENT') throw error;
+      }
+    }
+
     mobileTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-flowkit-mobile-'));
     await copyFramework(mobileTarget);
     run(mobileTarget, [
       '.qa-ai/scripts/init.mjs',
       '--preset',
       'maestro-karate-mobile',
+      '--set',
+      'automation.mobile.appId=com.example.qaflowkit',
       '--no-adapters',
       '--skip-doctor'
     ]);
@@ -171,13 +230,19 @@ async function main() {
     geminiTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-flowkit-gemini-'));
     await copyFramework(geminiTarget);
     run(geminiTarget, ['.qa-ai/scripts/init.mjs', '--adapters', 'gemini']);
-    const expectedGeminiPaths = ['AGENTS.md', 'GEMINI.md'];
+    const expectedGeminiPaths = ['GEMINI.md'];
     for (const relPath of expectedGeminiPaths) {
       try {
         await fs.access(path.join(geminiTarget, relPath));
       } catch {
         throw new Error(`Gemini adapter init did not create expected path: ${relPath}`);
       }
+    }
+    try {
+      await fs.access(path.join(geminiTarget, 'AGENTS.md'));
+      throw new Error('Explicit Gemini init unexpectedly generated AGENTS.md');
+    } catch (error) {
+      if (error.code !== 'ENOENT') throw error;
     }
     await assertFileContains(geminiTarget, 'GEMINI.md', 'ask_user');
 
@@ -350,8 +415,8 @@ async function main() {
       'utf8'
     );
     await fs.writeFile(
-      path.join(validatorTarget, 'qa-ai-output', 'testrail-coverage-analysis.md'),
-      '# TestRail Coverage Analysis\n\nRF-101 coverage.\n',
+      path.join(validatorTarget, 'qa-ai-output', 'test-management-coverage-analysis.md'),
+      '# Test Management Coverage Analysis\n\nRF-101 coverage.\n',
       'utf8'
     );
     await fs.writeFile(
@@ -360,9 +425,9 @@ async function main() {
       'utf8'
     );
     await fs.writeFile(
-      path.join(validatorTarget, 'qa-ai-output', 'testrail-sync-plan.md'),
+      path.join(validatorTarget, 'qa-ai-output', 'test-management-sync-plan.md'),
       [
-        '# TestRail Sync Plan',
+        '# Test Management Sync Plan',
         '',
         'Approval is required before any external write.',
         '',
@@ -425,9 +490,9 @@ async function main() {
     run(validatorTarget, ['.qa-ai/scripts/validate-traceability.mjs'], { expectFailure: true });
     run(validatorTarget, ['.qa-ai/scripts/validate-sync-plan.mjs']);
     await fs.writeFile(
-      path.join(validatorTarget, 'qa-ai-output', 'testrail-sync-plan.md'),
+      path.join(validatorTarget, 'qa-ai-output', 'test-management-sync-plan.md'),
       [
-        '# TestRail Sync Plan',
+        '# Test Management Sync Plan',
         '',
         'Approval is required before any external write.',
         '',
@@ -441,9 +506,9 @@ async function main() {
     );
     run(validatorTarget, ['.qa-ai/scripts/validate-sync-plan.mjs'], { expectFailure: true });
     await fs.writeFile(
-      path.join(validatorTarget, 'qa-ai-output', 'testrail-sync-plan.md'),
+      path.join(validatorTarget, 'qa-ai-output', 'test-management-sync-plan.md'),
       [
-        '# TestRail Sync Plan',
+        '# Test Management Sync Plan',
         '',
         'Approval is required before any external write.',
         '',
@@ -519,6 +584,9 @@ async function main() {
     await fs.rm(tempRoot, { recursive: true, force: true });
     if (unsafeRoot) await fs.rm(unsafeRoot, { recursive: true, force: true });
     if (defaultTarget) await fs.rm(defaultTarget, { recursive: true, force: true });
+    if (detectedClaudeTarget) await fs.rm(detectedClaudeTarget, { recursive: true, force: true });
+    if (explicitOpenCodeTarget) await fs.rm(explicitOpenCodeTarget, { recursive: true, force: true });
+    if (noAdaptersTarget) await fs.rm(noAdaptersTarget, { recursive: true, force: true });
     if (geminiTarget) await fs.rm(geminiTarget, { recursive: true, force: true });
     if (allAdaptersTarget) await fs.rm(allAdaptersTarget, { recursive: true, force: true });
     if (qaContextTarget) await fs.rm(qaContextTarget, { recursive: true, force: true });

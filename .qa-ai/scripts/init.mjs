@@ -8,10 +8,14 @@ import {
   isKarateFramework
 } from './lib/automation-framework.mjs';
 import { activeSpecialistsContent, configuredDirs, isConfiguredFramework, slug } from './lib/project-config.mjs';
+import { FEATURE_SUBFOLDERS } from './lib/feature-layout.mjs';
+import { defaultInitAdapters } from './lib/detect-adapters.mjs';
+import { validateConfigContent } from './lib/config-schema.mjs';
 import {
   commaList,
   ensureDir,
   getConfigValue,
+  findChangeMeKeys,
   loadQaAiConfig,
   manifestEntry,
   manifestPath,
@@ -32,6 +36,8 @@ const args = parseArgs(process.argv);
 const force = Boolean(args.force);
 const withDocTemplates = Boolean(args['with-doc-templates'] || args.withDocTemplates);
 const withTestManagementMapping = Boolean(args['with-test-management-mapping'] || args.withTestManagementMapping);
+const withFeatureFolders = !(args['no-feature-folders'] || args.noFeatureFolders);
+const withCi = args['with-ci'] || args.withCi;
 const presetName = args.preset || 'playwright-full';
 const withKarateConfig = Boolean(args['with-karate-config'] || args.withKarateConfig || presetName === 'karate-full');
 const interfaceLanguage = normalizeLanguage(
@@ -59,6 +65,8 @@ function printHelp() {
 
 Options:
   --preset <name>          Base template from .qa-ai/presets (default: playwright-full)
+  --project-name <name>    Project name for qa-ai.config.yaml (default: package.json name or folder name)
+  --test-management-project <name> Test management project name (default: project name when enabled)
   --interface-language <en|es> User-facing workflow language (default: en)
   --gherkin-language <en|es>   Gherkin feature language (default: en)
   --requirements-source <name> Primary requirement source, for example markdown, jira, confluence
@@ -75,9 +83,10 @@ Options:
   --mobile-flows-path <path> Mobile automation flows directory
   --specialist-mode <auto|off|required> Specialist agent activation mode (default from base template)
   --set <key=value>        Repeatable scalar config override, for example automation.ui.framework=cypress
-  --adapters <list>        Comma-separated adapters to generate, or "all" (default: opencode)
+  --adapters <list>        Comma-separated adapters to generate, or "all" (default: detected hosts plus generic)
   --adapter <name>         Repeatable single adapter name
   --no-adapters            Skip adapter generation
+  --no-feature-folders     Skip canonical feature subfolder and .gitkeep creation
   --with-doc-templates     Generate starter QA docs under qa-ai-output/
   --with-test-management-mapping Generate the configured test management mapping file
   --with-karate-config         Create tests/karate/karate-config.js from template when Karate is used
@@ -108,6 +117,21 @@ function normalizeLanguage(value, label = 'language') {
 function scalarOverrideValue(value) {
   if (value === undefined || value === null || value === false) return null;
   return yamlScalar(String(value));
+}
+
+async function derivedProjectName() {
+  const explicit = args['project-name'] || args.projectName;
+  if (explicit) return String(explicit).trim();
+  const packageJsonPath = path.join(cwd, 'package.json');
+  if (await pathExists(packageJsonPath)) {
+    try {
+      const packageJson = JSON.parse(await readText(packageJsonPath));
+      if (typeof packageJson.name === 'string' && packageJson.name.trim()) return packageJson.name.trim();
+    } catch {
+      // Invalid package.json should not block init; fall back to the folder name.
+    }
+  }
+  return path.basename(cwd);
 }
 
 function escapeRegExp(value) {
@@ -176,7 +200,7 @@ function setSimpleYamlScalar(content, keyPath, value) {
   return lines.join('\n');
 }
 
-function configOverrides(currentConfig = {}) {
+function configOverrides(currentConfig = {}, projectName) {
   const uiFramework = args['ui-framework'] || args.uiFramework;
   const apiFramework = args['api-framework'] || args.apiFramework;
   const mobileFramework = args['mobile-framework'] || args.mobileFramework;
@@ -192,6 +216,7 @@ function configOverrides(currentConfig = {}) {
   const currentApiFramework = slug(getConfigValue(currentConfig, 'automation.api.framework', ''));
   const currentMobileFramework = slug(getConfigValue(currentConfig, 'automation.mobile.framework', ''));
   const overrides = [
+    ['project.name', projectName],
     ['project.defaultLanguage', interfaceLanguage],
     ['project.interfaceLanguage', interfaceLanguage],
     ['project.qaTrack', args['qa-track'] || args.qaTrack],
@@ -273,6 +298,21 @@ function configOverrides(currentConfig = {}) {
     if (!isTestrail) overrides.push(['testrail.mappingFile', '']);
   }
 
+  const effectiveTestManagementTool = testManagementTool || getConfigValue(currentConfig, 'tools.testManagement', '');
+  const testrailEnabled = isEnabled(getConfigValue(currentConfig, 'testrail.enabled', false));
+  const hasTestManagement =
+    isConfiguredTool(effectiveTestManagementTool) ||
+    testrailEnabled ||
+    String(effectiveTestManagementTool || '')
+      .trim()
+      .toLowerCase() === 'testrail';
+  if (hasTestManagement) {
+    overrides.push([
+      'testrail.projectName',
+      args['test-management-project'] || args.testManagementProject || projectName
+    ]);
+  }
+
   for (const item of commaList(args.set)) {
     const equalsIndex = item.indexOf('=');
     if (equalsIndex <= 0) {
@@ -285,38 +325,163 @@ function configOverrides(currentConfig = {}) {
   return overrides.map(([key, value]) => [key, scalarOverrideValue(value)]).filter(([, value]) => value !== null);
 }
 
-function personalizeConfig(content) {
-  let updated = content.replace(/^(\s*name:\s*)CHANGE_ME\s*$/m, `$1${yamlScalar(path.basename(cwd))}`);
+function isEnabled(value) {
+  return (
+    value === true ||
+    String(value || '')
+      .trim()
+      .toLowerCase() === 'true'
+  );
+}
+
+function isConfiguredTool(value) {
+  const normalized = String(value || '')
+    .trim()
+    .toLowerCase();
+  return Boolean(normalized) && !['none', 'undecided', 'n/a', 'na'].includes(normalized);
+}
+
+function personalizeConfig(content, projectName) {
+  let updated = content;
   const currentConfig = parseSimpleYaml(updated);
-  for (const [key, value] of configOverrides(currentConfig)) {
+  for (const [key, value] of configOverrides(currentConfig, projectName)) {
     updated = setSimpleYamlScalar(updated, key, value);
   }
   return updated;
 }
 
-function selectedAdapters() {
-  if (args['no-adapters']) return [];
-  const requested = [...commaList(args.adapters), ...commaList(args.adapter)].map((name) => name.toLowerCase());
-  if (requested.length === 0) return ['opencode'];
-  if (requested.includes('all')) return ['all'];
-  return requested.includes('generic') ? requested : ['generic', ...requested];
+function assertNoChangeMe(content) {
+  const keys = findChangeMeKeys(content);
+  if (keys.length === 0) return;
+  console.error('Generated qa-ai.config.yaml still contains CHANGE_ME placeholders:');
+  for (const key of keys) console.error(`- ${key}`);
+  console.error('Pass explicit init flags or --set key=value overrides for these keys.');
+  process.exit(1);
 }
 
-function generatedDocs() {
-  return [
+async function assertValidConfig(content) {
+  const result = await validateConfigContent(content, cwd);
+  if (result.ok) return;
+  console.error('Generated qa-ai.config.yaml failed schema validation:');
+  for (const error of result.errors) console.error(`- ${error}`);
+  process.exit(1);
+}
+
+async function selectedAdapters() {
+  if (args['no-adapters']) return [];
+  const requested = [...commaList(args.adapters), ...commaList(args.adapter)].map((name) => name.toLowerCase());
+  if (requested.length === 0) return defaultInitAdapters(cwd);
+  if (requested.includes('all')) return ['all'];
+  return [...new Set(requested)];
+}
+
+async function maybePrintClaudePluginHint() {
+  const claudeDir = path.join(cwd, '.claude');
+  if (!(await pathExists(claudeDir))) return;
+  const localMarketplace = path.join(cwd, '.claude-plugin', 'marketplace.json');
+  if (await pathExists(localMarketplace)) return;
+  console.log(
+    '\nClaude Code plugin tip: install the QA FlowKit plugin with `claude marketplace add warante/QA_FlowKit` for namespaced skills and hooks.'
+  );
+}
+
+function generatedDocs(config) {
+  const docs = [
     ['templates/requirement-analysis.template.md', 'qa-ai-output/requirement-analysis.md'],
     ['templates/source-analysis.template.md', 'qa-ai-output/source-analysis.md'],
-    ['templates/testrail-coverage-analysis.template.md', 'qa-ai-output/testrail-coverage-analysis.md'],
+    ['templates/test-management-coverage-analysis.template.md', 'qa-ai-output/test-management-coverage-analysis.md'],
     ['templates/test-design-system.template.md', 'qa-ai-output/test-design-system.md'],
     ['templates/test-design-proposal.template.md', 'qa-ai-output/test-design-proposal.md'],
     ['templates/automation-feasibility-report.template.md', 'qa-ai-output/automation-feasibility-report.md'],
     ['templates/automation-implementation-plan.template.md', 'qa-ai-output/automation-implementation-plan.md'],
     ['templates/traceability-matrix.template.md', 'qa-ai-output/traceability-matrix.md'],
-    ['templates/testrail-sync-plan.template.md', 'qa-ai-output/testrail-sync-plan.md'],
+    ['templates/test-management-sync-plan.template.md', 'qa-ai-output/test-management-sync-plan.md'],
     ['templates/jira-automation-task.template.md', 'qa-ai-output/jira-automation-task.md'],
     ['templates/pr-template.md', 'qa-ai-output/pr-summary.md'],
-    ['templates/release-gate.template.yaml', 'qa-ai-output/release-gate.yaml']
+    ['templates/release-gate.template.yaml', 'qa-ai-output/release-gate.yaml'],
+    ['templates/qa-custom/validate-naming.example.mjs', 'qa-custom/validate-naming.example.mjs']
   ];
+
+  if (getConfigValue(config, 'testManagementSync.mode', 'proposal-only') === 'governed') {
+    const diffPath = getConfigValue(config, 'testManagementSync.diffPath', 'qa-ai-output/test-management-sync-diff.md');
+    const snapshotPath = getConfigValue(
+      config,
+      'testManagementSync.remoteSnapshotPath',
+      'qa-ai-output/test-management-remote-snapshot.md'
+    );
+    const rollbackPath = getConfigValue(
+      config,
+      'testManagementSync.rollbackPath',
+      'qa-ai-output/test-management-rollback-plan.md'
+    );
+    const applyLogPath = getConfigValue(
+      config,
+      'testManagementSync.applyLogPath',
+      'qa-ai-output/test-management-apply-log.md'
+    );
+    docs.push(
+      ['templates/test-management-sync-diff.template.md', diffPath],
+      ['templates/test-management-remote-snapshot.template.md', snapshotPath],
+      ['templates/test-management-rollback-plan.template.md', rollbackPath],
+      ['templates/test-management-apply-log.template.md', applyLogPath]
+    );
+  }
+
+  if (getConfigValue(config, 'sources.external.enabled', false)) {
+    const reqImportPath = getConfigValue(
+      config,
+      'sources.external.requirementsImportPath',
+      'qa-ai-output/imported-requirements.md'
+    );
+    const casesImportPath = getConfigValue(
+      config,
+      'sources.external.casesImportPath',
+      'qa-ai-output/imported-cases.md'
+    );
+    docs.push(
+      ['templates/imported-requirements.template.md', reqImportPath],
+      ['templates/imported-cases.template.md', casesImportPath]
+    );
+  }
+
+  return docs;
+}
+
+async function createFeatureFolders(config, manifestEntries, dirResults, writes) {
+  if (!withFeatureFolders) {
+    console.log('\nSkipping feature category folders. Use init without --no-feature-folders to create them.');
+    return;
+  }
+
+  const featureRoot = getConfigValue(config, 'gherkin.featurePath', 'features');
+  for (const subfolder of FEATURE_SUBFOLDERS) {
+    const folder = resolveRepoPath(cwd, path.join(featureRoot, subfolder), {
+      label: `feature category folder "${subfolder}"`
+    });
+    const dirResult = await ensureDir(folder);
+    dirResults.push(dirResult);
+    if (dirResult.created) {
+      manifestEntries.push(
+        await manifestEntry(cwd, dirResult.path, {
+          type: 'dir',
+          category: 'generated',
+          source: 'init'
+        })
+      );
+    }
+
+    const keepResult = await writeFileSafe(path.join(folder, '.gitkeep'), '', { force: false });
+    writes.push(keepResult);
+    if (keepResult.written) {
+      manifestEntries.push(
+        await manifestEntry(cwd, keepResult.path, {
+          type: 'file',
+          category: 'generated',
+          source: 'init'
+        })
+      );
+    }
+  }
 }
 
 const spanishTemplateHeadings = new Map([
@@ -338,7 +503,7 @@ const spanishTemplateHeadings = new Map([
   ['## Ambiguities', '## Ambiguedades'],
   ['## Out of scope', '## Fuera de alcance'],
   ['## QA impact', '## Impacto en QA'],
-  ['# TestRail Coverage Analysis', '# Analisis de cobertura de gestion de pruebas'],
+  ['# Test Management Coverage Analysis', '# Analisis de cobertura de gestion de pruebas'],
   ['# System Test Design', '# Diseno de pruebas de sistema'],
   ['## Architecture alignment', '## Alineacion con arquitectura'],
   ['## Testability risks', '## Riesgos de testabilidad'],
@@ -360,7 +525,7 @@ const spanishTemplateHeadings = new Map([
   ['# Automation Feasibility Report', '# Informe de viabilidad de automatizacion'],
   ['# Automation Implementation Plan', '# Plan de implementacion de automatizacion'],
   ['# Traceability Matrix', '# Matriz de trazabilidad'],
-  ['# TestRail Sync Plan', '# Plan de sincronizacion de gestion de pruebas'],
+  ['# Test Management Sync Plan', '# Plan de sincronizacion de gestion de pruebas'],
   ['# Jira Automation Task Draft', '# Borrador de tarea de automatizacion'],
   ['# PR Summary', '# Resumen de PR'],
   ['## Summary', '## Resumen'],
@@ -422,7 +587,11 @@ async function main() {
   console.log(`Using Gherkin language: ${gherkinLanguage}`);
 
   const configPath = path.join(cwd, 'qa-ai.config.yaml');
-  const configContent = personalizeConfig(await readText(presetPath));
+  const projectName = await derivedProjectName();
+  console.log(`Using project name: ${projectName}`);
+  const configContent = personalizeConfig(await readText(presetPath), projectName);
+  assertNoChangeMe(configContent);
+  await assertValidConfig(configContent);
   const writes = [];
   const manifestEntries = [];
   const configWrite = await writeFileSafe(configPath, configContent, { force });
@@ -457,8 +626,10 @@ async function main() {
     }
   }
 
+  await createFeatureFolders(config, manifestEntries, dirResults, writes);
+
   if (withDocTemplates) {
-    for (const [src, dest] of generatedDocs()) {
+    for (const [src, dest] of generatedDocs(config)) {
       const source = path.join(qaAiDir, src);
       if (await pathExists(source)) {
         const outputLanguage = getConfigValue(config, 'project.interfaceLanguage', interfaceLanguage);
@@ -543,9 +714,57 @@ async function main() {
     }
   }
 
-  const adapters = selectedAdapters();
+  if (withCi === 'github') {
+    const packageVersion = args['package-version'] || 'beta';
+    let majorVersion = 'main';
+    if (packageVersion !== 'beta') {
+      const match = packageVersion.match(/^v?(\d+)/);
+      if (match) {
+        majorVersion = `v${match[1]}`;
+      }
+    }
+    const ciContent = [
+      'name: QA FlowKit Quality Gate',
+      '',
+      'on:',
+      '  pull_request:',
+      '    branches: [ main ]',
+      '',
+      'jobs:',
+      '  validate:',
+      '    name: Validate QA Quality Gate',
+      '    runs-on: ubuntu-latest',
+      '    steps:',
+      '      - name: Checkout Code',
+      '        uses: actions/checkout@v4',
+      '',
+      '      - name: QA FlowKit Validation',
+      `        uses: warante/QA_FlowKit/actions/validate@${majorVersion}`,
+      '        with:',
+      `          version: '${packageVersion}'`,
+      ''
+    ].join('\n');
+
+    const workflowPath = resolveRepoPath(cwd, '.github/workflows/qa-flowkit.yml', {
+      label: 'GitHub Actions workflow file'
+    });
+    const result = await writeFileSafe(workflowPath, ciContent, { force });
+    writes.push(result);
+    if (result.written) {
+      manifestEntries.push(
+        await manifestEntry(cwd, result.path, {
+          type: 'file',
+          category: 'generated',
+          source: 'init'
+        })
+      );
+    }
+  }
+
+  const adapters = await selectedAdapters();
   if (adapters.length > 0) {
     console.log('\nSyncing agent adapters...');
+    console.log(`Selected adapters: ${adapters.join(', ')}`);
     const { spawn } = await import('node:child_process');
     const syncArgs = [path.join(qaAiDir, 'scripts', 'sync-agent-adapters.mjs')];
     if (force) syncArgs.push('--force');
@@ -570,6 +789,7 @@ async function main() {
     console.log(`${result.written ? 'created' : 'skipped'} ${relativeTo(cwd, result.path)}`);
   }
   if (manifest) console.log(`updated ${relativeTo(cwd, manifestPath(cwd))}`);
+  await maybePrintClaudePluginHint();
   console.log('\nNext: node .qa-ai/scripts/doctor.mjs');
 }
 

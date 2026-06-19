@@ -15,6 +15,10 @@ Apply during requirement intake, normalization, test design, coverage analysis a
 - Store normalized output under `qa-ai-output/` (default `qa-ai-output/normalized-requirements.md`).
 - Separate functional requirements from non-functional items when the source material mixes them.
 - Flag ambiguous or missing acceptance criteria before test design.
+- Follow `requirements.inferredAcceptanceCriteria`:
+  - `forbid`: do not propose inferred acceptance criteria; ask for source clarification instead.
+  - `require-approval`: keep inferred acceptance criteria separated and pending approval before use.
+  - `allow`: inferred acceptance criteria may be included when clearly labeled as inferred and traceable to evidence.
 
 ## Traceability matrix
 

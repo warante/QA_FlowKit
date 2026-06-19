@@ -1,6 +1,7 @@
 ---
 description: Validate executable Karate feature files / Validar features ejecutables de Karate
 argument-hint: [optional validator flags]
+allowed-tools: [view_file, list_dir, grep_search, glob, run_command]
 ---
 
 Before any other action or user-facing text, read and follow `.qa-ai/workflows/command-interaction.md`.

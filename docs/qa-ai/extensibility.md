@@ -17,12 +17,31 @@ Specialists add prompts and checklists; they do not replace phase agents.
 3. Update `doctor.mjs` required rules list if the rule is mandatory for all targets.
 4. Add or extend a validator script when the rule must be machine-checked.
 
-## Add a validator
+## Add a built-in validator
 
 1. Implement under `.qa-ai/scripts/` using shared helpers in `.qa-ai/scripts/lib/`.
 2. Wire into `validate-target.mjs` when it belongs in the target gate.
 3. Add cases to `.qa-ai/scripts/test-validators.mjs`.
 4. Document flags in [troubleshooting.md](troubleshooting.md).
+
+## Add a target-repo custom validator
+
+1. Create a repo-local Node.js script, for example `qa-custom/validate-naming.example.mjs`.
+2. Make it support `--self-test --json` and normal `--json` execution.
+3. Declare it in `qa-ai.config.yaml`:
+
+```yaml
+validators:
+  custom:
+    - id: naming-check
+      script: qa-custom/validate-naming.example.mjs
+      phases:
+        - gherkin
+      blocking: false
+```
+
+`doctor` rejects absolute paths, paths outside the repository, duplicate ids, built-in id shadowing and unknown phases.
+`blocking: false` turns failures into harness warnings and `validate-target --json` entries with status `warning`.
 
 ## Add or change an agent adapter
 

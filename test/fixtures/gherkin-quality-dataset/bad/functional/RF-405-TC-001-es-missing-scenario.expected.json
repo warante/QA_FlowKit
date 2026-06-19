@@ -1,0 +1,10 @@
+{
+  "language": "es",
+  "rubricDimensions": ["atomicity"],
+  "structuralRules": [
+    {
+      "rule": "scenario-count",
+      "messageIncludes": "Expected exactly one Scenario, found 0."
+    }
+  ]
+}

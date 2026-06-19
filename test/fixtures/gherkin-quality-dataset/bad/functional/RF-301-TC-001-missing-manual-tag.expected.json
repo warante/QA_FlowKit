@@ -1,0 +1,10 @@
+{
+  "language": "en",
+  "rubricDimensions": ["observability"],
+  "structuralRules": [
+    {
+      "rule": "required-tag",
+      "messageIncludes": "Missing required tag value @manual:<value>"
+    }
+  ]
+}

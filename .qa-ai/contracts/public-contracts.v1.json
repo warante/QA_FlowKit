@@ -9,22 +9,28 @@
         "bootstrap",
         "config",
         "doctor",
+        "validate-config",
+        "validate-untrusted-content",
+        "validate-external-intake",
         "validate-target",
         "validate-features",
         "validate-karate-features",
         "validate-maestro-flows",
         "validate-traceability",
         "validate-sync-plan",
+        "validate-sync-diff",
+        "validate-sync-result",
         "validate-active-specialists",
         "validate-release-gate",
         "validate-test-design",
         "sync-adapters",
+        "export-report",
         "help",
         "clean",
         "version",
         "run"
       ],
-      "experimental": ["validate-test-coverage"],
+      "experimental": ["validate-test-coverage", "validate-quality-report", "metrics"],
       "deprecated": []
     },
     "runSubcommands": {
@@ -41,6 +47,10 @@
     "jsonOutputs": {
       "stable": [
         "help --json",
+        "validate-untrusted-content --json",
+        "validate-external-intake --json",
+        "validate-sync-diff --json",
+        "validate-sync-result --json",
         "run start --json",
         "run status --json",
         "run next --json",
@@ -50,7 +60,11 @@
         "run approve --json",
         "run resume --json"
       ],
-      "experimental": ["Exact optional fields inside phase packets and diagnostic objects."]
+      "experimental": [
+        "metrics --json",
+        "validate-quality-report --json",
+        "Exact optional fields inside phase packets and diagnostic objects."
+      ]
     }
   },
   "configuration": {
@@ -74,6 +88,13 @@
     "experimental": [
       "sources.analysisPath",
       "testDesign.coverage",
+      "testDesign.quality",
+      "validators",
+      "validators.custom",
+      "execution",
+      "execution.resultsPaths",
+      "execution.evalResultsPaths",
+      "execution.quarantine",
       "Additional optional keys introduced during beta with documented defaults."
     ],
     "deprecated": []
@@ -81,6 +102,7 @@
   "schemas": {
     "stable": [".qa-ai/contracts/workflow.v1.json schemaVersion 1"],
     "experimental": [
+      ".qa-ai/contracts/config.v1.schema.json draft 2020-12",
       ".qa-ai/state/runs/<run-id>/run.json schemaVersion 1",
       ".qa-ai/state/runs/<run-id>/events.jsonl event payload fields",
       ".qa-ai/state/init-manifest.json version 1"

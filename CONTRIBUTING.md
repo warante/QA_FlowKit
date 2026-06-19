@@ -48,6 +48,42 @@ The documentation checker is described in
 [documentation-consistency.md](docs/qa-ai/documentation-consistency.md). Exact current prerelease versions belong in
 package/release metadata, not evergreen README, SECURITY, ROADMAP or CONTRIBUTING text.
 
+## Coverage
+
+Validator and harness library coverage is measured with `c8` across:
+
+- `.qa-ai/scripts/test-validators.mjs`
+- `.qa-ai/scripts/test-harness.mjs`
+- `.qa-ai/scripts/test-cli-integration.mjs`
+
+Run the merged report locally with:
+
+```bash
+npm run coverage
+```
+
+Run the no-regression gate with:
+
+```bash
+npm run coverage:check
+```
+
+The initial baseline is 78.31% lines and 70.33% branches for `.qa-ai/scripts/lib/**/*.mjs`; the enforced thresholds
+are rounded down to 78% lines and 70% branches. PRs that reduce coverage below those thresholds should add focused
+tests or intentionally raise the quality bar when coverage improves. CI runs `coverage:check` on Ubuntu with Node.js 20.
+
+## Mutation testing
+
+To ensure unit test quality and avoid assertion gaps in our core validators under `.qa-ai/scripts/lib/`, we use StrykerJS.
+
+Run the mutation test suite locally with:
+
+```bash
+npm run mutation
+```
+
+Note that mutation testing is advisory, scoped to the pure validator library files, and is executed weekly via a non-blocking CI job (`.github/workflows/mutation.yml`). Developers are encouraged to check mutation results to identify untested edge cases.
+
 ## npm releases
 
 The package [`qa-flowkit`](https://www.npmjs.com/package/qa-flowkit) is published to npm via [release-please](.github/workflows/release-please.yml).

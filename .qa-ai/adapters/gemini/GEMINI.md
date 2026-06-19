@@ -42,3 +42,7 @@ Before making changes:
 ```text
 Read AGENTS.md, qa-ai.config.yaml, .qa-ai/workflows/command-interaction.md, .qa-ai/rules/README.md, all .qa-ai/rules/*.rules.md, .qa-ai/agents/README.md and .qa-ai/workflows/full-flow.md. If knowledge.enabled is true, read the configured QA knowledge artifacts first. Resolve the interface language before responding, use ask_user for closed choices, then follow the configured QA workflow, starting with a plan before editing files.
 ```
+
+## Self-Validation (Hookless Host)
+
+Gemini CLI does not support automatic settings-level hooks. You must manually run the appropriate validation scripts (e.g., `node .qa-ai/scripts/validate-features.mjs` or `node .qa-ai/scripts/validate-target.mjs`) after every file edit and before finishing your turn.

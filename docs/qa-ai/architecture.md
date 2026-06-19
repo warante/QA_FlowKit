@@ -36,7 +36,7 @@ tests/                          automation code when configured
 - `doctor.mjs` validates the framework folder, required scripts/rules/templates/agents/presets/adapters, generated target files, optional QA context configuration and configured paths. `qa-ai.config.yaml` is required in initialized target repositories and optional in the framework source repository.
 - `doctor.mjs --strict` is intended for initialized target repositories and CI. It requires `qa-ai.config.yaml`, configured workflow artifacts, configured mapping/traceability files, QA knowledge artifacts when enabled and framework config files for configured automation stacks. Optional adapters remain warnings unless explicitly generated and required by the team.
 - `clean.mjs` reads `.qa-ai/state/init-manifest.json`, previews cleanup by default, and removes only tracked generated files or empty directories when `--force` is passed.
-- `validate-features.mjs` parses configured `.feature` files for one Feature, one Scenario, acceptance criteria, required tag values, language directives, RF IDs and duplicate explicit test case IDs.
+- `validate-features.mjs` uses the structured Gherkin parser AST to validate configured `.feature` files for one Feature, one Scenario, acceptance criteria, required tag values, language directives, RF IDs and duplicate explicit test case IDs.
 - `validate-test-coverage.mjs` groups design features by RF and evaluates configured positive, negative, alternative,
   conditional and technique-traceability obligations against the per-RF proposal.
 - `validate-traceability.mjs` checks that feature RF/test identifiers are represented in the configured traceability matrix, validates the Markdown table shape and detects duplicate test case or feature-file rows.
@@ -119,7 +119,7 @@ See [Agent harness](agent-harness.md) and [Agent harness architecture](agent-har
 
 ## Safety model
 
-The Early Product release uses prompt rules, local validation scripts, smoke tests and GitHub CI. Future versions may add full parser dependencies, strict target-repo CI templates and MCP tools.
+The Early Product release uses prompt rules, local validation scripts, a built-in dependency-free Gherkin parser, smoke tests and GitHub CI. Future versions may add strict target-repo CI templates and MCP tools.
 
 Safety principles (detailed in `.qa-ai/rules/` — start at `.qa-ai/rules/README.md`):
 
@@ -151,3 +151,11 @@ Each entry stores:
 - SHA-256 hash for files.
 
 The manifest exists to make cleanup auditable. It intentionally records only paths created or overwritten by framework scripts. Existing files skipped by safe writes are not tracked as generated ownership.
+
+## Quality and validation
+
+The framework enforces quality through test suites, code coverage thresholds, and mutation testing:
+
+- **Unit and Integration Tests**: Under [test-validators.mjs](file:///c:/home/github/QA_FlowKit/.qa-ai/scripts/test-validators.mjs), [test-harness.mjs](file:///c:/home/github/QA_FlowKit/.qa-ai/scripts/test-harness.mjs), and [test-cli-integration.mjs](file:///c:/home/github/QA_FlowKit/.qa-ai/scripts/test-cli-integration.mjs).
+- **Code Coverage**: Enforced at a minimum of 78% lines and 70% branches via `c8`.
+- **Mutation Testing**: Advisory StrykerJS configuration running weekly to expose assertion gaps in pure validator libraries under `.qa-ai/scripts/lib/`. The initial baseline mutation score is **41.92%**.

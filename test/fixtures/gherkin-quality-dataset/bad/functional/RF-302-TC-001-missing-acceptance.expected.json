@@ -1,0 +1,10 @@
+{
+  "language": "en",
+  "rubricDimensions": ["requirement-fidelity"],
+  "structuralRules": [
+    {
+      "rule": "acceptance-criteria",
+      "messageIncludes": "Missing Acceptance Criteria."
+    }
+  ]
+}

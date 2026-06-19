@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { validateReleaseGateData } from './lib/release-gate.mjs';
+import { validateExecutionEvidence } from './validate-execution-evidence.mjs';
 import {
   getConfigValue,
   loadQaAiConfig,
@@ -8,7 +9,8 @@ import {
   parseSimpleYaml,
   pathExists,
   readText,
-  resolveRepoPath
+  resolveRepoPath,
+  toPosixPath
 } from './lib/utils.mjs';
 
 const cwd = process.cwd();
@@ -38,7 +40,7 @@ export async function validateReleaseGateFile(cwd, filePath, options = {}) {
 
   let data;
   try {
-    data = parseSimpleYaml(await readText(gatePath));
+    data = parseSimpleYaml(await readText(gatePath), filePath);
   } catch (error) {
     return { ok: false, errors: [`${filePath} is not valid YAML: ${error.message}`] };
   }
@@ -56,6 +58,45 @@ export async function validateReleaseGateFile(cwd, filePath, options = {}) {
     }
     if (!(await pathExists(resolveRepoPath(cwd, relPath, { label: 'evidence path' })))) {
       errors.push(`${filePath}: evidence_paths entry not found: ${relPath}`);
+    }
+  }
+
+  for (const relPath of result.evidenceExecution || []) {
+    if (!relPath || relPath.includes('..')) {
+      errors.push(`${filePath}: invalid evidence.execution entry "${relPath}".`);
+      continue;
+    }
+    if (!(await pathExists(resolveRepoPath(cwd, relPath, { label: 'evidence execution path' })))) {
+      errors.push(`${filePath}: evidence.execution entry not found: ${relPath}`);
+    }
+  }
+
+  for (const relPath of result.evidenceEvals || []) {
+    if (!relPath || relPath.includes('..')) {
+      errors.push(`${filePath}: invalid evidence.evals entry "${relPath}".`);
+      continue;
+    }
+    if (!(await pathExists(resolveRepoPath(cwd, relPath, { label: 'evidence eval path' })))) {
+      errors.push(`${filePath}: evidence.evals entry not found: ${relPath}`);
+    }
+  }
+
+  const configInfo = await loadQaAiConfig(cwd);
+  const track = getConfigValue(configInfo.data, 'project.qaTrack', 'standard');
+  const resultsPaths = getConfigValue(configInfo.data, 'execution.resultsPaths', []);
+  const evalResultsPaths = getConfigValue(configInfo.data, 'execution.evalResultsPaths', []);
+  const aiTestingEnabled = Boolean(getConfigValue(configInfo.data, 'aiTesting.enabled', false));
+
+  if (
+    track === 'enterprise' &&
+    result.decision === 'PASS' &&
+    (resultsPaths.length > 0 || evalResultsPaths.length > 0 || aiTestingEnabled)
+  ) {
+    const evidenceRes = await validateExecutionEvidence(cwd, {
+      allowMissing: Boolean(options.allowMissing)
+    });
+    if (!evidenceRes.ok) {
+      errors.push(...evidenceRes.errors.map((e) => `${filePath}: execution evidence check failed: ${e}`));
     }
   }
 
@@ -97,7 +138,9 @@ async function main() {
   console.log(`[PASS] ${gatePath} decision=${result.decision}`);
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+if (import.meta.url === `file:///${toPosixPath(process.argv[1])}`) {
+  main().catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
+}

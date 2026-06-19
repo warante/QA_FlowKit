@@ -31,3 +31,7 @@ When `knowledge.enabled` is true in `qa-ai.config.yaml`, review `knowledge.summa
 | `node .qa-ai/scripts/clean.mjs`             | Dry-run cleanup before removal suggestions   |
 
 Do not suggest external writes in the MVP. Keep TestRail, Jira, Confluence and GitHub write actions proposal-first.
+
+## Self-Validation (Hookless Host)
+
+Continue does not support automatic settings-level hooks. You must manually run the appropriate validation scripts (e.g., `node .qa-ai/scripts/validate-features.mjs` or `node .qa-ai/scripts/validate-target.mjs`) after every file edit and before finishing your turn.

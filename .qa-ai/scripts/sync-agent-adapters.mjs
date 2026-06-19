@@ -11,6 +11,7 @@ import {
   relativeTo,
   logHeader
 } from './lib/utils.mjs';
+import { mergeClaudeSettings } from './lib/claude-settings.mjs';
 
 const cwd = process.cwd();
 const args = parseArgs(process.argv);
@@ -106,6 +107,12 @@ async function main() {
             source: `adapter:${name}`
           })
         );
+      }
+    }
+    if (name === 'claude') {
+      const settingsEntry = await mergeClaudeSettings(cwd, force);
+      if (settingsEntry) {
+        manifestEntries.push(settingsEntry);
       }
     }
   }

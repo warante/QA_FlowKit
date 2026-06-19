@@ -8,6 +8,7 @@ Apply before any file change, external action or destructive operation.
 
 - Always present a detailed plan before modifying files.
 - Ask approval before external writes to configured tools (test management, issue trackers, CI/CD outside the repo, npm publish in consumer projects, etc.).
+  - Under governed sync mode, external writes to the test management system require explicit approval on the gate: `external-write:test-management`.
 - Ask approval before modifying existing tests or user-edited artifacts.
 - Ask the user when ambiguity exists and offer options.
 - Never overwrite existing files unless explicitly approved or `--force` is requested.

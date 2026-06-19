@@ -130,9 +130,22 @@ async function main() {
     });
 
     const cli = cliPath(cliRoot);
-    run(node, [cli, 'init', '--preset', 'maestro-karate-mobile', '--no-adapters', '--skip-doctor'], {
-      cwd: targetRoot
-    });
+    run(
+      node,
+      [
+        cli,
+        'init',
+        '--preset',
+        'maestro-karate-mobile',
+        '--set',
+        'automation.mobile.appId=com.example.qaflowkit',
+        '--no-adapters',
+        '--skip-doctor'
+      ],
+      {
+        cwd: targetRoot
+      }
+    );
     run(node, [cli, 'validate-target'], { cwd: targetRoot });
 
     if (runRuntime) {

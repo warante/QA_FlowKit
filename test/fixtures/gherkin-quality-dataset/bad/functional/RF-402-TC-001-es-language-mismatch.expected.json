@@ -1,0 +1,10 @@
+{
+  "language": "es",
+  "rubricDimensions": ["determinism"],
+  "structuralRules": [
+    {
+      "rule": "language-mismatch",
+      "messageIncludes": "Feature declares a Gherkin language that does not match configured language \"es\"."
+    }
+  ]
+}

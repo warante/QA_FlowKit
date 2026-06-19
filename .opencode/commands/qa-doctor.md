@@ -1,5 +1,7 @@
 ---
 description: Run QA FlowKit setup health checks / Ejecutar comprobaciones de QA FlowKit
+argument-hint: [optional doctor flags]
+allowed-tools: [view_file, list_dir, grep_search, glob, run_command]
 ---
 
 Before any other action or user-facing text, read and follow `.qa-ai/workflows/command-interaction.md`.

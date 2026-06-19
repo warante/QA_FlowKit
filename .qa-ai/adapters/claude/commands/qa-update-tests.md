@@ -1,6 +1,7 @@
 ---
 description: Review and update QA tests after RF changes / Revisar y actualizar pruebas tras cambios de RF
 argument-hint: [updated requirement source or RF ID]
+allowed-tools: [view_file, write_file, edit_file, list_dir, grep_search, glob, run_command]
 ---
 
 Before any other action or user-facing text, read and follow `.qa-ai/workflows/command-interaction.md`.
@@ -15,8 +16,9 @@ Read these files first:
 - `.qa-ai/agents/README.md`
 - `.qa-ai/agents/qa-workflow-orchestrator.md`
 - `.qa-ai/agents/gherkin-test-design-agent.md`
-- `.qa-ai/agents/testrail-coverage-agent.md`
+- `.qa-ai/agents/test-management-coverage-agent.md`
 - `.qa-ai/agents/specialists/active.md` when present
+- `.qa-ai/rules/ai-testing.rules.md` when `aiTesting.enabled` is true or the RF signals AI/LLM behavior
 - `.qa-ai/workflows/test-design.md`
 
 Use `project.interfaceLanguage` / `project.defaultLanguage` from `qa-ai.config.yaml` for user-facing questions and summaries. Use `gherkin.language` only for `.feature` rules.
@@ -26,7 +28,11 @@ If `$ARGUMENTS` is empty or ambiguous, ask the user:
 1. Where is the updated RF source?
 2. What is the official RF ID?
 3. Which existing tests are in scope: all tests for that RF, a folder, or specific files?
-4. Should this run stop at a change proposal first?
+4. If `aiTesting.enabled` is true and the RF mentions model, LLM, prediction, score, generative, biometric matching,
+   confidence or non-deterministic behavior, ask whether it is an AI component:
+   - EN: "Does this RF involve an AI/LLM, prediction, score, generative, biometric, confidence-based or otherwise non-deterministic component?"
+   - ES: "¿Este RF involucra un componente de IA/LLM, predicción, puntuación, generación, biometría, confianza u otro comportamiento no determinista?"
+5. Should this run stop at a change proposal first?
    - Recommend stopping at the proposal first.
 
 Then present a concise plan before modifying files.
@@ -41,6 +47,8 @@ Workflow:
    - Existing tests to retire or delete.
    - New tests to add.
    - Ambiguities requiring user decision.
+   - For AI components, `AI component: yes`, one planned test per configured `aiTesting.requiredTechniques` value in
+     the `Technique` column, and matching `@ai-component` / `@technique:<value>` updates for generated features.
 4. Ask for approval before changing, deleting or adding tests.
 5. Apply only the approved changes.
 6. Run `node .qa-ai/scripts/validate-features.mjs`, `node .qa-ai/scripts/validate-traceability.mjs` and `node .qa-ai/scripts/validate-sync-plan.mjs` after feature/artifact changes.

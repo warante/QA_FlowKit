@@ -1,9 +1,23 @@
 #!/usr/bin/env node
 import path from 'node:path';
+import fs from 'node:fs/promises';
 import { isKarateFramework, karateConfigPath, karateFeatureRoots, usesKarate } from './lib/automation-framework.mjs';
-import { validateWorkflowContract } from './lib/harness-contract.mjs';
+import { validateConfigContent } from './lib/config-schema.mjs';
+import { FEATURE_SUBFOLDERS } from './lib/feature-layout.mjs';
+import { loadWorkflowContract, validateWorkflowContract } from './lib/harness-contract.mjs';
 import { inspectQaWorkflow, normalizeQaTrack } from './lib/qa-next-steps.mjs';
-import { getConfigValue, loadQaAiConfig, parseArgs, pathExists, resolveRepoPath, logHeader } from './lib/utils.mjs';
+import { customValidatorsFromConfig, validateCustomValidatorConfig } from './lib/custom-validators.mjs';
+import {
+  findChangeMeKeys,
+  getConfigValue,
+  inferredAcceptanceCriteriaConflicts,
+  LEGACY_ARTIFACT_ALIASES,
+  loadQaAiConfig,
+  parseArgs,
+  pathExists,
+  resolveRepoPath,
+  logHeader
+} from './lib/utils.mjs';
 
 const cwd = process.cwd();
 const args = parseArgs(process.argv);
@@ -20,14 +34,21 @@ const requiredScripts = [
   '.qa-ai/scripts/validate-maestro-flows.mjs',
   '.qa-ai/scripts/validate-traceability.mjs',
   '.qa-ai/scripts/validate-sync-plan.mjs',
+  '.qa-ai/scripts/validate-sync-diff.mjs',
+  '.qa-ai/scripts/validate-sync-result.mjs',
   '.qa-ai/scripts/validate-active-specialists.mjs',
   '.qa-ai/scripts/validate-target.mjs',
+  '.qa-ai/scripts/validate-config.mjs',
+  '.qa-ai/scripts/validate-untrusted-content.mjs',
   '.qa-ai/scripts/qa-help.mjs',
   '.qa-ai/scripts/qa-run.mjs',
   '.qa-ai/scripts/validate-workflow-contract.mjs',
   '.qa-ai/scripts/validate-release-gate.mjs',
   '.qa-ai/scripts/validate-test-design.mjs',
   '.qa-ai/scripts/validate-test-coverage.mjs',
+  '.qa-ai/scripts/validate-quality-report.mjs',
+  '.qa-ai/scripts/validate-healing-log.mjs',
+  '.qa-ai/scripts/validate-test-impact.mjs',
   '.qa-ai/scripts/test-validators.mjs',
   '.qa-ai/scripts/smoke-test.mjs',
   '.qa-ai/scripts/smoke-npm-pack.mjs',
@@ -36,30 +57,38 @@ const requiredScripts = [
   '.qa-ai/scripts/lib/harness-contract.mjs',
   '.qa-ai/scripts/lib/harness-controller.mjs',
   '.qa-ai/scripts/lib/harness-context.mjs',
+  '.qa-ai/scripts/lib/harness-messages.mjs',
   '.qa-ai/scripts/lib/harness-permissions.mjs',
   '.qa-ai/scripts/lib/harness-paths.mjs',
   '.qa-ai/scripts/lib/harness-modification.mjs',
   '.qa-ai/scripts/lib/harness-run-store.mjs',
   '.qa-ai/scripts/lib/harness-validation.mjs',
   '.qa-ai/scripts/lib/harness-validator-allowlist.mjs',
+  '.qa-ai/scripts/lib/custom-validators.mjs',
   '.qa-ai/scripts/lib/release-gate.mjs',
   '.qa-ai/scripts/lib/test-design.mjs',
   '.qa-ai/scripts/lib/test-coverage.mjs',
+  '.qa-ai/scripts/lib/quality-report.mjs',
   '.qa-ai/scripts/lib/markdown-table.mjs',
   '.qa-ai/scripts/lib/maestro-validate.mjs',
   '.qa-ai/scripts/lib/mobile-automation.mjs',
   '.qa-ai/scripts/lib/project-config.mjs',
+  '.qa-ai/scripts/lib/config-schema.mjs',
+  '.qa-ai/scripts/lib/detect-adapters.mjs',
+  '.qa-ai/scripts/lib/injection-patterns.mjs',
   '.qa-ai/scripts/lib/test-management-mapping.mjs',
   '.qa-ai/scripts/lib/utils.mjs'
 ];
 
 const requiredRulesIndex = '.qa-ai/rules/README.md';
 const requiredRules = [
+  '.qa-ai/rules/ai-testing.rules.md',
   '.qa-ai/rules/approval.rules.md',
   '.qa-ai/rules/api-testing.rules.md',
   '.qa-ai/rules/automation.rules.md',
   '.qa-ai/rules/cleanup.rules.md',
   '.qa-ai/rules/defect.rules.md',
+  '.qa-ai/rules/gherkin-quality.rubric.md',
   '.qa-ai/rules/gherkin.rules.md',
   '.qa-ai/rules/karate.rules.md',
   '.qa-ai/rules/mobile-automation.rules.md',
@@ -69,6 +98,7 @@ const requiredRules = [
   '.qa-ai/rules/test-design.rules.md',
   '.qa-ai/rules/test-management.rules.md',
   '.qa-ai/rules/testrail.rules.md',
+  '.qa-ai/rules/untrusted-content.rules.md',
   '.qa-ai/rules/ui-automation.rules.md',
   '.qa-ai/rules/webdriverio.rules.md',
   '.qa-ai/rules/workflow.rules.md'
@@ -78,23 +108,33 @@ const requiredTemplates = [
   '.qa-ai/templates/automation-feasibility-report.template.md',
   '.qa-ai/templates/automation-implementation-plan.template.md',
   '.qa-ai/templates/feature.template',
+  '.qa-ai/templates/gherkin-quality-report.template.md',
   '.qa-ai/templates/jira-automation-task.template.md',
   '.qa-ai/templates/pr-template.md',
   '.qa-ai/templates/requirement-analysis.template.md',
   '.qa-ai/templates/source-analysis.template.md',
   '.qa-ai/templates/test-design-system.template.md',
   '.qa-ai/templates/test-design-proposal.template.md',
-  '.qa-ai/templates/testrail-coverage-analysis.template.md',
+  '.qa-ai/templates/test-management-coverage-analysis.template.md',
   '.qa-ai/templates/test-management-mapping.template.json',
-  '.qa-ai/templates/testrail-sync-plan.template.md',
+  '.qa-ai/templates/test-management-sync-plan.template.md',
+  '.qa-ai/templates/test-management-remote-snapshot.template.md',
+  '.qa-ai/templates/test-management-sync-diff.template.md',
+  '.qa-ai/templates/test-management-rollback-plan.template.md',
+  '.qa-ai/templates/test-management-apply-log.template.md',
+  '.qa-ai/templates/imported-requirements.template.md',
+  '.qa-ai/templates/imported-cases.template.md',
   '.qa-ai/templates/traceability-matrix.template.md',
-  '.qa-ai/templates/release-gate.template.yaml'
+  '.qa-ai/templates/release-gate.template.yaml',
+  '.qa-ai/templates/test-impact-analysis.template.md',
+  '.qa-ai/templates/qa-custom/validate-naming.example.mjs'
 ];
 
 const requiredAgents = [
   '.qa-ai/agents/README.md',
   '.qa-ai/agents/api-testing-agent.md',
   '.qa-ai/agents/automation-feasibility-agent.md',
+  '.qa-ai/agents/gherkin-quality-agent.md',
   '.qa-ai/agents/gherkin-test-design-agent.md',
   '.qa-ai/agents/test-design-system-agent.md',
   '.qa-ai/agents/qa-context-intake-agent.md',
@@ -103,10 +143,14 @@ const requiredAgents = [
   '.qa-ai/agents/qa-workflow-orchestrator.md',
   '.qa-ai/agents/requirements-intake-agent.md',
   '.qa-ai/agents/requirements-normalization-agent.md',
-  '.qa-ai/agents/testrail-coverage-agent.md',
-  '.qa-ai/agents/testrail-sync-agent.md',
+  '.qa-ai/agents/test-management-coverage-agent.md',
+  '.qa-ai/agents/test-management-sync-agent.md',
+  '.qa-ai/agents/test-management-diff-agent.md',
+  '.qa-ai/agents/test-management-apply-agent.md',
   '.qa-ai/agents/webdriverio-implementation-agent.md',
-  '.qa-ai/agents/release-gate-agent.md'
+  '.qa-ai/agents/release-gate-agent.md',
+  '.qa-ai/agents/test-healing-agent.md',
+  '.qa-ai/agents/test-impact-agent.md'
 ];
 
 const requiredSpecialists = [
@@ -135,7 +179,11 @@ const requiredPresets = [
   '.qa-ai/presets/webdriverio-playwright-api.yaml'
 ];
 
-const requiredContracts = ['.qa-ai/contracts/workflow.v1.json', '.qa-ai/contracts/public-contracts.v1.json'];
+const requiredContracts = [
+  '.qa-ai/contracts/workflow.v1.json',
+  '.qa-ai/contracts/config.v1.schema.json',
+  '.qa-ai/contracts/public-contracts.v1.json'
+];
 
 const requiredWorkflows = [
   '.qa-ai/workflows/automation-analysis.md',
@@ -148,14 +196,16 @@ const requiredWorkflows = [
   '.qa-ai/workflows/pr.md',
   '.qa-ai/workflows/test-design.md',
   '.qa-ai/workflows/test-design-system.md',
-  '.qa-ai/workflows/testrail-sync.md',
-  '.qa-ai/workflows/release-gate.md'
+  '.qa-ai/workflows/test-management-sync.md',
+  '.qa-ai/workflows/release-gate.md',
+  '.qa-ai/workflows/healing.md'
 ];
 
 const requiredAdapterTemplates = [
   '.qa-ai/adapters/aider/.aider.conf.yml',
   '.qa-ai/adapters/aider/.aider/README.md',
   '.qa-ai/adapters/claude/agents/qa-workflow-orchestrator.md',
+  '.qa-ai/adapters/claude/settings/hooks.json',
   '.qa-ai/adapters/claude/commands/qa-add-tests.md',
   '.qa-ai/adapters/claude/commands/qa-automation-plan.md',
   '.qa-ai/adapters/claude/commands/qa-clean.md',
@@ -166,6 +216,8 @@ const requiredAdapterTemplates = [
   '.qa-ai/adapters/claude/commands/qa-init.md',
   '.qa-ai/adapters/claude/commands/qa-help.md',
   '.qa-ai/adapters/claude/commands/qa-gate.md',
+  '.qa-ai/adapters/claude/commands/qa-impact.md',
+  '.qa-ai/adapters/claude/commands/qa-quality.md',
   '.qa-ai/adapters/claude/commands/qa-status.md',
   '.qa-ai/adapters/claude/commands/qa-update-tests.md',
   '.qa-ai/adapters/claude/commands/qa-validate-features.md',
@@ -190,6 +242,8 @@ const requiredAdapterTemplates = [
   '.qa-ai/adapters/opencode/commands/qa-init.md',
   '.qa-ai/adapters/opencode/commands/qa-help.md',
   '.qa-ai/adapters/opencode/commands/qa-gate.md',
+  '.qa-ai/adapters/opencode/commands/qa-impact.md',
+  '.qa-ai/adapters/opencode/commands/qa-quality.md',
   '.qa-ai/adapters/opencode/commands/qa-status.md',
   '.qa-ai/adapters/opencode/commands/qa-update-tests.md',
   '.qa-ai/adapters/opencode/commands/qa-validate-features.md'
@@ -270,11 +324,15 @@ function addWorkflowArtifactChecks(checks, config) {
       pathCheck(
         checkLevel('optional'),
         'test management coverage artifact',
-        'qa-ai-output/testrail-coverage-analysis.md'
+        'qa-ai-output/test-management-coverage-analysis.md'
       )
     );
     checks.push(
-      pathCheck(checkLevel('optional'), 'test management sync plan artifact', 'qa-ai-output/testrail-sync-plan.md')
+      pathCheck(
+        checkLevel('optional'),
+        'test management sync plan artifact',
+        'qa-ai-output/test-management-sync-plan.md'
+      )
     );
   }
 
@@ -320,6 +378,11 @@ function addConfiguredChecks(checks, config) {
   const track = normalizeQaTrack(getConfigValue(config, 'project.qaTrack', 'standard'));
 
   checks.push(pathCheck('required', 'configured feature root', featurePath));
+  for (const subfolder of FEATURE_SUBFOLDERS) {
+    checks.push(
+      pathCheck('optional', `feature category folder ${subfolder}`, `${featurePath.replace(/\/$/, '')}/${subfolder}`)
+    );
+  }
   checks.push(pathCheck('required', 'configured QA output path', path.dirname(matrixPath)));
   checks.push(pathCheck(checkLevel('optional'), 'configured traceability matrix', matrixPath));
   if (mappingFile && track !== 'quick')
@@ -480,6 +543,93 @@ async function main() {
     }
   }
 
+  // Legacy artifact alias warnings: warn if old testrail-* artifact paths still exist on disk
+  for (const [legacyPath, newPath] of LEGACY_ARTIFACT_ALIASES) {
+    const absLegacy = path.join(cwd, legacyPath);
+    if (await pathExists(absLegacy)) {
+      warned += 1;
+      console.log(
+        `[WARN] legacy artifact path: '${legacyPath}' found. Rename it to '${newPath}' to follow current conventions.`
+      );
+    }
+  }
+
+  const claudeAdapterDir = path.join(cwd, '.claude');
+  if (await pathExists(claudeAdapterDir)) {
+    let hooksValid = true;
+    let hooksReason = '';
+    const settingsPath = path.join(cwd, '.claude/settings.json');
+    if (!(await pathExists(settingsPath))) {
+      hooksValid = false;
+      hooksReason = 'missing settings file';
+    } else {
+      try {
+        const settings = JSON.parse(await fs.readFile(settingsPath, 'utf8'));
+        let postEditExists = false;
+        if (settings.hooks && Array.isArray(settings.hooks.PostToolUse)) {
+          for (const group of settings.hooks.PostToolUse) {
+            if (group && Array.isArray(group.hooks)) {
+              for (const hook of group.hooks) {
+                if (hook && hook.command && String(hook.command).includes('post-edit-validate.mjs')) {
+                  postEditExists = true;
+                  break;
+                }
+              }
+            }
+            if (postEditExists) break;
+          }
+        }
+        let stopGateExists = false;
+        if (settings.hooks && Array.isArray(settings.hooks.Stop)) {
+          for (const group of settings.hooks.Stop) {
+            if (group && Array.isArray(group.hooks)) {
+              for (const hook of group.hooks) {
+                if (hook && hook.command && String(hook.command).includes('stop-gate.mjs')) {
+                  stopGateExists = true;
+                  break;
+                }
+              }
+            }
+            if (stopGateExists) break;
+          }
+        }
+        if (!postEditExists || !stopGateExists) {
+          hooksValid = false;
+          hooksReason = 'hooks not registered in settings';
+        }
+      } catch (err) {
+        hooksValid = false;
+        hooksReason = `failed to parse settings JSON (${err.message})`;
+      }
+    }
+
+    if (hooksValid) {
+      const { spawnSync } = await import('node:child_process');
+      const postEditScript = path.join(cwd, '.qa-ai/scripts/hooks/post-edit-validate.mjs');
+      const stopGateScript = path.join(cwd, '.qa-ai/scripts/hooks/stop-gate.mjs');
+
+      if (!(await pathExists(postEditScript)) || !(await pathExists(stopGateScript))) {
+        hooksValid = false;
+        hooksReason = 'hook scripts not found in framework';
+      } else {
+        const postEditRes = spawnSync(process.execPath, [postEditScript, '--self-test'], { encoding: 'utf8' });
+        const stopGateRes = spawnSync(process.execPath, [stopGateScript, '--self-test'], { encoding: 'utf8' });
+
+        if (postEditRes.status !== 0 || stopGateRes.status !== 0) {
+          hooksValid = false;
+          hooksReason = 'hook scripts self-test failed';
+        }
+      }
+    }
+
+    if (hooksValid) {
+      console.log('[PASS] Claude adapter hooks: configured and verified');
+    } else {
+      warned += 1;
+      console.log(`[WARN] Claude adapter hooks: incomplete or not verified (${hooksReason})`);
+    }
+  }
+
   const contractResult = await validateWorkflowContract(cwd);
   if (contractResult.ok) {
     console.log('[PASS] workflow contract: .qa-ai/contracts/workflow.v1.json');
@@ -487,6 +637,55 @@ async function main() {
     failed += 1;
     for (const error of contractResult.errors) {
       console.log(`[FAIL] workflow contract: ${error}`);
+    }
+  }
+
+  if (configInfo.exists) {
+    const schemaResult = await validateConfigContent(configInfo.content, cwd);
+    if (schemaResult.ok) {
+      console.log('[PASS] config schema: qa-ai.config.yaml');
+    } else {
+      failed += 1;
+      for (const error of schemaResult.errors) {
+        console.log(`[FAIL] config schema: ${error}`);
+      }
+    }
+
+    const inferredConflicts = inferredAcceptanceCriteriaConflicts(configInfo.data);
+    if (inferredConflicts.length === 0) {
+      console.log('[PASS] inferred acceptance criteria policy: compatible');
+    } else {
+      failed += 1;
+      for (const conflict of inferredConflicts) {
+        console.log(`[FAIL] inferred acceptance criteria policy: conflicting values at ${conflict}`);
+      }
+    }
+
+    const changeMeKeys = findChangeMeKeys(configInfo.content);
+    if (changeMeKeys.length === 0) {
+      console.log('[PASS] config placeholders: no CHANGE_ME values');
+    } else {
+      failed += 1;
+      console.log(`[FAIL] config placeholders: CHANGE_ME remains at ${changeMeKeys.join(', ')}`);
+    }
+
+    const customValidators = customValidatorsFromConfig(configInfo.data);
+    if (customValidators.length === 0) {
+      console.log('[PASS] custom validators: none configured');
+    } else {
+      const workflowContract = await loadWorkflowContract(cwd);
+      const customResult = await validateCustomValidatorConfig(cwd, configInfo.data, {
+        contract: workflowContract,
+        checkSelfTest: true
+      });
+      if (customResult.ok) {
+        console.log(`[PASS] custom validators: ${customValidators.length} configured and self-tested`);
+      } else {
+        failed += 1;
+        for (const error of customResult.errors) {
+          console.log(`[FAIL] custom validators: ${error}`);
+        }
+      }
     }
   }
 

@@ -10,7 +10,7 @@ Activated as Phase 8 of the QA workflow, after coverage analysis is complete. Sk
 ## Inputs
 
 - [.qa-ai/rules/test-management.rules.md](../rules/test-management.rules.md) (proposal-first sync).
-- `qa-ai-output/testrail-coverage-analysis.md` (output of Phase 7).
+- `qa-ai-output/test-management-coverage-analysis.md` (output of Phase 7).
 - Generated `.feature` files in `features/`.
 - `qa-ai.config.yaml` (`tools.testManagement`, `tools.testManagementProject`).
 - `.qa-ai/agents/specialists/active.md` to load test management specialist.
@@ -26,7 +26,7 @@ Activated as Phase 8 of the QA workflow, after coverage analysis is complete. Sk
 
 ## Output
 
-Produce the configured sync plan artifact (default: `qa-ai-output/testrail-sync-plan.md`):
+Produce the configured sync plan artifact (default: `qa-ai-output/test-management-sync-plan.md`):
 
 ```markdown
 # Test Management Sync Plan

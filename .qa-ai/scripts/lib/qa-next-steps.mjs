@@ -337,6 +337,22 @@ function buildRecommendations({ ctx, pendingPhaseIds, completedPhaseIds, config,
         detail: 'Ensures feature identifiers appear in the traceability matrix.'
       });
     }
+    if (nextId === 'gherkin-quality') {
+      items.push({
+        priority: 'recommended',
+        title: 'Validate Gherkin quality report',
+        command: 'node .qa-ai/scripts/validate-quality-report.mjs',
+        detail: 'Checks rubric version, current feature hashes, evidence rows and gate thresholds.'
+      });
+    }
+    if (nextId === 'healing') {
+      items.push({
+        priority: 'recommended',
+        title: 'Validate governed healing log',
+        command: 'node .qa-ai/scripts/validate-healing-log.mjs',
+        detail: 'Checks healed tests, paths safety, types, and justification constraints.'
+      });
+    }
   } else if (completedPhaseIds.length > 0) {
     if (ctx.track === 'enterprise' && !completedPhaseIds.includes('release-gate')) {
       items.push({
@@ -358,7 +374,7 @@ function buildRecommendations({ ctx, pendingPhaseIds, completedPhaseIds, config,
   if (ctx.track === 'enterprise' || ctx.track === 'standard') {
     if (
       pendingPhaseIds.length === 0 ||
-      ['traceability', 'pr', 'jira', 'api-impl', 'ui-impl', 'mobile-impl'].includes(nextId)
+      ['traceability', 'pr', 'jira', 'api-impl', 'ui-impl', 'mobile-impl', 'healing'].includes(nextId)
     ) {
       items.push({
         priority: ctx.track === 'enterprise' ? 'required' : 'recommended',
@@ -378,6 +394,17 @@ function buildRecommendations({ ctx, pendingPhaseIds, completedPhaseIds, config,
         detail: 'Checks decision, risks, evidence paths and approver rules.'
       });
     }
+  }
+
+  const resultsPaths = getConfigValue(config, 'execution.resultsPaths', []);
+  const evalResultsPaths = getConfigValue(config, 'execution.evalResultsPaths', []);
+  if (resultsPaths.length > 0 || evalResultsPaths.length > 0) {
+    items.push({
+      priority: 'recommended',
+      title: 'Validate execution and eval evidence results',
+      command: 'node .qa-ai/scripts/validate-execution-evidence.mjs',
+      detail: 'Validates JUnit XML, Cucumber JSON and AI eval evidence results against traceability.'
+    });
   }
 
   if (pendingPhaseIds.length === 0) {

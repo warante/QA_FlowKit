@@ -28,7 +28,7 @@ npm run test:e2e-playwright
 4. `features/` holds one QA design scenario per test case with RF and TC tags.
 5. `automation-feasibility-report.md` and `automation-implementation-plan.md` approve Playwright for both surfaces.
 6. `tests/playwright/api/` and `tests/playwright/ui/` implement the approved cases.
-7. `traceability-matrix.md`, `testrail-sync-plan.md`, `jira-automation-task.md` and `pr-summary.md` close the audit
+7. `traceability-matrix.md`, `test-management-sync-plan.md`, `jira-automation-task.md` and `pr-summary.md` close the audit
    trail without external writes.
 
 ## Layout

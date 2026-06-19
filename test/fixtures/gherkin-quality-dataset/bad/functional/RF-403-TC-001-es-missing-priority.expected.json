@@ -1,0 +1,10 @@
+{
+  "language": "es",
+  "rubricDimensions": ["data-independence"],
+  "structuralRules": [
+    {
+      "rule": "required-tag",
+      "messageIncludes": "Missing required tag value @priority:<value>"
+    }
+  ]
+}

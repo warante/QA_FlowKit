@@ -16,3 +16,8 @@ Read `.qa-ai/rules/test-design.rules.md`, `.qa-ai/rules/requirements.rules.md` a
 Run `node .qa-ai/scripts/validate-test-design.mjs` after updating proposals and `node .qa-ai/scripts/validate-features.mjs` after generating or changing `.feature` files.
 When `testDesign.coverage.mode` is not `off`, also run
 `node .qa-ai/scripts/validate-test-coverage.mjs`. Advisory mode reports gaps; strict mode blocks completion.
+When `testDesign.quality.mode` is `advisory` or `gate`, load
+`.qa-ai/agents/gherkin-quality-agent.md` after feature generation and write the report to
+`testDesign.quality.reportPath` using `.qa-ai/templates/gherkin-quality-report.template.md`. Advisory mode records the
+findings for review; gate mode blocks completion when fewer than `testDesign.quality.minDimensionsPassed` dimensions
+pass for any evaluated feature file.

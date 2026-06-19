@@ -39,6 +39,29 @@ jobs:
       - name: Verify adapter parity
         run: node .github/scripts/verify-adapter-parity.mjs
 
+  claude-plugin:
+    name: Claude plugin
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+
+      - name: Check generated plugin drift
+        run: node .github/scripts/build-claude-plugin.mjs --check
+
+      - name: Validate Claude plugin
+        run: |
+          if command -v claude >/dev/null 2>&1; then
+            claude plugin validate plugin/
+          else
+            echo "Claude CLI is not available; structural plugin validation already ran in build-claude-plugin.mjs --check."
+          fi
+
   golden-target:
     name: golden target validate-target
     needs: npm-pack
@@ -202,6 +225,7 @@ jobs:
       [
         npm-pack,
         adapter-parity,
+        claude-plugin,
         golden-target,
         karate-target,
         karate-example,
@@ -282,12 +306,33 @@ jobs:
       - name: Run starter validation and smoke tests
         run: npm run validate:oss-extraction
 
+  coverage:
+    name: Coverage
+    needs: npm-pack
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Check validator and harness coverage
+        run: npm run coverage:check
+
   validate:
     name: 'Validate (${{ matrix.os }}, Node ${{ matrix.node }})'
     needs:
       [
         npm-pack,
         adapter-parity,
+        claude-plugin,
         golden-target,
         karate-target,
         karate-example,

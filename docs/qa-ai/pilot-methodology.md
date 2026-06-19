@@ -38,6 +38,12 @@ Recommended scope:
 
 Record elapsed duration separately when waiting time matters. Never mix elapsed hours with active minutes.
 
+For assisted QA FlowKit windows, run `npx qa-flowkit metrics --json` after the workflow run. The command derives local
+KPIs from `.qa-ai/state/runs/` only: it reads run snapshots and event logs, never artifact contents, never writes state
+and never sends telemetry. Use it as the source for workflow cycle time, blocked/completed run counts, validation
+failure rates, retry counts, approval wait time and modification-approval rework signals. Continue recording baseline
+and non-FlowKit windows manually with the observation template.
+
 Coverage denominator rules:
 
 - Count only explicit, approved acceptance criteria.

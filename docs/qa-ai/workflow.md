@@ -57,7 +57,7 @@ Requirements:
 
 Outputs:
 
-- `qa-ai-output/testrail-coverage-analysis.md`
+- `qa-ai-output/test-management-coverage-analysis.md`
 
 Requirements:
 
@@ -86,7 +86,7 @@ Requirements:
 
 Outputs:
 
-- `qa-ai-output/testrail-sync-plan.md`
+- `qa-ai-output/test-management-sync-plan.md`
 
 Requirements:
 
@@ -94,6 +94,19 @@ Requirements:
 - Show cases to create.
 - Show cases requiring update.
 - Ask approval before external writes.
+
+When `testManagementSync.mode` is `proposal-only` (the default), the workflow stops at a local proposal and never
+claims that external cases were changed.
+
+When `testManagementSync.mode` is `governed`, the harness adds three guarded phases after the sync plan:
+
+- `sync-diff`: captures a remote snapshot and computes `qa-ai-output/test-management-sync-diff.md`.
+- `sync-apply`: requires `npx qa-flowkit run approve external-write:test-management` and records the approved sync
+  plan hash before any external write may be attempted by the user-approved tooling.
+- `sync-verify`: validates the apply log, rollback plan and final snapshot evidence.
+
+If the sync plan changes after `external-write:test-management` approval, the harness invalidates the approval, emits
+an `approval_invalidated` event and blocks `sync-apply` until the gate is approved again.
 
 ## Step 6 - Traceability and prioritization
 

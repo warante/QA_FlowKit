@@ -5,6 +5,9 @@
     "suite": "Regression",
     "status": "planned",
     "lastReviewedAt": "2026-05-25",
+    "idempotencyKey": "idemp-tc001-xxxx",
+    "lastAppliedAt": "2026-05-25T12:00:00Z",
+    "lastAppliedRunId": "run-xxxx",
     "notes": "Example only. Do not store secrets, tokens or credentials in this file."
   },
   "features/functional/RF-101-TC-001-login.feature": {

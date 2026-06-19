@@ -281,7 +281,7 @@ Traceability matrix not found at qa-ai-output/traceability-matrix.md.
 
 --- sync plan validation ---
 === QA AI sync plan validator ===
-Sync plan not found at qa-ai-output/testrail-sync-plan.md.
+Sync plan not found at qa-ai-output/test-management-sync-plan.md.
 
 --- active specialist validation ---
 === QA AI active specialists validator ===
@@ -320,7 +320,7 @@ VALID - all feature files passed.
 [PASS] qa-ai-output/traceability-matrix.md covers identifiers from 12 feature file(s).
 
 --- sync plan validation ---
-[PASS] qa-ai-output/testrail-sync-plan.md is valid.
+[PASS] qa-ai-output/test-management-sync-plan.md is valid.
 
 --- active specialist validation ---
 [PASS] .qa-ai/agents/specialists/active.md matches qa-ai.config.yaml.

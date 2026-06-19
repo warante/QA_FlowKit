@@ -50,8 +50,9 @@ function printStatusHuman(report) {
   console.log(`Active phase: ${report.activePhaseId || 'none'}`);
   if (report.blockers?.length) {
     console.log('Blockers:');
-    for (const blocker of report.blockers) {
-      console.log(`  - ${blocker.message}`);
+    const help = report.blockerHelp?.length ? report.blockerHelp : report.blockers.map((blocker) => blocker.message);
+    for (const message of help) {
+      console.log(`  - ${message}`);
     }
   }
   console.log('');
@@ -72,8 +73,9 @@ function printPacketHuman(packet) {
   console.log(`Phase: ${packet.phase.name} (${packet.phase.id}) — ${packet.phase.status}`);
   if (packet.blockers?.length) {
     console.log('Blockers:');
-    for (const blocker of packet.blockers) {
-      console.log(`  - ${blocker.message}`);
+    const help = packet.blockerHelp?.length ? packet.blockerHelp : packet.blockers.map((blocker) => blocker.message);
+    for (const message of help) {
+      console.log(`  - ${message}`);
     }
   }
   console.log(`Recommended: ${packet.recommendedCommand}`);
@@ -135,7 +137,13 @@ async function main() {
         console.log(`Check failed for phase: ${result.phaseId || 'unknown'}`);
         if (result.message) console.log(result.message);
         if (result.blockers?.length) {
-          for (const blocker of result.blockers) console.log(`  - ${blocker.message}`);
+          const help = result.blockerHelp?.length
+            ? result.blockerHelp
+            : result.blockers.map((blocker) => blocker.message);
+          for (const message of help) console.log(`  - ${message}`);
+        }
+        if (result.blockerHelp?.length && !result.blockers?.length) {
+          for (const message of result.blockerHelp) console.log(`  - ${message}`);
         }
         if (result.missingOutputs?.length) {
           console.log(`Missing outputs: ${result.missingOutputs.join(', ')}`);

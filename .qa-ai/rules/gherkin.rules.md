@@ -35,7 +35,8 @@ Do not mix Karate `* method` steps into design features or QA acceptance blocks 
 | `security/`      | `@type:security`                                                                           |
 | `manual/`        | `@manual:true` (manual-only execution)                                                     |
 
-- Init creates only the feature root; subfolders appear when the first file is written for that type.
+- Init creates the feature root plus every canonical subfolder with `.gitkeep` files. Use
+  `--no-feature-folders` only when a target repository intentionally manages this layout itself.
 - Misplaced root files: `node .qa-ai/scripts/organize-features.mjs` (or `--dry-run` first).
 
 **Path pattern:** `features/<subfolder>/<RF-ID>-TC-<N>-<short-description>.feature`
@@ -70,6 +71,39 @@ When `@type:` indicates specialized testing, also read the matching specialist u
 | `security`                      | `security.md`      |
 
 UI, API and mobile implementation still follow [ui-automation.rules.md](ui-automation.rules.md), [api-testing.rules.md](api-testing.rules.md) and the active Appium/WebdriverIO/Playwright specialists.
+
+## Statistical assertions for AI components
+
+When `aiTesting.enabled: true`, scenarios tagged `@ai-component` may use a statistical assertion for non-deterministic
+behavior. The supported step grammar is:
+
+```gherkin
+Then the <observable> should satisfy <criterion> in at least <P>% of <N> runs
+```
+
+```gherkin
+Entonces el <observable> debe cumplir <criterio> en al menos el <P>% de <N> ejecuciones
+```
+
+Optional dataset reference:
+
+```gherkin
+Given the adversarial dataset "<repo-relative-path>"
+```
+
+```gherkin
+Dado el dataset adversarial "<ruta-relativa-al-repo>"
+```
+
+Validation rules:
+
+- Statistical assertion steps are only valid in scenarios tagged `@ai-component`.
+- `P` must be an integer from 1 to 100.
+- `N` must be an integer of at least 2.
+- When `P >= 95`, `N` must be at least 10.
+- Dataset paths must be repository-relative, must not escape the repository and must exist.
+
+See [ai-testing.rules.md](ai-testing.rules.md) for AI-component classification and technique coverage.
 
 ## Validation
 

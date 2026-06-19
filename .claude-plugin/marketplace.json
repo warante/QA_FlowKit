@@ -1,0 +1,10 @@
+{
+  "plugins": [
+    {
+      "name": "qa-flowkit",
+      "description": "QA FlowKit workflow skills, hooks and orchestrator agent / Skills, hooks y agente orquestador de QA FlowKit",
+      "version": "0.5.4-beta.0",
+      "path": "./plugin"
+    }
+  ]
+}

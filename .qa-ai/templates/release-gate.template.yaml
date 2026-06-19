@@ -11,6 +11,9 @@ open_risks:
 evidence_paths:
   - qa-ai-output/traceability-matrix.md
   - qa-ai-output/pr-summary.md
+evidence:
+  execution: []
+  evals: []
 waived_reason: ''
 notes: |
   Required human approval before production release. Use WAIVED only with explicit approver and reason.

@@ -21,8 +21,7 @@ knowledge:
   decisionsPath: qa-ai-output/qa-init-decisions.md
 requirements:
   requireOfficialRfId: true
-  allowInferredAcceptanceCriteria: true
-  requireApprovalForInferredCriteria: true
+  inferredAcceptanceCriteria: require-approval
 gherkin:
   language: en
   oneScenarioPerFile: true
@@ -67,6 +66,10 @@ testDesign:
     requirePerformanceWhenApplicable: false
     requireSecurityReview: false
     requireTechniqueTraceability: false
+  quality:
+    mode: off
+    reportPath: qa-ai-output/gherkin-quality-report.md
+    minDimensionsPassed: 7
 traceability:
   matrixPath: qa-ai-output/traceability-matrix.md
 release:
@@ -81,3 +84,20 @@ commands:
   lint: npm run lint
   testE2E: npm run test:e2e
   testQA: npm run test:qa
+testManagementSync:
+  mode: proposal-only
+  diffPath: qa-ai-output/test-management-sync-diff.md
+  applyLogPath: qa-ai-output/test-management-apply-log.md
+  rollbackPath: qa-ai-output/test-management-rollback-plan.md
+  remoteSnapshotPath: qa-ai-output/test-management-remote-snapshot.md
+aiTesting:
+  enabled: false
+  requiredTechniques:
+    - adversarial
+    - statistical-consistency
+    - robustness-paraphrase
+    - safety-guardrails
+  optionalTechniques:
+    - fairness-bias
+    - degradation-fallback
+    - pii-leakage

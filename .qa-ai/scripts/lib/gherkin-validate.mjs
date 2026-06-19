@@ -1,7 +1,9 @@
 /**
  * Gherkin feature file parsing and validation (dependency-free).
  */
+import fs from 'node:fs';
 import path from 'node:path';
+import { parse as parseGherkin } from './gherkin-parser.mjs';
 
 export const rfPattern = /\bRF[-_ ]?[A-Z0-9]+\b/i;
 export const idPattern = /\b(?:RF|TC|TEST|QA)(?:[-_][A-Z0-9]+| \d[A-Z0-9]*|\d+)\b/gi;
@@ -88,7 +90,105 @@ export function caseIdsFromTags(model) {
     .map(normalizeId);
 }
 
+function normalizeTechniqueTag(value) {
+  return String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/_/g, '-');
+}
+
+function isInside(parent, child) {
+  const relative = path.relative(parent, child);
+  return Boolean(relative && !relative.startsWith('..') && !path.isAbsolute(relative)) || relative === '';
+}
+
+function statisticalAssertions(ast, language) {
+  const pattern =
+    language === 'es'
+      ? /^(?:Entonces)\s+.+\s+debe\s+cumplir\s+.+\s+en\s+al\s+menos\s+(\d+)%\s+de\s+(\d+)\s+ejecuciones$/i
+      : /^(?:Then)\s+.+\s+should\s+satisfy\s+.+\s+in\s+at\s+least\s+(\d+)%\s+of\s+(\d+)\s+runs$/i;
+
+  const results = [];
+  const collectSteps = (node) => {
+    if (node.steps) {
+      for (const step of node.steps) {
+        const stepText = `${step.keyword}${step.text}`.trim();
+        const match = stepText.match(pattern);
+        if (match) {
+          results.push({
+            line: stepText,
+            percent: Number(match[1]),
+            runs: Number(match[2])
+          });
+        }
+      }
+    }
+    if (node.children) {
+      node.children.forEach(collectSteps);
+    }
+  };
+  if (ast.feature) {
+    collectSteps(ast.feature);
+  }
+  return results;
+}
+
+function statisticalLikeLines(ast, language) {
+  const pattern =
+    language === 'es'
+      ? /^(?:Entonces)\s+.+\s+debe\s+cumplir\s+.+\s+en\s+al\s+menos\s+.+%\s+de\s+.+\s+ejecuciones$/i
+      : /^(?:Then)\s+.+\s+should\s+satisfy\s+.+\s+in\s+at\s+least\s+.+%\s+of\s+.+\s+runs$/i;
+
+  const results = [];
+  const collectSteps = (node) => {
+    if (node.steps) {
+      for (const step of node.steps) {
+        const stepText = `${step.keyword}${step.text}`.trim();
+        if (pattern.test(stepText)) {
+          results.push(stepText);
+        }
+      }
+    }
+    if (node.children) {
+      node.children.forEach(collectSteps);
+    }
+  };
+  if (ast.feature) {
+    collectSteps(ast.feature);
+  }
+  return results;
+}
+
+function adversarialDatasets(ast, language) {
+  const pattern =
+    language === 'es'
+      ? /^(?:Dado)\s+el\s+dataset\s+adversarial\s+"([^"]+)"$/i
+      : /^(?:Given)\s+the\s+adversarial\s+dataset\s+"([^"]+)"$/i;
+
+  const results = [];
+  const collectSteps = (node) => {
+    if (node.steps) {
+      for (const step of node.steps) {
+        const stepText = `${step.keyword}${step.text}`.trim();
+        const match = stepText.match(pattern);
+        if (match) {
+          results.push(match[1].trim());
+        }
+      }
+    }
+    if (node.children) {
+      node.children.forEach(collectSteps);
+    }
+  };
+  if (ast.feature) {
+    collectSteps(ast.feature);
+  }
+  return results;
+}
+
 export function parseFeature(content, language) {
+  const ast = parseGherkin(content, language);
   const rules = languageRules(language);
   const model = {
     languageLine: '',
@@ -98,30 +198,48 @@ export function parseFeature(content, language) {
     tags: []
   };
 
-  const lines = content.split(/\r?\n/);
-  for (let index = 0; index < lines.length; index += 1) {
-    const trimmed = lines[index].trim();
-    if (!trimmed) continue;
-    const line = index + 1;
+  const langComment = ast.comments.find((c) => c.text.toLowerCase().startsWith('# language:'));
+  if (langComment) {
+    model.languageLine = langComment.text;
+  }
 
-    if (trimmed.toLowerCase().startsWith('# language:')) {
-      model.languageLine = trimmed;
-      continue;
-    }
-    if (trimmed.startsWith('@')) {
-      for (const tag of trimmed.split(/\s+/).filter(Boolean)) model.tags.push({ line, tag });
-      continue;
-    }
-    if (rules.featurePattern.test(trimmed)) {
-      model.featureLines.push({ line, text: trimmed });
-      continue;
-    }
-    if (rules.scenarioPattern.test(trimmed)) {
-      model.scenarioLines.push({ line, text: trimmed });
-      continue;
-    }
+  if (ast.feature) {
+    model.featureLines.push({
+      line: ast.feature.line,
+      text: `${ast.feature.keyword}: ${ast.feature.name}`
+    });
+
+    const collectTags = (node) => {
+      if (node.tags) {
+        for (const t of node.tags) {
+          model.tags.push({ line: t.line, tag: t.name });
+        }
+      }
+      if (node.children) {
+        node.children.forEach(collectTags);
+      }
+    };
+    collectTags(ast.feature);
+
+    const collectScenarios = (node) => {
+      if (node.type === 'Scenario') {
+        model.scenarioLines.push({
+          line: node.line,
+          text: `${node.keyword}: ${node.name}`
+        });
+      }
+      if (node.children) {
+        node.children.forEach(collectScenarios);
+      }
+    };
+    collectScenarios(ast.feature);
+  }
+
+  const lines = content.split(/\r?\n/);
+  for (let i = 0; i < lines.length; i++) {
+    const trimmed = lines[i].trim();
     if (rules.acceptancePattern.test(trimmed)) {
-      model.acceptanceLines.push({ line, text: trimmed });
+      model.acceptanceLines.push({ line: i + 1, text: trimmed });
     }
   }
 
@@ -141,6 +259,7 @@ export function hasRecommendedTag(model, content, tagName) {
 /**
  * @param {object} options
  * @param {boolean} [options.strictTags] - require @rf: and @id:
+ * @param {object} [options.aiTestingConfig] - aiTesting block from config ({ enabled, requiredTechniques, optionalTechniques })
  */
 export function validateFeatureContent(content, file, requiredTags, language, options = {}) {
   const errors = [];
@@ -183,6 +302,70 @@ export function validateFeatureContent(content, file, requiredTags, language, op
   }
   if (!rfPattern.test(path.basename(file))) {
     errors.push('Feature filename does not contain an RF-like ID.');
+  }
+
+  // AI-component tag validation
+  const aiCfg = options.aiTestingConfig;
+  const hasAiComponent = parsed.tags.some(({ tag }) => tag === '@ai-component');
+  if (aiCfg?.enabled) {
+    const allowedTechniques = new Set(
+      [...(aiCfg.requiredTechniques || []), ...(aiCfg.optionalTechniques || [])]
+        .map(normalizeTechniqueTag)
+        .filter(Boolean)
+    );
+    const techniqueTags = parsed.tags
+      .map(({ tag }) => tag)
+      .filter((tag) => /^@technique:/i.test(tag))
+      .map((tag) => normalizeTechniqueTag(tag.replace(/^@technique:/i, '')));
+    if (hasAiComponent && techniqueTags.length === 0) {
+      errors.push(
+        'Scenario tagged @ai-component must include at least one @technique:<value> tag (see ai-testing.rules.md).'
+      );
+    }
+    if (!hasAiComponent && techniqueTags.length > 0) {
+      errors.push('@technique:<value> tag is only valid on scenarios tagged @ai-component.');
+    }
+    if (allowedTechniques.size > 0) {
+      for (const technique of techniqueTags) {
+        if (!allowedTechniques.has(technique)) {
+          errors.push(`Unknown AI testing technique "${technique}" for @technique:<value>.`);
+        }
+      }
+    }
+  }
+
+  const ast = parseGherkin(content, language);
+  const statisticalMatches = statisticalAssertions(ast, rules.code);
+  const statisticalLike = statisticalLikeLines(ast, rules.code);
+  const malformedStatisticalCount = Math.max(0, statisticalLike.length - statisticalMatches.length);
+  if (malformedStatisticalCount > 0) {
+    errors.push('Statistical assertion must use integer P and N values in the documented P% of N runs pattern.');
+  }
+  if (statisticalMatches.length > 0 && !hasAiComponent) {
+    errors.push('Statistical assertion steps are only valid in scenarios tagged @ai-component.');
+  }
+  for (const assertion of statisticalMatches) {
+    if (assertion.percent < 1 || assertion.percent > 100) {
+      errors.push(`Statistical assertion percentage P must be between 1 and 100; found ${assertion.percent}.`);
+    }
+    if (assertion.runs < 2) {
+      errors.push(`Statistical assertion run count N must be at least 2; found ${assertion.runs}.`);
+    }
+    if (assertion.percent >= 95 && assertion.runs < 10) {
+      errors.push('Statistical assertion with P >= 95 requires at least 10 runs.');
+    }
+  }
+
+  const repoRoot = path.resolve(options.repoRoot || process.cwd());
+  for (const dataset of adversarialDatasets(ast, rules.code)) {
+    const absoluteDataset = path.resolve(repoRoot, dataset);
+    if (!isInside(repoRoot, absoluteDataset)) {
+      errors.push(`Adversarial dataset path escapes the repository: ${dataset}`);
+      continue;
+    }
+    if (!fs.existsSync(absoluteDataset)) {
+      errors.push(`Adversarial dataset file not found: ${dataset}`);
+    }
   }
 
   return {

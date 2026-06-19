@@ -1,8 +1,18 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import { parseYaml, stripInlineComment } from './yaml.mjs';
 
 export const manifestRelativePath = '.qa-ai/state/init-manifest.json';
+
+/** Backward-compatible artifact path aliases (old testrail-* names → new test-management-* names).
+ *  Validators accept the legacy paths with a deprecation warning instead of a hard error. */
+export const LEGACY_ARTIFACT_ALIASES = new Map([
+  ['qa-ai-output/testrail-sync-plan.md', 'qa-ai-output/test-management-sync-plan.md'],
+  ['qa-ai-output/testrail-coverage-analysis.md', 'qa-ai-output/test-management-coverage-analysis.md']
+]);
+
+export const DEFAULT_TEST_MANAGEMENT_SYNC_PLAN_PATH = 'qa-ai-output/test-management-sync-plan.md';
 
 export async function pathExists(filePath) {
   try {
@@ -161,6 +171,37 @@ export function resolveRepoPath(cwd, relativePath, { label = 'path', allowRoot =
   return target.resolved;
 }
 
+export async function resolveTestManagementSyncPlanPath(cwd, config, { preferExisting = true } = {}) {
+  const configuredPath = getConfigValue(
+    config,
+    'testManagement.syncPlanPath',
+    getConfigValue(config, 'testrail.syncPlanPath', DEFAULT_TEST_MANAGEMENT_SYNC_PLAN_PATH)
+  );
+  const absPath = resolveRepoPath(cwd, configuredPath, { label: 'sync plan' });
+  const legacyPath = [...LEGACY_ARTIFACT_ALIASES.keys()].find((candidate) => candidate.includes('sync-plan')) || null;
+  const legacyAbsPath = legacyPath ? resolveRepoPath(cwd, legacyPath, { label: 'legacy sync plan' }) : null;
+
+  if (preferExisting && !(await pathExists(absPath)) && legacyAbsPath && (await pathExists(legacyAbsPath))) {
+    return {
+      path: legacyPath,
+      absPath: legacyAbsPath,
+      isLegacy: true,
+      replacementPath: LEGACY_ARTIFACT_ALIASES.get(legacyPath) || configuredPath,
+      legacyPath,
+      legacyAbsPath
+    };
+  }
+
+  return {
+    path: configuredPath,
+    absPath,
+    isLegacy: false,
+    replacementPath: null,
+    legacyPath,
+    legacyAbsPath
+  };
+}
+
 export async function hashFile(filePath) {
   const data = await fs.readFile(filePath);
   return crypto.createHash('sha256').update(data).digest('hex');
@@ -172,75 +213,8 @@ export function yamlScalar(value) {
   return JSON.stringify(text);
 }
 
-function stripInlineComment(text) {
-  if (!text) return text;
-  const q = text[0];
-  if (q === '"' || q === "'") {
-    const close = text.lastIndexOf(q, text.length - 1);
-    if (close > 0) return text.slice(0, close + 1);
-    return text;
-  }
-  const hashIdx = text.indexOf(' #');
-  return hashIdx > -1 ? text.slice(0, hashIdx).trim() : text;
-}
-
-function parseScalar(value) {
-  const text = stripInlineComment(value.trim());
-  if (text === 'true') return true;
-  if (text === 'false') return false;
-  if (text === 'null' || text === '~') return null;
-  if ((text.startsWith('"') && text.endsWith('"')) || (text.startsWith("'") && text.endsWith("'"))) {
-    return text.slice(1, -1);
-  }
-  if (/^-?\d+(?:\.\d+)?$/.test(text)) return Number(text);
-  return text;
-}
-
-function yamlLines(content) {
-  return content
-    .replace(/\r/g, '')
-    .split('\n')
-    .map((raw) => ({
-      indent: raw.match(/^ */)?.[0].length ?? 0,
-      text: raw.trim()
-    }))
-    .filter((line) => line.text && !line.text.startsWith('#'));
-}
-
-export function parseSimpleYaml(content) {
-  const lines = yamlLines(content);
-  const root = {};
-  const stack = [{ indent: -1, value: root }];
-
-  for (let i = 0; i < lines.length; i += 1) {
-    const line = lines[i];
-    while (stack.length > 1 && stack.at(-1).indent >= line.indent) stack.pop();
-    const parent = stack.at(-1).value;
-
-    if (line.text.startsWith('- ')) {
-      if (Array.isArray(parent)) parent.push(parseScalar(line.text.slice(2)));
-      continue;
-    }
-
-    const colonIndex = line.text.indexOf(':');
-    if (colonIndex === -1) continue;
-
-    const key = line.text.slice(0, colonIndex).trim();
-    const rest = line.text.slice(colonIndex + 1).trim();
-    if (!key || Array.isArray(parent)) continue;
-
-    if (rest) {
-      parent[key] = parseScalar(rest);
-      continue;
-    }
-
-    const next = lines[i + 1];
-    const child = next && next.indent > line.indent && next.text.startsWith('- ') ? [] : {};
-    parent[key] = child;
-    stack.push({ indent: line.indent, value: child });
-  }
-
-  return root;
+export function parseSimpleYaml(content, filename = 'inline') {
+  return parseYaml(content, filename);
 }
 
 export function getConfigValue(config, keyPath, fallback = undefined) {
@@ -253,13 +227,67 @@ export function getConfigValue(config, keyPath, fallback = undefined) {
   return current === undefined || current === null ? fallback : current;
 }
 
+export function legacyInferredAcceptanceCriteria(requirements = {}) {
+  if (!requirements || typeof requirements !== 'object') return undefined;
+  if (requirements.allowInferredAcceptanceCriteria === false) return 'forbid';
+  if (requirements.allowInferredAcceptanceCriteria !== true) return undefined;
+  return requirements.requireApprovalForInferredCriteria === false ? 'allow' : 'require-approval';
+}
+
+export function normalizeRequirementsConfig(config) {
+  if (!config || typeof config !== 'object') return config;
+  const requirements = config.requirements;
+  if (!requirements || typeof requirements !== 'object') return config;
+  const legacyValue = legacyInferredAcceptanceCriteria(requirements);
+  if (!requirements.inferredAcceptanceCriteria && legacyValue) {
+    requirements.inferredAcceptanceCriteria = legacyValue;
+  }
+  return config;
+}
+
+export function inferredAcceptanceCriteriaConflicts(config) {
+  const requirements = config?.requirements;
+  const legacyValue = legacyInferredAcceptanceCriteria(requirements);
+  const configuredValue = requirements?.inferredAcceptanceCriteria;
+  if (!legacyValue || !configuredValue || legacyValue === configuredValue) return [];
+  return [
+    [
+      'requirements.inferredAcceptanceCriteria',
+      'requirements.allowInferredAcceptanceCriteria',
+      'requirements.requireApprovalForInferredCriteria'
+    ].join(', ')
+  ];
+}
+
 export async function loadQaAiConfig(cwd) {
   const filePath = path.join(cwd, 'qa-ai.config.yaml');
   if (!(await pathExists(filePath))) {
     return { exists: false, path: filePath, content: '', data: {} };
   }
   const content = await readText(filePath);
-  return { exists: true, path: filePath, content, data: parseSimpleYaml(content) };
+  return { exists: true, path: filePath, content, data: normalizeRequirementsConfig(parseSimpleYaml(content)) };
+}
+
+export function findChangeMeKeys(content) {
+  const findings = [];
+  const stack = [];
+  for (const line of String(content || '')
+    .replace(/\r/g, '')
+    .split('\n')) {
+    if (!line.trim() || line.trim().startsWith('#')) continue;
+    const match = line.match(/^(\s*)([^:\s][^:]*):\s*(.*)$/);
+    if (!match) continue;
+    const indent = match[1].length;
+    const key = match[2].trim();
+    const value = stripInlineComment(match[3].trim());
+    while (stack.length > 0 && stack.at(-1).indent >= indent) stack.pop();
+    const pathParts = [...stack.map((item) => item.key), key];
+    if (value === 'CHANGE_ME' || value === '"CHANGE_ME"' || value === "'CHANGE_ME'") {
+      findings.push(pathParts.join('.'));
+    }
+    if (value === '') stack.push({ indent, key });
+  }
+  return findings;
 }
 
 export function manifestPath(cwd) {

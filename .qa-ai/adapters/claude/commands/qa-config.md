@@ -1,6 +1,7 @@
 ---
 description: Import or export QA FlowKit configuration / Importar o exportar configuracion de QA FlowKit
 argument-hint: [--export path | --import path]
+allowed-tools: [view_file, write_file, edit_file, list_dir, grep_search, glob, run_command]
 ---
 
 Before any other action or user-facing text, read and follow `.qa-ai/workflows/command-interaction.md`.

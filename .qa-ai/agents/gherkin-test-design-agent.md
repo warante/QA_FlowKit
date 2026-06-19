@@ -13,6 +13,7 @@ Activated for per-RF test design and Gherkin feature generation after requiremen
 - `qa-ai-output/test-design-system.md` when present (`standard` / `enterprise`).
 - `qa-ai.config.yaml` (`gherkin.language`, `gherkin.tags.required`, `gherkin.featurePath`).
 - `.qa-ai/rules/` for naming and structure conventions.
+- `.qa-ai/rules/ai-testing.rules.md` when `aiTesting.enabled` is true or an RF is marked as an AI component.
 - Existing `features/` directory to detect duplicates and maintain consistency.
 
 ## Responsibilities
@@ -31,6 +32,17 @@ Activated for per-RF test design and Gherkin feature generation after requiremen
   `.qa-ai/agents/specialists/available/security.md`.
 - Record the test-design technique in the proposal. A `# Technique:` feature comment is optional supporting
   evidence.
+- When `aiTesting.enabled` is true, ask the AI-component question in `project.interfaceLanguage` for RFs with signals
+  such as model, LLM, prediction, score, generative output, biometric matching, confidence, embedding or other
+  non-deterministic behavior:
+  - EN: "Does this RF involve an AI/LLM, prediction, score, generative, biometric, confidence-based or otherwise
+    non-deterministic component?"
+  - ES: "¿Este RF involucra un componente de IA/LLM, predicción, puntuación, generación, biometría, confianza u otro
+    comportamiento no determinista?"
+- For every confirmed AI RF, set `AI component: yes` in the proposal, read `.qa-ai/rules/ai-testing.rules.md`, and
+  produce at least one planned test for each configured `aiTesting.requiredTechniques` value in the `Technique` column.
+- Generated AI-component features must include `@ai-component` and a configured `@technique:<value>` tag; proposal and
+  feature classification must agree.
 - Complete the `Coverage obligations`, `Security review` and `Residual coverage gaps` sections when coverage mode
   is `advisory` or `strict`.
 

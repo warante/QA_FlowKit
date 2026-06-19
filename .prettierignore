@@ -1,5 +1,7 @@
 node_modules/
 .qa-flowkit-npm-*/
+.stryker-tmp/
+.tmp-claude-plugin-check/
 
 # Generado automáticamente por Release Please; no editar a mano ni reformatear.
 CHANGELOG.md
