@@ -403,7 +403,7 @@ async function promptAdapterSelection(defaultAdapters) {
 
   const { createInterface } = await import('node:readline/promises');
   const rl = createInterface({ input: process.stdin, output: process.stdout });
-  let answer = '';
+  let answer;
   try {
     answer = await rl.question('Adapter selection [1]: ');
   } finally {
