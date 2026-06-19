@@ -206,27 +206,27 @@ outside `.qa-ai/`. Review the [upgrade and migration guide](docs/qa-ai/getting-s
 
 ## Documentation
 
-| Topic                        | Document                                                                                              |
-| ---------------------------- | ----------------------------------------------------------------------------------------------------- |
-| First workflow               | [Getting Started](docs/qa-ai/getting-started.md)                                                      |
-| CLI commands and options     | [CLI Reference](docs/qa-ai/cli-reference.md)                                                          |
-| CI/CD pipeline integration   | [CI Integration](docs/qa-ai/ci-integration.md)                                                        |
-| Claude Code plugin           | [Claude Code Plugin](docs/qa-ai/claude-plugin.md)                                                     |
-| Architecture                 | [Architecture](docs/qa-ai/architecture.md)                                                            |
-| Workflow                     | [Full Workflow](docs/qa-ai/workflow.md)                                                               |
-| Advanced test design         | [Coverage, techniques and mixed inputs](docs/qa-ai/advanced-test-design.md)                           |
-| Gherkin quality rubric       | [Quality Rubric](docs/qa-ai/quality-rubric.md)                                                        |
-| Resumable harness            | [Agent Harness](docs/qa-ai/agent-harness.md)                                                          |
-| Troubleshooting              | [Troubleshooting](docs/qa-ai/troubleshooting.md)                                                      |
-| Product stability            | [Stability Policy](docs/qa-ai/stability-policy.md)                                                    |
-| Public contracts             | [Contract Inventory](docs/qa-ai/public-contracts.md)                                                  |
-| Pilot measurement            | [Pilot Methodology](docs/qa-ai/pilot-methodology.md)                                                  |
-| External requirements intake | [External Intake](docs/qa-ai/external-intake.md)                                                      |
-| Governed test sync           | [Governed Sync](docs/qa-ai/governed-sync.md)                                                          |
-| Automation bridge / healing  | [Automation Bridge](docs/qa-ai/automation-bridge.md)                                                  |
-| Roadmap and improvement plan | [Roadmap](ROADMAP.md), [implementation tasks](tasks/README.md) and [improvement plan](plan/README.md) |
-| Security                     | [Security Policy](SECURITY.md)                                                                        |
-| Contributing                 | [Contributing Guide](CONTRIBUTING.md)                                                                 |
+| Topic                        | Document                                                                    |
+| ---------------------------- | --------------------------------------------------------------------------- |
+| First workflow               | [Getting Started](docs/qa-ai/getting-started.md)                            |
+| CLI commands and options     | [CLI Reference](docs/qa-ai/cli-reference.md)                                |
+| CI/CD pipeline integration   | [CI Integration](docs/qa-ai/ci-integration.md)                              |
+| Claude Code plugin           | [Claude Code Plugin](docs/qa-ai/claude-plugin.md)                           |
+| Architecture                 | [Architecture](docs/qa-ai/architecture.md)                                  |
+| Workflow                     | [Full Workflow](docs/qa-ai/workflow.md)                                     |
+| Advanced test design         | [Coverage, techniques and mixed inputs](docs/qa-ai/advanced-test-design.md) |
+| Gherkin quality rubric       | [Quality Rubric](docs/qa-ai/quality-rubric.md)                              |
+| Resumable harness            | [Agent Harness](docs/qa-ai/agent-harness.md)                                |
+| Troubleshooting              | [Troubleshooting](docs/qa-ai/troubleshooting.md)                            |
+| Product stability            | [Stability Policy](docs/qa-ai/stability-policy.md)                          |
+| Public contracts             | [Contract Inventory](docs/qa-ai/public-contracts.md)                        |
+| Pilot measurement            | [Pilot Methodology](docs/qa-ai/pilot-methodology.md)                        |
+| External requirements intake | [External Intake](docs/qa-ai/external-intake.md)                            |
+| Governed test sync           | [Governed Sync](docs/qa-ai/governed-sync.md)                                |
+| Automation bridge / healing  | [Automation Bridge](docs/qa-ai/automation-bridge.md)                        |
+| Roadmap and implementation   | [Roadmap](ROADMAP.md) and [implementation tasks](tasks/README.md)           |
+| Security                     | [Security Policy](SECURITY.md)                                              |
+| Contributing                 | [Contributing Guide](CONTRIBUTING.md)                                       |
 
 ## Source Repository
 
