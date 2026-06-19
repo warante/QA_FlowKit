@@ -20,6 +20,7 @@ function printHelp() {
 
 Options:
   --path <dir>   Override the configured feature root
+  --file <path>  Validate a single feature file
   --gherkin-language <en|es> Override the configured Gherkin language
   --allow-empty  Return success when no .feature files exist
   --no-duplicates Skip cross-file duplicate ID validation
@@ -51,9 +52,36 @@ async function main() {
   const tagNames =
     Array.isArray(requiredTags) && requiredTags.length > 0 ? requiredTags : ['priority', 'type', 'manual'];
   const featureRootPath = resolveRepoPath(cwd, featureRoot, { label: 'feature root' });
-  const files = await listFilesRecursive(featureRootPath, (filePath) => filePath.endsWith('.feature'));
   const strictTags = Boolean(args['strict-tags']);
   const strictLayout = Boolean(args['strict-layout']);
+  const aiTestingConfig = {
+    enabled: Boolean(getConfigValue(configInfo.data, 'aiTesting.enabled', false)),
+    requiredTechniques: getConfigValue(configInfo.data, 'aiTesting.requiredTechniques', []),
+    optionalTechniques: getConfigValue(configInfo.data, 'aiTesting.optionalTechniques', [])
+  };
+
+  let files;
+  if (args.file) {
+    const resolvedFile = resolveRepoPath(cwd, args.file, { label: 'single feature file' });
+    if (!resolvedFile.startsWith(featureRootPath)) {
+      console.log(`FAILED - file "${args.file}" is not under feature root "${featureRoot}".`);
+      process.exit(1);
+    }
+    try {
+      const stat = await fs.stat(resolvedFile);
+      if (!stat.isFile()) {
+        console.log(`FAILED - file "${args.file}" is not a file.`);
+        process.exit(1);
+      }
+    } catch {
+      console.log(`FAILED - file "${args.file}" does not exist.`);
+      process.exit(1);
+    }
+    files = [resolvedFile];
+    args['no-duplicates'] = true;
+  } else {
+    files = await listFilesRecursive(featureRootPath, (filePath) => filePath.endsWith('.feature'));
+  }
 
   if (files.length === 0) {
     console.log(`No .feature files found under ${featureRoot}.`);
@@ -70,7 +98,7 @@ async function main() {
     const content = await fs.readFile(file, 'utf8');
     const result = {
       file,
-      ...validateFeatureContent(content, file, tagNames, language, { strictTags })
+      ...validateFeatureContent(content, file, tagNames, language, { strictTags, aiTestingConfig, repoRoot: cwd })
     };
     results.push(result);
     const placement = validateFeatureFilePlacement(file, featureRootPath, content);

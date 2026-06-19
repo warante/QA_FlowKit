@@ -1,0 +1,26 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .qa-ai/scripts/hooks/post-edit-validate.mjs",
+            "timeout": 30000
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .qa-ai/scripts/hooks/stop-gate.mjs"
+          }
+        ]
+      }
+    ]
+  }
+}

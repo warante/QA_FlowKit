@@ -693,6 +693,42 @@ Remove the flags incrementally as each artifact is generated.
 
 ---
 
+### `qa-flowkit run next` says the run is blocked
+
+**Symptom**
+
+```text
+Blockers:
+  - Blocked Gherkin test design: the official RF ID must be recorded before continuing. Run: npx qa-flowkit run set-rf RF-123
+```
+
+**Cause**
+
+The harness found a workflow gate that needs human input, an official RF ID, a validation retry or scoped approval for
+modified existing outputs.
+
+**Fix**
+
+Copy the command printed in the blocker message, then run `npx qa-flowkit run next` or `npx qa-flowkit run check`
+again. JSON output keeps raw blocker IDs in `blockers` and includes the same user-facing text in `blockerHelp`.
+
+Common examples:
+
+```bash
+npx qa-flowkit run set-rf RF-123
+npx qa-flowkit run approve test-design
+npx qa-flowkit run approve modify-existing:intake
+npx qa-flowkit run retry
+```
+
+Spanish projects render the same help in Spanish, for example:
+
+```text
+Bloqueado Gherkin test design: falta aprobar la puerta "test-design". Ejecuta: npx qa-flowkit run approve test-design
+```
+
+---
+
 ### CI passes locally but fails on the CI server
 
 **Common causes**

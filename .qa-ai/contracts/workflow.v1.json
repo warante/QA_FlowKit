@@ -9,13 +9,19 @@
       "test-design-system",
       "test-design-rf",
       "gherkin",
+      "gherkin-quality",
+      "external-intake",
       "tm-coverage",
       "tm-sync",
+      "sync-diff",
+      "sync-apply",
+      "sync-verify",
       "traceability",
       "feasibility",
       "ui-impl",
       "mobile-impl",
       "api-impl",
+      "healing",
       "jira",
       "pr"
     ],
@@ -26,13 +32,19 @@
       "test-design-system",
       "test-design-rf",
       "gherkin",
+      "gherkin-quality",
+      "external-intake",
       "tm-coverage",
       "tm-sync",
+      "sync-diff",
+      "sync-apply",
+      "sync-verify",
       "traceability",
       "feasibility",
       "ui-impl",
       "mobile-impl",
       "api-impl",
+      "healing",
       "jira",
       "pr",
       "release-gate"
@@ -154,12 +166,66 @@
       }
     },
     {
+      "id": "external-intake",
+      "name": "External requirements and cases intake",
+      "slashCommand": "/qa-full-flow",
+      "guidance": [".qa-ai/agents/external-intake-agent.md"],
+      "inputs": [],
+      "outputs": [
+        {
+          "path": "$config.sources.external.requirementsImportPath",
+          "fallback": "qa-ai-output/imported-requirements.md"
+        },
+        {
+          "path": "$config.sources.external.casesImportPath",
+          "fallback": "qa-ai-output/imported-cases.md"
+        }
+      ],
+      "entryApprovals": [],
+      "validators": ["validate-external-intake"],
+      "skipConditions": [
+        { "field": "project.qaTrack", "equals": "quick" },
+        { "field": "sources.external.enabled", "equals": false }
+      ],
+      "permissions": {
+        "createLocal": "allowed",
+        "modifyExisting": "approval",
+        "externalWrite": "denied",
+        "delete": "denied"
+      }
+    },
+    {
+      "id": "gherkin-quality",
+      "name": "Gherkin quality evaluation",
+      "slashCommand": "/qa-quality",
+      "guidance": [".qa-ai/agents/gherkin-quality-agent.md", ".qa-ai/workflows/test-design.md"],
+      "inputs": [{ "path": "$config.gherkin.featurePath", "fallback": "features", "required": true }],
+      "outputs": [
+        {
+          "path": "$config.testDesign.quality.reportPath",
+          "fallback": "qa-ai-output/gherkin-quality-report.md"
+        }
+      ],
+      "entryApprovals": [],
+      "validators": ["validate-quality-report"],
+      "skipConditions": [
+        { "field": "project.qaTrack", "equals": "quick" },
+        { "field": "testDesign.quality.mode", "equals": "off" }
+      ],
+      "permissions": {
+        "createLocal": "allowed",
+        "modifyExisting": "approval",
+        "externalWrite": "denied",
+        "delete": "denied"
+      }
+    },
+    {
       "id": "tm-coverage",
       "name": "Test management coverage",
       "slashCommand": "/qa-coverage",
-      "guidance": [".qa-ai/agents/testrail-coverage-agent.md"],
+      "guidance": [".qa-ai/agents/test-management-coverage-agent.md"],
       "inputs": [],
-      "outputs": [{ "path": "qa-ai-output/testrail-coverage-analysis.md" }],
+      "outputs": [{ "path": "qa-ai-output/test-management-coverage-analysis.md" }],
       "entryApprovals": [],
       "validators": [],
       "skipConditions": [
@@ -177,14 +243,102 @@
       "id": "tm-sync",
       "name": "Test management sync plan",
       "slashCommand": "/qa-full-flow",
-      "guidance": [".qa-ai/agents/testrail-sync-agent.md", ".qa-ai/workflows/testrail-sync.md"],
+      "guidance": [".qa-ai/agents/test-management-sync-agent.md", ".qa-ai/workflows/test-management-sync.md"],
       "inputs": [],
-      "outputs": [{ "path": "qa-ai-output/testrail-sync-plan.md" }],
+      "outputs": [{ "path": "qa-ai-output/test-management-sync-plan.md" }],
       "entryApprovals": [],
       "validators": ["validate-sync-plan"],
       "skipConditions": [
         { "field": "project.qaTrack", "equals": "quick" },
         { "field": "tools.testManagement", "notConfigured": true }
+      ],
+      "permissions": {
+        "createLocal": "allowed",
+        "modifyExisting": "approval",
+        "externalWrite": "denied",
+        "delete": "denied"
+      }
+    },
+    {
+      "id": "sync-diff",
+      "name": "Test management sync diff",
+      "slashCommand": "/qa-full-flow",
+      "guidance": [".qa-ai/agents/test-management-diff-agent.md"],
+      "inputs": [{ "path": "qa-ai-output/test-management-sync-plan.md" }],
+      "outputs": [
+        { "path": "$config.testManagementSync.diffPath", "fallback": "qa-ai-output/test-management-sync-diff.md" },
+        {
+          "path": "$config.testManagementSync.remoteSnapshotPath",
+          "fallback": "qa-ai-output/test-management-remote-snapshot.md"
+        }
+      ],
+      "entryApprovals": [],
+      "validators": ["validate-sync-diff"],
+      "skipConditions": [
+        { "field": "project.qaTrack", "equals": "quick" },
+        { "field": "tools.testManagement", "notConfigured": true },
+        { "field": "testManagementSync.mode", "notEquals": "governed" }
+      ],
+      "permissions": {
+        "createLocal": "allowed",
+        "modifyExisting": "approval",
+        "externalWrite": "denied",
+        "delete": "denied"
+      }
+    },
+    {
+      "id": "sync-apply",
+      "name": "Test management sync apply",
+      "slashCommand": "/qa-full-flow",
+      "guidance": [".qa-ai/agents/test-management-apply-agent.md"],
+      "inputs": [
+        {
+          "path": "$config.testManagementSync.diffPath",
+          "fallback": "qa-ai-output/test-management-sync-diff.md",
+          "required": true
+        },
+        {
+          "path": "$config.testManagementSync.rollbackPath",
+          "fallback": "qa-ai-output/test-management-rollback-plan.md",
+          "required": true
+        }
+      ],
+      "outputs": [
+        { "path": "$config.testManagementSync.applyLogPath", "fallback": "qa-ai-output/test-management-apply-log.md" }
+      ],
+      "entryApprovals": ["external-write:test-management"],
+      "validators": [],
+      "skipConditions": [
+        { "field": "project.qaTrack", "equals": "quick" },
+        { "field": "tools.testManagement", "notConfigured": true },
+        { "field": "testManagementSync.mode", "notEquals": "governed" }
+      ],
+      "permissions": {
+        "createLocal": "allowed",
+        "modifyExisting": "approval",
+        "externalWrite": "approval",
+        "delete": "denied"
+      }
+    },
+    {
+      "id": "sync-verify",
+      "name": "Test management sync verification",
+      "slashCommand": "/qa-full-flow",
+      "guidance": [".qa-ai/agents/test-management-apply-agent.md"],
+      "inputs": [
+        {
+          "path": "$config.testManagementSync.applyLogPath",
+          "fallback": "qa-ai-output/test-management-apply-log.md",
+          "required": true
+        }
+      ],
+      "outputs": [],
+      "entryApprovals": [],
+      "validators": ["validate-sync-result"],
+      "skipConditions": [
+        { "field": "project.qaTrack", "equals": "quick" },
+        { "field": "tools.testManagement", "notConfigured": true },
+        { "field": "testManagementSync.mode", "notEquals": "governed" }
       ],
       "permissions": {
         "createLocal": "allowed",
@@ -349,6 +503,23 @@
       "entryApprovals": [],
       "validators": ["validate-release-gate"],
       "skipConditions": [{ "field": "project.qaTrack", "notEquals": "enterprise" }],
+      "permissions": {
+        "createLocal": "allowed",
+        "modifyExisting": "approval",
+        "externalWrite": "denied",
+        "delete": "denied"
+      }
+    },
+    {
+      "id": "healing",
+      "name": "Governed test healing",
+      "slashCommand": "/qa-full-flow",
+      "guidance": [".qa-ai/agents/test-healing-agent.md", ".qa-ai/workflows/healing.md"],
+      "inputs": [],
+      "outputs": [{ "path": "qa-ai-output/healing-log.md" }],
+      "entryApprovals": [],
+      "validators": ["validate-healing-log"],
+      "skipConditions": [{ "field": "automation.healing.enabled", "equals": false }],
       "permissions": {
         "createLocal": "allowed",
         "modifyExisting": "approval",

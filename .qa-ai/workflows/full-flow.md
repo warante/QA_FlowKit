@@ -29,8 +29,8 @@ When unsure which track applies, run `node .qa-ai/scripts/qa-help.mjs`.
 5. Produce `qa-ai-output/test-design-proposal.md` for the active RF/epic and ask approval before creating `.feature` files.
 6. Generate one `.feature` file per approved test case in the configured Gherkin language from `qa-ai.config.yaml` (`gherkin.language`).
 7. Run `node .qa-ai/scripts/validate-test-design.mjs` and `node .qa-ai/scripts/validate-features.mjs`; fix issues.
-8. Produce or update `qa-ai-output/testrail-coverage-analysis.md` (skip on `quick` track or when test management is disabled).
-9. Produce or update `qa-ai-output/testrail-sync-plan.md`; do not write to external test management tools in the MVP (skip on `quick` track).
+8. Produce or update `qa-ai-output/test-management-coverage-analysis.md` (skip on `quick` track or when test management is disabled).
+9. Produce or update `qa-ai-output/test-management-sync-plan.md`; do not write to external test management tools in the MVP (skip on `quick` track).
 10. Update `qa-ai-output/traceability-matrix.md`.
 11. Produce or update `qa-ai-output/automation-feasibility-report.md` (skip on `quick` track).
 12. Produce `qa-ai-output/automation-implementation-plan.md` and ask approval before automation code changes (skip on `quick` track).

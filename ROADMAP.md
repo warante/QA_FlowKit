@@ -43,19 +43,29 @@ The executable implementation plan, owners, dependencies and acceptance criteria
 | M6 - Release candidate   | Epic 19: `1.0.0-rc` validation and soak                             | RC passes the full support matrix with no unresolved P0/P1 defects                             |
 | M7 - Stable release      | Epic 20: stable release and post-release verification               | `1.0.0` is published through release-please on `latest` and install/update smoke tests pass    |
 
+## Product expansion (plan/)
+
+| Epic    | Scope                                                                                              | Exit gate                                                                                                                                                                                                                        |
+| ------- | -------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| EPIC-P0 | [Hardening and first-use experience](plan/EPIC-P0-hardening-and-first-use.md)                      | A new user can run `npx qa-flowkit init` and reach a valid, schema-checked, placeholder-free configuration with synced adapters and pre-created feature folders in one command; roadmap, intake security and self-quality align. |
+| EPIC-P1 | [Host-native enforcement and CI integration](plan/EPIC-P1-enforcement-and-ci.md)                   | Claude Code hooks provide immediate validation feedback and stop-gate protection; any repository can add the QA FlowKit gate to a PR in five lines of workflow YAML; shipped skills follow current Agent Skills conventions.     |
+| EPIC-P2 | [Governed external writes](plan/EPIC-P2-governed-external-writes.md)                               | A connected test-management MCP can apply exactly an approved sync batch and verify the remote state against the approved plan, with rollback planning and run-event audit evidence.                                             |
+| EPIC-P3 | [Semantic quality and execution evidence](plan/EPIC-P3-semantic-quality-and-execution-evidence.md) | Release gates can require linked passing execution results and a versioned Gherkin quality report, with traceability and results exported to Cucumber JSON and Allure.                                                           |
+| EPIC-P4 | [AI-system testing](plan/EPIC-P4-ai-system-testing.md)                                             | AI-marked requirements require AI-specific design techniques, statistical Gherkin validates, and enterprise gates can require linked eval-report evidence.                                                                       |
+| EPIC-P5 | [Distribution and ecosystem](plan/EPIC-P5-distribution-and-ecosystem.md)                           | Claude Code plugin installation, custom validators, local metrics and parser upgrades are available while the npm CLI remains the multi-agent source of truth.                                                                   |
+
 ## Scope guardrails
 
 The following are **not required for 1.0.0**:
 
 - model hosting or model selection;
-- unrestricted Jira, TestRail, Zephyr, Xray, Confluence or GitHub writes;
 - a hosted QA FlowKit backend;
 - full tool-level enforcement against an agent with unrestricted shell access;
-- interactive CLI prompts;
-- an adapter marketplace or registry.
+- interactive CLI prompts.
 
-Read-only integrations may be prototyped after the contract freeze only when they do not delay the release candidate.
-External writes remain proposal-first and deferred until an audited permission, idempotency and rollback design exists.
+Governed external writes are in scope and specified in
+[`plan/EPIC-P2-governed-external-writes.md`](plan/EPIC-P2-governed-external-writes.md). Proposal-first remains the
+default; direct writes always require recorded approval.
 
 ## Release gates
 
@@ -71,12 +81,4 @@ External writes remain proposal-first and deferred until an audited permission, 
 
 ## After 1.0
 
-Post-1.0 candidates are prioritized separately and do not block stable release:
-
-- read-only requirement intake integrations;
-- optional MCP/tool gateway;
-- approved, idempotent external write integrations;
-- interactive init;
-- adapter registry;
-- documentation site enhancements;
-- richer test-management schemas and a full Gherkin parser.
+Post-1.0 candidates are prioritized through the improvement plan in [`plan/README.md`](plan/README.md).

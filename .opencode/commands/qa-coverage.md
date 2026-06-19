@@ -1,6 +1,7 @@
 ---
 description: Analyze QA functional coverage / Analizar cobertura funcional QA
 argument-hint: [RF ID, requirement source, or scope]
+allowed-tools: [view_file, list_dir, grep_search, glob, run_command]
 ---
 
 Before any other action or user-facing text, read and follow `.qa-ai/workflows/command-interaction.md`.
@@ -14,11 +15,11 @@ Read these files first:
 - `.qa-ai/rules/`
 - `.qa-ai/agents/README.md`
 - `.qa-ai/agents/qa-workflow-orchestrator.md`
-- `.qa-ai/agents/testrail-coverage-agent.md`
+- `.qa-ai/agents/test-management-coverage-agent.md`
 - `.qa-ai/agents/automation-feasibility-agent.md`
 - `.qa-ai/agents/specialists/active.md` when present
 - `.qa-ai/workflows/automation-analysis.md`
-- `.qa-ai/workflows/testrail-sync.md`
+- `.qa-ai/workflows/test-management-sync.md`
 
 Use `project.interfaceLanguage` / `project.defaultLanguage` from `qa-ai.config.yaml` for user-facing questions and summaries.
 
@@ -42,7 +43,7 @@ Coverage dimensions:
 Expected local artifacts:
 
 - `qa-ai-output/qa-coverage-report.md`
-- `qa-ai-output/testrail-coverage-analysis.md` when test management is configured or local mapping data exists
+- `qa-ai-output/test-management-coverage-analysis.md` when test management is configured or local mapping data exists
 - `qa-ai-output/traceability-matrix.md` when useful
 
 Do not modify tests or write to external tools unless the user explicitly asks and approves a follow-up change.

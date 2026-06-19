@@ -7,6 +7,12 @@ validation evidence and release gates.
 Lifecycle terms, support claims and version-reference rules are defined in the
 [stability policy](../docs/qa-ai/stability-policy.md).
 
+## Relationship to `plan/`
+
+Epics 13-20 remain the stabilization plan for the beta-to-`1.0.0` path. Product expansion work lives in
+[`plan/`](../plan/README.md) with its own `EPIC-P*`, `P*-US-*` and `P*-T-*` identifiers; do not mix those IDs with the
+historical task ranges in this directory.
+
 ## Planning principles
 
 - Stabilize before expanding scope.

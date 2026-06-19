@@ -1,6 +1,6 @@
 import path from 'node:path';
-import { parseFeatureTags } from './feature-layout.mjs';
 import { rfPattern } from './gherkin-validate.mjs';
+import { parse as parseGherkin } from './gherkin-parser.mjs';
 import { normalizeColumn, splitMarkdownRow, isSeparatorRow, rowValues } from './markdown-table.mjs';
 
 export const COVERAGE_MODES = ['off', 'advisory', 'strict'];
@@ -13,6 +13,17 @@ export const TEST_DESIGN_TECHNIQUES = [
   'pairwise',
   'error-guessing',
   'use-case-testing'
+];
+
+/** Recognized AI-specific test design techniques (see .qa-ai/rules/ai-testing.rules.md). */
+export const AI_TESTING_TECHNIQUES = [
+  'adversarial',
+  'statistical-consistency',
+  'robustness-paraphrase',
+  'safety-guardrails',
+  'fairness-bias',
+  'degradation-fallback',
+  'pii-leakage'
 ];
 
 const POSITIVE_TYPES = new Set(['functional', 'regression', 'smoke', 'e2e', 'integration', 'api']);
@@ -42,7 +53,11 @@ export function normalizeTechnique(value) {
 
 export function techniqueIsKnown(value) {
   const technique = normalizeTechnique(value);
-  return TEST_DESIGN_TECHNIQUES.includes(technique) || technique.startsWith('other:');
+  return (
+    TEST_DESIGN_TECHNIQUES.includes(technique) ||
+    AI_TESTING_TECHNIQUES.includes(technique) ||
+    technique.startsWith('other:')
+  );
 }
 
 export function extractSection(content, heading) {
@@ -122,24 +137,94 @@ function booleanValue(value) {
 }
 
 export function featureCoverageRecord(file, content) {
-  const tags = parseFeatureTags(content);
+  const ast = parseGherkin(content);
+
+  const tags = {};
+  if (ast.feature && ast.feature.tags) {
+    for (const t of ast.feature.tags) {
+      const tagText = t.name.startsWith('@') ? t.name.slice(1) : t.name;
+      const colonIndex = tagText.indexOf(':');
+      if (colonIndex > 0) {
+        const key = tagText.slice(0, colonIndex).toLowerCase();
+        const value = tagText.slice(colonIndex + 1).trim();
+        tags[key] = value;
+      } else {
+        tags[tagText.toLowerCase()] = 'true';
+      }
+    }
+  }
+
   const rf = normalizeRf(tags.rf || rfFromText(path.basename(file)));
   const type = String(tags.type || 'functional')
     .trim()
     .toLowerCase();
-  const techniques = [...String(content).matchAll(/^\s*#\s*Technique:\s*(.+)$/gim)]
-    .flatMap((match) => match[1].split(/[+,]/))
-    .map(normalizeTechnique)
-    .filter(Boolean);
-  const thenLine = String(content)
-    .split(/\r?\n/)
-    .find((line) => /^\s*(?:Then|Entonces)\b/i.test(line));
+
+  const techniques = [];
+  for (const comment of ast.comments) {
+    const trimmedComment = comment.text.trim();
+    const match = trimmedComment.match(/^#\s*Technique:\s*(.+)$/i);
+    if (match) {
+      const values = match[1].split(/[+,]/).map(normalizeTechnique).filter(Boolean);
+      techniques.push(...values);
+    }
+  }
+
+  let thenLine = '';
+  let isAiComponent = false;
+  const aiTechniquesFromTags = [];
+
+  if (ast.feature && ast.feature.tags) {
+    for (const t of ast.feature.tags) {
+      if (t.name.toLowerCase() === '@ai-component') {
+        isAiComponent = true;
+      }
+      if (t.name.toLowerCase().startsWith('@technique:')) {
+        const value = t.name.slice('@technique:'.length);
+        aiTechniquesFromTags.push(normalizeTechnique(value));
+      }
+    }
+  }
+
+  const scanNode = (node) => {
+    if (node.tags) {
+      for (const t of node.tags) {
+        if (t.name.toLowerCase() === '@ai-component') {
+          isAiComponent = true;
+        }
+        if (t.name.toLowerCase().startsWith('@technique:')) {
+          const value = t.name.slice('@technique:'.length);
+          aiTechniquesFromTags.push(normalizeTechnique(value));
+        }
+      }
+    }
+    if (node.steps) {
+      for (const step of node.steps) {
+        if (/^\s*(?:Then|Entonces)\b/i.test(step.keyword)) {
+          if (!thenLine) {
+            thenLine = `${step.keyword}${step.text}`;
+          }
+        }
+      }
+    }
+    if (node.children) {
+      node.children.forEach(scanNode);
+    }
+  };
+
+  if (ast.feature) {
+    scanNode(ast.feature);
+  }
+
+  const aiTechniques = [...new Set(aiTechniquesFromTags)].filter(Boolean);
+
   return {
     file,
     rf,
     type,
     techniques,
-    hasObservableThen: Boolean(thenLine && thenLine.replace(/^\s*(?:Then|Entonces)\s*/i, '').trim())
+    hasObservableThen: Boolean(thenLine && thenLine.replace(/^\s*(?:Then|Entonces)\s*/i, '').trim()),
+    isAiComponent,
+    aiTechniques
   };
 }
 
@@ -325,5 +410,118 @@ export function validateCoverage({ features, proposalContent = '', policy = {}, 
 
   const errors = findings.filter((finding) => finding.severity === 'error');
   const warnings = findings.filter((finding) => finding.severity === 'warning');
+  return { ok: errors.length === 0, mode: normalizedMode, findings, errors, warnings };
+}
+
+/**
+ * Validate AI-component technique coverage.
+ *
+ * @param {object} options
+ * @param {object[]} options.features - featureCoverageRecord results
+ * @param {object} options.proposalContent - raw proposal markdown
+ * @param {string[]} options.requiredTechniques - from aiTesting.requiredTechniques config
+ * @param {string} options.mode - 'off' | 'advisory' | 'strict'
+ * @returns {{ ok: boolean, findings: object[], errors: object[], warnings: object[] }}
+ */
+export function validateAiCoverage({ features, proposalContent = '', requiredTechniques = [], mode = 'off' }) {
+  const normalizedMode = normalizeCoverageMode(mode);
+  if (normalizedMode === 'off' || requiredTechniques.length === 0) {
+    return { ok: true, mode: normalizedMode, findings: [], errors: [], warnings: [] };
+  }
+
+  const findings = [];
+  const severity = requiredSeverity(normalizedMode);
+
+  // Parse the proposal table to find which RFs are marked as AI components
+  const proposalTable = parseSectionTable(proposalContent, 'Proposed tests', ['RF']);
+  const techniques = proposalTechniques(proposalContent);
+  const aiComponentColumn = proposalTable.header.map(normalizeColumn).includes('ai component');
+
+  for (const error of [...proposalTable.errors, ...techniques.errors]) {
+    addFinding(findings, severity, '', 'proposal-structure', error);
+  }
+
+  const rfAiSet = new Set();
+  if (aiComponentColumn) {
+    for (const row of proposalTable.rows) {
+      const isAi = booleanValue(row.values['ai component'] || row.values['ai-component']);
+      const rf = normalizeRf(row.values.rf || rfFromText(JSON.stringify(row.values)));
+      if (rf && isAi === true) rfAiSet.add(rf);
+    }
+  }
+
+  // Feature-level cross-checks
+  const groups = groupFeatures(features);
+  for (const [rf, rfFeatures] of groups.entries()) {
+    const isAiRf = rfAiSet.has(rf) || rfFeatures.some((f) => f.isAiComponent);
+    if (!isAiRf) continue;
+
+    // All scenarios in an AI RF must carry @ai-component
+    for (const feature of rfFeatures) {
+      if (!feature.isAiComponent) {
+        addFinding(
+          findings,
+          severity,
+          rf,
+          'ai-component-tag',
+          `${path.basename(feature.file)} belongs to AI RF ${rf} but is missing @ai-component tag.`
+        );
+      }
+    }
+
+    // Collect AI techniques declared in both planned tests and generated features.
+    const coveredTechniques = new Set([
+      ...(techniques.byRf.get(rf) || []).map(normalizeTechnique),
+      ...rfFeatures.flatMap((f) => f.aiTechniques)
+    ]);
+
+    // Validate @technique tags are all known AI techniques
+    for (const technique of coveredTechniques) {
+      if (!AI_TESTING_TECHNIQUES.includes(technique) && !technique.startsWith('other:')) {
+        addFinding(findings, severity, rf, 'ai-technique-unknown', `${rf} uses unknown AI technique "${technique}".`);
+      }
+    }
+
+    // Ensure every required technique has at least one scenario
+    for (const required of requiredTechniques.map(normalizeTechnique)) {
+      if (!coveredTechniques.has(required)) {
+        addFinding(
+          findings,
+          severity,
+          rf,
+          'ai-technique-missing',
+          `${rf} (AI component) is missing required technique "${required}".`
+        );
+      }
+    }
+  }
+
+  // Proposal cross-check: a feature with @ai-component must trace back to a proposal RF marked AI
+  const featureAiRfs = new Set(features.filter((f) => f.isAiComponent && f.rf).map((f) => f.rf));
+  for (const rf of rfAiSet) {
+    if (!featureAiRfs.has(rf)) {
+      addFinding(
+        findings,
+        severity,
+        rf,
+        'ai-component-mismatch',
+        `Proposal marks ${rf} as an AI component but no linked feature carries @ai-component.`
+      );
+    }
+  }
+  for (const rf of featureAiRfs) {
+    if (!rfAiSet.has(rf) && aiComponentColumn) {
+      addFinding(
+        findings,
+        severity,
+        rf,
+        'ai-component-mismatch',
+        `Features for ${rf} carry @ai-component but the proposal does not mark it as an AI component.`
+      );
+    }
+  }
+
+  const errors = findings.filter((f) => f.severity === 'error');
+  const warnings = findings.filter((f) => f.severity === 'warning');
   return { ok: errors.length === 0, mode: normalizedMode, findings, errors, warnings };
 }

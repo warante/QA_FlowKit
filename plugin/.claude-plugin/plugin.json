@@ -1,0 +1,98 @@
+{
+  "name": "qa-flowkit",
+  "description": "QA FlowKit workflow skills, hooks and orchestrator agent / Skills, hooks y agente orquestador de QA FlowKit",
+  "version": "0.5.4-beta.0",
+  "author": "warante",
+  "homepage": "https://github.com/warante/QA_FlowKit",
+  "repository": "https://github.com/warante/QA_FlowKit",
+  "license": "MIT",
+  "skills": [
+    {
+      "name": "qa-add-tests",
+      "path": "skills/qa-add-tests.md",
+      "namespace": "qa-flowkit"
+    },
+    {
+      "name": "qa-automation-plan",
+      "path": "skills/qa-automation-plan.md",
+      "namespace": "qa-flowkit"
+    },
+    {
+      "name": "qa-clean",
+      "path": "skills/qa-clean.md",
+      "namespace": "qa-flowkit"
+    },
+    {
+      "name": "qa-config",
+      "path": "skills/qa-config.md",
+      "namespace": "qa-flowkit"
+    },
+    {
+      "name": "qa-coverage",
+      "path": "skills/qa-coverage.md",
+      "namespace": "qa-flowkit"
+    },
+    {
+      "name": "qa-doctor",
+      "path": "skills/qa-doctor.md",
+      "namespace": "qa-flowkit"
+    },
+    {
+      "name": "qa-full-flow",
+      "path": "skills/qa-full-flow.md",
+      "namespace": "qa-flowkit"
+    },
+    {
+      "name": "qa-gate",
+      "path": "skills/qa-gate.md",
+      "namespace": "qa-flowkit"
+    },
+    {
+      "name": "qa-help",
+      "path": "skills/qa-help.md",
+      "namespace": "qa-flowkit"
+    },
+    {
+      "name": "qa-impact",
+      "path": "skills/qa-impact.md",
+      "namespace": "qa-flowkit"
+    },
+    {
+      "name": "qa-init",
+      "path": "skills/qa-init.md",
+      "namespace": "qa-flowkit"
+    },
+    {
+      "name": "qa-quality",
+      "path": "skills/qa-quality.md",
+      "namespace": "qa-flowkit"
+    },
+    {
+      "name": "qa-status",
+      "path": "skills/qa-status.md",
+      "namespace": "qa-flowkit"
+    },
+    {
+      "name": "qa-update-tests",
+      "path": "skills/qa-update-tests.md",
+      "namespace": "qa-flowkit"
+    },
+    {
+      "name": "qa-validate-features",
+      "path": "skills/qa-validate-features.md",
+      "namespace": "qa-flowkit"
+    },
+    {
+      "name": "qa-validate-karate-features",
+      "path": "skills/qa-validate-karate-features.md",
+      "namespace": "qa-flowkit"
+    }
+  ],
+  "agents": [
+    {
+      "name": "qa-workflow-orchestrator",
+      "path": "agents/qa-workflow-orchestrator.md"
+    }
+  ],
+  "hooks": "hooks/hooks.json"
+}

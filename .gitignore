@@ -61,3 +61,5 @@ allure-results/
 allure-report/
 coverage/
 .nyc_output/
+.stryker-tmp/
+.tmp-claude-plugin-check/

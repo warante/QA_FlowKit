@@ -12,7 +12,8 @@ import {
   pathExists,
   readText,
   relativeTo,
-  resolveRepoPath
+  resolveRepoPath,
+  resolveTestManagementSyncPlanPath
 } from './lib/utils.mjs';
 
 const cwd = process.cwd();
@@ -135,10 +136,17 @@ async function main() {
   logHeader('QA AI sync plan validator');
   const configInfo = await loadQaAiConfig(cwd);
   const featureRoot = args.features || getConfigValue(configInfo.data, 'gherkin.featurePath', 'features');
-  const syncPlanPath =
-    args.path || getConfigValue(configInfo.data, 'testrail.syncPlanPath', 'qa-ai-output/testrail-sync-plan.md');
+  const resolvedSyncPlan = args.path
+    ? { path: args.path, absPath: resolveRepoPath(cwd, args.path, { label: 'sync plan' }), isLegacy: false }
+    : await resolveTestManagementSyncPlanPath(cwd, configInfo.data);
+  const syncPlanPath = resolvedSyncPlan.path;
+  if (resolvedSyncPlan.isLegacy) {
+    console.warn(
+      `[WARN] Legacy sync plan path '${resolvedSyncPlan.path}' found. Rename it to '${resolvedSyncPlan.replacementPath}' to follow current conventions.`
+    );
+  }
   const featureRootPath = resolveRepoPath(cwd, featureRoot, { label: 'feature root' });
-  const syncPlanFilePath = resolveRepoPath(cwd, syncPlanPath, { label: 'sync plan' });
+  const syncPlanFilePath = resolvedSyncPlan.absPath;
   const features = await collectFeatureIds(featureRootPath);
 
   if (features.length === 0) {

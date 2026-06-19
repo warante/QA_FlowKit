@@ -24,7 +24,15 @@ coordinate disclosure as soon as practical.
 - `.qa-ai/` must not store secrets.
 - Generated `.mcp.json` files must use environment variables.
 - Current QA FlowKit scripts do not perform external writes to Jira, Confluence, TestRail or GitHub.
+- Config-declared custom validators are experimental and must be repo-local Node.js scripts. `doctor` rejects absolute
+  paths, path traversal, unknown workflow phases and built-in validator id shadowing, then runs `--self-test --json`.
+  Validators run without additional environment variables from FlowKit; do not use them to read credentials or call
+  external services.
 - Future external-write integrations must require explicit user approval and auditable scopes.
+- Governed test-management sync keeps the external-write boundary outside FlowKit scripts: `sync-apply` may write only
+  through user-approved host MCP/tooling after the `external-write:test-management` gate is recorded, with rollback and
+  apply-log artifacts kept in the repository for audit. FlowKit validators inspect those artifacts; they do not hold
+  credentials or perform the remote writes themselves.
 - Deletion operations should be disabled by default.
 - Scripts must prefer dry-run or proposal-first behavior.
 

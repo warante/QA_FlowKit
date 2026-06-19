@@ -1,0 +1,10 @@
+{
+  "language": "es",
+  "rubricDimensions": ["language-clarity"],
+  "structuralRules": [
+    {
+      "rule": "spanish-language-header",
+      "messageIncludes": "Spanish Gherkin files must declare \"# language: es\"."
+    }
+  ]
+}

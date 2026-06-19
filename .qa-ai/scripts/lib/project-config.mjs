@@ -205,6 +205,16 @@ export const specialistCatalog = {
     title: 'Functional Security Testing Specialist',
     categories: ['security'],
     aliases: ['security', 'functional-security', 'owasp-functional']
+  },
+  'ai-evals': {
+    title: 'AI Eval Suite Specialist',
+    categories: ['ai-testing'],
+    aliases: ['ai-evals', 'evals', 'promptfoo', 'deepeval']
+  },
+  'ai-red-team': {
+    title: 'AI Red Team Specialist',
+    categories: ['ai-testing', 'security'],
+    aliases: ['ai-red-team', 'llm-red-team', 'adversarial-ai']
   }
 };
 
@@ -237,6 +247,10 @@ export function activeSpecialists(config) {
   active.set('generic-test-design', specialistCatalog['generic-test-design']);
   if (getConfigValue(config, 'testDesign.coverage.requireSecurityReview', false)) {
     active.set('security', specialistCatalog.security);
+  }
+  if (getConfigValue(config, 'aiTesting.enabled', false)) {
+    active.set('ai-evals', specialistCatalog['ai-evals']);
+    active.set('ai-red-team', specialistCatalog['ai-red-team']);
   }
   return [...active.entries()].sort(([a], [b]) => a.localeCompare(b));
 }

@@ -12,6 +12,9 @@ export function normalizeRiskList(value) {
     return value.map((item) => String(item || '').trim()).filter(Boolean);
   }
   if (typeof value === 'string' && value.trim()) {
+    if (value.trim() === '[]') {
+      return [];
+    }
     return value
       .split(/\r?\n/)
       .map((line) => line.replace(/^-\s*/, '').trim())
@@ -37,6 +40,8 @@ export function validateReleaseGateData(data, { source = 'release gate', allowPe
   const waivedReason = String(data?.waived_reason || data?.waivedReason || '').trim();
   const risks = normalizeRiskList(data?.open_risks ?? data?.openRisks);
   const evidence = normalizeRiskList(data?.evidence_paths ?? data?.evidencePaths);
+  const evidenceExecution = normalizeRiskList(data?.evidence?.execution ?? data?.evidence_execution);
+  const evidenceEvals = normalizeRiskList(data?.evidence?.evals ?? data?.evidence_evals);
   const coverage = String(data?.coverage_summary ?? data?.coverageSummary ?? '').trim();
 
   if (!coverage) {
@@ -62,5 +67,5 @@ export function validateReleaseGateData(data, { source = 'release gate', allowPe
     errors.push(`${source}: PASS cannot be used with blocking open_risks text.`);
   }
 
-  return { decision, errors, risks, evidence, approver, waivedReason, coverage };
+  return { decision, errors, risks, evidence, evidenceExecution, evidenceEvals, approver, waivedReason, coverage };
 }

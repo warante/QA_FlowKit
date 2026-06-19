@@ -27,30 +27,37 @@ npx qa-flowkit@beta init [options]
 
 Common options:
 
-| Option                           | Values / behavior                                                                        |
-| -------------------------------- | ---------------------------------------------------------------------------------------- |
-| `--preset <name>`                | `manual-only`, `playwright-full`, `maestro-karate-mobile`, `karate-full`, legacy presets |
-| `--qa-track <name>`              | `quick`, `standard`, `enterprise`                                                        |
-| `--interface-language <en\|es>`  | User-facing workflow and artifact language                                               |
-| `--gherkin-language <en\|es>`    | `.feature` language                                                                      |
-| `--requirements-source <name>`   | `markdown`, `jira`, `confluence`, etc.                                                   |
-| `--test-management-tool <name>`  | `none`, `testrail`, `zephyr`, `xray`, etc.                                               |
-| `--issue-tracker <name>`         | `none`, `jira`, `github`, etc.                                                           |
-| `--ui-framework <name>`          | UI/E2E framework or `none`                                                               |
-| `--api-framework <name>`         | API framework or `none`                                                                  |
-| `--mobile-framework <name>`      | Mobile automation framework or `none`                                                    |
-| `--mobile-flows-path <path>`     | Mobile flow root, for example `tests/maestro/flows`                                      |
-| `--adapters <list>`              | Comma-separated adapter IDs or `all`                                                     |
-| `--no-adapters`                  | Do not generate root adapter files                                                       |
-| `--qa-context <path>`            | Repository-local QA practice folder                                                      |
-| `--with-doc-templates`           | Create starter files under `qa-ai-output/`                                               |
-| `--with-test-management-mapping` | Create the mapping JSON template                                                         |
-| `--set <key=value>`              | Repeatable scalar config override                                                        |
-| `--force`                        | Explicitly allow overwrite of generated files                                            |
-| `--skip-doctor`                  | CLI-only option that skips the post-init doctor run                                      |
+| Option                             | Values / behavior                                                                        |
+| ---------------------------------- | ---------------------------------------------------------------------------------------- |
+| `--preset <name>`                  | `manual-only`, `playwright-full`, `maestro-karate-mobile`, `karate-full`, legacy presets |
+| `--project-name <name>`            | Project name written to `project.name`; defaults to `package.json` name or folder name   |
+| `--test-management-project <name>` | Test-management project name; defaults to the resolved project name when TM is enabled   |
+| `--qa-track <name>`                | `quick`, `standard`, `enterprise`                                                        |
+| `--interface-language <en\|es>`    | User-facing workflow and artifact language                                               |
+| `--gherkin-language <en\|es>`      | `.feature` language                                                                      |
+| `--requirements-source <name>`     | `markdown`, `jira`, `confluence`, etc.                                                   |
+| `--test-management-tool <name>`    | `none`, `testrail`, `zephyr`, `xray`, etc.                                               |
+| `--issue-tracker <name>`           | `none`, `jira`, `github`, etc.                                                           |
+| `--ui-framework <name>`            | UI/E2E framework or `none`                                                               |
+| `--api-framework <name>`           | API framework or `none`                                                                  |
+| `--mobile-framework <name>`        | Mobile automation framework or `none`                                                    |
+| `--mobile-flows-path <path>`       | Mobile flow root, for example `tests/maestro/flows`                                      |
+| `--adapters <list>`                | Explicit comma-separated adapter IDs or `all`                                            |
+| `--no-adapters`                    | Do not generate root adapter files                                                       |
+| `--no-feature-folders`             | Do not create canonical `features/<category>/.gitkeep` folders                           |
+| `--qa-context <path>`              | Repository-local QA practice folder                                                      |
+| `--with-ci <platform>`             | Generate pipeline workflow file (e.g. `github`). See [CI Integration](ci-integration.md) |
+| `--with-doc-templates`             | Create starter files under `qa-ai-output/`                                               |
+| `--with-test-management-mapping`   | Create the mapping JSON template                                                         |
+| `--set <key=value>`                | Repeatable scalar config override                                                        |
+| `--force`                          | Explicitly allow overwrite of generated files                                            |
+| `--skip-doctor`                    | CLI-only option that skips the post-init doctor run                                      |
 
-Default init uses the Playwright UI + API preset and the OpenCode adapter. Existing target files are not
-overwritten unless `--force` is explicit.
+Default init uses the Playwright UI + API preset, detects existing host folders such as `.claude/` and `.opencode/`,
+and syncs those adapters plus `generic`. When no host folder exists, only `generic` is generated. Passing
+`--adapters` is an explicit override and does not add `generic` unless requested. Existing target files are not
+overwritten unless `--force` is explicit. Generated `qa-ai.config.yaml` files must not contain `CHANGE_ME`; init
+derives supported placeholders and fails with the offending key paths when an unresolved placeholder remains.
 
 ### `update`
 
@@ -112,28 +119,89 @@ npx qa-flowkit run check
 | Command                       | Purpose                                                            |
 | ----------------------------- | ------------------------------------------------------------------ |
 | `doctor [--strict]`           | Check framework, config, paths, adapters and required target state |
+| `validate-config [--json]`    | Validate `qa-ai.config.yaml` against the published JSON Schema     |
+| `validate-untrusted-content`  | Scan requirements and QA context for prompt-injection-like content |
+| `validate-external-intake`    | Validate read-only external requirement and case imports           |
 | `validate-target`             | Run the complete target-repository gate                            |
 | `validate-features`           | Validate QA design Gherkin                                         |
 | `validate-karate-features`    | Validate executable Karate features                                |
 | `validate-maestro-flows`      | Validate Maestro YAML flows and repository-local subflow paths     |
 | `validate-traceability`       | Validate matrix shape, duplicates and feature coverage             |
 | `validate-sync-plan`          | Validate proposal-first test-management plans and mappings         |
+| `validate-sync-diff`          | Validate governed test-management snapshot and diff artifacts      |
+| `validate-sync-result`        | Validate governed test-management apply and verify artifacts       |
 | `validate-active-specialists` | Compare generated specialists with config                          |
 | `validate-test-design`        | Validate system and per-RF design artifacts                        |
 | `validate-test-coverage`      | Validate configured cross-feature coverage obligations             |
+| `validate-quality-report`     | Validate semantic Gherkin quality reports                          |
+| `validate-execution-evidence` | Validate JUnit XML and Cucumber JSON results against traceability  |
 | `validate-release-gate`       | Validate enterprise release evidence and decision                  |
+| `validate-healing-log`        | Validate governed test healing log                                 |
+| `validate-test-impact`        | Validate governed test impact analysis report                      |
+
+`validate-untrusted-content` warns by default, supports `--strict` to fail on findings, and supports `--json` for
+machine-readable `file`, `line`, `pattern` and `excerpt` findings. `validate-target` includes this scanner in warn
+mode by default.
 
 Validators intended for in-progress work may expose `--allow-empty` or `--allow-missing`. Do not use permissive flags
 for the final PR/release gate unless the workflow explicitly makes that artifact optional.
+
+`validate-quality-report` checks `testDesign.quality.reportPath` against the shipped rubric, listed feature hashes and
+the configured `testDesign.quality.mode`. In `advisory` mode, threshold misses are warnings; in `gate` mode, they fail
+the command.
+
+`validate-execution-evidence` loads and parses JUnit XML or Cucumber JSON results, mapping them to automated test IDs in the traceability matrix. Failed tests that are quarantined only log warnings, while non-quarantined failures fail the gate. Missing results fail the command unless `--allow-missing` is passed.
+
+`validate-healing-log` parses the governed test healing log `qa-ai-output/healing-log.md`. It verifies that healed test cases exist in the traceability matrix, repair types are valid, justifications are sufficient, and modified files remain strictly within the configured specs directories (never modifying Gherkin `.feature` files).
+
+`validate-test-impact` parses the test impact analysis report `qa-ai-output/test-impact-analysis.md`. It ensures all declared test cases and RFs exist in the traceability matrix, the selected list matches the union of the table's affected test cases, and all linked tests for affected RFs are selected according to the Superset Rule.
 
 ## Guidance and maintenance
 
 | Command                          | Purpose                                                        |
 | -------------------------------- | -------------------------------------------------------------- |
 | `help [--json]`                  | Recommend the next workflow phase from state and artifacts     |
+| `export-report [options]`        | Export Gherkin-aligned test cases and execution results        |
+| `metrics [options]`              | Compute local workflow KPIs from the run event log             |
 | `sync-adapters [--adapters ...]` | Refresh selected root adapter files                            |
 | `clean`                          | Preview or remove generated files tracked in the init manifest |
 | `version`                        | Print the installed package version                            |
+
+### `export-report`
+
+```bash
+npx qa-flowkit export-report --format cucumber-json|allure|junit-xml [options]
+```
+
+Options:
+
+- `--format <format>`: format to export (required: `cucumber-json`, `allure`, `junit-xml`).
+- `--out <dir>`: output directory (defaults to `qa-ai-output/reports/<format>/`).
+- `--json`: prints a machine-readable JSON summary on stdout.
+- `--fixed-timestamp <epoch_or_iso>`: sets a deterministic timestamp for testing.
+- `--fixed-uuid <uuid_seed>`: sets a seed for generating deterministic UUIDs.
+
+For details, see [Reporting Exporters](reporting.md).
+
+### `metrics`
+
+```bash
+npx qa-flowkit metrics [--json] [--since <ISO date>] [--run <run-id>]
+```
+
+`metrics` reads only `.qa-ai/state/runs/*/run.json` and `events.jsonl`. It performs no writes and never reads artifact
+contents. The human output reports run counts, completion/blocking state, median and p90 durations, approval wait time,
+rework approvals, per-track totals and per-phase validation failure rates.
+
+JSON output uses `schemaVersion: 1` and includes:
+
+- `filters`: normalized `since` and `run` filters.
+- `totals`: run counts, duration KPIs, approval wait median and rework approval count.
+- `tracks`: counts grouped by workflow track.
+- `phases`: per-phase completed count, median/p90 duration, validation failures, validation checks, failure rate and
+  retries.
+- `runs`: one normalized summary per run.
+- `warnings`: non-fatal parse warnings, such as malformed JSONL lines skipped during aggregation.
 
 Cleanup is manifest-based and dry-run/proposal-first by default. See [Cleanup](cleanup.md).
 

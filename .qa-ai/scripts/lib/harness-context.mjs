@@ -8,6 +8,7 @@ import {
 } from './harness-contract.mjs';
 import { resolveHarnessRelativePath } from './harness-paths.mjs';
 import { buildModificationBlockers, modificationApprovalGateId } from './harness-modification.mjs';
+import { interfaceLanguage, renderBlockers } from './harness-messages.mjs';
 
 function resolveGuidancePaths(config, guidance) {
   return (guidance || []).map((item) => item);
@@ -126,6 +127,10 @@ export function buildPhasePacket({ cwd, snapshot, phaseDef, config, blockers = [
       modificationGate
     },
     blockers,
+    blockerHelp: renderBlockers(
+      blockers.map((blocker) => ({ ...blocker, phaseId: phaseDef.id, phaseName: phaseDef.name })),
+      interfaceLanguage(config)
+    ),
     recommendedCommand:
       phaseState.status === 'blocked' && phaseState.blockedReason === 'validation'
         ? 'npx qa-flowkit run retry'
@@ -136,18 +141,21 @@ export function buildPhasePacket({ cwd, snapshot, phaseDef, config, blockers = [
 export function buildStatusReport({ snapshot, contract, config }) {
   const phaseMap = getPhaseMap(contract);
   const order = getTrackPhaseOrder(contract, snapshot.track);
-  const phases = order.map((phaseId) => {
-    const def = phaseMap.get(phaseId);
-    const state = snapshot.phases?.[phaseId] || { status: 'pending' };
-    const skipReason = state.status === 'skipped' ? getPhaseSkipReason(config, def) : null;
-    return {
-      id: phaseId,
-      name: def?.name || phaseId,
-      status: state.status,
-      skipReason,
-      blockedReason: state.blockedReason || null
-    };
-  });
+  const phases = order
+    .map((phaseId) => {
+      const def = phaseMap.get(phaseId);
+      const state = snapshot.phases?.[phaseId] || { status: 'pending' };
+      const skipReason = state.status === 'skipped' ? getPhaseSkipReason(config, def) : null;
+      if (skipReason) return null;
+      return {
+        id: phaseId,
+        name: def?.name || phaseId,
+        status: state.status,
+        skipReason,
+        blockedReason: state.blockedReason || null
+      };
+    })
+    .filter(Boolean);
 
   return {
     runId: snapshot.runId,

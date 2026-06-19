@@ -1,0 +1,17 @@
+{
+  "$schema": "./node_modules/@stryker-mutator/core/schema/stryker-schema.json",
+  "packageManager": "npm",
+  "reporters": ["html", "clear-text", "progress"],
+  "testRunner": "command",
+  "commandRunner": {
+    "command": "node .qa-ai/scripts/test-validators.mjs"
+  },
+  "coverageAnalysis": "off",
+  "mutate": [
+    ".qa-ai/scripts/lib/gherkin-validate.mjs",
+    ".qa-ai/scripts/lib/test-coverage.mjs",
+    ".qa-ai/scripts/lib/markdown-table.mjs",
+    ".qa-ai/scripts/lib/secret-patterns.mjs",
+    ".qa-ai/scripts/lib/injection-patterns.mjs"
+  ]
+}

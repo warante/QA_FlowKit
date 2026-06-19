@@ -144,6 +144,12 @@ function resolveFieldValue(config, field) {
   if (field === 'knowledge.enabled') {
     return isEnabled(getConfigValue(config, 'knowledge.enabled', false));
   }
+  if (field === 'sources.external.enabled') {
+    return isEnabled(getConfigValue(config, 'sources.external.enabled', false));
+  }
+  if (field === 'testDesign.quality.mode') {
+    return String(getConfigValue(config, 'testDesign.quality.mode', 'off')).toLowerCase();
+  }
   if (field === 'tools.testManagement') {
     return isConfiguredTool(getConfigValue(config, 'tools.testManagement', ''));
   }
@@ -155,6 +161,9 @@ function resolveFieldValue(config, field) {
   }
   if (field === 'automation.api.framework') {
     return isConfiguredFramework(String(getConfigValue(config, 'automation.api.framework', 'none')).toLowerCase());
+  }
+  if (field === 'automation.healing.enabled') {
+    return isEnabled(getConfigValue(config, 'automation.healing.enabled', false));
   }
   return getConfigValue(config, field, undefined);
 }
@@ -265,8 +274,12 @@ export function toLegacyPhaseDefinition(phaseDef) {
     legacy.validateScript = 'node .qa-ai/scripts/validate-test-design.mjs --allow-missing';
   } else if ((phaseDef.validators || []).includes('validate-traceability')) {
     legacy.validateScript = 'node .qa-ai/scripts/validate-traceability.mjs';
+  } else if ((phaseDef.validators || []).includes('validate-quality-report')) {
+    legacy.validateScript = 'node .qa-ai/scripts/validate-quality-report.mjs';
   } else if ((phaseDef.validators || []).includes('validate-release-gate')) {
     legacy.validateScript = 'node .qa-ai/scripts/validate-release-gate.mjs';
+  } else if ((phaseDef.validators || []).includes('validate-healing-log')) {
+    legacy.validateScript = 'node .qa-ai/scripts/validate-healing-log.mjs';
   }
 
   return legacy;
@@ -412,7 +425,7 @@ export function validateWorkflowContractData(cwd, contract) {
     }
 
     try {
-      validatePhasePermissions(phase.permissions);
+      validatePhasePermissions(phase.permissions, phase.id);
     } catch (error) {
       errors.push(`Phase ${phase.id}: ${error.message}`);
     }

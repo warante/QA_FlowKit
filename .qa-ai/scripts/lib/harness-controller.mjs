@@ -1,6 +1,7 @@
-import { getConfigValue, loadQaAiConfig } from './utils.mjs';
+import { getConfigValue, loadQaAiConfig, pathExists, hashFile, resolveTestManagementSyncPlanPath } from './utils.mjs';
 import { getPhaseMap, getPhaseSkipReason, getTrackPhaseOrder, loadWorkflowContract } from './harness-contract.mjs';
 import { buildPhaseBlockers, buildPhasePacket, buildStatusReport } from './harness-context.mjs';
+import { interfaceLanguage, renderBlockers } from './harness-messages.mjs';
 import {
   appendRunEvent,
   assertMutableRun,
@@ -52,7 +53,7 @@ async function gatherPhaseBlockers({ cwd, phaseDef, snapshot, config, approvals 
   if (phaseState?.baselineCaptured) {
     currentOutputs = await collectOutputHashes(cwd, config, phaseDef.outputs || []);
   }
-  return buildPhaseBlockers({
+  const blockers = buildPhaseBlockers({
     cwd,
     phaseDef,
     snapshot,
@@ -60,6 +61,24 @@ async function gatherPhaseBlockers({ cwd, phaseDef, snapshot, config, approvals 
     approvals,
     currentOutputs
   });
+  const inputCheck = await verifyPhaseInputs(cwd, config, phaseDef);
+  if (!inputCheck.ok) {
+    blockers.push({
+      type: 'missing-inputs',
+      missing: inputCheck.missing,
+      message: 'Required inputs are missing.'
+    });
+  }
+  return blockers;
+}
+
+function blockerHelp(blockers, config, phaseDef = null) {
+  const enriched = (blockers || []).map((blocker) => ({
+    ...blocker,
+    phaseId: blocker.phaseId || phaseDef?.id,
+    phaseName: blocker.phaseName || phaseDef?.name
+  }));
+  return renderBlockers(enriched, interfaceLanguage(config));
 }
 
 function initializePhaseStates(contract, config) {
@@ -170,8 +189,9 @@ export async function getRunStatus(cwd, { runId = null } = {}) {
   const configInfo = await loadQaAiConfig(cwd);
   const snapshot = await readRunSnapshot(cwd, activeId);
   let blockers = [];
+  let phaseDef = null;
   if (snapshot.activePhaseId) {
-    const phaseDef = getPhaseMap(contract).get(snapshot.activePhaseId);
+    phaseDef = getPhaseMap(contract).get(snapshot.activePhaseId);
     if (phaseDef) {
       blockers = await gatherPhaseBlockers({
         cwd,
@@ -185,7 +205,8 @@ export async function getRunStatus(cwd, { runId = null } = {}) {
   return {
     active: true,
     ...buildStatusReport({ snapshot, contract, config: configInfo.data }),
-    blockers
+    blockers,
+    blockerHelp: blockerHelp(blockers, configInfo.data, snapshot.activePhaseId ? phaseDef : null)
   };
 }
 
@@ -240,6 +261,42 @@ export async function resumeRun(cwd, runId) {
   });
 }
 
+async function checkAndInvalidateSyncPlanApproval(cwd, snapshot, config, runId) {
+  const existingApprovalIndex = (snapshot.approvals || []).findIndex(
+    (item) => item.gate === 'external-write:test-management'
+  );
+  if (existingApprovalIndex === -1) return false;
+
+  const approval = snapshot.approvals[existingApprovalIndex];
+  if (!approval.planHash) return false;
+
+  const { absPath: absSyncPlanPath } = await resolveTestManagementSyncPlanPath(cwd, config);
+
+  if (await pathExists(absSyncPlanPath)) {
+    const currentHash = await hashFile(absSyncPlanPath);
+    if (currentHash !== approval.planHash) {
+      snapshot.approvals.splice(existingApprovalIndex, 1);
+
+      await appendRunEvent(cwd, runId, {
+        type: 'approval_invalidated',
+        gate: 'external-write:test-management',
+        reason: 'plan_hash_changed',
+        previousHash: approval.planHash,
+        currentHash
+      });
+
+      if (snapshot.activePhaseId === 'sync-apply') {
+        const phaseState = snapshot.phases['sync-apply'];
+        phaseState.status = 'blocked';
+        phaseState.blockedReason = 'entry';
+        snapshot.status = 'blocked';
+      }
+      return true;
+    }
+  }
+  return false;
+}
+
 export async function nextPhase(cwd) {
   const runId = await getActiveRunId(cwd);
   if (!runId) throw new Error('No active run. Start one with: npx qa-flowkit run start');
@@ -249,6 +306,11 @@ export async function nextPhase(cwd) {
     const configInfo = await loadQaAiConfig(cwd);
     const snapshot = await readRunSnapshot(cwd, runId);
     assertMutableRun(snapshot);
+
+    const hashChanged = await checkAndInvalidateSyncPlanApproval(cwd, snapshot, configInfo.data, runId);
+    if (hashChanged) {
+      await writeRunSnapshot(cwd, snapshot);
+    }
 
     const phaseMap = getPhaseMap(contract);
     const order = getTrackPhaseOrder(contract, snapshot.track);
@@ -266,6 +328,7 @@ export async function nextPhase(cwd) {
           config: configInfo.data,
           approvals: snapshot.approvals
         });
+        maybeUnblockEntryBlockedPhase(snapshot, blockers);
         await writeRunSnapshot(cwd, snapshot);
         return buildPhasePacket({
           cwd,
@@ -333,6 +396,12 @@ export async function nextPhase(cwd) {
       phaseId: targetPhaseId,
       baselineOutputs: baselineOutputs.map((item) => item.path)
     });
+    if (targetPhaseId === 'sync-apply') {
+      await appendRunEvent(cwd, runId, { type: 'sync_apply.started', phaseId: targetPhaseId });
+    }
+    if (targetPhaseId === 'sync-verify') {
+      await appendRunEvent(cwd, runId, { type: 'sync_verify.started', phaseId: targetPhaseId });
+    }
 
     return buildPhasePacket({
       cwd,
@@ -354,6 +423,11 @@ export async function checkPhase(cwd, { maxAttempts = DEFAULT_MAX_VALIDATION_ATT
     const snapshot = await readRunSnapshot(cwd, runId);
     assertMutableRun(snapshot);
 
+    const hashChanged = await checkAndInvalidateSyncPlanApproval(cwd, snapshot, configInfo.data, runId);
+    if (hashChanged) {
+      await writeRunSnapshot(cwd, snapshot);
+    }
+
     const phaseId = snapshot.activePhaseId;
     if (!phaseId) throw new Error('No active phase. Run: npx qa-flowkit run next');
 
@@ -362,9 +436,14 @@ export async function checkPhase(cwd, { maxAttempts = DEFAULT_MAX_VALIDATION_ATT
     const phaseState = snapshot.phases[phaseId];
 
     if (phaseState.status === 'blocked' && phaseState.blockedReason === 'validation') {
+      const blockers = [
+        { type: 'validation', retryable: true, message: 'Phase is blocked after repeated validation failures.' }
+      ];
       return {
         ok: false,
         phaseId,
+        blockers,
+        blockerHelp: blockerHelp(blockers, configInfo.data, phaseDef),
         blocked: true,
         retryable: true,
         message: 'Phase is blocked. Run: npx qa-flowkit run retry'
@@ -386,6 +465,7 @@ export async function checkPhase(cwd, { maxAttempts = DEFAULT_MAX_VALIDATION_ATT
           ok: false,
           phaseId,
           blockers,
+          blockerHelp: blockerHelp(blockers, configInfo.data, phaseDef),
           blocked: true,
           retryable: true,
           message: 'Phase cannot advance while validation blockers remain.'
@@ -399,15 +479,21 @@ export async function checkPhase(cwd, { maxAttempts = DEFAULT_MAX_VALIDATION_ATT
         ok: false,
         phaseId,
         blockers,
+        blockerHelp: blockerHelp(blockers, configInfo.data, phaseDef),
         message: 'Phase cannot advance while blockers remain.'
       };
     }
 
     const inputCheck = await verifyPhaseInputs(cwd, configInfo.data, phaseDef);
     if (!inputCheck.ok) {
+      const blockers = [
+        { type: 'missing-inputs', missing: inputCheck.missing, message: 'Required inputs are missing.' }
+      ];
       return {
         ok: false,
         phaseId,
+        blockers,
+        blockerHelp: blockerHelp(blockers, configInfo.data, phaseDef),
         missingInputs: inputCheck.missing,
         message: 'Required inputs are missing.'
       };
@@ -441,7 +527,21 @@ export async function checkPhase(cwd, { maxAttempts = DEFAULT_MAX_VALIDATION_ATT
         phaseId,
         missingOutputs: outputCheck.missing,
         attempts: phaseState.attempts,
-        blocked: phaseState.status === 'blocked'
+        blocked: phaseState.status === 'blocked',
+        blockerHelp:
+          phaseState.status === 'blocked'
+            ? blockerHelp(
+                [
+                  {
+                    type: 'validation',
+                    retryable: true,
+                    message: 'Phase is blocked after repeated validation failures.'
+                  }
+                ],
+                configInfo.data,
+                phaseDef
+              )
+            : []
       };
     }
 
@@ -456,6 +556,7 @@ export async function checkPhase(cwd, { maxAttempts = DEFAULT_MAX_VALIDATION_ATT
         ok: false,
         phaseId,
         blockers: modificationBlockers,
+        blockerHelp: blockerHelp(modificationBlockers, configInfo.data, phaseDef),
         message: 'Modified pre-existing outputs require scoped approval before completion.'
       };
     }
@@ -467,6 +568,17 @@ export async function checkPhase(cwd, { maxAttempts = DEFAULT_MAX_VALIDATION_ATT
       results: validatorResult.results,
       timestamp: new Date().toISOString()
     };
+
+    const advisoryCustomFailures = validatorResult.results.filter(
+      (result) => result.custom && !result.blocking && !result.ok
+    );
+    if (advisoryCustomFailures.length > 0) {
+      await appendRunEvent(cwd, runId, {
+        type: 'phase.validation_warning',
+        phaseId,
+        results: advisoryCustomFailures
+      });
+    }
 
     if (!validatorResult.ok) {
       if (phaseState.attempts >= maxAttempts) {
@@ -488,7 +600,21 @@ export async function checkPhase(cwd, { maxAttempts = DEFAULT_MAX_VALIDATION_ATT
         phaseId,
         validation: validatorResult,
         attempts: phaseState.attempts,
-        blocked: phaseState.status === 'blocked'
+        blocked: phaseState.status === 'blocked',
+        blockerHelp:
+          phaseState.status === 'blocked'
+            ? blockerHelp(
+                [
+                  {
+                    type: 'validation',
+                    retryable: true,
+                    message: 'Phase is blocked after repeated validation failures.'
+                  }
+                ],
+                configInfo.data,
+                phaseDef
+              )
+            : []
       };
     }
 
@@ -649,14 +775,24 @@ export async function approveGate(cwd, gate, { note = '' } = {}) {
     }
 
     const existing = snapshot.approvals || [];
+    let recordedHash = null;
     if (!existing.some((item) => item.gate === gateId)) {
-      existing.push({
+      const approvalObj = {
         gate: gateId,
         decision: 'approved',
         phaseId: scopedPhaseId || snapshot.activePhaseId || null,
         timestamp: new Date().toISOString(),
         note: note ? String(note).trim() : ''
-      });
+      };
+      if (gateId === 'external-write:test-management') {
+        const configInfo = await loadQaAiConfig(cwd);
+        const { absPath: absSyncPlanPath } = await resolveTestManagementSyncPlanPath(cwd, configInfo.data);
+        if (await pathExists(absSyncPlanPath)) {
+          recordedHash = await hashFile(absSyncPlanPath);
+          approvalObj.planHash = recordedHash;
+        }
+      }
+      existing.push(approvalObj);
       snapshot.approvals = existing;
     }
 
@@ -682,7 +818,8 @@ export async function approveGate(cwd, gate, { note = '' } = {}) {
     await appendRunEvent(cwd, runId, {
       type: 'approval.recorded',
       gate: gateId,
-      phaseId: scopedPhaseId || snapshot.activePhaseId || null
+      phaseId: scopedPhaseId || snapshot.activePhaseId || null,
+      ...(recordedHash ? { planHash: recordedHash } : {})
     });
     return snapshot;
   });

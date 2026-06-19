@@ -113,6 +113,24 @@ node .qa-ai/scripts/sync-agent-adapters.mjs --adapters claude,opencode --force
 
 Only edit generated root adapter files directly when you are customizing a single target repository and do not want the change to become part of the portable framework.
 
+### Slash Command Rules and Conventions
+
+When customizing or creating new slash commands for Claude Code or OpenCode, adhere to these rules:
+
+1. **Allowed Tools Restriction (`allowed-tools`)**:
+   Always specify the `allowed-tools` array in the command's frontmatter.
+   - For **read-only commands** (e.g. validating features, checking coverage, status reports), exclude any tool that allows file modification (such as `write_file`, `edit_file`, `write_to_file`, `replace_file_content`, etc.). Only allow read tools and command runners: `[view_file, list_dir, grep_search, glob, run_command]`.
+   - For **modifying commands** (e.g. init, add tests, clean), include modifying tools: `[view_file, write_file, edit_file, list_dir, grep_search, glob, run_command]`.
+
+2. **Human-Only Gates (`disable-model-invocation`)**:
+   Commands that record approvals or make final gate decisions (such as `/qa-gate`) must include `disable-model-invocation: true` in their frontmatter. This prevents agents from invoking the gate command autonomously without human review.
+
+3. **Bilingual Descriptions**:
+   Ensure command descriptions are bilingual and match the pattern `English description / Descripción en español`.
+
+4. **Live-State Context Injection**:
+   Use command-injection syntax `! ` + backtick + `command` + backtick (e.g. `! ` + `` `node script.js` ``) at the top of the command file (directly below the frontmatter) to inject context (e.g., status or next steps) when the command is loaded.
+
 ## Keeping customizations portable
 
 Keep portable framework changes in `.qa-ai/`. Keep target-repository-only knowledge in a repo-local folder such as:

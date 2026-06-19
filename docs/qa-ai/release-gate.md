@@ -37,14 +37,52 @@ Default path: `qa-ai-output/release-gate.yaml`
 
 Template: `.qa-ai/templates/release-gate.template.yaml`
 
-| Field              | Purpose                                                  |
-| ------------------ | -------------------------------------------------------- |
-| `decision`         | `PASS`, `CONCERNS`, `FAIL`, `WAIVED`, or draft `PENDING` |
-| `approver`         | Required for `WAIVED`                                    |
-| `coverage_summary` | Human-readable validation and coverage summary           |
-| `open_risks`       | List of risks; required for `CONCERNS` and `FAIL`        |
-| `evidence_paths`   | Repository-relative paths that exist on disk             |
-| `waived_reason`    | Required for `WAIVED`                                    |
+| Field                | Purpose                                                                                 |
+| -------------------- | --------------------------------------------------------------------------------------- |
+| `decision`           | `PASS`, `CONCERNS`, `FAIL`, `WAIVED`, or draft `PENDING`                                |
+| `approver`           | Required for `WAIVED`                                                                   |
+| `coverage_summary`   | Human-readable validation and coverage summary                                          |
+| `open_risks`         | List of risks; required for `CONCERNS` and `FAIL`                                       |
+| `evidence_paths`     | Repository-relative paths that exist on disk                                            |
+| `evidence.execution` | Optional list of repository-relative JUnit XML or Cucumber JSON execution result files. |
+| `evidence.evals`     | Optional list of repository-relative AI eval JSON evidence files.                       |
+| `waived_reason`      | Required for `WAIVED`                                                                   |
+
+## Evidence Validation
+
+When `execution.resultsPaths` is configured in `qa-ai.config.yaml` and the repository is set to `project.qaTrack: enterprise`:
+
+1. The release gate validator automatically runs execution evidence checks when the `decision` is `PASS`.
+2. Every automated test case listed in the traceability matrix must have a corresponding passed run inside the results files.
+3. Tests marked as quarantined (e.g. `quarantined: true` in the mapping file) are excluded from failure status and only log warnings with their quarantine reason and reviewed date.
+4. If any non-quarantined automated test fails, or if any automated test is missing results (unless `--allow-missing` is passed), the release gate validation fails.
+
+When `aiTesting.enabled: true` and the traceability matrix contains AI-marked RFs:
+
+1. Enterprise `PASS` also runs AI eval evidence checks. `WAIVED` keeps the existing human-approval behavior.
+2. Each AI RF must have at least one linked eval case, either through `rfId` or by including the RF ID in the case name.
+3. All linked eval cases must pass.
+4. Statistical AI scenarios that declare `P% of N runs` require linked eval cases with numeric `score` and `threshold`, and the score must meet or exceed the threshold.
+
+Example config:
+
+```yaml
+execution:
+  resultsPaths:
+    - reports/junit/*.xml
+  evalResultsPaths:
+    - reports/evals/*.json
+```
+
+Example gate evidence:
+
+```yaml
+evidence:
+  execution:
+    - reports/junit/results.xml
+  evals:
+    - reports/evals/promptfoo-results.json
+```
 
 ## Workflow
 

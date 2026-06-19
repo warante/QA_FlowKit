@@ -12,6 +12,7 @@ import {
   resolveOutputHarnessPaths
 } from './harness-paths.mjs';
 import { isValidatorAllowed, VALIDATOR_ALLOWLIST } from './harness-validator-allowlist.mjs';
+import { customValidatorsForPhase, runCustomValidator } from './custom-validators.mjs';
 
 export { VALIDATOR_ALLOWLIST, isValidatorAllowed };
 
@@ -212,6 +213,12 @@ export async function runPhaseValidators(cwd, config, phaseDef) {
     const result = runValidator(cwd, validatorId, extraArgs);
     results.push({ validatorId, ...result });
     if (!result.ok) allOk = false;
+  }
+
+  for (const validator of customValidatorsForPhase(config, phaseDef.id)) {
+    const result = runCustomValidator(cwd, validator);
+    results.push(result);
+    if (!result.ok && result.blocking) allOk = false;
   }
 
   return { ok: allOk, results };

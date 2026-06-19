@@ -56,3 +56,7 @@ needed, load the functional security specialist when applicable and run `validat
 Claude Code and OpenCode support project slash commands through generated adapters. Use `/qa-init` for agent-first initialization instead of the native `/init` command, and `/qa-config` to import or export reusable configuration profiles.
 
 Gemini CLI uses the generated root `GEMINI.md` context file when the `gemini` adapter is selected.
+
+## Self-Validation (Hookless Host)
+
+Codex does not support automatic settings-level hooks. You must manually run the appropriate validation scripts (e.g., `node .qa-ai/scripts/validate-features.mjs` or `node .qa-ai/scripts/validate-target.mjs`) after every file edit and before finishing your turn.

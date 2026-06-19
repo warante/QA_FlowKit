@@ -142,13 +142,22 @@ function validatePackFileList(files) {
     '.qa-ai/scripts/init.mjs',
     '.qa-ai/scripts/doctor.mjs',
     '.qa-ai/contracts/workflow.v1.json',
+    '.qa-ai/contracts/config.v1.schema.json',
     '.qa-ai/scripts/qa-run.mjs',
+    '.qa-ai/scripts/qa-metrics.mjs',
+    '.qa-ai/scripts/validate-config.mjs',
+    '.qa-ai/scripts/validate-untrusted-content.mjs',
     '.qa-ai/scripts/validate-test-coverage.mjs',
+    '.qa-ai/scripts/lib/config-schema.mjs',
+    '.qa-ai/scripts/lib/injection-patterns.mjs',
     '.qa-ai/scripts/lib/test-coverage.mjs',
+    '.qa-ai/rules/untrusted-content.rules.md',
+    '.qa-ai/rules/ai-testing.rules.md',
     '.qa-ai/agents/specialists/available/security.md',
     '.qa-ai/templates/source-analysis.template.md',
     '.qa-ai/scripts/lib/harness-paths.mjs',
     '.qa-ai/scripts/lib/harness-modification.mjs',
+    '.qa-ai/scripts/lib/harness-messages.mjs',
     '.qa-ai/adapters/opencode/commands/qa-init.md',
     '.qa-ai/workflows/command-interaction.md',
     'README.md',
@@ -230,12 +239,13 @@ async function main() {
     await assertExists(path.join(initTarget, 'qa-ai.config.yaml'), 'generated config');
     await assertExists(path.join(initTarget, 'features'), 'features directory');
     await assertExists(path.join(initTarget, 'qa-ai-output'), 'qa-ai-output directory');
-    await assertExists(path.join(initTarget, '.opencode', 'commands', 'qa-init.md'), 'default OpenCode adapter');
+    await assertExists(path.join(initTarget, 'AGENTS.md'), 'default generic adapter');
     await assertIncludes(
-      path.join(initTarget, '.opencode', 'commands', 'qa-add-tests.md'),
-      'Before any other action or user-facing text',
-      'generated OpenCode command interaction contract'
+      path.join(initTarget, 'AGENTS.md'),
+      '.qa-ai/workflows/command-interaction.md',
+      'generated generic command interaction contract'
     );
+    await assertMissing(path.join(initTarget, '.opencode'), 'undetected OpenCode adapter');
     runCli(initTarget, ['init', '--skip-doctor'], { expectFailure: true });
     runCli(initTarget, ['doctor']);
     runCli(initTarget, ['validate-target', '--allow-empty', '--allow-missing', '--no-strict-doctor']);
@@ -244,6 +254,8 @@ async function main() {
     if (!versionResult.stdout.trim()) throw new Error('qa-flowkit version produced no output.');
     const helpResult = runCli(initTarget, ['help', '--json']);
     if (!helpResult.stdout) throw new Error('qa-flowkit help produced no output.');
+    runCli(initTarget, ['validate-config']);
+    JSON.parse(runCli(initTarget, ['validate-config', '--json']).stdout);
     runCli(initTarget, ['unknown-command-xyzzy'], { expectFailure: true });
     runCli(initTarget, ['validate-features', '--allow-empty']);
     runCli(initTarget, ['validate-test-coverage', '--allow-empty', '--allow-missing']);

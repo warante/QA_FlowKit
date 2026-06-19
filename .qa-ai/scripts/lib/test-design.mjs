@@ -104,6 +104,17 @@ export function validateTestDesignProposal(content, options = {}) {
         }
       }
     }
+    if (proposedTests.header.some((column) => column.trim().toLowerCase() === 'ai component')) {
+      const VALID_AI = new Set(['yes', 'no', 'y', 'n', 'true', 'false', '']);
+      for (const row of proposedTests.rows) {
+        const val = String(row.values['ai component'] || '')
+          .trim()
+          .toLowerCase();
+        if (!VALID_AI.has(val)) {
+          errors.push(`Unrecognized value "${row.values['ai component']}" in "AI component" column. Use yes/no.`);
+        }
+      }
+    }
   }
   if (options.requireCoverageSections) {
     const obligations = parseSectionTable(text, 'Coverage obligations', [

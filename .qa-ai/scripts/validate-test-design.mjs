@@ -1,7 +1,10 @@
 #!/usr/bin/env node
+import fs from 'node:fs/promises';
 import { validateTestDesignProposal, validateTestDesignSystem } from './lib/test-design.mjs';
+import { featureCoverageRecord, validateAiCoverage } from './lib/test-coverage.mjs';
 import {
   getConfigValue,
+  listFilesRecursive,
   loadQaAiConfig,
   logHeader,
   parseArgs,
@@ -66,11 +69,36 @@ export async function validateTestDesignArtifacts(cwd, options = {}) {
     validatorOptions
   });
 
-  const errors = [...system.errors, ...proposal.errors];
+  // AI-component coverage validation
+  const aiTestingEnabled = Boolean(getConfigValue(config, 'aiTesting.enabled', false));
+  const aiCoverageMode = getConfigValue(config, 'testDesign.coverage.mode', 'off');
+  const aiRequiredTechniques = getConfigValue(config, 'aiTesting.requiredTechniques', []);
+  let aiCoverage = { ok: true, findings: [], errors: [], warnings: [] };
+  if (aiTestingEnabled) {
+    const featurePath = getConfigValue(config, 'gherkin.featurePath', 'features');
+    const featureRootPath = resolveRepoPath(cwd, featurePath, { label: 'feature root' });
+    const featureFiles = await listFilesRecursive(featureRootPath, (f) => f.endsWith('.feature')).catch(() => []);
+    const features = [];
+    for (const file of featureFiles) {
+      const content = await fs.readFile(file, 'utf8').catch(() => '');
+      features.push(featureCoverageRecord(file, content));
+    }
+    const proposalAbsolute = resolveRepoPath(cwd, proposalPath, { label: 'proposal' });
+    const proposalContent = (await pathExists(proposalAbsolute)) ? await readText(proposalAbsolute) : '';
+    aiCoverage = validateAiCoverage({
+      features,
+      proposalContent,
+      requiredTechniques: Array.isArray(aiRequiredTechniques) ? aiRequiredTechniques : [],
+      mode: aiCoverageMode
+    });
+  }
+
+  const errors = [...system.errors, ...proposal.errors, ...aiCoverage.errors.map((f) => f.message)];
   return {
     ok: errors.length === 0,
     system,
     proposal,
+    aiCoverage,
     errors
   };
 }
@@ -99,6 +127,13 @@ async function main() {
     console.log('SKIP - per-RF test design proposal not found.');
   } else if (result.proposal.ok) {
     console.log(`PASS - ${result.proposal.path}`);
+  }
+
+  if (result.aiCoverage?.findings?.length > 0) {
+    for (const finding of result.aiCoverage.findings) {
+      const label = finding.severity === 'error' ? 'FAIL' : 'WARN';
+      console.log(`${label} [ai-coverage] ${finding.message}`);
+    }
   }
 
   if (result.errors.length > 0) {

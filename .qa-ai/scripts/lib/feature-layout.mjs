@@ -1,8 +1,9 @@
 /**
  * QA design feature folder layout under gherkin.featurePath.
- * Subfolders are created on demand when agents write files, not all at init.
+ * Init creates these subfolders so first-use validation does not teach the layout by failing.
  */
 import path from 'node:path';
+import { parse as parseGherkin } from './gherkin-parser.mjs';
 
 /** Subfolders allowed directly under gherkin.featurePath */
 export const FEATURE_SUBFOLDERS = ['functional', 'integration', 'e2e', 'api', 'accessibility', 'security', 'manual'];
@@ -33,6 +34,27 @@ const TYPE_TO_FOLDER = {
  */
 export function parseFeatureTags(content) {
   const tags = {};
+
+  try {
+    const ast = parseGherkin(content);
+    if (ast.feature && ast.feature.tags) {
+      for (const t of ast.feature.tags) {
+        const tagText = t.name.startsWith('@') ? t.name.slice(1) : t.name;
+        const colonIndex = tagText.indexOf(':');
+        if (colonIndex > 0) {
+          const key = tagText.slice(0, colonIndex).toLowerCase();
+          const value = tagText.slice(colonIndex + 1).trim();
+          tags[key] = value;
+        } else {
+          tags[tagText.toLowerCase()] = 'true';
+        }
+      }
+      return tags;
+    }
+  } catch {
+    // Fallback on parse failure
+  }
+
   const header = content.split(/\r?\n/).slice(0, 15).join('\n');
   const matches = header.matchAll(/@([a-zA-Z][\w-]*):([^\s@]+)/g);
   for (const match of matches) {

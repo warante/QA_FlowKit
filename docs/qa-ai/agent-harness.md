@@ -78,6 +78,21 @@ npx qa-flowkit run check
 `run retry` resets validation attempts to `0` and records `phase.retry_requested` in the event log. It does not bypass
 RF or entry-approval blockers.
 
+Human output renders blockers with plain-language help in `project.interfaceLanguage`. JSON output keeps raw machine
+identifiers in `blockers` and adds `blockerHelp` for agents to show verbatim:
+
+```text
+Blocked Gherkin test design: the official RF ID must be recorded before continuing. Run: npx qa-flowkit run set-rf RF-123
+Blocked Gherkin test design: approval gate "test-design" is required. Run: npx qa-flowkit run approve test-design
+```
+
+For Spanish interfaces:
+
+```text
+Bloqueado Gherkin test design: falta registrar el RF oficial antes de continuar. Ejecuta: npx qa-flowkit run set-rf RF-123
+Bloqueado Gherkin test design: falta aprobar la puerta "test-design". Ejecuta: npx qa-flowkit run approve test-design
+```
+
 If an approval is required, the run becomes blocked until the user approves the named gate:
 
 ```bash
@@ -119,14 +134,37 @@ The harness enforces approvals inside the QA FlowKit run:
 
 - Creating new local artifacts: allowed when the phase contract permits it.
 - Modifying existing tests or user-edited artifacts: scoped approval required (`modify-existing:<phaseId>`).
-- External writes: denied.
+- External writes: denied by default.
+- Governed test-management sync is the only exception: when `testManagementSync.mode` is `governed`, the `sync-apply`
+  phase requires `npx qa-flowkit run approve external-write:test-management`. The approval records the current
+  `qa-ai-output/test-management-sync-plan.md` hash.
 - Deletes: denied.
+
+If the approved sync plan changes before or during `sync-apply`, the harness removes the approval, emits an
+`approval_invalidated` event in `events.jsonl` and blocks the phase until `external-write:test-management` is approved
+again.
 
 Config-derived paths are resolved with `resolveRepoPath` at runtime. Absolute paths and paths that escape the
 repository are rejected before filesystem access.
 
 An agent with unrestricted shell access can still act outside the harness. Strong tool-level enforcement is a later,
 optional MCP or tool-gateway capability.
+
+## Enforcement hooks
+
+To ensure that the QA quality gates and validation rules are deterministic and do not depend purely on prompt discipline, QA FlowKit supports native interception hooks.
+
+### Claude Code Hooks
+
+On compatible hosts like Claude Code, the adapter automatically configures hooks inside the target's `.claude/settings.json`:
+
+- **PostToolUse**: Intercepts `Write|Edit` tool executions to run post-edit validation (`post-edit-validate.mjs`) on changed `.feature`, Karate, or Maestro flow files. If validation fails, findings are returned directly to the agent's tool feedback, preventing compilation or turn ending with syntax errors.
+- **Stop**: Runs the turn completion stop gate (`stop-gate.mjs`). If a run is active and expected outputs have changed but `npx qa-flowkit run check` has not yet been executed or recorded for the current hashes, the Stop gate blocks turn completion with exit code 2 and instructs the agent to run the validation check.
+
+### Opt-Out and Security Boundary
+
+- **Opt-Out**: Enforcement hooks can be completely disabled for emergency maintenance by setting the environment variable `QA_FLOWKIT_DISABLE_HOOKS=1`. When active, the scripts will exit 0 immediately.
+- **Security Boundary**: Enforcement hooks raise the floor for code quality and process compliance during local operations. They are not a sandbox and do not contain a hostile agent with unrestricted shell access. For strict branch protection, always configure the reusable CI quality gate in your PR pipeline.
 
 ## Relationship to existing commands
 

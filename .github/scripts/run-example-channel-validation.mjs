@@ -59,6 +59,13 @@ function cliPath(cliRoot) {
   return path.join(cliRoot, 'node_modules', 'qa-flowkit', 'bin', 'qa-flowkit.mjs');
 }
 
+function extraInitArgsForExample(example) {
+  if (example.preset === 'maestro-karate-mobile') {
+    return ['--set', 'automation.mobile.appId=com.example.qaflowkit'];
+  }
+  return [];
+}
+
 function validateManifest(manifest) {
   if (manifest?.schemaVersion !== 1 || !Array.isArray(manifest.examples) || manifest.examples.length === 0) {
     throw new Error('examples/compatibility.json must use schemaVersion 1 and define at least one example.');
@@ -99,12 +106,18 @@ async function filesUnder(directory) {
 }
 
 async function verifyCanonicalExampleSources(manifest) {
-  const tracked = new Set(
+  const trackedOrNew = new Set(
     run('git', ['ls-files', '--', 'examples'], { cwd: repoRoot })
       .stdout.split(/\r?\n/)
       .filter(Boolean)
       .map((file) => file.replaceAll('\\', '/'))
   );
+  for (const file of run('git', ['ls-files', '--others', '--exclude-standard', '--', 'examples'], { cwd: repoRoot })
+    .stdout.split(/\r?\n/)
+    .filter(Boolean)
+    .map((item) => item.replaceAll('\\', '/'))) {
+    trackedOrNew.add(file);
+  }
 
   for (const example of manifest.examples) {
     const exampleRoot = path.join(repoRoot, example.path);
@@ -127,8 +140,8 @@ async function verifyCanonicalExampleSources(manifest) {
 
       for (const file of files) {
         const relativePath = path.relative(repoRoot, file).replaceAll(path.sep, '/');
-        if (!tracked.has(relativePath)) {
-          throw new Error(`Canonical example source is not tracked by Git: ${relativePath}`);
+        if (!trackedOrNew.has(relativePath)) {
+          throw new Error(`Canonical example source is not tracked or staged by Git: ${relativePath}`);
         }
       }
     }
@@ -181,7 +194,19 @@ async function main() {
       await fs.cp(path.join(repoRoot, example.path), targetRoot, { recursive: true });
 
       const startedAt = Date.now();
-      run(node, [cli, 'init', '--preset', example.preset, '--no-adapters', '--skip-doctor'], { cwd: targetRoot });
+      run(
+        node,
+        [
+          cli,
+          'init',
+          '--preset',
+          example.preset,
+          ...extraInitArgsForExample(example),
+          '--no-adapters',
+          '--skip-doctor'
+        ],
+        { cwd: targetRoot }
+      );
       run(node, [cli, 'validate-target'], { cwd: targetRoot });
       const result = {
         example: example.id,

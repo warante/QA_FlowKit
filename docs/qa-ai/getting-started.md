@@ -19,7 +19,7 @@ Acceptance criteria:
 From your **target** repository root (Node.js 20+):
 
 ```bash
-npx qa-flowkit@beta init --preset manual-only --qa-track quick --adapters generic
+npx qa-flowkit@beta init --preset manual-only --qa-track quick
 npx qa-flowkit doctor
 npx qa-flowkit run start --rf RF-101
 npx qa-flowkit run next
@@ -94,7 +94,7 @@ npx qa-flowkit validate-karate-features
 
 - [Manual QA](#manual-qa)
 - [Automation QA](#automation-qa)
-- [Agent-First User](#agent-first-user)
+- [Alternative: agent-first bootstrap](#alternative-agent-first-bootstrap)
 - [Maintainer](#maintainer)
 
 ---
@@ -135,10 +135,18 @@ What this creates:
 qa-ai.config.yaml
 qa-ai-output/
 features/
-.opencode/
+  accessibility/.gitkeep
+  api/.gitkeep
+  e2e/.gitkeep
+  functional/.gitkeep
+  integration/.gitkeep
+  manual/.gitkeep
+  security/.gitkeep
+AGENTS.md
 ```
 
 No `tests/` folder is created because `manual-only` sets all automation frameworks to `none`.
+Use `--no-feature-folders` only if your repository intentionally manages the `features/<category>/` layout itself.
 
 **Step 3 — Verify setup**
 
@@ -294,9 +302,10 @@ node .qa-ai/scripts/config.mjs --export .qa-ai/config-profiles/team.yaml
 
 ---
 
-## Agent-First User
+## Alternative: agent-first bootstrap
 
-Use this flow when you want Claude Code or OpenCode to guide every step, including initialization, through guided slash commands.
+Use this alternative when you copied `.qa-ai/` manually and want Claude Code or OpenCode to guide initialization through
+`/qa-init`. For most repositories, prefer the primary npm quick start at the top of this page.
 
 **Prerequisites**
 

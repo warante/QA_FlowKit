@@ -15,6 +15,7 @@ QA design features under gherkin.featurePath use validate-features.mjs instead.
 
 Options:
   --path <dir>     Validate a single root (must be under configured Karate paths)
+  --file <path>    Validate a single Karate feature file
   --allow-empty    Success when no Karate .feature files exist
   --strict-rf      Require @rf: tags
   --no-duplicates  Skip cross-file @id duplicate check
@@ -48,10 +49,31 @@ async function main() {
   }
 
   const files = [];
-  for (const root of roots) {
-    const rootPath = resolveRepoPath(cwd, root, { label: 'Karate feature root' });
-    const listed = await listFilesRecursive(rootPath, (filePath) => filePath.endsWith('.feature'));
-    files.push(...listed);
+  if (args.file) {
+    const resolvedFile = resolveRepoPath(cwd, args.file, { label: 'single Karate feature file' });
+    const absoluteRoots = roots.map((root) => resolveRepoPath(cwd, root, { label: 'Karate root' }));
+    if (!absoluteRoots.some((r) => resolvedFile.startsWith(r))) {
+      console.log(`FAILED - file "${args.file}" is not under any configured Karate roots.`);
+      process.exit(1);
+    }
+    try {
+      const stat = await fs.stat(resolvedFile);
+      if (!stat.isFile()) {
+        console.log(`FAILED - file "${args.file}" is not a file.`);
+        process.exit(1);
+      }
+    } catch {
+      console.log(`FAILED - file "${args.file}" does not exist.`);
+      process.exit(1);
+    }
+    files.push(resolvedFile);
+    args['no-duplicates'] = true;
+  } else {
+    for (const root of roots) {
+      const rootPath = resolveRepoPath(cwd, root, { label: 'Karate feature root' });
+      const listed = await listFilesRecursive(rootPath, (filePath) => filePath.endsWith('.feature'));
+      files.push(...listed);
+    }
   }
 
   if (files.length === 0) {

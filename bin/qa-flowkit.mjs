@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const packageRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const packagedFramework = path.join(packageRoot, '.qa-ai');
@@ -14,17 +14,25 @@ const commandMap = {
   config: 'config.mjs',
   bootstrap: 'bootstrap-agent-adapters.mjs',
   doctor: 'doctor.mjs',
+  'validate-config': 'validate-config.mjs',
+  'validate-untrusted-content': 'validate-untrusted-content.mjs',
+  'validate-external-intake': 'validate-external-intake.mjs',
   'validate-target': 'validate-target.mjs',
   'validate-features': 'validate-features.mjs',
   'validate-karate-features': 'validate-karate-features.mjs',
   'validate-maestro-flows': 'validate-maestro-flows.mjs',
   'validate-traceability': 'validate-traceability.mjs',
   'validate-sync-plan': 'validate-sync-plan.mjs',
+  'validate-sync-diff': 'validate-sync-diff.mjs',
+  'validate-sync-result': 'validate-sync-result.mjs',
   'validate-active-specialists': 'validate-active-specialists.mjs',
   'validate-release-gate': 'validate-release-gate.mjs',
   'validate-test-design': 'validate-test-design.mjs',
   'validate-test-coverage': 'validate-test-coverage.mjs',
+  'validate-quality-report': 'validate-quality-report.mjs',
   'sync-adapters': 'sync-agent-adapters.mjs',
+  'export-report': 'export-report.mjs',
+  metrics: 'qa-metrics.mjs',
   help: 'qa-help.mjs',
   clean: 'clean.mjs'
 };
@@ -43,21 +51,29 @@ Setup commands:
 
 Validation commands:
   doctor [options]                 Check that the .qa-ai framework is correctly installed
+  validate-config [options]        Validate qa-ai.config.yaml against the published schema
+  validate-untrusted-content [options] Scan requirement and QA context files for prompt-injection-like content
+  validate-external-intake [options] Validate read-only external requirement and case imports
   validate-target [options]        Run all target-repository validators (strict doctor + full suite)
   validate-features [options]      Validate QA design .feature files (gherkin.featurePath)
   validate-karate-features [options] Validate executable Karate .feature files
   validate-maestro-flows [options]   Validate Maestro mobile YAML flows
   validate-traceability [options]  Validate the traceability matrix format and coverage
   validate-sync-plan [options]     Validate the test-management sync plan is proposal-first
+  validate-sync-diff [options]     Validate governed test-management snapshot and diff artifacts
+  validate-sync-result [options]   Validate governed test-management apply and verify artifacts
   validate-active-specialists      Validate active.md matches qa-ai.config.yaml
   validate-release-gate [options]  Validate the release-gate.yaml artifact
   validate-test-design [options]   Validate system and per-RF test design artifacts
   validate-test-coverage [options] Validate configured cross-feature coverage obligations
+  validate-quality-report [options] Validate the semantic Gherkin quality report
 
 Harness commands:
   run <subcommand>                 Resumable QA workflow run (start, status, next, check, retry, set-rf, approve, resume)
 
 Other commands:
+  export-report [options]          Export Gherkin-aligned test cases and execution results to Cucumber JSON, Allure, or JUnit XML
+  metrics [options]                Compute local workflow KPIs from .qa-ai/state/runs/
   sync-adapters [options]          Re-sync agent adapter files from the packaged templates
   help [options]                   Show context-aware next-step guidance for the QA workflow
   clean [options]                  Remove generated files tracked in the init manifest
@@ -68,11 +84,14 @@ Examples:
   npx qa-flowkit init --preset manual-only --interface-language es --gherkin-language es
   npx qa-flowkit update
   npx qa-flowkit doctor --strict
+  npx qa-flowkit validate-config --json
   npx qa-flowkit run start --rf RF-123
   npx qa-flowkit run next --json
   npx qa-flowkit run retry --json
   npx qa-flowkit validate-target --allow-empty --allow-missing --no-strict-doctor
   npx qa-flowkit config --export .qa-ai/config-profiles/team.yaml
+  npx qa-flowkit export-report --format allure --out qa-ai-output/reports/allure
+  npx qa-flowkit metrics --json
 `);
 }
 
@@ -143,24 +162,9 @@ async function restoreIfExists(source, target) {
 }
 
 async function selectedExistingAdapters() {
-  const candidates = [
-    ['claude', '.claude'],
-    ['codex', '.codex'],
-    ['opencode', '.opencode'],
-    ['cline', '.cline'],
-    ['continue', '.continue'],
-    ['aider', '.aider'],
-    ['goose', '.goose'],
-    ['gemini', 'GEMINI.md']
-  ];
-  const names = [];
-  for (const [name, relPath] of candidates) {
-    if (await pathExists(path.join(cwd, relPath))) names.push(name);
-  }
-  if (await pathExists(path.join(cwd, '.clinerules'))) names.push('cline');
-  if (await pathExists(path.join(cwd, '.aider.conf.yml'))) names.push('aider');
-  if (await pathExists(path.join(cwd, 'AGENTS.md'))) names.unshift('generic');
-  return [...new Set(names)];
+  const modulePath = path.join(targetFramework, 'scripts', 'lib', 'detect-adapters.mjs');
+  const { detectExistingAdapters } = await import(pathToFileURL(modulePath).href);
+  return detectExistingAdapters(cwd);
 }
 
 async function init(args) {
@@ -172,7 +176,8 @@ async function init(args) {
   }
 
   await copyPackagedFramework(targetFramework);
-  runNodeScript('init.mjs', withoutCliOnlyFlags(args));
+  const packageJson = JSON.parse(await fs.readFile(path.join(packageRoot, 'package.json'), 'utf8'));
+  runNodeScript('init.mjs', [...withoutCliOnlyFlags(args), '--package-version', packageJson.version]);
   if (!hasFlag(args, 'skip-doctor')) {
     runNodeScript('doctor.mjs', [], { allowWarnings: true });
   }
@@ -198,7 +203,8 @@ async function update(args) {
   }
 
   console.log('Updated .qa-ai framework from the installed QA FlowKit package.');
-  runNodeScript('init.mjs', ['--no-adapters']);
+  const packageJson = JSON.parse(await fs.readFile(path.join(packageRoot, 'package.json'), 'utf8'));
+  runNodeScript('init.mjs', ['--no-adapters', '--package-version', packageJson.version]);
 
   const adapters = await selectedExistingAdapters();
   if (adapters.length > 0) {

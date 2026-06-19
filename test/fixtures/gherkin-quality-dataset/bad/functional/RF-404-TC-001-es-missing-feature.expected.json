@@ -1,0 +1,10 @@
+{
+  "language": "es",
+  "rubricDimensions": ["observability"],
+  "structuralRules": [
+    {
+      "rule": "feature-count",
+      "messageIncludes": "Expected exactly one Feature title, found 0."
+    }
+  ]
+}

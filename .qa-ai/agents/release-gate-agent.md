@@ -11,7 +11,7 @@ Activated after the PR summary phase when `project.qaTrack` is `enterprise`, or 
 
 - `qa-ai-output/pr-summary.md`
 - `qa-ai-output/traceability-matrix.md`
-- `qa-ai-output/testrail-sync-plan.md` when test management is configured
+- `qa-ai-output/test-management-sync-plan.md` when test management is configured
 - Results from `node .qa-ai/scripts/validate-target.mjs` when available
 - `qa-ai.config.yaml` (`project.qaTrack`, `release.gatePath`)
 

@@ -98,6 +98,7 @@ Optional: add a classic PAT with `repo` scope as secret `RELEASE_PLEASE_TOKEN` i
 - [ ] Use Conventional Commit prefixes in **PR titles** (squash-merge): `feat:`, `fix:`, `docs:`, `chore:`, `ci:`, etc.
 - [ ] CI is green (includes `npm pack` allowlist check and full validation matrix).
 - [ ] No secrets in generated or committed QA artifacts.
+- [ ] If Claude plugin skills changed, `node .github/scripts/build-claude-plugin.mjs --check` passes and the generated plugin output is committed.
 
 ### Shipping a release
 
@@ -110,6 +111,7 @@ Optional: add a classic PAT with `repo` scope as secret `RELEASE_PLEASE_TOKEN` i
    - `npm pack` allowlist verification
    - `npm publish --provenance` with automatic dist-tag (`alpha`, `beta`, or `latest`)
    - Post-publish: `npm view` + install smoke of the published tarball
+6. For releases with Claude plugin changes, a human maintainer submits or updates the community marketplace entry after the GitHub Release is published. Do not automate community-marketplace submission from CI.
 
 ### Version conventions
 

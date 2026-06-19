@@ -12,3 +12,8 @@ Feature: <Feature title>
     Given <precondition>
     When <action>
     Then <expected result>
+
+# AI statistical example when aiTesting.enabled and @ai-component:
+# @technique:statistical-consistency
+# Given the adversarial dataset "<repo-relative-path>"
+# Then the <observable> should satisfy <criterion> in at least <P>% of <N> runs
