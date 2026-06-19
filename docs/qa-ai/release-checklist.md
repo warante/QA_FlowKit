@@ -10,14 +10,14 @@ Use this section when a user asks to release, publish to npm, bump the package v
 
 ### When to act vs defer
 
-| Situation                                       | Agent action                                                                                                                                                    |
-| ----------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| User wants a new npm version                    | Explain release-please flow; ensure their work is on `main` with a conventional PR title; tell them to merge the **Release PR** when it appears.                |
-| User asks to bump `package.json` for release    | **Do not** bump manually. Point to the Release PR or to maintainer merge of feature PRs first.                                                                  |
-| User asks to `npm publish`                      | **Refuse** local publish. Point to merge Release PR or human-run manual fallback workflow.                                                                      |
-| User asks to add `NPM_TOKEN` to the repo        | **Refuse.** Tokens are GitHub secrets or npm Trusted Publishing (human setup on npmjs.com).                                                                     |
-| Open Release PR exists (`chore: release X.Y.Z`) | May help review diff (`package.json`, `.release-please-manifest.json`, `CHANGELOG.md`) and run local validation commands below if asked.                        |
-| Changing release automation                     | May edit `.github/workflows/release-please.yml`, `.release-please-config.json`, `verify-npm-pack.mjs` after reading [AGENTS.md](../../AGENTS.md) and this file. |
+| Situation                                       | Agent action                                                                                                                                                       |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| User wants a new npm version                    | Explain release-please flow; ensure their work is on `main` with a conventional PR title; tell them to merge the **Release PR** when it appears.                   |
+| User asks to bump `package.json` for release    | **Do not** bump manually. Point to the Release PR or to maintainer merge of feature PRs first.                                                                     |
+| User asks to `npm publish`                      | **Refuse** local publish. Point to merge Release PR or human-run manual fallback workflow.                                                                         |
+| User asks to add `NPM_TOKEN` to the repo        | **Refuse.** Tokens are GitHub secrets or npm Trusted Publishing (human setup on npmjs.com).                                                                        |
+| Open Release PR exists (`chore: release X.Y.Z`) | May help review diff (`package.json`, plugin version manifests, `.release-please-manifest.json`, `CHANGELOG.md`) and run local validation commands below if asked. |
+| Changing release automation                     | May edit `.github/workflows/release-please.yml`, `.release-please-config.json`, `verify-npm-pack.mjs` after reading [AGENTS.md](../../AGENTS.md) and this file.    |
 
 ### Agent protocol (ordered)
 
@@ -103,7 +103,7 @@ Optional: add a classic PAT with `repo` scope as secret `RELEASE_PLEASE_TOKEN` i
 ### Shipping a release
 
 1. Merge feature/fix PRs to `main` with conventional titles.
-2. **Release Please** opens or updates a **Release PR** (`chore: release X.Y.Z`) with bumped `package.json`, `.release-please-manifest.json`, and `CHANGELOG.md`.
+2. **Release Please** opens or updates a **Release PR** (`chore: release X.Y.Z`) with bumped `package.json`, plugin version manifests, `.release-please-manifest.json`, and `CHANGELOG.md`.
 3. Review the Release PR (version bump, changelog, dist-tag implications).
 4. **Merge the Release PR** (do not squash unrelated commits into it manually).
 5. On merge, Release Please creates a **GitHub Release** + git tag and triggers the **publish** job:
