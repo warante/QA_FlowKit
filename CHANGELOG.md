@@ -48,6 +48,13 @@ this feature PR is merged.
 - Cross-platform smoke and npm-pack checks now account for generated adapters and framework-specific example paths.
 - Documentation drift and missing packaged contract files now fail validation before release.
 
+## [0.5.6-beta.0](https://github.com/warante/QA_FlowKit/compare/v0.5.5-beta.0...v0.5.6-beta.0) (2026-06-19)
+
+
+### Documentation
+
+* simplify agent-first onboarding ([#33](https://github.com/warante/QA_FlowKit/issues/33)) ([6f0892b](https://github.com/warante/QA_FlowKit/commit/6f0892b049a401d54a35c4cc8303b184c7d75351))
+
 ## [0.5.5-beta.0](https://github.com/warante/QA_FlowKit/compare/v0.5.4-beta.0...v0.5.5-beta.0) (2026-06-19)
 
 
