@@ -16,6 +16,8 @@ Read `.qa-ai/rules/test-design.rules.md`, `.qa-ai/rules/requirements.rules.md` a
 Run `node .qa-ai/scripts/validate-test-design.mjs` after updating proposals and `node .qa-ai/scripts/validate-features.mjs` after generating or changing `.feature` files.
 When `testDesign.coverage.mode` is not `off`, also run
 `node .qa-ai/scripts/validate-test-coverage.mjs`. Advisory mode reports gaps; strict mode blocks completion.
+When `normalized-requirements.md` lists source NFRs, `validate-test-coverage.mjs` also checks `## Non-functional coverage`
+and `validate-traceability.mjs` checks `## Non-functional traceability`.
 When `testDesign.quality.mode` is `advisory` or `gate`, load
 `.qa-ai/agents/gherkin-quality-agent.md` after feature generation and write the report to
 `testDesign.quality.reportPath` using `.qa-ai/templates/gherkin-quality-report.template.md`. Advisory mode records the

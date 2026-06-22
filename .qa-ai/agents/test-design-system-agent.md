@@ -23,7 +23,9 @@
 ## Responsibilities
 
 - Document scope, architecture alignment, testability risks and cross-RF coverage strategy.
-- Call out shared fixtures, data needs and non-functional testing focus.
+- Populate `## Non-functional focus` from `normalized-requirements.md`: applicable attributes, environment/data needs,
+  measurement method, execution constraints, open questions and links to planned NFR evidence in the per-RF proposal.
+- Load on-demand NFR specialists for detected attributes before documenting cross-cutting NFR strategy.
 - List open questions that block per-RF test design.
 - When `aiTesting.enabled` is true, read `.qa-ai/rules/ai-testing.rules.md` and identify RFs that may involve AI/LLM,
   prediction, score, generative, biometric, confidence-based or non-deterministic behavior.

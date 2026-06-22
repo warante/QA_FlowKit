@@ -23,9 +23,7 @@ const TYPE_TO_FOLDER = {
   api: 'api',
   accessibility: 'accessibility',
   a11y: 'accessibility',
-  security: 'security',
-  compatibility: 'functional',
-  manual: 'manual'
+  security: 'security'
 };
 
 /**

@@ -9,6 +9,21 @@ export const rfPattern = /\bRF[-_ ]?[A-Z0-9]+\b/i;
 export const idPattern = /\b(?:RF|TC|TEST|QA)(?:[-_][A-Z0-9]+| \d[A-Z0-9]*|\d+)\b/gi;
 export const caseIdPattern = /\b(?:TC|TEST|QA)(?:[-_][A-Z0-9]+| \d[A-Z0-9]*|\d+)\b/gi;
 
+/** Supported `@type:` values for Gherkin features (see gherkin.rules.md). */
+export const GHERKIN_TYPE_VALUES = new Set([
+  'functional',
+  'regression',
+  'smoke',
+  'e2e',
+  'integration',
+  'api',
+  'negative',
+  'edge-case',
+  'accessibility',
+  'performance',
+  'security'
+]);
+
 export function requiredTagName(tag) {
   const normalized = String(tag).trim();
   if (!normalized) return '';
@@ -256,6 +271,19 @@ export function hasRecommendedTag(model, content, tagName) {
   return hasRequiredParsedTag(model, name) || hasRequiredTag(content, name);
 }
 
+function parsedTagValue(model, content, tagName) {
+  const prefix = `${requiredTagName(tagName).replace(/^@/, '')}:`;
+  const fromModel = model.tags.find(({ tag }) => tag.toLowerCase().startsWith(`@${prefix.toLowerCase()}`));
+  if (fromModel) {
+    return fromModel.tag
+      .slice(fromModel.tag.indexOf(':') + 1)
+      .trim()
+      .toLowerCase();
+  }
+  const match = content.match(new RegExp(`@${prefix}([^\\s@]+)`, 'i'));
+  return match ? match[1].trim().toLowerCase() : '';
+}
+
 /**
  * @param {object} options
  * @param {boolean} [options.strictTags] - require @rf: and @id:
@@ -286,6 +314,14 @@ export function validateFeatureContent(content, file, requiredTags, language, op
     if (!hasRequiredParsedTag(parsed, tag) && !hasRequiredTag(content, tag)) {
       errors.push(`Missing required tag value ${tag}:<value>`);
     }
+  }
+
+  const typeValue = parsedTagValue(parsed, content, 'type');
+  if (typeValue && !GHERKIN_TYPE_VALUES.has(typeValue)) {
+    errors.push(
+      `Unrecognized @type:${typeValue}. Supported values: ${[...GHERKIN_TYPE_VALUES].sort().join(', ')}. ` +
+        'Use non-Gherkin evidence types in ## Non-functional coverage for other quality attributes.'
+    );
   }
 
   if (options.strictTags) {

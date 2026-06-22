@@ -974,14 +974,14 @@ test('nfr-coverage fixture: normalized requirements declare security and perform
   const content = await fs.readFile(path.join(nfrCoverageFixtureRoot, 'normalized-requirements.md'), 'utf8');
   assert.match(content, /RFN-004-SEC-01/);
   assert.match(content, /RFN-004-PERF-01/);
-  assert.match(content, /\| security \|/);
-  assert.match(content, /\| performance \|/);
+  assert.match(content, /\|\s*security\s*\|/);
+  assert.match(content, /\|\s*performance\s*\|/);
 });
 
 test('nfr-coverage fixture: bad proposal marks preventive performance and security as not configured', async () => {
   const content = await fs.readFile(path.join(nfrCoverageFixtureRoot, 'bad', 'test-design-proposal.md'), 'utf8');
-  assert.match(content, /\| performance \| no \|/i);
-  assert.match(content, /\| security \| no \|/i);
+  assert.match(content, /\|\s*performance\s*\|\s*no\s*\|/i);
+  assert.match(content, /\|\s*security\s*\|\s*no\s*\|/i);
   assert.match(content, /not configured for coverage/i);
 });
 
@@ -1385,6 +1385,21 @@ const validEnFeature = [
   '    When they log in',
   '    Then they see home'
 ].join('\n');
+
+test('validateFeatureContent: rejects unsupported @type:compatibility', () => {
+  const content = [
+    '@priority:high @type:compatibility @manual:false @rf:RF-101 @id:TC-001',
+    'Feature: Browser matrix',
+    '  Acceptance Criteria:',
+    '    - Works on supported browsers',
+    '  Scenario: RF-101 TC-001 Cross-browser',
+    '    Given a browser',
+    '    When I open the app',
+    '    Then it loads'
+  ].join('\n');
+  const result = validateFeatureContent(content, 'RF-101-TC-001.feature', ['priority', 'type', 'manual'], 'en');
+  assert.ok(result.errors.some((e) => e.includes('Unrecognized @type:compatibility')));
+});
 
 test('validateFeatureContent: valid English feature passes', () => {
   const result = validateFeatureContent(

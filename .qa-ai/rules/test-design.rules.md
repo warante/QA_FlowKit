@@ -28,6 +28,23 @@ Apply during system-level and per-RF test design before final Gherkin generation
 - Supported NFR evidence types: `feature`, `automation-script`, `manual-charter`, `test-plan`, `technical-review`,
   `residual-risk`. Do not mark a source NFR as `not configured`; use `Applicable: no` with a requirement-specific
   rationale or `residual-risk` with owner, next action and closure condition.
+- Minimum design guidance when a source NFR is applicable:
+
+  | Attribute         | Minimum design when applicable                                                                                          |
+  | ----------------- | ----------------------------------------------------------------------------------------------------------------------- |
+  | `security`        | protected asset, exposure boundary, observation source, non-exposure oracle; distinguish functional review from pentest |
+  | `performance`     | measured operation, metric, threshold, volume/concurrency, start/end point, environment                                 |
+  | `availability`    | service/window, downtime condition, observation method                                                                  |
+  | `reliability`     | inducible/simulated failure, recovery, retry/idempotency, expected final state                                          |
+  | `scalability`     | growth axis, load profile, thresholds, resources/environment                                                            |
+  | `usability`       | user profile, task, success criterion, manual/heuristic method                                                          |
+  | `accessibility`   | WCAG or assistive behavior, method and tool when available                                                              |
+  | `portability`     | target platforms/environments, deployment/execution condition                                                           |
+  | `compatibility`   | combination matrix and expected behavior per combination                                                                |
+  | `maintainability` | observable technical attribute, review method, evidence path, owner                                                     |
+
+- Load matching specialists from `.qa-ai/agents/specialists/available/` for detected NFR attributes even when not listed
+  in `active.md`.
 - Record the design technique for each proposed test when technique traceability is enabled. Supported techniques:
   equivalence partitioning, boundary value analysis, decision tables, state transitions, pairwise, error guessing
   and use-case testing.
