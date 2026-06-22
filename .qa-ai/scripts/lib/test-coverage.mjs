@@ -33,7 +33,10 @@ const SECTION_ALIASES = {
   'proposed tests': ['pruebas propuestas'],
   'coverage obligations': ['obligaciones de cobertura'],
   'security review': ['revision de seguridad', 'revisión de seguridad'],
-  'residual coverage gaps': ['brechas de cobertura residual']
+  'residual coverage gaps': ['brechas de cobertura residual'],
+  'non-functional requirements': ['requisitos no funcionales'],
+  'non-functional coverage': ['cobertura no funcional'],
+  'non-functional traceability': ['trazabilidad no funcional']
 };
 
 export function normalizeCoverageMode(value, fallback = 'off') {

@@ -26,7 +26,10 @@ Activated as Phase 7 of the QA workflow, after Gherkin test design is complete. 
 - Detect duplicates (tests that already cover the same CA).
 - Detect overlaps (tests that partially cover the same flows).
 - Identify coverage gaps (CAs without any existing test case).
-- Produce coverage metrics.
+- Produce coverage metrics for **functional** acceptance criteria only.
+- Report NFR coverage separately from CA/test-case metrics using `## Non-functional traceability` and
+  `## Non-functional coverage`; do not propose syncing load plans, technical reviews or charters as external test cases
+  unless the user explicitly requests artifact export.
 
 ## Output
 

@@ -19,6 +19,15 @@ Apply during system-level and per-RF test design before final Gherkin generation
   configured obligations mandatory; `off` preserves the legacy behavior.
 - Record applicable coverage obligations in `## Coverage obligations`. Use an explicit rationale for
   `not-applicable` decisions.
+- When `normalized-requirements.md` lists source non-functional requirements (NFR), record a matching row in
+  `## Non-functional coverage` before final approval. Source NFRs require an explicit applicability decision even when
+  `testDesign.coverage.requirePerformanceWhenApplicable`, `requireAccessibilityWhenApplicable` or
+  `requireSecurityReview` are `false`.
+- Apply `testDesign.nonFunctionalCoverage` when present. `inherit` follows `testDesign.coverage.mode`, except that
+  `off` still emits advisory warnings for explicit source NFRs unless `nonFunctionalCoverage.mode` is `off`.
+- Supported NFR evidence types: `feature`, `automation-script`, `manual-charter`, `test-plan`, `technical-review`,
+  `residual-risk`. Do not mark a source NFR as `not configured`; use `Applicable: no` with a requirement-specific
+  rationale or `residual-risk` with owner, next action and closure condition.
 - Record the design technique for each proposed test when technique traceability is enabled. Supported techniques:
   equivalence partitioning, boundary value analysis, decision tables, state transitions, pairwise, error guessing
   and use-case testing.

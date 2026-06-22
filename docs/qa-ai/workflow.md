@@ -134,6 +134,9 @@ Requirements:
 - API/integration framework: use `automation.api.framework` from `qa-ai.config.yaml`.
 - Provide technical proposal before coding.
 - Run `validate-test-coverage.mjs` after per-RF design and feature generation when coverage mode is enabled.
+- When `normalized-requirements.md` lists source non-functional requirements (NFR), ensure matching rows exist in
+  `test-design-proposal.md` (`## Non-functional coverage`) and `traceability-matrix.md`
+  (`## Non-functional traceability`). Source NFRs require an explicit decision even if preventive coverage flags are off.
 
 ## Step 8 - Implementation and validation
 

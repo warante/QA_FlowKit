@@ -4,7 +4,9 @@
 
 ## Activation
 
-Load when generating or reviewing tests tagged `@type:performance`, or when non-functional requirements mention SLAs, latency or throughput. Not auto-selected by `init.mjs`; add manually to `.qa-ai/agents/specialists/active.md` or load on demand during system or per-RF test design.
+Load when generating or reviewing tests tagged `@type:performance`, when normalized source NFRs use `performance` or
+`scalability`, or when non-functional requirements mention SLAs, latency or throughput. Not auto-selected by `init.mjs`;
+load on demand during system or per-RF test design when an NFR attribute maps to this specialist.
 
 ## Role
 

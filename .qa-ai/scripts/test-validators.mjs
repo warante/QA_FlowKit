@@ -7,7 +7,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { validateWorkflowContract } from './lib/harness-contract.mjs';
 import { inspectQaWorkflow, normalizeQaTrack } from './lib/qa-next-steps.mjs';
-import { activeSpecialists, activeSpecialistsContent } from './lib/project-config.mjs';
+import { activeSpecialists, activeSpecialistsContent, specialistsForNfrAttributes } from './lib/project-config.mjs';
 import { validateReleaseGateData } from './lib/release-gate.mjs';
 import { loadConfigSchema, validateConfigData } from './lib/config-schema.mjs';
 import {
@@ -38,6 +38,15 @@ import {
   validateAiCoverage,
   validateCoverage
 } from './lib/test-coverage.mjs';
+import {
+  NFR_ATTRIBUTES,
+  NFR_EVIDENCE_TYPES,
+  resolveNonFunctionalCoveragePolicy,
+  resolveSourceNfrCoverageMode,
+  validateSourceNfrCoverage,
+  validateNfrTraceability
+} from './lib/nfr-coverage.mjs';
+import { validateTraceabilityArtifacts } from './lib/traceability-validate.mjs';
 import { scanText } from './lib/injection-patterns.mjs';
 import { scanPathsForSecrets } from './lib/secret-patterns.mjs';
 import {
@@ -392,6 +401,22 @@ test('activeSpecialistsContent: ai specialists point to shipped sources', async 
   await fs.access(path.join(repoRoot, '.qa-ai/agents/specialists/available/ai-red-team.md'));
 });
 
+test('specialistsForNfrAttributes: loads security and performance without preventive flags', () => {
+  const specialists = specialistsForNfrAttributes(['security', 'performance', 'maintainability']);
+  assert.deepEqual(
+    specialists.map(([id]) => id),
+    ['maintainability', 'performance', 'security']
+  );
+});
+
+test('specialistsForNfrAttributes: maps availability and portability families', () => {
+  const specialists = specialistsForNfrAttributes(['availability', 'compatibility']);
+  assert.deepEqual(
+    specialists.map(([id]) => id),
+    ['availability-reliability', 'compatibility-portability']
+  );
+});
+
 test('validateWorkflowContract: accepts shipped workflow.v1.json', async () => {
   const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
   const result = await validateWorkflowContract(repoRoot);
@@ -639,6 +664,77 @@ test('validateConfigData: reports schema violations with JSON paths', async () =
   assertIncludes(result.errors, '$.gherkin.oneScenarioPerFile');
 });
 
+test('validateConfigData: accepts optional testDesign.nonFunctionalCoverage', async () => {
+  const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+  const schema = await loadConfigSchema(repoRoot);
+  const valid = parseSimpleYaml(
+    await fs.readFile(path.join(repoRoot, '.qa-ai', 'presets', 'manual-only.yaml'), 'utf8')
+  );
+  const withNfr = {
+    ...valid,
+    testDesign: {
+      ...valid.testDesign,
+      nonFunctionalCoverage: {
+        mode: 'inherit',
+        requireDecisionForSourceNfr: true,
+        allowResidualRiskInAdvisory: true
+      }
+    }
+  };
+  const result = validateConfigData(withNfr, schema);
+  assert.equal(result.ok, true, result.errors.join('\n'));
+});
+
+test('validateConfigData: rejects unknown nonFunctionalCoverage mode', async () => {
+  const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+  const schema = await loadConfigSchema(repoRoot);
+  const valid = parseSimpleYaml(
+    await fs.readFile(path.join(repoRoot, '.qa-ai', 'presets', 'manual-only.yaml'), 'utf8')
+  );
+  const invalid = {
+    ...valid,
+    testDesign: {
+      ...valid.testDesign,
+      nonFunctionalCoverage: { mode: 'lenient' }
+    }
+  };
+  const result = validateConfigData(invalid, schema);
+  assert.equal(result.ok, false);
+  assertIncludes(result.errors, '$.testDesign.nonFunctionalCoverage.mode');
+});
+
+test('resolveSourceNfrCoverageMode: inherit off still advises on source NFRs', () => {
+  assert.equal(
+    resolveSourceNfrCoverageMode({
+      testDesign: { coverage: { mode: 'off' }, nonFunctionalCoverage: { mode: 'inherit' } }
+    }),
+    'advisory'
+  );
+  assert.equal(
+    resolveSourceNfrCoverageMode({
+      testDesign: { coverage: { mode: 'strict' }, nonFunctionalCoverage: { mode: 'inherit' } }
+    }),
+    'strict'
+  );
+  assert.equal(
+    resolveSourceNfrCoverageMode({
+      testDesign: { coverage: { mode: 'off' }, nonFunctionalCoverage: { mode: 'off' } }
+    }),
+    'off'
+  );
+});
+
+test('resolveNonFunctionalCoveragePolicy: defaults preserve backward compatibility', () => {
+  const policy = resolveNonFunctionalCoveragePolicy({
+    testDesign: { coverage: { mode: 'advisory' } }
+  });
+  assert.equal(policy.mode, 'advisory');
+  assert.equal(policy.requireDecisionForSourceNfr, true);
+  assert.equal(policy.allowResidualRiskInAdvisory, true);
+  assert.equal(NFR_ATTRIBUTES.length, 10);
+  assert.equal(NFR_EVIDENCE_TYPES.length, 6);
+});
+
 test('legacyInferredAcceptanceCriteria: maps legacy boolean pairs', () => {
   assert.equal(
     legacyInferredAcceptanceCriteria({
@@ -856,6 +952,156 @@ Feature: Valid
   });
   assert.equal(result.ok, true);
   assert.ok(result.warnings.some((item) => item.rule === 'negative'));
+});
+
+const nfrCoverageFixtureRoot = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  '../../test/fixtures/nfr-coverage'
+);
+
+const nfrCoveragePreventivePolicy = {
+  requirePositive: true,
+  requireNegative: true,
+  requireAlternative: true,
+  requireBoundaryWhenApplicable: true,
+  requireAccessibilityWhenApplicable: false,
+  requirePerformanceWhenApplicable: false,
+  requireSecurityReview: false,
+  requireTechniqueTraceability: false
+};
+
+test('nfr-coverage fixture: normalized requirements declare security and performance NFRs', async () => {
+  const content = await fs.readFile(path.join(nfrCoverageFixtureRoot, 'normalized-requirements.md'), 'utf8');
+  assert.match(content, /RFN-004-SEC-01/);
+  assert.match(content, /RFN-004-PERF-01/);
+  assert.match(content, /\| security \|/);
+  assert.match(content, /\| performance \|/);
+});
+
+test('nfr-coverage fixture: bad proposal marks preventive performance and security as not configured', async () => {
+  const content = await fs.readFile(path.join(nfrCoverageFixtureRoot, 'bad', 'test-design-proposal.md'), 'utf8');
+  assert.match(content, /\| performance \| no \|/i);
+  assert.match(content, /\| security \| no \|/i);
+  assert.match(content, /not configured for coverage/i);
+});
+
+test('nfr-coverage fixture: good proposal includes non-functional coverage table', async () => {
+  const content = await fs.readFile(path.join(nfrCoverageFixtureRoot, 'good', 'test-design-proposal.md'), 'utf8');
+  assert.match(content, /## Non-functional coverage/i);
+  assert.match(content, /RFN-004-SEC-01/);
+  assert.match(content, /RFN-004-PERF-01/);
+});
+
+test('nfr-coverage regression: validateCoverage ignores silenced source NFRs when preventive flags are off', async () => {
+  const proposalContent = await fs.readFile(
+    path.join(nfrCoverageFixtureRoot, 'bad', 'test-design-proposal.md'),
+    'utf8'
+  );
+  const result = validateCoverage({
+    features: [],
+    proposalContent,
+    mode: 'strict',
+    policy: nfrCoveragePreventivePolicy
+  });
+  assert.equal(result.ok, true, 'legacy preventive validator does not inspect source NFR tables');
+  assert.equal(result.findings.filter((item) => String(item.rule || '').startsWith('nfr')).length, 0);
+});
+
+test('validateSourceNfrCoverage: bad proposal fails strict when source NFRs are silenced', async () => {
+  const normalizedContent = await fs.readFile(path.join(nfrCoverageFixtureRoot, 'normalized-requirements.md'), 'utf8');
+  const proposalContent = await fs.readFile(
+    path.join(nfrCoverageFixtureRoot, 'bad', 'test-design-proposal.md'),
+    'utf8'
+  );
+  const result = validateSourceNfrCoverage({
+    normalizedContent,
+    proposalContent,
+    features: [],
+    mode: 'strict',
+    policy: resolveNonFunctionalCoveragePolicy({
+      testDesign: {
+        coverage: { mode: 'strict' },
+        nonFunctionalCoverage: { mode: 'inherit' }
+      }
+    })
+  });
+  assert.equal(result.ok, false);
+  assert.ok(result.errors.some((item) => item.rule === 'nfr-coverage-missing'));
+  assert.ok(result.errors.some((item) => item.rule === 'nfr-legacy-silenced' && item.rf === 'RF-004'));
+  assert.ok(result.errors.some((item) => item.rule === 'nfr-missing-row'));
+});
+
+test('validateSourceNfrCoverage: good proposal passes strict for RF-004 security and performance', async () => {
+  const normalizedContent = await fs.readFile(path.join(nfrCoverageFixtureRoot, 'normalized-requirements.md'), 'utf8');
+  const proposalContent = await fs.readFile(
+    path.join(nfrCoverageFixtureRoot, 'good', 'test-design-proposal.md'),
+    'utf8'
+  );
+  const result = validateSourceNfrCoverage({
+    normalizedContent,
+    proposalContent,
+    features: [],
+    mode: 'strict',
+    policy: resolveNonFunctionalCoveragePolicy({
+      testDesign: {
+        coverage: { mode: 'strict' },
+        nonFunctionalCoverage: { mode: 'inherit' }
+      }
+    })
+  });
+  assert.equal(result.ok, true, result.findings.map((item) => item.message).join('\n'));
+});
+
+test('validateSourceNfrCoverage: advisory warns on incomplete bad proposal without failing', async () => {
+  const normalizedContent = await fs.readFile(path.join(nfrCoverageFixtureRoot, 'normalized-requirements.md'), 'utf8');
+  const proposalContent = await fs.readFile(
+    path.join(nfrCoverageFixtureRoot, 'bad', 'test-design-proposal.md'),
+    'utf8'
+  );
+  const result = validateSourceNfrCoverage({
+    normalizedContent,
+    proposalContent,
+    features: [],
+    mode: 'advisory',
+    policy: resolveNonFunctionalCoveragePolicy({
+      testDesign: {
+        coverage: { mode: 'off' },
+        nonFunctionalCoverage: { mode: 'inherit' }
+      }
+    })
+  });
+  assert.equal(result.ok, true);
+  assert.ok(result.warnings.some((item) => item.rule === 'nfr-coverage-missing'));
+});
+
+test('validateNfrTraceability: bad matrix missing NFR section fails when source NFRs exist', async () => {
+  const normalizedContent = await fs.readFile(path.join(nfrCoverageFixtureRoot, 'normalized-requirements.md'), 'utf8');
+  const matrixContent = await fs.readFile(path.join(nfrCoverageFixtureRoot, 'bad', 'traceability-matrix.md'), 'utf8');
+  const result = validateNfrTraceability({ normalizedContent, matrixContent });
+  assert.equal(result.ok, false);
+  assert.ok(result.errors.some((message) => /Non-functional traceability/i.test(message)));
+  assert.equal(result.metrics.total, 0);
+});
+
+test('validateNfrTraceability: good matrix tracks both RF-004 NFRs with separate metrics', async () => {
+  const normalizedContent = await fs.readFile(path.join(nfrCoverageFixtureRoot, 'normalized-requirements.md'), 'utf8');
+  const matrixContent = await fs.readFile(path.join(nfrCoverageFixtureRoot, 'good', 'traceability-matrix.md'), 'utf8');
+  const result = validateNfrTraceability({ normalizedContent, matrixContent });
+  assert.equal(result.ok, true, result.errors.join('\n'));
+  assert.equal(result.metrics.total, 2);
+  assert.equal(result.metrics.planned, 2);
+});
+
+test('validateTraceabilityArtifacts: keeps functional and NFR validation separate', async () => {
+  const normalizedContent = await fs.readFile(path.join(nfrCoverageFixtureRoot, 'normalized-requirements.md'), 'utf8');
+  const matrixContent = await fs.readFile(path.join(nfrCoverageFixtureRoot, 'good', 'traceability-matrix.md'), 'utf8');
+  const result = validateTraceabilityArtifacts({
+    normalizedContent,
+    matrixContent,
+    features: []
+  });
+  assert.equal(result.ok, true, result.errors.join('\n'));
+  assert.equal(result.nfrMetrics.total, 2);
 });
 
 test('normalizeCoverageMode: unknown values use the safe fallback', () => {
