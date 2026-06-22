@@ -25,6 +25,7 @@ Options:
   --features <dir>        Override configured feature root
   --allow-empty           Return success when no .feature files exist
   --allow-missing         Return success when the traceability matrix is missing
+  --json                  Print machine-readable JSON only
   --help                  Show this help
 
 Validates functional feature coverage, traceability matrix table shape, duplicate rows and source NFR traceability.
@@ -113,7 +114,6 @@ async function main() {
     return;
   }
 
-  logHeader('QA AI traceability validator');
   const result = await validateTraceability(cwd, {
     path: args.path,
     normalizedPath: args['normalized-path'],
@@ -122,7 +122,13 @@ async function main() {
     allowMissing: Boolean(args['allow-missing'])
   });
 
-  if (result.message) console.log(result.message);
+  if (args.json) {
+    console.log(JSON.stringify(result, null, 2));
+    if (!result.ok) process.exit(1);
+    return;
+  }
+
+  logHeader('QA AI traceability validator');
   for (const warning of result.warnings || []) console.log(`[WARN] ${warning}`);
   for (const error of result.errors || []) console.log(`[FAIL] ${error}`);
 

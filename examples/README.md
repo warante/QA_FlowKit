@@ -3,12 +3,13 @@
 These examples are small target repositories that can be installed and validated without credentials or external
 services.
 
-| Example                                             | Track      | Status        | Validation command                |
-| --------------------------------------------------- | ---------- | ------------- | --------------------------------- |
-| [Manual-only](manual-only/README.md)                | `quick`    | Maintained    | `npm run test:e2e-manual-example` |
-| [Playwright UI + API](playwright-full/README.md)    | `standard` | In validation | `npm run test:e2e-playwright`     |
-| [Karate full](karate-full/README.md)                | `standard` | In validation | `npm run test:e2e-karate`         |
-| [Maestro + Karate](maestro-karate-mobile/README.md) | `standard` | In validation | `npm run test:e2e-mobile`         |
+| Example                                                    | Track      | Status        | Validation command                |
+| ---------------------------------------------------------- | ---------- | ------------- | --------------------------------- |
+| [Manual-only](manual-only/README.md)                       | `quick`    | Maintained    | `npm run test:e2e-manual-example` |
+| [Playwright UI + API](playwright-full/README.md)           | `standard` | In validation | `npm run test:e2e-playwright`     |
+| [Karate full](karate-full/README.md)                       | `standard` | In validation | `npm run test:e2e-karate`         |
+| [Maestro + Karate](maestro-karate-mobile/README.md)        | `standard` | In validation | `npm run test:e2e-mobile`         |
+| [NFR coverage reference](nfr-coverage-reference/README.md) | Docs only  | Maintained    | (see README — no packed install)  |
 
 The examples intentionally do not include `.qa-ai/`. Their validation runners install the locally packed
 `qa-flowkit` package and run `init`, matching the public installation boundary.

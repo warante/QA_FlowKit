@@ -610,15 +610,6 @@ export function validateSourceNfrCoverage({
           'nfr-residual-risk-incomplete',
           `${nfrId} residual-risk requires rationale with next action and closure condition.`
         );
-      }
-      if (normalizedMode === 'strict') {
-        addFinding(
-          findings,
-          severity,
-          rf,
-          'nfr-residual-risk-not-covered',
-          `${nfrId} residual-risk does not count as satisfied coverage in strict mode.`
-        );
       } else if (!policy.allowResidualRiskInAdvisory) {
         addFinding(
           findings,
@@ -627,16 +618,24 @@ export function validateSourceNfrCoverage({
           'nfr-residual-risk-blocked',
           `${nfrId} residual-risk is not allowed by nonFunctionalCoverage.allowResidualRiskInAdvisory.`
         );
+      } else {
+        addFinding(
+          findings,
+          severity,
+          rf,
+          'nfr-residual-risk-not-covered',
+          `${nfrId} residual-risk does not count as satisfied coverage.`
+        );
       }
     }
 
-    if (status === 'residual-risk' && normalizedMode === 'strict') {
+    if (status === 'residual-risk' && policy.allowResidualRiskInAdvisory !== false) {
       addFinding(
         findings,
         severity,
         rf,
         'nfr-status-residual-risk',
-        `${nfrId} status residual-risk does not count as satisfied coverage in strict mode.`
+        `${nfrId} status residual-risk does not count as satisfied coverage.`
       );
     }
   }
