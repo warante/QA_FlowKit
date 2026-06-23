@@ -52,6 +52,10 @@ Do not mix Karate `* method` steps into design features or QA acceptance blocks 
 ## Tags
 
 - **Required:** `@priority:`, `@type:`, `@manual:` (values from `gherkin.tags` in config when present).
+- **Supported `@type:` values:** `functional`, `regression`, `smoke`, `e2e`, `integration`, `api`, `negative`,
+  `edge-case`, `accessibility`, `performance`, `security`. Other quality attributes use non-Gherkin evidence in
+  `## Non-functional coverage` (`test-plan`, `manual-charter`, `technical-review`, etc.). Do not use `@type:compatibility`
+  or `@type:manual` — manual execution is expressed with `@manual:true`.
 - **Recommended:** `@rf:` (requirement ID), `@id:` (test case ID for matrices and deduplication).
 
 ## Traceability
@@ -69,6 +73,10 @@ When `@type:` indicates specialized testing, also read the matching specialist u
 | `accessibility`, `a11y`         | `accessibility.md` |
 | `performance`, `load`, `stress` | `performance.md`   |
 | `security`                      | `security.md`      |
+
+When `normalized-requirements.md` lists source NFR attributes without a matching Gherkin `@type:`, load the on-demand
+specialist mapped in `project-config.mjs` (`availability-reliability`, `scalability`, `usability`,
+`compatibility-portability`, `maintainability`, etc.) during design — not during feature validation.
 
 UI, API and mobile implementation still follow [ui-automation.rules.md](ui-automation.rules.md), [api-testing.rules.md](api-testing.rules.md) and the active Appium/WebdriverIO/Playwright specialists.
 

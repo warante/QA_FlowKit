@@ -121,8 +121,13 @@ async function validateCommandInteractionContract(packageRoot) {
   );
   await assertIncludes(
     path.join(packageRoot, '.qa-ai', 'adapters', 'opencode', 'commands', 'qa-add-tests.md'),
-    'Before asking anything, resolve `project.interfaceLanguage`',
-    'OpenCode qa-add-tests language contract'
+    'requirements-normalization-agent.md',
+    'OpenCode qa-add-tests NFR normalization contract'
+  );
+  await assertIncludes(
+    path.join(packageRoot, '.qa-ai', 'adapters', 'opencode', 'commands', 'qa-add-tests.md'),
+    'validate-test-coverage.mjs',
+    'OpenCode qa-add-tests coverage validator contract'
   );
 }
 

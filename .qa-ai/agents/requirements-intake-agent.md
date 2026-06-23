@@ -29,6 +29,9 @@ Activated as Phase 2 of the QA workflow, after context intake is complete.
   the expected outcome.
 - Extract each RF (Requirement Functional) with its ID, title and description.
 - Extract Acceptance Criteria (CA) for each RF.
+- Extract explicit non-functional requirements (NFR) when the source states them (security, performance, availability,
+  reliability, scalability, usability, accessibility, portability, compatibility, maintainability). Preserve source wording
+  in notes; do not invent measurable thresholds.
 - Detect missing information: RFs without CAs, CAs without clear expected behavior, missing RF IDs.
 - Apply `requirements.inferredAcceptanceCriteria`:
   - `forbid`: ask for clarification instead of proposing inferred Acceptance Criteria.
@@ -75,6 +78,8 @@ Produce `qa-ai-output/requirement-analysis.md`. When mixed sources are supplied,
 - **Status**: [complete|incomplete|needs-clarification]
 - **Notes**: [missing info, inferred CAs, blockers]
 - **AI component**: [yes|no|pending] ([triggering signal or rationale])
+- **Non-functional requirements (source)**:
+  - [RFN label or summary with source quote when present]
 
 ## Pending Decisions
 

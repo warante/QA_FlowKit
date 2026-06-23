@@ -5,7 +5,8 @@
 ## Activation
 
 Load when requirements involve authentication, authorization, user-owned resources, sensitive data, file uploads,
-rendered user input, quotas or session lifecycle, or when `testDesign.coverage.requireSecurityReview` is true.
+rendered user input, quotas or session lifecycle, when `testDesign.coverage.requireSecurityReview` is true, or when a
+source NFR with attribute `security` appears in `normalized-requirements.md`.
 
 ## Focus
 

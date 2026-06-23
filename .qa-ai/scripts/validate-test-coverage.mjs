@@ -2,6 +2,11 @@
 import fs from 'node:fs/promises';
 import { featureCoverageRecord, normalizeCoverageMode, validateCoverage } from './lib/test-coverage.mjs';
 import {
+  mergeCoverageResults,
+  resolveNonFunctionalCoveragePolicy,
+  validateSourceNfrCoverage
+} from './lib/nfr-coverage.mjs';
+import {
   getConfigValue,
   listFilesRecursive,
   loadQaAiConfig,
@@ -70,22 +75,11 @@ export async function validateTestCoverage(cwd, options = {}) {
     if (!requestedRf || record.rf === requestedRf) features.push(record);
   }
 
-  if (features.length === 0) {
-    return {
-      ok: Boolean(options.allowEmpty || mode === 'off'),
-      mode,
-      skipped: Boolean(options.allowEmpty || mode === 'off'),
-      featureRoot,
-      proposalPath,
-      findings: [],
-      errors: [],
-      warnings: [],
-      message: `No .feature files found under ${featureRoot}.`
-    };
-  }
-
   const proposalAbsolute = resolveRepoPath(cwd, proposalPath, { label: 'test design proposal' });
+  const normalizedPath = options.normalizedPath || 'qa-ai-output/normalized-requirements.md';
+  const normalizedAbsolute = resolveRepoPath(cwd, normalizedPath, { label: 'normalized requirements' });
   let proposalContent = '';
+  let normalizedContent = '';
   if (await pathExists(proposalAbsolute)) {
     proposalContent = await readText(proposalAbsolute);
   } else if (!options.allowMissing && mode !== 'off') {
@@ -108,16 +102,35 @@ export async function validateTestCoverage(cwd, options = {}) {
     };
   }
 
+  if (await pathExists(normalizedAbsolute)) {
+    normalizedContent = await readText(normalizedAbsolute);
+  }
+
+  const preventive = validateCoverage({
+    features,
+    proposalContent,
+    policy: coveragePolicy(config),
+    mode
+  });
+  const nfrPolicy = resolveNonFunctionalCoveragePolicy(config);
+  const sourceNfr = validateSourceNfrCoverage({
+    normalizedContent,
+    proposalContent,
+    features,
+    mode: nfrPolicy.mode,
+    policy: nfrPolicy
+  });
+  const merged = mergeCoverageResults(preventive, sourceNfr);
+  const featureGateOk = features.length > 0 || Boolean(options.allowEmpty) || mode === 'off';
+
   return {
-    ...validateCoverage({
-      features,
-      proposalContent,
-      policy: coveragePolicy(config),
-      mode
-    }),
-    skipped: mode === 'off',
+    ...merged,
+    ok: merged.ok && featureGateOk,
+    skipped: mode === 'off' && nfrPolicy.mode === 'off',
     featureRoot,
     proposalPath,
+    normalizedPath,
+    message: features.length === 0 ? `No .feature files found under ${featureRoot}.` : undefined,
     features: features.map((feature) => ({
       ...feature,
       file: relativeTo(cwd, feature.file)

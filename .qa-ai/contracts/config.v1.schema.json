@@ -284,6 +284,16 @@
             "reportPath": { "type": "string" },
             "minDimensionsPassed": { "type": "integer", "minimum": 0, "maximum": 7 }
           }
+        },
+        "nonFunctionalCoverage": {
+          "type": "object",
+          "additionalProperties": false,
+          "x-stability": "experimental",
+          "properties": {
+            "mode": { "type": "string", "enum": ["inherit", "advisory", "strict", "off"] },
+            "requireDecisionForSourceNfr": { "type": "boolean" },
+            "allowResidualRiskInAdvisory": { "type": "boolean" }
+          }
         }
       }
     },

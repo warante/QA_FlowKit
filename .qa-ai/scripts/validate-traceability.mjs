@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 import fs from 'node:fs/promises';
-import path from 'node:path';
-import { normalizeColumn, parseMarkdownTable } from './lib/markdown-table.mjs';
+import { featureTraceabilityIds, validateTraceabilityArtifacts } from './lib/traceability-validate.mjs';
 import {
   getConfigValue,
   listFilesRecursive,
@@ -16,109 +15,97 @@ import {
 
 const cwd = process.cwd();
 const args = parseArgs(process.argv);
-const idPattern = /\b(?:RF|TC|TEST|QA)(?:[-_][A-Z0-9]+| \d[A-Z0-9]*|\d+)\b/gi;
-const caseIdPattern = /\b(?:TC|TEST|QA)(?:[-_][A-Z0-9]+| \d[A-Z0-9]*|\d+)\b/gi;
-const requiredColumns = [
-  'Requirement Source',
-  'RF',
-  'Feature File',
-  'Test Management Case ID',
-  'Type',
-  'Priority',
-  'Automation Status'
-];
 
 function printHelp() {
   console.log(`Usage: node .qa-ai/scripts/validate-traceability.mjs [options]
 
 Options:
-  --path <file>     Override configured traceability matrix path
-  --features <dir>  Override configured feature root
-  --allow-empty     Return success when no .feature files exist
-  --allow-missing   Return success when the traceability matrix is missing
-  --help            Show this help
+  --path <file>           Override configured traceability matrix path
+  --normalized-path <file> Override normalized requirements path
+  --features <dir>        Override configured feature root
+  --allow-empty           Return success when no .feature files exist
+  --allow-missing         Return success when the traceability matrix is missing
+  --json                  Print machine-readable JSON only
+  --help                  Show this help
 
-Validates feature identifier coverage, traceability matrix table shape and duplicate test case or feature-file rows.
+Validates functional feature coverage, traceability matrix table shape, duplicate rows and source NFR traceability.
 `);
 }
 
-function normalizeId(value) {
-  return String(value || '')
-    .replace(/\s+/g, '-')
-    .toUpperCase();
-}
-
-function idsFromText(value) {
-  return [...String(value || '').matchAll(idPattern)].map((match) => normalizeId(match[0]));
-}
-
-function caseIdsFromText(value) {
-  return [...String(value || '').matchAll(caseIdPattern)].map((match) => normalizeId(match[0]));
-}
-
-function parseMatrix(content) {
-  const table = parseMarkdownTable(content, {
-    label: 'Traceability matrix',
-    requiredColumns
-  });
-  const errors = [...table.errors];
-  const rows = [];
-  for (const row of table.rows) {
-    const ids = [...new Set(idsFromText(row.cells.join(' ')))].sort();
-    const caseIds = [...new Set(caseIdsFromText(row.cells.join(' ')))].sort();
-    if (ids.length === 0) {
-      errors.push(`Line ${row.line}: row must include at least one RF/test identifier.`);
-    }
-    rows.push({ ...row, ids, caseIds });
-  }
-
-  return { errors, rows, header: table.header };
-}
-
-function duplicateMatrixErrors(rows) {
-  const errors = [];
-  const byCaseId = new Map();
-  const byFeatureFile = new Map();
-
-  for (const row of rows) {
-    for (const id of row.caseIds) {
-      const current = byCaseId.get(id) || [];
-      current.push(row.line);
-      byCaseId.set(id, current);
-    }
-
-    const featureFile = String(row.values[normalizeColumn('Feature File')] || '').trim();
-    if (featureFile) {
-      const normalizedFeatureFile = featureFile.replaceAll('\\', '/').toLowerCase();
-      const current = byFeatureFile.get(normalizedFeatureFile) || [];
-      current.push(row.line);
-      byFeatureFile.set(normalizedFeatureFile, current);
-    }
-  }
-
-  for (const [id, lines] of byCaseId.entries()) {
-    if (lines.length > 1) errors.push(`Identifier ${id} appears in multiple traceability rows: ${lines.join(', ')}.`);
-  }
-  for (const [featureFile, lines] of byFeatureFile.entries()) {
-    if (lines.length > 1)
-      errors.push(`Feature file ${featureFile} appears in multiple traceability rows: ${lines.join(', ')}.`);
-  }
-
-  return errors;
-}
-
-async function featureIds(featureRootPath) {
+export async function validateTraceability(cwd, options = {}) {
+  const configInfo = await loadQaAiConfig(cwd);
+  const config = configInfo.data || {};
+  const featureRoot = options.features || getConfigValue(config, 'gherkin.featurePath', 'features');
+  const matrixPath =
+    options.path || getConfigValue(config, 'traceability.matrixPath', 'qa-ai-output/traceability-matrix.md');
+  const normalizedPath = options.normalizedPath || 'qa-ai-output/normalized-requirements.md';
+  const featureRootPath = resolveRepoPath(cwd, featureRoot, { label: 'feature root' });
+  const matrixFilePath = resolveRepoPath(cwd, matrixPath, { label: 'traceability matrix' });
+  const normalizedFilePath = resolveRepoPath(cwd, normalizedPath, { label: 'normalized requirements' });
   const files = await listFilesRecursive(featureRootPath, (filePath) => filePath.endsWith('.feature'));
-  const entries = [];
+  const features = [];
   for (const file of files) {
     const content = await fs.readFile(file, 'utf8');
-    const ids = new Set([...idsFromText(path.basename(file, '.feature')), ...idsFromText(content)]);
-    entries.push({
-      file,
-      ids: [...ids].sort()
+    features.push({
+      ...featureTraceabilityIds(file, content),
+      file: relativeTo(cwd, file)
     });
   }
-  return entries;
+
+  if (features.length === 0 && !options.allowEmpty) {
+    return {
+      ok: false,
+      skipped: false,
+      featureRoot,
+      matrixPath,
+      normalizedPath,
+      errors: [`No .feature files found under ${featureRoot}.`],
+      warnings: [],
+      message: `No .feature files found under ${featureRoot}.`
+    };
+  }
+
+  if (!(await pathExists(matrixFilePath))) {
+    if (options.allowMissing) {
+      return {
+        ok: true,
+        skipped: true,
+        featureRoot,
+        matrixPath,
+        normalizedPath,
+        errors: [],
+        warnings: [],
+        message: `Traceability matrix not found at ${matrixPath}.`
+      };
+    }
+    return {
+      ok: false,
+      skipped: false,
+      featureRoot,
+      matrixPath,
+      normalizedPath,
+      errors: [`Traceability matrix not found at ${matrixPath}.`],
+      warnings: [],
+      message: `Traceability matrix not found at ${matrixPath}.`
+    };
+  }
+
+  const matrixContent = await readText(matrixFilePath);
+  const normalizedContent = (await pathExists(normalizedFilePath)) ? await readText(normalizedFilePath) : '';
+  const result = validateTraceabilityArtifacts({
+    matrixContent,
+    normalizedContent,
+    features
+  });
+
+  return {
+    ...result,
+    skipped: false,
+    featureRoot,
+    matrixPath,
+    normalizedPath,
+    features
+  };
 }
 
 async function main() {
@@ -127,58 +114,38 @@ async function main() {
     return;
   }
 
+  const result = await validateTraceability(cwd, {
+    path: args.path,
+    normalizedPath: args['normalized-path'],
+    features: args.features,
+    allowEmpty: Boolean(args['allow-empty']),
+    allowMissing: Boolean(args['allow-missing'])
+  });
+
+  if (args.json) {
+    console.log(JSON.stringify(result, null, 2));
+    if (!result.ok) process.exit(1);
+    return;
+  }
+
   logHeader('QA AI traceability validator');
-  const configInfo = await loadQaAiConfig(cwd);
-  const featureRoot = args.features || getConfigValue(configInfo.data, 'gherkin.featurePath', 'features');
-  const matrixPath =
-    args.path || getConfigValue(configInfo.data, 'traceability.matrixPath', 'qa-ai-output/traceability-matrix.md');
-  const featureRootPath = resolveRepoPath(cwd, featureRoot, { label: 'feature root' });
-  const matrixFilePath = resolveRepoPath(cwd, matrixPath, { label: 'traceability matrix' });
-  const features = await featureIds(featureRootPath);
+  for (const warning of result.warnings || []) console.log(`[WARN] ${warning}`);
+  for (const error of result.errors || []) console.log(`[FAIL] ${error}`);
 
-  if (features.length === 0) {
-    console.log(`No .feature files found under ${featureRoot}.`);
-    if (args['allow-empty']) return;
-    console.log('\nFAILED - no feature files found. Pass --allow-empty when this is expected.');
+  if (result.nfrMetrics && result.nfrMetrics.total > 0) {
+    const metrics = result.nfrMetrics;
+    console.log(
+      `\nNFR metrics: total=${metrics.total} covered=${metrics.covered} planned=${metrics.planned} ` +
+        `blocked=${metrics.blocked} residual-risk=${metrics.residualRisk} not-applicable=${metrics.notApplicable}`
+    );
+  }
+
+  if (!result.ok) {
+    console.log(`\nFAILED - ${(result.errors || []).length} traceability validation error(s).`);
     process.exit(1);
   }
 
-  if (!(await pathExists(matrixFilePath))) {
-    console.log(`Traceability matrix not found at ${matrixPath}.`);
-    if (args['allow-missing']) return;
-    console.log('\nFAILED - create the traceability matrix or pass --allow-missing.');
-    process.exit(1);
-  }
-
-  const rawMatrixContent = await readText(matrixFilePath);
-  const matrix = parseMatrix(rawMatrixContent);
-  const matrixContent = normalizeId(rawMatrixContent);
-  const errors = [];
-  errors.push(...matrix.errors);
-  errors.push(...duplicateMatrixErrors(matrix.rows));
-
-  for (const feature of features) {
-    if (feature.ids.length === 0) {
-      errors.push(`${relativeTo(cwd, feature.file)} has no RF/test identifiers to trace.`);
-      continue;
-    }
-    for (const id of feature.ids) {
-      if (!matrixContent.includes(id)) {
-        errors.push(
-          `${relativeTo(cwd, feature.file)} identifier ${id} is missing from ${matrixPath}. ` +
-            'Add a matrix row with RF, Feature File, and Test Management Case ID columns.'
-        );
-      }
-    }
-  }
-
-  if (errors.length > 0) {
-    for (const error of errors) console.log(`[FAIL] ${error}`);
-    console.log(`\nFAILED - ${errors.length} traceability validation error(s).`);
-    process.exit(1);
-  }
-
-  console.log(`[PASS] ${matrixPath} covers identifiers from ${features.length} feature file(s).`);
+  console.log(`\n[PASS] ${result.matrixPath} traceability validation completed.`);
 }
 
 main().catch((error) => {

@@ -29,6 +29,7 @@ reliable validation. QA FlowKit installs those controls inside the target reposi
 - persistent, resumable run state and an append-only event log;
 - validation for Gherkin, traceability, test design, sync plans and release gates;
 - configurable cross-feature coverage checks and traceable test-design techniques;
+- source non-functional requirement (NFR) coverage validation against `normalized-requirements.md`, proposal tables and traceability;
 - opt-in AI-system testing support with AI-component tags, technique coverage and eval evidence checks;
 - functional security review and mixed-source requirement intake;
 - overwrite, path traversal, deletion and secret-handling safeguards;
@@ -122,21 +123,21 @@ See the [configuration schema](docs/qa-ai/config-schema.md) for all generated ke
 
 ## Core Commands
 
-| Command                                               | Purpose                                                     |
-| ----------------------------------------------------- | ----------------------------------------------------------- |
-| `qa-flowkit init`                                     | Install and configure the framework                         |
-| `qa-flowkit update`                                   | Upgrade `.qa-ai/` while preserving run state                |
-| `qa-flowkit doctor`                                   | Diagnose installation and configuration                     |
-| `qa-flowkit help`                                     | Recommend the next QA workflow step                         |
-| `qa-flowkit run start\|next\|check`                   | Execute a resumable controlled workflow                     |
-| `qa-flowkit metrics`                                  | Report local workflow KPIs from run event logs              |
-| `qa-flowkit validate-target`                          | Run the target-repository quality gate                      |
-| `qa-flowkit validate-untrusted-content`               | Scan requirements/context for prompt-injection-like content |
-| `qa-flowkit validate-features`                        | Validate QA design Gherkin                                  |
-| `qa-flowkit validate-test-coverage`                   | Validate configured coverage obligations                    |
-| `qa-flowkit validate-traceability`                    | Validate RF-to-test coverage                                |
-| `qa-flowkit validate-release-gate`                    | Validate the enterprise release decision                    |
-| [`qa-flowkit export-report`](docs/qa-ai/reporting.md) | Export Gherkin-aligned test cases and execution results     |
+| Command                                               | Purpose                                                      |
+| ----------------------------------------------------- | ------------------------------------------------------------ |
+| `qa-flowkit init`                                     | Install and configure the framework                          |
+| `qa-flowkit update`                                   | Upgrade `.qa-ai/` while preserving run state                 |
+| `qa-flowkit doctor`                                   | Diagnose installation and configuration                      |
+| `qa-flowkit help`                                     | Recommend the next QA workflow step                          |
+| `qa-flowkit run start\|next\|check`                   | Execute a resumable controlled workflow                      |
+| `qa-flowkit metrics`                                  | Report local workflow KPIs from run event logs               |
+| `qa-flowkit validate-target`                          | Run the target-repository quality gate                       |
+| `qa-flowkit validate-untrusted-content`               | Scan requirements/context for prompt-injection-like content  |
+| `qa-flowkit validate-features`                        | Validate QA design Gherkin                                   |
+| `qa-flowkit validate-test-coverage`                   | Validate configured coverage obligations and source NFR rows |
+| `qa-flowkit validate-traceability`                    | Validate RF-to-test and NFR traceability                     |
+| `qa-flowkit validate-release-gate`                    | Validate the enterprise release decision                     |
+| [`qa-flowkit export-report`](docs/qa-ai/reporting.md) | Export Gherkin-aligned test cases and execution results      |
 
 The complete command and option reference is in [CLI Reference](docs/qa-ai/cli-reference.md).
 `qa-flowkit metrics` reads only local run state under `.qa-ai/state/runs/`; it never reads artifact contents or sends

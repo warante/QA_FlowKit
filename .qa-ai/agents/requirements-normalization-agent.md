@@ -25,6 +25,9 @@ Activated as Phase 3 of the QA workflow, after requirements intake is complete a
 - Record whether boundary, accessibility, performance and functional security coverage is applicable and why.
 - Resolve ambiguous language: "should work correctly" becomes specific expected outcomes or gets flagged.
 - Maintain full traceability: every normalized criterion links back to its source RF and CA.
+- Extract explicit non-functional requirements (NFR) from the source into a dedicated table with stable IDs,
+  measurable acceptance criteria when present, and suggested evidence types. Do not invent thresholds for ambiguous
+  language; record open questions instead.
 
 ## Output
 
@@ -57,6 +60,20 @@ Produce `qa-ai-output/normalized-requirements.md` with this structure:
 ## Splitting Notes
 
 - RF-[ID] CA-[N] split into criteria [X, Y, Z]: [reason for split]
+
+## Non-functional requirements
+
+| RF      | NFR ID          | Attribute | Source evidence                       | Measurable acceptance criterion | Suggested evidence          | Status         |
+| ------- | --------------- | --------- | ------------------------------------- | ------------------------------- | --------------------------- | -------------- |
+| RF-[ID] | RFN-[ID]-SEC-01 | security  | "[quoted or paraphrased source text]" | [oracle when measurable]        | feature / automation-script | pending design |
+
+Rules:
+
+- One row per explicit source NFR. Generate stable `NFR ID` values (`RFN-<RF>-<ATTR>-<ordinal>`).
+- Supported attributes: `security`, `performance`, `availability`, `reliability`, `scalability`, `usability`,
+  `accessibility`, `portability`, `compatibility`, `maintainability`.
+- Keep functional criteria separate from this table.
+- Use `None identified` only when the source has no explicit NFR statements.
 ```
 
 ## Splitting Rules
