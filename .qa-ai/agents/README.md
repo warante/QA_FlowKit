@@ -62,4 +62,7 @@ Before starting a QA workflow phase, read the matching phase agent and any activ
 
 When generating Gherkin with `@type:accessibility` or `@type:performance`, also read the matching specialist file even if it is not listed in `active.md`.
 Load `security.md` for `@type:security` scenarios or when the configured coverage policy requires a security review.
+When `normalized-requirements.md` lists source NFR attributes, load the matching specialists from
+`.qa-ai/agents/specialists/available/` on demand (see `NFR_ATTRIBUTE_SPECIALIST_MAP` in `project-config.mjs`) even if they
+are not listed in `active.md`.
 When `aiTesting.enabled: true`, load `ai-evals.md` and `ai-red-team.md` through the generated active specialists list.

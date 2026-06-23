@@ -589,6 +589,47 @@ async function main() {
       );
     }
 
+    {
+      const nfrFixtureRoot = path.join(repoRoot, 'test', 'fixtures', 'nfr-coverage');
+      const nfrTemp = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-flowkit-nfr-cli-'));
+      extraTempRoots.push(nfrTemp);
+      await fs.cp(path.join(repoRoot, '.qa-ai'), path.join(nfrTemp, '.qa-ai'), { recursive: true });
+      await fs.mkdir(path.join(nfrTemp, 'qa-ai-output'), { recursive: true });
+      await fs.copyFile(path.join(nfrFixtureRoot, 'qa-ai.config.yaml'), path.join(nfrTemp, 'qa-ai.config.yaml'));
+      await fs.copyFile(
+        path.join(nfrFixtureRoot, 'normalized-requirements.md'),
+        path.join(nfrTemp, 'qa-ai-output', 'normalized-requirements.md')
+      );
+      await fs.copyFile(
+        path.join(nfrFixtureRoot, 'bad', 'test-design-proposal.md'),
+        path.join(nfrTemp, 'qa-ai-output', 'test-design-proposal.md')
+      );
+      const nfrBadJson = runCli(nfrTemp, ['validate-test-coverage', '--allow-empty', '--mode', 'strict', '--json'], {
+        expectFailure: true
+      });
+      const nfrBadPayload = JSON.parse(nfrBadJson.stdout);
+      assert.equal(nfrBadPayload.ok, false);
+      assert.ok(
+        (nfrBadPayload.errors || []).some((item) => String(item.rule || '').startsWith('nfr')),
+        'bad NFR proposal should report source NFR coverage errors'
+      );
+      await fs.copyFile(
+        path.join(nfrFixtureRoot, 'good', 'test-design-proposal.md'),
+        path.join(nfrTemp, 'qa-ai-output', 'test-design-proposal.md')
+      );
+      const nfrGoodJson = runCli(nfrTemp, ['validate-test-coverage', '--allow-empty', '--mode', 'strict', '--json']);
+      const nfrGoodPayload = JSON.parse(nfrGoodJson.stdout);
+      assert.equal(nfrGoodPayload.ok, true, JSON.stringify(nfrGoodPayload.errors));
+      await fs.copyFile(
+        path.join(nfrFixtureRoot, 'good', 'traceability-matrix.md'),
+        path.join(nfrTemp, 'qa-ai-output', 'traceability-matrix.md')
+      );
+      const nfrTraceJson = runCli(nfrTemp, ['validate-traceability', '--allow-empty', '--json']);
+      const nfrTracePayload = JSON.parse(nfrTraceJson.stdout);
+      assert.equal(nfrTracePayload.ok, true);
+      assert.equal(nfrTracePayload.nfrMetrics?.total, 2);
+    }
+
     console.log('CLI integration tests passed.');
   } finally {
     await fs.rm(tempRoot, { recursive: true, force: true });

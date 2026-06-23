@@ -21,6 +21,16 @@
 Use `positive`, `negative`, `alternative`, `boundary`, `accessibility`, `performance` and `security` as obligation
 values. When an obligation is not applicable, set `Applicable` to `no` and explain why.
 
+## Non-functional coverage
+
+| RF  | NFR ID | Attribute | Applicable | Evidence type | Evidence reference | Threshold / oracle | Environment or precondition | Status | Rationale |
+| --- | ------ | --------- | ---------- | ------------- | ------------------ | ------------------ | --------------------------- | ------ | --------- |
+
+Record one row per source NFR from `normalized-requirements.md`. `Applicable: no` requires a requirement-specific
+rationale; disabling preventive coverage flags is not a valid exclusion. Supported evidence types: `feature`,
+`automation-script`, `manual-charter`, `test-plan`, `technical-review`, `residual-risk`. `residual-risk` documents
+a blocked gap and does not count as satisfied coverage in `strict` mode.
+
 ## Security review
 
 | RF  | Category | Applicable | Evidence or test | Rationale |

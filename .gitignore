@@ -52,6 +52,8 @@ tests/
 !examples/**/features/**
 !examples/**/tests/
 !examples/**/tests/**
+prueba/
+plan/
 
 # Test runners (when automation is added)
 test-results/

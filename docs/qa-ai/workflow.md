@@ -134,6 +134,21 @@ Requirements:
 - API/integration framework: use `automation.api.framework` from `qa-ai.config.yaml`.
 - Provide technical proposal before coding.
 - Run `validate-test-coverage.mjs` after per-RF design and feature generation when coverage mode is enabled.
+- When `normalized-requirements.md` lists source non-functional requirements (NFR), ensure matching rows exist in
+  `test-design-proposal.md` (`## Non-functional coverage`) and `traceability-matrix.md`
+  (`## Non-functional traceability`). Source NFRs require an explicit decision even if preventive coverage flags are off.
+
+### Gradual NFR coverage configuration
+
+| Goal                                       | Suggested config                                                                                  |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------- |
+| Learn the workflow without blocking merges | `testDesign.coverage.mode: advisory` and `nonFunctionalCoverage.mode: inherit`                    |
+| Enforce complete proposals                 | `testDesign.coverage.mode: strict` (NFR severity inherits via `inherit`)                          |
+| Disable only preventive obligations        | `testDesign.coverage.mode: off` — source NFRs still warn unless `nonFunctionalCoverage.mode: off` |
+| Allow documented blockers in advisory      | `nonFunctionalCoverage.allowResidualRiskInAdvisory: true` (default)                               |
+
+Reference artifacts: [`examples/nfr-coverage-reference/`](../../examples/nfr-coverage-reference/README.md). Automated
+regression fixture: `test/fixtures/nfr-coverage/`.
 
 ## Step 8 - Implementation and validation
 

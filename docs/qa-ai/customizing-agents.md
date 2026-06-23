@@ -62,6 +62,9 @@ Specialists are best for framework and tool conventions:
 - Test data setup style.
 - TestRail or Jira field expectations.
 - Browser/device/cloud provider practices.
+- Non-functional quality attributes (availability, scalability, usability, compatibility, maintainability, etc.) via
+  on-demand specialists under `.qa-ai/agents/specialists/available/` — loaded during test design when
+  `normalized-requirements.md` lists matching source NFR attributes even if not in `active.md`.
 
 Add or update specialist files under:
 

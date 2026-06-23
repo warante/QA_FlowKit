@@ -1,5 +1,5 @@
 # Technique: <equivalence-partitioning|boundary-value-analysis|decision-table|state-transition|pairwise|error-guessing|use-case-testing>
-@priority:<critical|high|medium|low> @type:<functional|integration|e2e|api|accessibility|performance|security|negative|edge-case|compatibility|manual> @manual:<true|false> @rf:<RF-ID> @id:<TC-ID>
+@priority:<critical|high|medium|low> @type:<functional|integration|e2e|api|accessibility|performance|security|negative|edge-case> @manual:<true|false> @rf:<RF-ID> @id:<TC-ID>
 Feature: <Feature title>
   As a <role>
   I want <capability>
