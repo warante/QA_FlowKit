@@ -48,6 +48,13 @@ this feature PR is merged.
 - Cross-platform smoke and npm-pack checks now account for generated adapters and framework-specific example paths.
 - Documentation drift and missing packaged contract files now fail validation before release.
 
+## [0.5.7-beta.0](https://github.com/warante/QA_FlowKit/compare/v0.5.6-beta.0...v0.5.7-beta.0) (2026-06-23)
+
+
+### Added
+
+* add traceable non-functional requirement coverage ([#37](https://github.com/warante/QA_FlowKit/issues/37)) ([28878ea](https://github.com/warante/QA_FlowKit/commit/28878ea4d643e721d4f17f98d19b28fed4fc3960))
+
 ## [0.5.6-beta.0](https://github.com/warante/QA_FlowKit/compare/v0.5.5-beta.0...v0.5.6-beta.0) (2026-06-19)
 
 
