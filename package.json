@@ -1,6 +1,6 @@
 {
   "name": "qa-flowkit",
-  "version": "0.5.6-beta.0",
+  "version": "0.5.7-beta.0",
   "description": "Portable open-source framework and npm CLI for AI-assisted QA workflows.",
   "type": "module",
   "bin": {
