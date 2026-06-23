@@ -498,6 +498,36 @@ Assign unique test case IDs. Each feature file must have a distinct identifier.
 
 ---
 
+## Source NFR coverage validation
+
+### `Source NFR ... requires a matching row in ## Non-functional coverage`
+
+**Symptom**
+
+`validate-test-coverage.mjs` reports `nfr-missing-row`, `nfr-coverage-missing` or `nfr-legacy-silenced` findings.
+
+**Cause**
+
+`normalized-requirements.md` lists explicit non-functional requirements, but the proposal still marks performance or
+security as `not configured` or omits the `## Non-functional coverage` table.
+
+**Fix**
+
+1. Add one row per source NFR in `qa-ai-output/test-design-proposal.md` under `## Non-functional coverage`.
+2. Choose an evidence type (`feature`, `test-plan`, `manual-charter`, `technical-review`, `residual-risk`, …).
+3. Provide threshold/oracle and environment when the attribute requires them.
+4. Re-run:
+
+```bash
+node .qa-ai/scripts/validate-test-coverage.mjs
+node .qa-ai/scripts/validate-traceability.mjs
+```
+
+Disabling `testDesign.coverage.requirePerformanceWhenApplicable` or `requireSecurityReview` does **not** remove this
+obligation for explicit source NFRs.
+
+---
+
 ## Traceability validation
 
 ### `Traceability matrix not found`
@@ -522,6 +552,24 @@ node .qa-ai/scripts/validate-traceability.mjs --allow-missing
 ```
 
 Once the QA flow has generated `qa-ai-output/traceability-matrix.md`, remove the flag so CI catches missing coverage.
+
+### `Source NFR ... is missing from ## Non-functional traceability`
+
+**Symptom**
+
+`validate-traceability.mjs` reports missing NFR rows or a missing `## Non-functional traceability` section.
+
+**Cause**
+
+Normalized requirements include source NFRs, but the traceability matrix only lists functional features.
+
+**Fix**
+
+Add `## Non-functional traceability` with one row per `NFR ID` from `normalized-requirements.md`, then re-run:
+
+```bash
+node .qa-ai/scripts/validate-traceability.mjs
+```
 
 ---
 

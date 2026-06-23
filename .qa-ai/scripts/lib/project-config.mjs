@@ -206,6 +206,31 @@ export const specialistCatalog = {
     categories: ['security'],
     aliases: ['security', 'functional-security', 'owasp-functional']
   },
+  'availability-reliability': {
+    title: 'Availability and Reliability Specialist',
+    categories: ['availability', 'reliability'],
+    aliases: ['availability-reliability', 'availability', 'reliability', 'resilience']
+  },
+  scalability: {
+    title: 'Scalability Specialist',
+    categories: ['scalability'],
+    aliases: ['scalability', 'load-growth']
+  },
+  usability: {
+    title: 'Usability Specialist',
+    categories: ['usability'],
+    aliases: ['usability', 'ux']
+  },
+  'compatibility-portability': {
+    title: 'Compatibility and Portability Specialist',
+    categories: ['compatibility', 'portability'],
+    aliases: ['compatibility-portability', 'compatibility', 'portability']
+  },
+  maintainability: {
+    title: 'Maintainability Specialist',
+    categories: ['maintainability'],
+    aliases: ['maintainability', 'operability']
+  },
   'ai-evals': {
     title: 'AI Eval Suite Specialist',
     categories: ['ai-testing'],
@@ -217,6 +242,33 @@ export const specialistCatalog = {
     aliases: ['ai-red-team', 'llm-red-team', 'adversarial-ai']
   }
 };
+
+/** Maps source NFR quality attributes to on-demand specialist ids (execution-time only). */
+export const NFR_ATTRIBUTE_SPECIALIST_MAP = {
+  security: 'security',
+  performance: 'performance',
+  scalability: 'scalability',
+  accessibility: 'accessibility',
+  availability: 'availability-reliability',
+  reliability: 'availability-reliability',
+  usability: 'usability',
+  portability: 'compatibility-portability',
+  compatibility: 'compatibility-portability',
+  maintainability: 'maintainability'
+};
+
+export function specialistsForNfrAttributes(attributes = []) {
+  const active = new Map();
+  for (const attribute of attributes) {
+    const normalized = String(attribute || '')
+      .trim()
+      .toLowerCase();
+    const specialistId = NFR_ATTRIBUTE_SPECIALIST_MAP[normalized];
+    if (!specialistId || !specialistCatalog[specialistId]) continue;
+    active.set(specialistId, specialistCatalog[specialistId]);
+  }
+  return [...active.entries()].sort(([a], [b]) => a.localeCompare(b));
+}
 
 export function activeSpecialists(config) {
   const mode = String(getConfigValue(config, 'agents.specialistMode', 'auto')).toLowerCase();

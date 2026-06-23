@@ -38,8 +38,12 @@ tests/                          automation code when configured
 - `clean.mjs` reads `.qa-ai/state/init-manifest.json`, previews cleanup by default, and removes only tracked generated files or empty directories when `--force` is passed.
 - `validate-features.mjs` uses the structured Gherkin parser AST to validate configured `.feature` files for one Feature, one Scenario, acceptance criteria, required tag values, language directives, RF IDs and duplicate explicit test case IDs.
 - `validate-test-coverage.mjs` groups design features by RF and evaluates configured positive, negative, alternative,
-  conditional and technique-traceability obligations against the per-RF proposal.
-- `validate-traceability.mjs` checks that feature RF/test identifiers are represented in the configured traceability matrix, validates the Markdown table shape and detects duplicate test case or feature-file rows.
+  conditional and technique-traceability obligations against the per-RF proposal. When `normalized-requirements.md`
+  lists source NFRs, it also validates `## Non-functional coverage` rows and emits warnings even if preventive
+  `testDesign.coverage.mode` is `off` (unless `testDesign.nonFunctionalCoverage.mode` is `off`).
+- `validate-traceability.mjs` checks that feature RF/test identifiers are represented in the functional traceability
+  table, validates Markdown table shape, detects duplicate rows and validates `## Non-functional traceability` against
+  normalized source NFRs.
 - `validate-sync-plan.mjs` checks that test-management sync plans remain proposal-first, mention approval, cover feature identifiers, validate Markdown table shape, detect duplicate plan IDs and validate the optional test-management mapping file shape.
 - `validate-active-specialists.mjs` checks that `.qa-ai/agents/specialists/active.md` matches the configured tools/frameworks.
 - `smoke-test.mjs` runs native Node smoke checks for init, config profiles, selected adapters, no-overwrite behavior and unsafe path rejection.

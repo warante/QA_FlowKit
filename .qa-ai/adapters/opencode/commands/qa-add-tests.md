@@ -15,11 +15,20 @@ Read these files first:
 - `.qa-ai/rules/`
 - `.qa-ai/agents/README.md`
 - `.qa-ai/agents/qa-workflow-orchestrator.md`
+- `.qa-ai/agents/requirements-normalization-agent.md`
 - `.qa-ai/agents/gherkin-test-design-agent.md`
 - `.qa-ai/agents/test-management-coverage-agent.md`
 - `.qa-ai/agents/specialists/active.md` when present
 - `.qa-ai/rules/ai-testing.rules.md` when `aiTesting.enabled` is true or the RF signals AI/LLM behavior
 - `.qa-ai/workflows/test-design.md`
+
+After normalizing requirements, load on-demand specialists for detected source NFR attributes from
+`.qa-ai/agents/specialists/available/` (`security`, `performance`, `accessibility`, …). Do not modify
+`specialists/active.md` during this command.
+
+On `standard` and `enterprise` tracks, also read `.qa-ai/agents/test-design-system-agent.md` and produce or update
+`qa-ai-output/test-design-system.md` before the per-RF proposal. On `quick`, perform a reduced NFR analysis and note
+that system test design was omitted unless the user requests it.
 
 Before asking anything, resolve `project.interfaceLanguage` / `project.defaultLanguage` from `qa-ai.config.yaml` and keep that language for the complete interaction. Use `gherkin.language` only for generated `.feature` files.
 
@@ -46,13 +55,18 @@ Then present a concise plan before modifying files.
 Workflow:
 
 1. Inspect existing `.feature` files and configured automation paths to avoid duplicates.
-2. Analyze the new RF and acceptance criteria.
-3. Produce or update `qa-ai-output/requirement-analysis.md`.
-4. Produce or update `qa-ai-output/test-design-proposal.md` with only new tests to add and existing tests to reuse. If
-   the RF is an AI component, set `AI component: yes`, cover every configured `aiTesting.requiredTechniques` value in
-   the `Technique` column, and prepare matching `@ai-component` / `@technique:<value>` feature tags.
-5. After approval, create one `.feature` file per new test case under `gherkin.featurePath/<type-subfolder>/` (see `gherkin-test-design-agent.md` and `gherkin.rules.md` — never in the feature root).
-6. Update `qa-ai-output/traceability-matrix.md` when useful.
-7. Run `node .qa-ai/scripts/validate-features.mjs`, `node .qa-ai/scripts/validate-traceability.mjs` and `node .qa-ai/scripts/validate-sync-plan.mjs` after feature/artifact changes.
+2. Analyze the new RF and acceptance criteria; produce or update `qa-ai-output/requirement-analysis.md`.
+3. Normalize functional criteria and explicit source NFRs into `qa-ai-output/normalized-requirements.md` (canonical NFR
+   table). Ask open questions when a measurable threshold, environment or success criterion is missing but required.
+4. Detect NFR attributes from the normalized table and load matching specialists before design.
+5. On `standard` / `enterprise`, produce or update `qa-ai-output/test-design-system.md` with applicable NFR focus.
+6. Produce or update `qa-ai-output/test-design-proposal.md` with functional tests and a `## Non-functional coverage`
+   row per source NFR. Do not mark source NFRs as `not configured`; use applicable evidence types or justified
+   `not-applicable` / `residual-risk`.
+7. Request approval before writing new `.feature` files or other approved evidence artifacts.
+8. After approval, create only approved artifacts (one `.feature` per test case when Gherkin is the chosen evidence).
+9. Update `qa-ai-output/traceability-matrix.md` when useful.
+10. Run `node .qa-ai/scripts/validate-features.mjs`, `node .qa-ai/scripts/validate-traceability.mjs`,
+    `node .qa-ai/scripts/validate-test-coverage.mjs` and `node .qa-ai/scripts/validate-sync-plan.mjs` after changes.
 
 Do not modify existing tests unless the user explicitly approves that scope. Do not write to configured external tools.

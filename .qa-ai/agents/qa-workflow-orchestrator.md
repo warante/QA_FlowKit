@@ -62,6 +62,12 @@ Execute phases in order. Each phase depends on the previous one's output.
   limitations in `sources.analysisPath`.
 - Apply `testDesign.coverage` after per-RF design and Gherkin generation. Advisory findings are reported; strict
   findings block completion.
+- After requirements normalization, detect source NFR attributes in `normalized-requirements.md` and load matching
+  on-demand specialists from `.qa-ai/agents/specialists/available/` (see `specialistsForNfrAttributes` in
+  `project-config.mjs`) before system and per-RF test design. Do not modify `specialists/active.md` during a run.
+- Ensure each source NFR has a row in `test-design-proposal.md` (`## Non-functional coverage`) and
+  `traceability-matrix.md` (`## Non-functional traceability`). Run `validate-test-coverage.mjs` and
+  `validate-traceability.mjs` when those artifacts exist.
 - Apply `testDesign.quality` after Gherkin generation when enabled. Advisory findings are reported; gate findings block
   completion.
 - Present a plan before every change.

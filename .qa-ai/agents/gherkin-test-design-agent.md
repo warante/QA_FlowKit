@@ -30,8 +30,14 @@ Activated for per-RF test design and Gherkin feature generation after requiremen
 - When `@type:accessibility` or `@type:performance`, also read `.qa-ai/agents/specialists/available/accessibility.md` or `performance.md`.
 - When `@type:security` or a functional security review is configured, also read
   `.qa-ai/agents/specialists/available/security.md`.
-- Record the test-design technique in the proposal. A `# Technique:` feature comment is optional supporting
-  evidence.
+- When `normalized-requirements.md` lists source NFR attributes, load the matching on-demand specialists (see
+  `specialistsForNfrAttributes` in `project-config.mjs`) before finalizing `## Non-functional coverage`.
+- Record one `## Non-functional coverage` row per source NFR. Use Gherkin (`@type:` + `.feature`) only when the
+  attribute is observable through scenarios; otherwise choose `test-plan`, `manual-charter`, `technical-review` or
+  `residual-risk`.
+- Complete the `Coverage obligations`, `Security review`, `Residual coverage gaps` and `Non-functional coverage`
+  sections when coverage mode is `advisory` or `strict`, or when source NFRs exist.
+- Record the test-design technique in the proposal. A `# Technique:` feature comment is optional supporting evidence.
 - When `aiTesting.enabled` is true, ask the AI-component question in `project.interfaceLanguage` for RFs with signals
   such as model, LLM, prediction, score, generative output, biometric matching, confidence, embedding or other
   non-deterministic behavior:
@@ -43,8 +49,6 @@ Activated for per-RF test design and Gherkin feature generation after requiremen
   produce at least one planned test for each configured `aiTesting.requiredTechniques` value in the `Technique` column.
 - Generated AI-component features must include `@ai-component` and a configured `@technique:<value>` tag; proposal and
   feature classification must agree.
-- Complete the `Coverage obligations`, `Security review` and `Residual coverage gaps` sections when coverage mode
-  is `advisory` or `strict`.
 
 ## Tag Requirements
 
