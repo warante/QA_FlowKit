@@ -220,7 +220,8 @@ async function writeValidQualityReport(cwd, featureRel = 'features/functional/RF
     'determinism',
     'data-independence',
     'ui-overspecification',
-    'language-clarity'
+    'language-clarity',
+    'source-criterion-alignment'
   ];
   const rows = dimensions.map(
     (dimension) => `| ${dimension} | ${dimension} criterion | pass | "Then the outcome is visible" |`
@@ -251,7 +252,7 @@ async function writeValidQualityReport(cwd, featureRel = 'features/functional/RF
       '',
       '| File | Dimensions passed | Verdict |',
       '| ---- | ----------------- | ------- |',
-      `| ${featureRel} | 7 | pass |`,
+      `| ${featureRel} | ${dimensions.length} | pass |`,
       ''
     ].join('\n'),
     'utf8'
