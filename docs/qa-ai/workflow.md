@@ -150,6 +150,41 @@ Requirements:
 Reference artifacts: [`examples/nfr-coverage-reference/`](../../examples/nfr-coverage-reference/README.md). Automated
 regression fixture: `test/fixtures/nfr-coverage/`.
 
+### Semantic criterion coverage (functional)
+
+When requirements are normalized with atomic `Criterion ID` rows, the workflow adds deterministic gates between
+`normalized-requirements.md`, `test-design-proposal.md`, generated `.feature` files and `traceability-matrix.md`.
+
+| Artifact                                        | Contract                                                                                                                                     |
+| ----------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `normalized-requirements.md`                    | `Criterion ID`, `Condition or partition`, `Expected observable outcome`, `Status` (`ready`, `ambiguous`, `out-of-scope`, `pending-decision`) |
+| `test-design-proposal.md` (`## Proposed tests`) | `Criterion IDs`, `Evidence type`, `Artifact path`, `Action` (`create`, `reuse`, `modify`, `pending-decision`, `not-applicable`)              |
+| `.feature` files                                | `@rf:` and `@id:` matching a proposal row with `Action: create` and `Evidence type: feature`                                                 |
+| `traceability-matrix.md`                        | `Criterion IDs` on functional rows; `Automation Status: proposal-only` for deferred tests                                                    |
+
+Validators:
+
+```bash
+node .qa-ai/scripts/validate-test-design.mjs
+node .qa-ai/scripts/validate-test-coverage.mjs
+node .qa-ai/scripts/validate-traceability.mjs
+```
+
+Enable strict gates with `testDesign.coverage.requireCriterionCoverage: true` (or rely on `testDesign.coverage.mode: strict`
+when the normalized file already lists `Criterion ID` rows). Legacy proposals without atomic criteria keep working: semantic
+validation is skipped until the normalized inventory uses `Criterion ID`.
+
+Gherkin semantic review adds the `source-criterion-alignment` rubric dimension when `testDesign.quality.mode` is
+`advisory` or `gate`. Raise `testDesign.quality.minDimensionsPassed` to `8` when using the full rubric.
+
+| Goal                                    | Suggested config                                                        |
+| --------------------------------------- | ----------------------------------------------------------------------- |
+| Learn atomic coverage without blocking  | `testDesign.coverage.mode: advisory`                                    |
+| Enforce proposal → feature completeness | `testDesign.coverage.mode: strict` and `requireCriterionCoverage: true` |
+| Block on semantic Gherkin misalignment  | `testDesign.quality.mode: gate` and `minDimensionsPassed: 8`            |
+
+Automated regression fixture: `test/fixtures/semantic-coverage/` (`good/` and `bad/` variants).
+
 ## Step 8 - Implementation and validation
 
 Requirements:

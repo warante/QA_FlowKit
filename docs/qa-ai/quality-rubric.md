@@ -12,15 +12,16 @@ format as auditable artifacts.
 
 The shipped rubric is `rubricVersion: 1` and uses seven binary dimensions:
 
-| Dimension              | Purpose                                                                           |
-| ---------------------- | --------------------------------------------------------------------------------- |
-| `requirement-fidelity` | Confirms scenarios test the RF acceptance criteria rather than adjacent behavior. |
-| `observability`        | Requires externally observable outcomes in `Then` steps.                          |
-| `atomicity`            | Keeps each scenario focused on one behavior.                                      |
-| `determinism`          | Avoids uncontrolled time, order or environment dependence.                        |
-| `data-independence`    | Avoids hardcoded environment-specific data and secrets.                           |
-| `ui-overspecification` | Avoids incidental UI details unless required by the RF.                           |
-| `language-clarity`     | Keeps business-readable language aligned with `gherkin.language`.                 |
+| Dimension                    | Purpose                                                                           |
+| ---------------------------- | --------------------------------------------------------------------------------- |
+| `requirement-fidelity`       | Confirms scenarios test the RF acceptance criteria rather than adjacent behavior. |
+| `observability`              | Requires externally observable outcomes in `Then` steps.                          |
+| `atomicity`                  | Keeps each scenario focused on one behavior.                                      |
+| `determinism`                | Avoids uncontrolled time, order or environment dependence.                        |
+| `data-independence`          | Avoids hardcoded environment-specific data and secrets.                           |
+| `ui-overspecification`       | Avoids incidental UI details unless required by the RF.                           |
+| `language-clarity`           | Keeps business-readable language aligned with `gherkin.language`.                 |
+| `source-criterion-alignment` | Matches scenario conditions and outcomes to normalized criterion or CA evidence.  |
 
 Each criterion is evaluated as `pass` or `fail`; there are no numeric scores.
 
