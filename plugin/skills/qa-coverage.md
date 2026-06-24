@@ -31,6 +31,17 @@ If `$ARGUMENTS` is empty or ambiguous, ask the user:
 
 Then present a concise plan before modifying files.
 
+Run these validators before writing coverage metrics and cite their output in the report:
+
+```bash
+node .qa-ai/scripts/validate-test-design.mjs
+node .qa-ai/scripts/validate-test-coverage.mjs
+node .qa-ai/scripts/validate-features.mjs
+node .qa-ai/scripts/validate-traceability.mjs
+```
+
+When `testDesign.quality.mode` is not `off`, also run `node .qa-ai/scripts/validate-quality-report.mjs`.
+
 Coverage dimensions:
 
 - Requirement/RF coverage.
@@ -42,7 +53,9 @@ Coverage dimensions:
 
 Expected local artifacts:
 
-- `qa-ai-output/qa-coverage-report.md`
+- `qa-ai-output/qa-coverage-report.md` with separate sections for planned coverage, created evidence, `proposal-only`
+  rows, `pending-decision` criteria, functional CA metrics and RFN metrics. Do not claim 100% coverage when any validator
+  fails or a planned `Action: create` feature is missing.
 - `qa-ai-output/test-management-coverage-analysis.md` when test management is configured or local mapping data exists
 - `qa-ai-output/traceability-matrix.md` when useful
 
