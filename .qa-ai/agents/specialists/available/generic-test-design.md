@@ -20,6 +20,10 @@ documentation for manual execution, exploratory testing or teams that do not use
 - Maintain traceability to RF/CA IDs.
 - Keep one logical test case per section or record.
 - Record the selected technique in the per-RF proposal when technique traceability is enabled.
+- When the RF combines intervals, eligibility or mutually exclusive causes, add a decision table before proposing tests.
+- When the RF changes persistent states or describes compensations/reversions, add a state-transition table.
+- For bounded numeric rules, plan boundary coverage at min, min+1, max-1, max and out-of-range below/above when both ends exist.
+- Map each atomic `Criterion ID` from `normalized-requirements.md` to at least one proposed test or non-feature evidence row.
 - Do not replace required Gherkin generation when `gherkin` output is requested or required by config.
 
 ## Test Case Template

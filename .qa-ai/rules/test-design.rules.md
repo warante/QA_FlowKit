@@ -47,7 +47,11 @@ Apply during system-level and per-RF test design before final Gherkin generation
   in `active.md`.
 - Record the design technique for each proposed test when technique traceability is enabled. Supported techniques:
   equivalence partitioning, boundary value analysis, decision tables, state transitions, pairwise, error guessing
-  and use-case testing.
+  and use-case testing. Do not place evidence types (`technical-review`, `automation-script`, `test-plan`,
+  `manual-charter`, `residual-risk`) in the `Technique` column; use `Evidence type` instead.
+- When `normalized-requirements.md` uses atomic `Criterion ID` rows, populate `Criterion IDs`, `Evidence type`,
+  `Artifact path` and `Action` in `## Proposed tests`. A criterion with `Status: pending-decision` must not use
+  `Action: create` for feature generation.
 - Perform a functional security review when configured. This does not replace penetration testing or establish
   OWASP compliance.
 

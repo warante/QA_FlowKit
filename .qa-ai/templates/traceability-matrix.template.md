@@ -1,7 +1,7 @@
 # Traceability Matrix
 
-| Requirement Source | RF  | CA  | Feature File | Test Management Case ID | Type | Priority | Automation Status | Automation File |
-| ------------------ | --- | --- | ------------ | ----------------------- | ---- | -------- | ----------------- | --------------- |
+| Requirement Source | RF  | CA  | Criterion IDs | Feature File | Test Management Case ID | Type | Priority | Automation Status | Automation File |
+| ------------------ | --- | --- | ------------- | ------------ | ----------------------- | ---- | -------- | ----------------- | --------------- |
 
 ## Non-functional traceability
 
@@ -9,4 +9,5 @@
 | ------------------ | --- | ------ | --------- | ------------- | ------------------ | ------ | ------------- |
 
 Add one row per source NFR from `normalized-requirements.md`. Functional rows and NFR rows are separate; do not count
-NFR evidence as functional CA coverage in summary metrics.
+NFR evidence as functional CA coverage in summary metrics. Use `Automation Status: proposal-only` for planned tests
+without generated artifacts.

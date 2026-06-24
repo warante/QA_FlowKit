@@ -117,7 +117,7 @@ export function parseSectionTable(content, heading, requiredColumns = []) {
   return { exists: true, errors, rows, header };
 }
 
-function normalizeRf(value) {
+export function normalizeRf(value) {
   return String(value || '')
     .trim()
     .replace(/_/g, '-')
@@ -125,7 +125,7 @@ function normalizeRf(value) {
     .toUpperCase();
 }
 
-function rfFromText(value) {
+export function rfFromText(value) {
   const match = String(value || '').match(rfPattern);
   return match ? normalizeRf(match[0]) : '';
 }
@@ -220,10 +220,15 @@ export function featureCoverageRecord(file, content) {
 
   const aiTechniques = [...new Set(aiTechniquesFromTags)].filter(Boolean);
 
+  const testId = String(tags.id || '')
+    .replace(/\s+/g, '-')
+    .toUpperCase();
+
   return {
     file,
     rf,
     type,
+    testId,
     techniques,
     hasObservableThen: Boolean(thenLine && thenLine.replace(/^\s*(?:Then|Entonces)\s*/i, '').trim()),
     isAiComponent,

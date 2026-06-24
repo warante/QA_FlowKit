@@ -271,7 +271,8 @@
             "requireAccessibilityWhenApplicable": { "type": "boolean" },
             "requirePerformanceWhenApplicable": { "type": "boolean" },
             "requireSecurityReview": { "type": "boolean" },
-            "requireTechniqueTraceability": { "type": "boolean" }
+            "requireTechniqueTraceability": { "type": "boolean" },
+            "requireCriterionCoverage": { "type": "boolean" }
           }
         },
         "quality": {
@@ -282,7 +283,7 @@
           "properties": {
             "mode": { "type": "string", "enum": ["off", "advisory", "gate"] },
             "reportPath": { "type": "string" },
-            "minDimensionsPassed": { "type": "integer", "minimum": 0, "maximum": 7 }
+            "minDimensionsPassed": { "type": "integer", "minimum": 0, "maximum": 8 }
           }
         },
         "nonFunctionalCoverage": {

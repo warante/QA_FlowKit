@@ -6,6 +6,7 @@ import {
   resolveNonFunctionalCoveragePolicy,
   validateSourceNfrCoverage
 } from './lib/nfr-coverage.mjs';
+import { mergeSemanticCoverageResults, validateSemanticCoverage } from './lib/semantic-coverage.mjs';
 import {
   getConfigValue,
   listFilesRecursive,
@@ -53,7 +54,8 @@ function coveragePolicy(config) {
     requireSecurityReview: Boolean(getConfigValue(config, 'testDesign.coverage.requireSecurityReview', false)),
     requireTechniqueTraceability: Boolean(
       getConfigValue(config, 'testDesign.coverage.requireTechniqueTraceability', false)
-    )
+    ),
+    requireCriterionCoverage: Boolean(getConfigValue(config, 'testDesign.coverage.requireCriterionCoverage', false))
   };
 }
 
@@ -120,7 +122,18 @@ export async function validateTestCoverage(cwd, options = {}) {
     mode: nfrPolicy.mode,
     policy: nfrPolicy
   });
-  const merged = mergeCoverageResults(preventive, sourceNfr);
+  const semantic = validateSemanticCoverage({
+    normalizedContent,
+    proposalContent,
+    features,
+    featureRoot,
+    mode,
+    policy: coveragePolicy(config),
+    options: {
+      allowMissingArtifacts: Boolean(options.allowMissing)
+    }
+  });
+  const merged = mergeSemanticCoverageResults(mergeCoverageResults(preventive, sourceNfr), semantic);
   const featureGateOk = features.length > 0 || Boolean(options.allowEmpty) || mode === 'off';
 
   return {
