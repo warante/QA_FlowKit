@@ -76,3 +76,14 @@ Spanish guidance: usa lenguaje declarativo de negocio y respeta `gherkin.languag
 - Steps are readable by QA/product stakeholders without implementation jargon.
 - The feature uses the configured Gherkin language consistently.
 - Scenario names are specific, concise and outcome-oriented.
+
+## source-criterion-alignment
+
+Definition: scenario conditions and outcomes align with the linked normalized criterion or CA.
+
+Spanish guidance: las condiciones y resultados del escenario coinciden con el criterio normalizado o CA vinculado.
+
+- Given/When steps reflect the source criterion condition or partition under test.
+- Then steps assert the documented expected observable outcome, including final state when required.
+- Boundary scenarios use the approved threshold values from the normalized criterion, not a reinterpreted limit.
+- The quality report cites the normalized criterion ID or CA and the matching Gherkin steps as evidence.

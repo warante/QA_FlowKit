@@ -1,6 +1,7 @@
 import path from 'node:path';
 import { normalizeColumn, parseMarkdownTable } from './markdown-table.mjs';
 import { validateNfrTraceability } from './nfr-coverage.mjs';
+import { parseProposedTestRows } from './semantic-coverage.mjs';
 
 const idPattern = /\b(?:RF|TC|TEST|QA)(?:[-_][A-Z0-9]+| \d[A-Z0-9]*|\d+)\b/gi;
 const caseIdPattern = /\b(?:TC|TEST|QA)(?:[-_][A-Z0-9]+| \d[A-Z0-9]*|\d+)\b/gi;
@@ -94,7 +95,118 @@ export function duplicateFunctionalTraceabilityErrors(rows) {
   return errors;
 }
 
-export function validateFunctionalTraceability({ matrixContent = '', features = [] }) {
+function normalizeAutomationStatus(value) {
+  return String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, '-');
+}
+
+function isProposalOnlyRow(row) {
+  const status = normalizeAutomationStatus(row.values[normalizeColumn('Automation Status')]);
+  return status === 'proposal-only' || status === 'proposed';
+}
+
+export function validateMatrixFeaturePaths({ matrixContent = '', features = [], featureRoot = 'features' } = {}) {
+  const matrix = parseFunctionalTraceabilityMatrix(matrixContent);
+  const errors = [];
+  const featurePaths = new Set(
+    features.map((feature) =>
+      String(feature.file || '')
+        .replaceAll('\\', '/')
+        .toLowerCase()
+    )
+  );
+
+  for (const row of matrix.rows) {
+    if (isProposalOnlyRow(row)) continue;
+    const featureFile = String(row.values[normalizeColumn('Feature File')] || '')
+      .trim()
+      .replaceAll('\\', '/');
+    if (!featureFile) {
+      errors.push(`Line ${row.line}: functional traceability row is missing Feature File.`);
+      continue;
+    }
+    const normalized = featureFile.toLowerCase();
+    const exists =
+      featurePaths.has(normalized) ||
+      featurePaths.has(path.posix.join(featureRoot, normalized).toLowerCase()) ||
+      [...featurePaths].some((candidate) => candidate.endsWith(`/${normalized}`) || candidate === normalized);
+    if (!exists) {
+      errors.push(`Line ${row.line}: traceability references missing feature file ${featureFile}.`);
+    }
+  }
+
+  return { errors, rows: matrix.rows };
+}
+
+export function validateMatrixCaseAlignment({ matrixContent = '', features = [] } = {}) {
+  const matrix = parseFunctionalTraceabilityMatrix(matrixContent);
+  const errors = [];
+  const featuresByCase = new Map();
+
+  for (const feature of features) {
+    for (const id of feature.ids || []) {
+      if (/^TC[-_]/i.test(id)) featuresByCase.set(normalizeId(id), feature);
+    }
+  }
+
+  for (const row of matrix.rows) {
+    if (isProposalOnlyRow(row)) continue;
+    const caseId = normalizeId(row.values[normalizeColumn('Test Management Case ID')] || row.caseIds[0] || '');
+    const featureFile = String(row.values[normalizeColumn('Feature File')] || '')
+      .trim()
+      .replaceAll('\\', '/');
+    if (!caseId) continue;
+    const feature = featuresByCase.get(caseId);
+    if (!feature) {
+      errors.push(`Line ${row.line}: matrix case ${caseId} has no matching feature with @id:${caseId}.`);
+      continue;
+    }
+    const featurePath = String(feature.file || '')
+      .replaceAll('\\', '/')
+      .toLowerCase();
+    if (featureFile && !featurePath.endsWith(featureFile.toLowerCase())) {
+      errors.push(
+        `Line ${row.line}: matrix case ${caseId} points to ${featureFile} but feature file is ${feature.file}.`
+      );
+    }
+  }
+
+  return { errors };
+}
+
+export function validateMatrixCriterionLinks({ matrixContent = '', proposalContent = '' } = {}) {
+  const proposal = parseProposedTestRows(proposalContent);
+  if (!proposal.contract.hasCriterionIds) return { errors: [] };
+
+  const matrix = parseFunctionalTraceabilityMatrix(matrixContent);
+  const errors = [];
+  const matrixCriterionIds = new Set();
+
+  for (const row of matrix.rows) {
+    const criterionCell = String(row.values[normalizeColumn('Criterion IDs')] || '').trim();
+    for (const id of criterionCell
+      .split(/[,;]/)
+      .map((item) => item.trim())
+      .filter(Boolean)) {
+      matrixCriterionIds.add(id);
+    }
+  }
+
+  for (const row of proposal.rows) {
+    if (row.action !== 'create' || row.evidenceType !== 'feature') continue;
+    for (const criterionId of row.criterionIds) {
+      if (matrixCriterionIds.size > 0 && !matrixCriterionIds.has(criterionId)) {
+        errors.push(`Criterion ${criterionId} from test ${row.testId} is missing from the traceability matrix.`);
+      }
+    }
+  }
+
+  return { errors };
+}
+
+export function validateFunctionalTraceability({ matrixContent = '', features = [], featureRoot = 'features' } = {}) {
   const matrix = parseFunctionalTraceabilityMatrix(matrixContent);
   const errors = [...matrix.errors, ...duplicateFunctionalTraceabilityErrors(matrix.rows)];
   const matrixContentNormalized = normalizeId(functionalMatrixContent(matrixContent));
@@ -114,13 +226,23 @@ export function validateFunctionalTraceability({ matrixContent = '', features = 
     }
   }
 
+  errors.push(...validateMatrixFeaturePaths({ matrixContent, features, featureRoot }).errors);
+  errors.push(...validateMatrixCaseAlignment({ matrixContent, features }).errors);
+
   return { ok: errors.length === 0, errors, rows: matrix.rows };
 }
 
-export function validateTraceabilityArtifacts({ matrixContent = '', normalizedContent = '', features = [] }) {
-  const functional = validateFunctionalTraceability({ matrixContent, features });
+export function validateTraceabilityArtifacts({
+  matrixContent = '',
+  normalizedContent = '',
+  proposalContent = '',
+  features = [],
+  featureRoot = 'features'
+} = {}) {
+  const functional = validateFunctionalTraceability({ matrixContent, features, featureRoot });
   const nfr = validateNfrTraceability({ normalizedContent, matrixContent });
-  const errors = [...functional.errors, ...nfr.errors];
+  const criterion = validateMatrixCriterionLinks({ matrixContent, proposalContent });
+  const errors = [...functional.errors, ...nfr.errors, ...criterion.errors];
   const warnings = [...nfr.warnings];
 
   return {

@@ -573,6 +573,68 @@ node .qa-ai/scripts/validate-traceability.mjs
 
 ---
 
+## Semantic criterion coverage validation
+
+### `TC ... planned with Action create but feature file is missing`
+
+**Symptom**
+
+`validate-test-coverage.mjs` reports `missing-feature` and names the `Test ID` and expected path.
+
+**Cause**
+
+`test-design-proposal.md` lists `Action: create` with `Evidence type: feature`, but no matching `.feature` exists with the
+same `@id:` tag.
+
+**Fix**
+
+Generate the missing feature or change the proposal row to `reuse`, `modify`, `pending-decision` or a non-feature evidence
+type (`test-plan`, `technical-review`, etc.).
+
+### `Criterion ... is ready but has no linked test`
+
+**Symptom**
+
+`validate-test-coverage.mjs` reports `criterion-without-test` for a `Criterion ID`.
+
+**Cause**
+
+`normalized-requirements.md` marks a criterion `ready`, but `## Proposed tests` has no row with a realizable `Action`.
+
+**Fix**
+
+Add a proposed test row linking the `Criterion ID` or mark the criterion `out-of-scope` / `pending-decision`.
+
+### `uses evidence type ... as Technique`
+
+**Symptom**
+
+`validate-test-design.mjs` or `validate-test-coverage.mjs` reports `invalid-technique`.
+
+**Cause**
+
+A value such as `technical-review` or `automation-script` was placed in the `Technique` column instead of `Evidence type`.
+
+**Fix**
+
+Move the value to `Evidence type` and record a supported design technique (`boundary-value-analysis`, `decision-table`, etc.).
+
+### `traceability references missing feature file`
+
+**Symptom**
+
+`validate-traceability.mjs` reports a matrix row pointing to a non-existent `Feature File`.
+
+**Cause**
+
+The traceability matrix lists a final feature path, but the file was not generated or the path is wrong.
+
+**Fix**
+
+Create the feature or set `Automation Status: proposal-only` until generation is approved.
+
+---
+
 ### `identifier RF-101 is missing from qa-ai-output/traceability-matrix.md`
 
 **Symptom**

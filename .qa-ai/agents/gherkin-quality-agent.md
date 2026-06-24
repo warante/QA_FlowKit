@@ -13,6 +13,7 @@
 ## Inputs / Entradas
 
 - Generated `.feature` files under `gherkin.featurePath`.
+- `qa-ai-output/normalized-requirements.md` and `qa-ai-output/test-design-proposal.md` when evaluating source alignment.
 - `.qa-ai/rules/gherkin-quality.rubric.md`.
 - `qa-ai.config.yaml` (`project.interfaceLanguage`, `gherkin.language`, `testDesign.quality`).
 - Active run metadata when available.

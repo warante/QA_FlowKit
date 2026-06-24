@@ -10,8 +10,8 @@
 
 ## Proposed tests
 
-| RF  | CA  | Test ID | Title | Type | Technique | AI component | Risk | Applicability | Priority | Manual | Action |
-| --- | --- | ------- | ----- | ---- | --------- | ------------ | ---- | ------------- | -------- | ------ | ------ |
+| RF  | CA / rule | Criterion IDs | Test ID | Title | Type | Technique | Evidence type | Artifact path | Expected result focus | Priority | Manual | Action |
+| --- | --------- | ------------- | ------- | ----- | ---- | --------- | ------------- | ------------- | --------------------- | -------- | ------ | ------ |
 
 ## Coverage obligations
 

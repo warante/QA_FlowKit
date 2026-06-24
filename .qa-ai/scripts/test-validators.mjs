@@ -48,7 +48,12 @@ import {
   validateSourceNfrCoverage,
   validateNfrTraceability
 } from './lib/nfr-coverage.mjs';
-import { validateTraceabilityArtifacts } from './lib/traceability-validate.mjs';
+import { validateTraceabilityArtifacts, featureTraceabilityIds } from './lib/traceability-validate.mjs';
+import {
+  parseNormalizedCriteria,
+  validateProposalContract,
+  validateSemanticCoverage
+} from './lib/semantic-coverage.mjs';
 import { scanText } from './lib/injection-patterns.mjs';
 import { scanPathsForSecrets } from './lib/secret-patterns.mjs';
 import {
@@ -452,7 +457,8 @@ test('gherkin quality rubric: versioned binary criteria cover all dimensions', a
     'determinism',
     'data-independence',
     'ui-overspecification',
-    'language-clarity'
+    'language-clarity',
+    'source-criterion-alignment'
   ];
 
   assert.match(content, /^rubricVersion: 1$/m);
@@ -475,7 +481,8 @@ const qualityDimensions = [
   'determinism',
   'data-independence',
   'ui-overspecification',
-  'language-clarity'
+  'language-clarity',
+  'source-criterion-alignment'
 ];
 
 async function createQualityFixture({ mode = 'gate', minDimensionsPassed = 7 } = {}) {
@@ -548,7 +555,7 @@ async function createQualityFixture({ mode = 'gate', minDimensionsPassed = 7 } =
     '',
     '| File | Dimensions passed | Verdict |',
     '| ---- | ----------------- | ------- |',
-    `| ${featureRel} | 7 | pass |`,
+    `| ${featureRel} | 8 | pass |`,
     ''
   ].join('\n');
   await fs.writeFile(path.join(cwd, reportRel), report, 'utf8');
@@ -607,13 +614,13 @@ test('validateQualityReport: summary mismatch fails', async () => {
   const fixture = await createQualityFixture();
   try {
     const content = fixture.report.replace(
-      `| ${fixture.featureRel} | 7 | pass |`,
+      `| ${fixture.featureRel} | 8 | pass |`,
       `| ${fixture.featureRel} | 6 | pass |`
     );
     await fs.writeFile(path.join(fixture.cwd, fixture.reportRel), content, 'utf8');
     const result = await validateQualityReport(fixture.cwd, { rf: 'RF-101' });
     assert.equal(result.ok, false);
-    assert.match(result.findings.map((f) => f.message).join('\n'), /summary says 6 dimensions passed, expected 7/);
+    assert.match(result.findings.map((f) => f.message).join('\n'), /summary says 6 dimensions passed, expected 8/);
   } finally {
     await fs.rm(fixture.cwd, { recursive: true, force: true });
   }
@@ -624,7 +631,11 @@ test('validateQualityReport: below threshold fails in gate and warns in advisory
   try {
     const content = gate.report
       .replace('| determinism | determinism criterion | pass |', '| determinism | determinism criterion | fail |')
-      .replace(`| ${gate.featureRel} | 7 | pass |`, `| ${gate.featureRel} | 6 | fail |`);
+      .replace(
+        '| source-criterion-alignment | source-criterion-alignment criterion | pass |',
+        '| source-criterion-alignment | source-criterion-alignment criterion | fail |'
+      )
+      .replace(`| ${gate.featureRel} | 8 | pass |`, `| ${gate.featureRel} | 6 | fail |`);
     await fs.writeFile(path.join(gate.cwd, gate.reportRel), content, 'utf8');
     const result = await validateQualityReport(gate.cwd, { rf: 'RF-101' });
     assert.equal(result.ok, false);
@@ -637,7 +648,11 @@ test('validateQualityReport: below threshold fails in gate and warns in advisory
   try {
     const content = advisory.report
       .replace('| determinism | determinism criterion | pass |', '| determinism | determinism criterion | fail |')
-      .replace(`| ${advisory.featureRel} | 7 | pass |`, `| ${advisory.featureRel} | 6 | fail |`);
+      .replace(
+        '| source-criterion-alignment | source-criterion-alignment criterion | pass |',
+        '| source-criterion-alignment | source-criterion-alignment criterion | fail |'
+      )
+      .replace(`| ${advisory.featureRel} | 8 | pass |`, `| ${advisory.featureRel} | 6 | fail |`);
     await fs.writeFile(path.join(advisory.cwd, advisory.reportRel), content, 'utf8');
     const result = await validateQualityReport(advisory.cwd, { rf: 'RF-101' });
     assert.equal(result.ok, true, result.findings.map((f) => f.message).join('\n'));
@@ -961,6 +976,11 @@ const nfrCoverageFixtureRoot = path.resolve(
   '../../test/fixtures/nfr-coverage'
 );
 
+const semanticCoverageFixtureRoot = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  '../../test/fixtures/semantic-coverage'
+);
+
 const nfrCoveragePreventivePolicy = {
   requirePositive: true,
   requireNegative: true,
@@ -1104,6 +1124,139 @@ test('validateTraceabilityArtifacts: keeps functional and NFR validation separat
   });
   assert.equal(result.ok, true, result.errors.join('\n'));
   assert.equal(result.nfrMetrics.total, 2);
+});
+
+async function loadSemanticFixture(...segments) {
+  return fs.readFile(path.join(semanticCoverageFixtureRoot, ...segments), 'utf8');
+}
+
+async function loadSemanticFeatures(variant) {
+  const root = path.join(semanticCoverageFixtureRoot, variant, 'features');
+  const files = await listFilesRecursive(root, (filePath) => filePath.endsWith('.feature'));
+  const features = [];
+  for (const file of files) {
+    const content = await fs.readFile(file, 'utf8');
+    const record = featureCoverageRecord(file, content);
+    const traceIds = featureTraceabilityIds(file, content);
+    features.push({
+      ...record,
+      ids: traceIds.ids,
+      file: path.relative(path.join(semanticCoverageFixtureRoot, variant), file).replaceAll('\\', '/')
+    });
+  }
+  return features;
+}
+
+test('semantic-coverage fixture: good normalized requirements expose atomic criterion IDs', async () => {
+  const content = await loadSemanticFixture('good', 'normalized-requirements.md');
+  const criteria = parseNormalizedCriteria(content);
+  assert.ok(criteria.length >= 10);
+  assert.ok(criteria.some((item) => item.criterionId === 'CR-RF-004-05' && item.status === 'pending-decision'));
+});
+
+test('semantic-coverage fixture: bad proposal uses evidence type as technique', async () => {
+  const proposal = await loadSemanticFixture('bad', 'test-design-proposal.md');
+  const normalized = await loadSemanticFixture('bad', 'normalized-requirements.md');
+  const contract = validateProposalContract({
+    proposalContent: proposal,
+    normalizedContent: normalized,
+    mode: 'strict'
+  });
+  assert.equal(contract.ok, false);
+  assert.ok(contract.findings.some((item) => item.rule === 'invalid-technique'));
+});
+
+test('semantic-coverage fixture: bad semantic coverage flags missing TC-015 feature', async () => {
+  const proposal = await loadSemanticFixture('bad', 'test-design-proposal.md');
+  const normalized = await loadSemanticFixture('bad', 'normalized-requirements.md');
+  const features = await loadSemanticFeatures('bad');
+  const result = validateSemanticCoverage({
+    normalizedContent: normalized,
+    proposalContent: proposal,
+    features,
+    featureRoot: 'features',
+    mode: 'strict',
+    policy: { requireCriterionCoverage: true }
+  });
+  assert.equal(result.ok, false);
+  assert.ok(result.errors.some((item) => item.message.includes('TC-015')));
+  assert.ok(result.errors.some((item) => item.rule === 'criterion-without-test'));
+});
+
+test('semantic-coverage: missing feature path uses proposal RF in fallback message', () => {
+  const normalized = `# Normalized Requirements
+
+| Criterion ID | RF | Source CA / rule | Condition or partition | Expected observable outcome | Type | Status | Traceability |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| CR-RF-101-01 | RF-101 | CA-1 | valid login | home page displayed | functional | ready | RF-101 CA-1 |
+`;
+  const proposal = `# Test Design Proposal
+
+## Proposed tests
+
+| RF | CA / rule | Criterion IDs | Test ID | Title | Type | Technique | Evidence type | Artifact path | Expected result focus | Priority | Manual | Action |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| RF-101 | CA-1 | CR-RF-101-01 | TC-101-001 | Login | functional | use-case-testing | feature | | home page | high | no | create |
+`;
+  const result = validateSemanticCoverage({
+    normalizedContent: normalized,
+    proposalContent: proposal,
+    features: [],
+    featureRoot: 'features',
+    mode: 'strict',
+    policy: { requireCriterionCoverage: true }
+  });
+  assert.equal(result.ok, false);
+  assert.ok(
+    result.errors.some((item) => item.message.includes('features/functional/RF-101-TC-101-001.feature')),
+    result.errors.map((item) => item.message).join('\n')
+  );
+});
+
+test('semantic-coverage fixture: good semantic coverage passes proposal-to-feature gate', async () => {
+  const proposal = await loadSemanticFixture('good', 'test-design-proposal.md');
+  const normalized = await loadSemanticFixture('good', 'normalized-requirements.md');
+  const features = await loadSemanticFeatures('good');
+  const result = validateSemanticCoverage({
+    normalizedContent: normalized,
+    proposalContent: proposal,
+    features,
+    featureRoot: 'features',
+    mode: 'strict',
+    policy: { requireCriterionCoverage: true }
+  });
+  assert.equal(result.ok, true, result.errors.map((item) => item.message).join('\n'));
+});
+
+test('semantic-coverage fixture: bad traceability references missing feature files', async () => {
+  const normalized = await loadSemanticFixture('bad', 'normalized-requirements.md');
+  const proposal = await loadSemanticFixture('bad', 'test-design-proposal.md');
+  const matrix = await loadSemanticFixture('bad', 'traceability-matrix.md');
+  const features = await loadSemanticFeatures('bad');
+  const result = validateTraceabilityArtifacts({
+    normalizedContent: normalized,
+    proposalContent: proposal,
+    matrixContent: matrix,
+    features,
+    featureRoot: 'features'
+  });
+  assert.equal(result.ok, false);
+  assert.ok(result.errors.some((item) => item.includes('TC-015') || item.includes('TC-999')));
+});
+
+test('semantic-coverage fixture: good traceability passes bidirectional checks', async () => {
+  const normalized = await loadSemanticFixture('good', 'normalized-requirements.md');
+  const proposal = await loadSemanticFixture('good', 'test-design-proposal.md');
+  const matrix = await loadSemanticFixture('good', 'traceability-matrix.md');
+  const features = await loadSemanticFeatures('good');
+  const result = validateTraceabilityArtifacts({
+    normalizedContent: normalized,
+    proposalContent: proposal,
+    matrixContent: matrix,
+    features,
+    featureRoot: 'features'
+  });
+  assert.equal(result.ok, true, result.errors.join('\n'));
 });
 
 function nfrValidationPolicy(overrides = {}) {

@@ -1,3 +1,14 @@
+import { parseSectionTable, techniqueIsKnown } from './test-coverage.mjs';
+import { normalizeColumn } from './markdown-table.mjs';
+import {
+  CRITERION_STATUSES,
+  EVIDENCE_TYPES,
+  PROPOSAL_ACTIONS,
+  validateProposalContract
+} from './semantic-coverage.mjs';
+
+export { CRITERION_STATUSES, EVIDENCE_TYPES, PROPOSAL_ACTIONS };
+
 export const SYSTEM_SECTIONS = [
   '## Scope',
   '## Architecture alignment',
@@ -115,6 +126,40 @@ export function validateTestDesignProposal(content, options = {}) {
         }
       }
     }
+    if (proposedTests.header.some((column) => column.trim().toLowerCase() === 'action')) {
+      for (const row of proposedTests.rows) {
+        const action = String(row.values.action || '')
+          .trim()
+          .toLowerCase()
+          .replace(/\s+/g, '-');
+        if (action && !PROPOSAL_ACTIONS.includes(action)) {
+          errors.push(`Unrecognized Action "${row.values.action}" in Proposed tests.`);
+        }
+      }
+    }
+    if (proposedTests.header.some((column) => normalizeColumn(column) === 'evidence type')) {
+      for (const row of proposedTests.rows) {
+        const evidenceType = String(row.values['evidence type'] || '')
+          .trim()
+          .toLowerCase()
+          .replace(/\s+/g, '-');
+        if (evidenceType && !EVIDENCE_TYPES.includes(evidenceType)) {
+          errors.push(`Unrecognized Evidence type "${row.values['evidence type']}" in Proposed tests.`);
+        }
+      }
+    }
+  }
+  if (options.normalizedContent) {
+    const contract = validateProposalContract({
+      proposalContent: text,
+      normalizedContent: options.normalizedContent,
+      mode: options.semanticMode || 'strict'
+    });
+    for (const finding of contract.findings) {
+      if (finding.severity === 'error' || options.semanticMode === 'strict') {
+        errors.push(finding.message);
+      }
+    }
   }
   if (options.requireCoverageSections) {
     const obligations = parseSectionTable(text, 'Coverage obligations', [
@@ -144,4 +189,3 @@ function extractSectionExists(content, heading) {
     return new RegExp(`^##\\s+${escaped}\\s*$`, 'im').test(content);
   });
 }
-import { parseSectionTable, techniqueIsKnown } from './test-coverage.mjs';

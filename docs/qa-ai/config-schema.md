@@ -127,6 +127,7 @@ When both legacy keys and `inferredAcceptanceCriteria` are present, they must ag
 | `testDesign.coverage.requirePerformanceWhenApplicable`   | Require performance evidence or rationale          |
 | `testDesign.coverage.requireSecurityReview`              | Require functional security applicability review   |
 | `testDesign.coverage.requireTechniqueTraceability`       | Require recorded test-design techniques            |
+| `testDesign.coverage.requireCriterionCoverage`           | Enforce atomic criterion proposal-to-feature gates |
 | `testDesign.quality.mode`                                | `off`, `advisory` or `gate` semantic rubric review |
 | `testDesign.quality.reportPath`                          | Gherkin quality report artifact                    |
 | `testDesign.quality.minDimensionsPassed`                 | Minimum passing rubric dimensions for gate mode    |

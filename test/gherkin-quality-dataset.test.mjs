@@ -18,7 +18,8 @@ const dimensions = [
   'determinism',
   'data-independence',
   'ui-overspecification',
-  'language-clarity'
+  'language-clarity',
+  'source-criterion-alignment'
 ];
 
 async function listFiles(dir, predicate = () => true) {

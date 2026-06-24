@@ -47,11 +47,14 @@ Produce `qa-ai-output/normalized-requirements.md` with this structure:
 
 ### RF-[ID]: [Title]
 
-| #   | Criterion                            | Type       | Scenarios | Manual Only | Traceability   |
-| --- | ------------------------------------ | ---------- | --------- | ----------- | -------------- |
-| 1   | [Normalized testable statement]      | functional | 1         | no          | RF-[ID] CA-[N] |
-| 2   | [Statement with boundary values]     | edge-case  | 3         | no          | RF-[ID] CA-[N] |
-| 3   | [Statement requiring human judgment] | functional | 1         | yes         | RF-[ID] CA-[N] |
+| Criterion ID  | RF      | Source CA / rule | Condition or partition | Expected observable outcome | Type       | Status           | Traceability   |
+| ------------- | ------- | ---------------- | ---------------------- | --------------------------- | ---------- | ---------------- | -------------- |
+| CR-RF-[ID]-01 | RF-[ID] | CA-[N]           | [partition/condition]  | [single observable outcome] | functional | ready            | RF-[ID] CA-[N] |
+| CR-RF-[ID]-02 | RF-[ID] | CA-[N]           | [boundary value]       | [observable outcome]        | boundary   | pending-decision | RF-[ID] CA-[N] |
+
+Add a decision table when the RF combines intervals, eligibility rules or mutually exclusive causes. Add a state
+transition table when persistent booking/payment states change. Split multi-outcome flows into separate criterion rows
+or mark an explicit end-to-end row.
 
 ## Out of Scope (Unit Tests)
 
@@ -79,7 +82,8 @@ Rules:
 ## Splitting Rules
 
 - One assertion per criterion. If a CA says "A and B happen", split into two criteria.
-- Boundary values generate separate criteria: valid min, valid max, invalid below, invalid above.
+- Boundary values generate separate criteria: valid min, valid max, invalid below, invalid above, and both extremes when the rule defines a closed range.
+- When source statements conflict on thresholds or outcomes, set `Status: pending-decision` and record the question; do not pick an interpretation silently.
 - Different user roles performing the same action generate separate criteria per role.
 - Different input channels (web, mobile, API) for the same behavior generate separate criteria when behavior differs.
 

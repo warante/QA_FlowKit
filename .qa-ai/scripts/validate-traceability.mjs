@@ -39,9 +39,12 @@ export async function validateTraceability(cwd, options = {}) {
   const matrixPath =
     options.path || getConfigValue(config, 'traceability.matrixPath', 'qa-ai-output/traceability-matrix.md');
   const normalizedPath = options.normalizedPath || 'qa-ai-output/normalized-requirements.md';
+  const proposalPath =
+    options.proposalPath || getConfigValue(config, 'testDesign.proposalPath', 'qa-ai-output/test-design-proposal.md');
   const featureRootPath = resolveRepoPath(cwd, featureRoot, { label: 'feature root' });
   const matrixFilePath = resolveRepoPath(cwd, matrixPath, { label: 'traceability matrix' });
   const normalizedFilePath = resolveRepoPath(cwd, normalizedPath, { label: 'normalized requirements' });
+  const proposalFilePath = resolveRepoPath(cwd, proposalPath, { label: 'test design proposal' });
   const files = await listFilesRecursive(featureRootPath, (filePath) => filePath.endsWith('.feature'));
   const features = [];
   for (const file of files) {
@@ -92,10 +95,13 @@ export async function validateTraceability(cwd, options = {}) {
 
   const matrixContent = await readText(matrixFilePath);
   const normalizedContent = (await pathExists(normalizedFilePath)) ? await readText(normalizedFilePath) : '';
+  const proposalContent = (await pathExists(proposalFilePath)) ? await readText(proposalFilePath) : '';
   const result = validateTraceabilityArtifacts({
     matrixContent,
     normalizedContent,
-    features
+    proposalContent,
+    features,
+    featureRoot
   });
 
   return {

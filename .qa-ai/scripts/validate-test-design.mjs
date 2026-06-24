@@ -53,11 +53,17 @@ export async function validateTestDesignArtifacts(cwd, options = {}) {
   const proposalPath =
     options.proposalPath || getConfigValue(config, 'testDesign.proposalPath', 'qa-ai-output/test-design-proposal.md');
 
+  const normalizedPath = options.normalizedPath || 'qa-ai-output/normalized-requirements.md';
+  const normalizedAbsolute = resolveRepoPath(cwd, normalizedPath, { label: 'normalized requirements' });
+  const normalizedContent = (await pathExists(normalizedAbsolute)) ? await readText(normalizedAbsolute) : '';
+  const coverageMode = String(getConfigValue(config, 'testDesign.coverage.mode', 'off')).toLowerCase();
+
   const allowMissing = Boolean(options.allowMissing);
   const validatorOptions = {
     requireOfficialRfId: Boolean(options.requireRfId),
-    requireCoverageSections:
-      String(getConfigValue(config, 'testDesign.coverage.mode', 'off')).toLowerCase() === 'strict'
+    requireCoverageSections: coverageMode === 'strict',
+    normalizedContent,
+    semanticMode: coverageMode === 'off' ? 'advisory' : coverageMode
   };
 
   const system = await validateFile(cwd, systemPath, validateTestDesignSystem, {

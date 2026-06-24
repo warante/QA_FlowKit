@@ -50,8 +50,37 @@ Examples:
 - Add a required "Risk notes" section to `.qa-ai/agents/automation-feasibility-agent.md`.
 - Tell `.qa-ai/agents/gherkin-test-design-agent.md` to prefer business-domain names over UI control names.
 - Require `.qa-ai/agents/pr-agent.md` to include traceability IDs in every PR summary.
+- Extend `.qa-ai/agents/requirements-normalization-agent.md` to emit atomic `Criterion ID` rows when your team adopts
+  semantic coverage gates (see [workflow.md](workflow.md#semantic-criterion-coverage-functional)).
 
 Avoid putting secrets, environment names, private URLs or credentials in agent files. Put team-specific private context in a target repository knowledge folder and reference it through `--qa-context`.
+
+## Semantic coverage contract
+
+When customizing normalization or test-design agents, keep the shared artifact contract aligned with validators:
+
+- **Normalization agent** — one observable outcome per `Criterion ID`; use `pending-decision` instead of guessing when
+  source thresholds or outcomes conflict.
+- **Test design agents / specialists** — map each `ready` criterion to at least one proposed test; put design techniques
+  in `Technique` and evidence kinds (`feature`, `test-plan`, `technical-review`, etc.) in `Evidence type`, never the reverse.
+- **Gherkin quality agent** — evaluate `source-criterion-alignment` using normalized criteria and proposal rows as inputs,
+  not only the `.feature` file in isolation.
+
+Config flags:
+
+```yaml
+testDesign:
+  coverage:
+    mode: strict
+    requireCriterionCoverage: true
+  quality:
+    mode: gate
+    minDimensionsPassed: 8
+```
+
+After agent changes, run `node .qa-ai/scripts/validate-test-coverage.mjs` and
+`node .qa-ai/scripts/validate-traceability.mjs` against a fixture or sample RF. See
+[troubleshooting.md](troubleshooting.md#semantic-criterion-coverage-validation) for common errors.
 
 ## What to change in specialists
 

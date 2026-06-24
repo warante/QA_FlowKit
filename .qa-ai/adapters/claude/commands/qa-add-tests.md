@@ -57,16 +57,23 @@ Workflow:
 1. Inspect existing `.feature` files and configured automation paths to avoid duplicates.
 2. Analyze the new RF and acceptance criteria; produce or update `qa-ai-output/requirement-analysis.md`.
 3. Normalize functional criteria and explicit source NFRs into `qa-ai-output/normalized-requirements.md` (canonical NFR
-   table). Ask open questions when a measurable threshold, environment or success criterion is missing but required.
+   table and atomic `Criterion ID` inventory). Ask open questions when a measurable threshold, environment or success
+   criterion is missing but required. Block feature generation for criteria with `Status: pending-decision` until the
+   user resolves the ambiguity.
 4. Detect NFR attributes from the normalized table and load matching specialists before design.
 5. On `standard` / `enterprise`, produce or update `qa-ai-output/test-design-system.md` with applicable NFR focus.
-6. Produce or update `qa-ai-output/test-design-proposal.md` with functional tests and a `## Non-functional coverage`
-   row per source NFR. Do not mark source NFRs as `not configured`; use applicable evidence types or justified
-   `not-applicable` / `residual-risk`.
+6. Produce or update `qa-ai-output/test-design-proposal.md` with functional tests using `Criterion IDs`, `Evidence type`,
+   `Artifact path` and `Action` columns plus a `## Non-functional coverage` row per source NFR. Do not mark source NFRs
+   as `not configured`; use applicable evidence types or justified `not-applicable` / `residual-risk`.
 7. Request approval before writing new `.feature` files or other approved evidence artifacts.
 8. After approval, create only approved artifacts (one `.feature` per test case when Gherkin is the chosen evidence).
-9. Update `qa-ai-output/traceability-matrix.md` when useful.
-10. Run `node .qa-ai/scripts/validate-features.mjs`, `node .qa-ai/scripts/validate-traceability.mjs`,
-    `node .qa-ai/scripts/validate-test-coverage.mjs` and `node .qa-ai/scripts/validate-sync-plan.mjs` after changes.
+9. Update `qa-ai-output/traceability-matrix.md` when useful. Use `Automation Status: proposal-only` for deferred tests.
+10. Run `node .qa-ai/scripts/validate-test-design.mjs`, `node .qa-ai/scripts/validate-features.mjs`,
+    `node .qa-ai/scripts/validate-test-coverage.mjs`, `node .qa-ai/scripts/validate-traceability.mjs` and
+    `node .qa-ai/scripts/validate-sync-plan.mjs` after changes. When `testDesign.quality.mode` is not `off`, also run
+    `node .qa-ai/scripts/validate-quality-report.mjs` after loading the Gherkin quality agent with normalized requirements,
+    proposal and generated features.
+11. In **Proposal only** mode, do not claim complete coverage or write final feature paths in the matrix; keep deferred
+    rows as `proposal-only` and list pending decisions explicitly in the summary.
 
 Do not modify existing tests unless the user explicitly approves that scope. Do not write to configured external tools.

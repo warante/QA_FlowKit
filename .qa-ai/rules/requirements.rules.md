@@ -13,6 +13,8 @@ Apply during requirement intake, normalization, test design, coverage analysis a
 ## Normalized requirements
 
 - Store normalized output under `qa-ai-output/` (default `qa-ai-output/normalized-requirements.md`).
+- When semantic coverage is enabled, use atomic criterion rows with stable `Criterion ID`, `Condition or partition`,
+  `Expected observable outcome` and `Status` (`ready`, `ambiguous`, `out-of-scope`, `pending-decision`).
 - Separate functional criteria from explicit source NFRs in `## Non-functional requirements` with stable `NFR ID`
   values. Use `None identified` only when the source has no explicit NFR statements.
 - Flag ambiguous or missing acceptance criteria before test design.
@@ -27,6 +29,8 @@ Apply during requirement intake, normalization, test design, coverage analysis a
 - Use a Markdown table with columns at least covering: requirement source, RF, feature file, test management case ID, type, priority, automation status.
 - When `normalized-requirements.md` lists source NFRs, add `## Non-functional traceability` with one row per `NFR ID`.
   Do not count NFR rows as functional CA coverage in summary metrics.
+- Include `Criterion IDs` on functional matrix rows when the proposal uses atomic criteria.
+- Use `Automation Status: proposal-only` for planned tests without generated artifacts.
 - Include at least one RF or test identifier per functional row.
 - Do not duplicate the same test case ID or the same feature file on multiple matrix rows.
 - Update the matrix when adding, renaming or removing `.feature` files or automation tests.

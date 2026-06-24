@@ -1,0 +1,70 @@
+version: 1
+project:
+  name: semantic-coverage-fixture
+  repoMode: qa-design-only
+  qaTrack: standard
+  defaultLanguage: en
+  interfaceLanguage: en
+tools:
+  testManagement: none
+  issueTracker: none
+  documentation: markdown
+agents:
+  specialistMode: auto
+sources:
+  main: markdown
+knowledge:
+  enabled: false
+  sourcePath: ''
+  summaryPath: qa-ai-output/qa-knowledge-summary.md
+  decisionsPath: qa-ai-output/qa-init-decisions.md
+requirements:
+  requireOfficialRfId: true
+  inferredAcceptanceCriteria: require-approval
+gherkin:
+  language: en
+  oneScenarioPerFile: true
+  requireAcceptanceCriteria: true
+  manualTestsNeedFeatureFile: true
+  featurePath: features
+  tags:
+    required:
+      - priority
+      - type
+      - manual
+automation:
+  ui:
+    framework: none
+  api:
+    framework: none
+  strategy:
+    automateAllTechnicallyPossible: false
+    requireProposalBeforeImplementation: true
+    allowModifyExistingTests: approval-only
+testDesign:
+  systemPath: qa-ai-output/test-design-system.md
+  proposalPath: qa-ai-output/test-design-proposal.md
+  coverage:
+    mode: strict
+    requirePositive: true
+    requireNegative: true
+    requireAlternative: true
+    requireBoundaryWhenApplicable: true
+    requireCriterionCoverage: true
+    requireTechniqueTraceability: true
+  nonFunctionalCoverage:
+    mode: inherit
+    requireDecisionForSourceNfr: true
+    allowResidualRiskInAdvisory: true
+  quality:
+    mode: advisory
+    reportPath: qa-ai-output/gherkin-quality-report.md
+    minDimensionsPassed: 8
+traceability:
+  matrixPath: qa-ai-output/traceability-matrix.md
+approval:
+  beforeExternalWrite: true
+  beforeExistingFileModification: true
+  beforeTestRailSync: true
+  beforeJiraTaskCreation: true
+  beforePullRequest: true
