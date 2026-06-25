@@ -5,3 +5,4 @@ node_modules/
 
 # Generado automáticamente por Release Please; no editar a mano ni reformatear.
 CHANGELOG.md
+docs/qa-ai/adapter-support.v1.json
