@@ -1,0 +1,5 @@
+version: 1
+project:
+  name: migration-team-profile
+  repoMode: qa-design-only
+  qaTrack: quick

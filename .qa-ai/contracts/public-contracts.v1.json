@@ -101,12 +101,21 @@
     "deprecated": []
   },
   "schemas": {
-    "stable": [".qa-ai/contracts/workflow.v1.json schemaVersion 1"],
+    "stable": [
+      ".qa-ai/contracts/workflow.v1.json schemaVersion 1",
+      ".qa-ai/contracts/schema-registry.v1.json schemaVersion 1"
+    ],
     "experimental": [
       ".qa-ai/contracts/config.v1.schema.json draft 2020-12",
+      ".qa-ai/contracts/workflow.v1.schema.json draft 2020-12",
+      ".qa-ai/contracts/run-state.v1.schema.json draft 2020-12",
+      ".qa-ai/contracts/run-event.v1.schema.json draft 2020-12",
+      ".qa-ai/contracts/init-manifest.v1.schema.json draft 2020-12",
       ".qa-ai/state/runs/<run-id>/run.json schemaVersion 1",
       ".qa-ai/state/runs/<run-id>/events.jsonl event payload fields",
-      ".qa-ai/state/init-manifest.json version 1"
+      ".qa-ai/state/init-manifest.json version 1",
+      "test/fixtures/compatibility/manifest.v1.json schemaVersion 1",
+      ".qa-ai/contracts/cli-contracts.v1.json schemaVersion 1"
     ],
     "internal": [".qa-ai/state/runs/<run-id>/.lock", "atomic temporary files"]
   },

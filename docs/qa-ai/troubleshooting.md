@@ -8,6 +8,7 @@ Common failures and their resolutions, organized by area.
 - [Traceability validation](#traceability-validation)
 - [Sync plan validation](#sync-plan-validation)
 - [CI](#ci)
+- [npm install and packaging](#npm-install-and-packaging)
 - [Agent and adapter issues](#agent-and-adapter-issues)
 
 ---
@@ -70,6 +71,41 @@ node .qa-ai/scripts/init.mjs --qa-context ../qa-knowledge
 
 # Correct
 node .qa-ai/scripts/init.mjs --qa-context qa-ai-knowledge
+```
+
+If the failing path is a symlink or Windows junction, point the config to a real directory inside the repository instead.
+QA FlowKit resolves existing paths before using them, so a repository-local link that targets a folder outside the repo is
+rejected even when the link name itself looks safe.
+
+---
+
+### `help --json` shows no active run after corrupt state
+
+**Symptom**
+
+```
+"activeRun": null
+```
+
+or human help output that ignores `.qa-ai/state/runs/active.json`.
+
+**Cause**
+
+The active-run pointer is missing or contains invalid JSON. This can happen after an interrupted manual edit or partial
+workspace restore.
+
+**Fix**
+
+The help command is intentionally recoverable and remains usable. Start or resume a run to recreate the active pointer:
+
+```bash
+npx qa-flowkit run start --rf RF-101
+```
+
+If a specific run already exists, inspect `.qa-ai/state/runs/` and resume it explicitly:
+
+```bash
+npx qa-flowkit run resume --run-id <run-id>
 ```
 
 ---
@@ -757,6 +793,46 @@ Check the mapping file and assign unique `externalId` values to each entry.
 
 ---
 
+## Update and migration failures
+
+### `update` removed harness state or user artifacts
+
+**Cause**
+
+Only `.qa-ai/state/` and `.qa-ai/config-profiles/` are preserved automatically. Files that lived directly under `.qa-ai/` but outside those folders are replaced with the packaged framework.
+
+**Fix**
+
+Restore from backup. Review the plan before updating:
+
+```bash
+npx qa-flowkit update --dry-run --json
+```
+
+See [beta-to-1.0 migration](beta-to-1.0-migration.md).
+
+### Legacy requirement keys fail `doctor` after update
+
+**Cause**
+
+`qa-ai.config.yaml` still contains both the legacy `allowInferredAcceptanceCriteria` pair and `inferredAcceptanceCriteria` with conflicting values.
+
+**Fix**
+
+Keep only the modern `requirements.inferredAcceptanceCriteria` value or align the legacy pair with the migration table in [config-schema.md](config-schema.md).
+
+### Active run missing after update
+
+**Cause**
+
+The active pointer or run directory was deleted manually, or the repository backup excluded `.qa-ai/state/runs/`.
+
+**Fix**
+
+Restore `.qa-ai/state/` from backup and rerun `npx qa-flowkit run status --json`. Use `npx qa-flowkit run resume <run-id>` only when the run snapshot still exists.
+
+---
+
 ## CI
 
 ### `npm run validate:oss-extraction` fails with a validator error
@@ -846,6 +922,76 @@ Bloqueado Gherkin test design: falta aprobar la puerta "test-design". Ejecuta: n
 - Node.js version mismatch. The CI environment must use Node.js 20 or later.
 - Line ending differences. QA FlowKit ships with `.gitattributes` that enforces LF. Verify `.gitattributes` was committed and that Git is not converting line endings.
 - The `.qa-ai/` folder was not committed. Verify that `.gitignore` does not exclude it.
+
+---
+
+## npm install and packaging
+
+### `Cannot find module` after `npm install qa-flowkit`
+
+**Cause**
+
+The target directory is missing the generated `.qa-ai/` framework copy. Installing the npm package only adds the CLI under
+`node_modules/`; it does not initialize a QA repository by itself.
+
+**Fix**
+
+```bash
+npx qa-flowkit init
+```
+
+If npm is unavailable, copy the packaged framework manually and run init offline:
+
+```bash
+cp -R node_modules/qa-flowkit/.qa-ai ./.qa-ai
+node .qa-ai/scripts/init.mjs --no-adapters
+node .qa-ai/scripts/doctor.mjs
+```
+
+On Windows PowerShell:
+
+```powershell
+Copy-Item -Recurse node_modules\qa-flowkit\.qa-ai .\.qa-ai
+node .qa-ai/scripts/init.mjs --no-adapters
+node .qa-ai/scripts/doctor.mjs
+```
+
+---
+
+### Packed install fails in a directory with spaces or non-ASCII characters
+
+**Cause**
+
+Older tooling or custom wrappers sometimes assume ASCII-only paths. QA FlowKit itself supports Unicode and spaced paths when
+Node.js 20+ is used directly.
+
+**Fix**
+
+Prefer a clean directory without shell-specific quoting issues, or run commands through `npx qa-flowkit` rather than
+manually quoting `node_modules` paths. CI verifies E2E-06 with paths such as `Usuario Prueba/tést QA`.
+
+---
+
+### `npm pack allowlist` or E2E-06 clean-install check failed
+
+**Cause**
+
+A new script, contract file or adapter template was added to the repository but is not included in the published npm
+tarball allowlist.
+
+**Fix**
+
+1. Confirm the path is listed under `files` in `package.json` when it should ship.
+2. Update `.qa-ai/scripts/lib/npm-pack-allowlist.mjs` if the file is required by a stable CLI command.
+3. Run:
+
+```bash
+node .github/scripts/verify-npm-pack.mjs
+npm run test:e2e-clean-install
+npm run test:clean-install
+```
+
+Release workflows run the same allowlist check before publish.
 
 ---
 

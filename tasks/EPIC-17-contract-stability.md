@@ -1,6 +1,6 @@
 # Epic 17 - Contract Stability and Migration
 
-**Status:** In progress
+**Status:** Done
 **Milestone:** M4
 **Accountable:** Engineering lead
 **Contributors:** CLI/framework engineer, QA automation engineer, technical writer, release engineer
@@ -49,6 +49,8 @@ Implementation evidence:
 **Owner:** CLI/framework engineer
 **Depends on:** TASK-068
 
+**Status:** Done
+
 Subtasks:
 
 - Version config, workflow and run-state schemas explicitly.
@@ -73,10 +75,25 @@ Acceptance:
 
 - Supported old fixtures load or migrate; unsupported versions fail with a migration message.
 
+Implementation evidence:
+
+- Schema registry: `.qa-ai/contracts/schema-registry.v1.json`.
+- Versioned schemas: `config.v1.schema.json`, `workflow.v1.schema.json`, `run-state.v1.schema.json`,
+  `run-event.v1.schema.json`, `init-manifest.v1.schema.json`.
+- Contract validation library: `.qa-ai/scripts/lib/contract-schemas.mjs` and `.qa-ai/scripts/lib/json-schema-lite.mjs`.
+- Compatibility fixtures and manifest: `test/fixtures/compatibility/`.
+- Verification: `.github/scripts/verify-compatibility-fixtures.mjs` and
+  `.github/scripts/test-compatibility-fixtures.mjs`.
+- npm scripts: `npm run test:compatibility-fixtures`, `npm run test:compatibility-fixtures:unit`, included in
+  `npm run validate:oss-extraction`.
+- Documentation: `docs/qa-ai/schema-compatibility.md`.
+
 ## TASK-070 - Implement and test beta-to-1.0 migration
 
 **Owner:** CLI/framework engineer
 **Depends on:** TASK-069
+
+**Status:** Done
 
 Subtasks:
 
@@ -101,10 +118,23 @@ Acceptance:
 
 - Migration passes from every supported fixture without silent data loss.
 
+Implementation evidence:
+
+- Oldest supported beta fixture: `test/fixtures/migration/oldest-supported-beta/`.
+- Update preflight plan: `.qa-ai/scripts/lib/update-plan.mjs` with `npx qa-flowkit update --dry-run [--json]`.
+- E2E-05 runner: `.github/scripts/run-update-migration-validation.mjs`.
+- Unit tests: `.github/scripts/test-update-migration.mjs`.
+- npm scripts: `npm run test:e2e-update-migration`, `npm run test:update-migration`, included in
+  `npm run validate:oss-extraction`.
+- CI matrix: `.github/workflows/ci.yml` job `update-migration` on Ubuntu/Windows × Node 20/22.
+- Documentation: `docs/qa-ai/beta-to-1.0-migration.md`, CLI reference, troubleshooting and README links.
+
 ## TASK-071 - Freeze CLI and validator behavior
 
 **Owner:** Engineering lead
 **Depends on:** TASK-068 through TASK-070
+
+**Status:** Done
 
 Subtasks:
 
@@ -128,10 +158,23 @@ Acceptance:
 
 - No planned breaking contract change remains after the freeze date.
 
+Implementation evidence:
+
+- CLI JSON contract inventory: `.qa-ai/contracts/cli-contracts.v1.json` (freeze date 2026-06-25).
+- CLI contract helpers: `.qa-ai/scripts/lib/cli-contract.mjs`.
+- Legacy config deprecation warnings in `doctor` via `.qa-ai/scripts/lib/config-legacy.mjs`.
+- Golden verification: `.github/scripts/verify-cli-contracts.mjs` and `.github/scripts/test-cli-contracts.mjs`.
+- npm scripts: `npm run test:cli-contracts`, `npm run test:cli-contracts:unit`, included in
+  `npm run validate:oss-extraction`.
+- Documentation: `docs/qa-ai/validator-contracts.md`, updates to `cli-reference.md`, `stability-policy.md` and
+  `public-contracts.md`.
+
 ## TASK-072 - Complete packaging and clean-install reliability
 
 **Owner:** Release engineer
 **Depends on:** TASK-071
+
+**Status:** Done
 
 Subtasks:
 
@@ -152,6 +195,18 @@ Documentation:
 Acceptance:
 
 - Every primary command works from an installed tarball in a clean directory.
+
+Implementation evidence:
+
+- Shared pack allowlist: `.qa-ai/scripts/lib/npm-pack-allowlist.mjs` (stable command scripts + infrastructure).
+- E2E-06 runner: `.github/scripts/run-clean-install-validation.mjs` (tarball install, spaced/non-ASCII paths, folder-copy).
+- Unit tests: `.github/scripts/test-clean-install.mjs`.
+- npm scripts: `npm run test:e2e-clean-install`, `npm run test:clean-install`, included in
+  `npm run validate:oss-extraction`.
+- CI job `clean-install` on Ubuntu/Windows × Node 20/22 in `.github/workflows/ci.yml`.
+- Release workflows continue to run `node .github/scripts/verify-npm-pack.mjs` before publish.
+- Documentation: `docs/qa-ai/troubleshooting.md` (npm install and packaging), `npm-migration-plan.md`, `cli-reference.md`,
+  `ci-observability.md`, `required-checks.v1.json`.
 
 ## Epic exit criteria
 

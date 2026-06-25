@@ -66,6 +66,7 @@ derives supported placeholders and fails with the offending key paths when an un
 
 ```bash
 npx qa-flowkit@beta update
+npx qa-flowkit@beta update --dry-run --json
 ```
 
 `update` replaces only `.qa-ai/` from the installed package and preserves:
@@ -78,6 +79,12 @@ npx qa-flowkit@beta update
 - user-owned root files.
 
 It then refreshes detected adapters without overwriting them unless `--force` is passed and runs `doctor`.
+
+Use `--dry-run` to review preserved paths, adapter refresh and legacy configuration keys before applying the update.
+Machine-readable output is available with `--dry-run --json`. See [beta-to-1.0 migration](beta-to-1.0-migration.md).
+
+Validator strict/non-strict semantics are frozen in [Validator contracts](validator-contracts.md). CLI JSON output
+contracts are verified with `npm run test:cli-contracts`.
 
 ### Folder-copy fallback
 
@@ -216,7 +223,8 @@ These commands maintain QA FlowKit itself rather than a target repository:
 npm run lint
 npm run format:check
 npm run docs:check
-npm run test:e2e-quick
+npm run test:e2e-update-migration
+npm run test:e2e-clean-install
 npm run validate:oss-extraction
 node .github/scripts/verify-npm-pack.mjs
 ```

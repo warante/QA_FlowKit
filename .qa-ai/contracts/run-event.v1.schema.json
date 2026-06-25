@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/warante/QA_FlowKit/.qa-ai/contracts/run-event.v1.schema.json",
+  "title": "QA FlowKit harness run event",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["timestamp", "type"],
+  "properties": {
+    "timestamp": { "type": "string" },
+    "type": { "type": "string", "pattern": "^[a-z][a-z0-9.]*$" }
+  }
+}

@@ -36,6 +36,9 @@ coordinate disclosure as soon as practical.
 - Deletion operations should be disabled by default.
 - Scripts must prefer dry-run or proposal-first behavior.
 
+The current asset, trust-boundary and residual-risk inventory is maintained in the
+[QA FlowKit threat model](docs/qa-ai/threat-model.md).
+
 ## Automated checks (source repository)
 
 - Pull requests run `npm audit --audit-level=low` in [`.github/workflows/ci.yml`](.github/workflows/ci.yml), so any

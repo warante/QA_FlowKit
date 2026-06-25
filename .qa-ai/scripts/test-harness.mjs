@@ -662,6 +662,31 @@ test('resolveHarnessRelativePath rejects absolute and escaping paths', async () 
   }
 });
 
+test('resolveHarnessRelativePath rejects symlink or junction escapes', async (t) => {
+  const cwd = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-harness-link-'));
+  const outside = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-harness-outside-'));
+  try {
+    const linkPath = path.join(cwd, 'features-linked');
+    try {
+      await fs.symlink(outside, linkPath, process.platform === 'win32' ? 'junction' : 'dir');
+    } catch (error) {
+      if (['EPERM', 'EACCES', 'ENOTSUP'].includes(error.code)) {
+        t.skip(`symlink/junction creation is not available: ${error.code}`);
+        return;
+      }
+      throw error;
+    }
+
+    assert.throws(
+      () => resolveHarnessRelativePath(cwd, 'features-linked', { label: 'feature root' }),
+      /inside the repository|must stay/i
+    );
+  } finally {
+    await fs.rm(cwd, { recursive: true, force: true });
+    await fs.rm(outside, { recursive: true, force: true });
+  }
+});
+
 test('unsafe $config feature root is rejected for hashing', async () => {
   const cwd = await prepareRepo('quick', { gherkin: { featurePath: '../outside' } });
   try {

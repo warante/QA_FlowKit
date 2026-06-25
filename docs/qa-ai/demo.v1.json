@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-06-25",
+  "qaFlowKitVersion": "0.5.8-beta.0",
+  "task": "TASK-057",
+  "status": "static_ready",
+  "rfId": "RF-101",
+  "fixtureRoot": "test/fixtures/quick-path",
+  "e2eRunner": ".github/scripts/run-quick-path-validation.mjs",
+  "npmScript": "test:e2e-quick",
+  "staticDemo": "docs/qa-ai/demo.md",
+  "recordingScript": "docs/qa-ai/demo-script.md",
+  "transcript": "docs/qa-ai/demo-transcript.md",
+  "recordedMedia": {
+    "status": "pending",
+    "notes": "Publish a two-minute-or-shorter terminal capture from demo-script.md; update README embed when available."
+  },
+  "humanValidation": {
+    "productManagerReview": "pending",
+    "securityReview": "pending",
+    "cleanCloneRehearsal": "automated_via_e2e_quick"
+  }
+}

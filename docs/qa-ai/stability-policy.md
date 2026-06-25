@@ -36,7 +36,7 @@ records.
 | ----------------------------- | ----------------------------------------------------------------------------------------- |
 | Operating systems and Node.js | Supported only when included in the current CI matrix                                     |
 | CLI and validators            | Supported when covered by automated integration/smoke tests                               |
-| Agent adapters                | State the verification level: template, smoke or real-host E2E                            |
+| Agent adapters                | State the verification level from `docs/qa-ai/adapter-support.v1.json`                    |
 | Presets                       | Supported when a strict target fixture or public reference passes CI                      |
 | External tools                | Proposal/read guidance only unless an integration explicitly implements and audits writes |
 
@@ -63,7 +63,9 @@ npx qa-flowkit@beta init
 - Validator scripts and their default non-strict behavior
 
 The complete classification of CLI, configuration, paths, schemas, state and deprecated aliases is maintained in
-[Public Contracts](public-contracts.md). CI verifies its machine-readable inventory with `npm run contracts:check`.
+[Public Contracts](public-contracts.md). Validator strict/non-strict semantics are frozen in
+[Validator contracts](validator-contracts.md). CI verifies inventories with `npm run contracts:check` and
+`npm run test:cli-contracts`.
 
 ## May change in beta (with notice in CHANGELOG)
 

@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-06-25",
+  "qaFlowKitVersion": "0.5.8-beta.0",
+  "task": "TASK-086",
+  "lifecycle": "beta",
+  "flipToStable": [
+    {
+      "path": "README.md",
+      "checks": [
+        "Badge status: Beta -> Stable",
+        "Lifecycle sentence references Stable",
+        "Primary install uses npx qa-flowkit@latest",
+        "Update section uses @latest"
+      ]
+    },
+    {
+      "path": "README.es.md",
+      "checks": [
+        "Badge estado: Beta -> Estable",
+        "Frase de ciclo de vida en Estable",
+        "Instalacion principal con npx qa-flowkit@latest",
+        "Actualizacion con @latest"
+      ]
+    },
+    {
+      "path": "SECURITY.md",
+      "checks": ["Lifecycle claim: Stable (not Beta)"]
+    },
+    {
+      "path": "docs/qa-ai/stability-policy.md",
+      "checks": ["Replace beta policy body with stability-policy-stable.md"]
+    },
+    {
+      "path": "docs/qa-ai/getting-started.md",
+      "checks": ["Default channel @latest in install examples"]
+    },
+    {
+      "path": "docs/qa-ai/release-checklist.md",
+      "checks": ["Stable maintenance section current"]
+    }
+  ]
+}

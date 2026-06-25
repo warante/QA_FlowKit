@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-06-25",
+  "qaFlowKitVersion": "0.5.8-beta.0",
+  "task": "TASK-082",
+  "milestone": "M6",
+  "status": "pending",
+  "decision": null,
+  "decisionSummary": "Awaiting completed RC soak (TASK-081) and cross-functional sign-offs before stable policy merge.",
+  "epic20Unblocked": false,
+  "prerequisites": {
+    "rcSoakRecord": "docs/qa-ai/rc-soak-status.v1.json",
+    "stableReleasePolicy": ".release-please-config.stable.json",
+    "openRiskRegister": "docs/qa-ai/open-risk-register.v1.json",
+    "securityReadiness": "docs/qa-ai/security-readiness.md"
+  },
+  "humanSettings": {
+    "npmTrustedPublishing": "pending",
+    "githubPrivateVulnerabilityReporting": "pending",
+    "branchProtectionContexts": "pending",
+    "dependabotTriaged": "pending"
+  },
+  "stablePolicyMergeApproved": false,
+  "signOffs": {
+    "productManager": "pending",
+    "engineeringLead": "pending",
+    "qaLead": "pending",
+    "securityEngineer": "pending",
+    "releaseEngineer": "pending",
+    "maintainer": "pending"
+  },
+  "riskAcceptance": {
+    "openP0": [],
+    "openP1": ["P1-001", "P1-002", "P1-003"],
+    "acceptedRisks": ["P2-001", "P3-001"],
+    "rcKnownIssuesDisposition": "Pending TASK-082 approval; see rc-known-limitations.md."
+  }
+}

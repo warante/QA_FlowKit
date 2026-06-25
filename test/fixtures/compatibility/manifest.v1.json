@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "oldestSupportedBeta": "0.5.0-beta.0",
+  "currentBeta": "0.5.8-beta.0",
+  "fixtures": [
+    {
+      "id": "config-current-beta",
+      "surface": "config",
+      "path": "config/current-beta/qa-ai.config.yaml",
+      "expect": "valid"
+    },
+    {
+      "id": "config-oldest-supported-beta",
+      "surface": "config",
+      "path": "config/oldest-supported-beta/qa-ai.config.yaml",
+      "expect": "valid-after-normalize"
+    },
+    {
+      "id": "config-unsupported-version",
+      "surface": "config",
+      "path": "config/invalid-unsupported-version/qa-ai.config.yaml",
+      "expect": "invalid",
+      "expectedErrors": ["config schema version 2 is unsupported", "expected one of 1"]
+    },
+    {
+      "id": "config-unknown-key",
+      "surface": "config",
+      "path": "config/invalid-unknown-key/qa-ai.config.yaml",
+      "expect": "invalid",
+      "expectedErrors": ["$.legacyTopLevelKey: unknown key"]
+    },
+    {
+      "id": "workflow-shipped-v1",
+      "surface": "workflow",
+      "path": ".qa-ai/contracts/workflow.v1.json",
+      "scope": "repository",
+      "expect": "valid"
+    },
+    {
+      "id": "workflow-unsupported-version",
+      "surface": "workflow",
+      "path": "workflow/invalid-unsupported-version/workflow.v1.json",
+      "expect": "invalid",
+      "expectedErrors": ["workflow schema version 2 is unsupported"]
+    },
+    {
+      "id": "run-state-current-beta",
+      "surface": "run-state",
+      "path": "run-state/current-beta/run.json",
+      "expect": "valid"
+    },
+    {
+      "id": "run-events-current-beta",
+      "surface": "run-event",
+      "path": "run-state/current-beta/events.jsonl",
+      "expect": "valid"
+    },
+    {
+      "id": "run-state-unsupported-version",
+      "surface": "run-state",
+      "path": "run-state/invalid-unsupported-version/run.json",
+      "expect": "invalid",
+      "expectedErrors": ["run-state schema version 2 is unsupported"]
+    },
+    {
+      "id": "init-manifest-current-beta",
+      "surface": "init-manifest",
+      "path": "init-manifest/current-beta/init-manifest.json",
+      "expect": "valid"
+    },
+    {
+      "id": "init-manifest-unsupported-version",
+      "surface": "init-manifest",
+      "path": "init-manifest/invalid-unsupported-version/init-manifest.json",
+      "expect": "invalid",
+      "expectedErrors": ["init-manifest schema version 2 is unsupported"]
+    }
+  ]
+}

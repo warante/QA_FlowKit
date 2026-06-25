@@ -1,0 +1,146 @@
+{
+  "schemaVersion": 1,
+  "auditDate": "2026-06-25",
+  "qaFlowKitVersion": "0.5.8-beta.0",
+  "milestoneTarget": "M6",
+  "task": "TASK-078",
+  "decision": "PASS_WITH_ACTIONS",
+  "decisionSummary": "Technical gates for contract freeze (M4), trust baseline (M5) and automated E2E coverage are green locally. RC creation requires maintainer confirmation of human-only settings, an independent REVIEW-CHECKLIST pass and a non-author migration walkthrough.",
+  "signOffs": {
+    "productManager": "pending",
+    "engineeringLead": "pending",
+    "qaLead": "pending",
+    "securityEngineer": "pending",
+    "maintainer": "pending"
+  },
+  "epicGates": [
+    {
+      "epic": 13,
+      "milestone": "M1",
+      "status": "blocked",
+      "summary": "Documentation consistency automated; TASK-053 awaits GitHub Private Vulnerability Reporting enablement.",
+      "evidence": ["tasks/EPIC-13-product-baseline.md", "npm run docs:check"]
+    },
+    {
+      "epic": 14,
+      "milestone": "M2",
+      "status": "in_validation",
+      "summary": "README IA and E2E-01 quick path implemented; formal usability evidence pending.",
+      "evidence": ["tasks/EPIC-14-first-use-experience.md", "npm run test:e2e-quick"]
+    },
+    {
+      "epic": 15,
+      "milestone": "M2",
+      "status": "in_validation",
+      "summary": "Public examples and packed validation jobs are active in CI.",
+      "evidence": ["examples/README.md", "npm run test:e2e-manual-example"]
+    },
+    {
+      "epic": 16,
+      "milestone": "M3",
+      "status": "deferred",
+      "summary": "Pilot program deferred; accepted risk P2-001 for RC path.",
+      "evidence": ["tasks/EPIC-16-pilots-and-metrics.md", "docs/qa-ai/open-risk-register.v1.json"]
+    },
+    {
+      "epic": 17,
+      "milestone": "M4",
+      "status": "done",
+      "summary": "Contract freeze, E2E-05/E2E-06 and CLI contracts verified.",
+      "evidence": [
+        "tasks/EPIC-17-contract-stability.md",
+        "npm run contracts:check",
+        "npm run test:e2e-update-migration",
+        "npm run test:e2e-clean-install"
+      ]
+    },
+    {
+      "epic": 18,
+      "milestone": "M5",
+      "status": "done",
+      "summary": "Threat model, adversarial E2E, adapter support matrix and CI observability complete.",
+      "evidence": [
+        "tasks/EPIC-18-trust-and-compatibility.md",
+        "npm run test:threat-model",
+        "npm run test:e2e-adversarial",
+        "npm run test:adapter-support"
+      ]
+    }
+  ],
+  "e2eScenarios": [
+    { "id": "E2E-01", "status": "automated", "command": "npm run test:e2e-quick", "ciJob": "quick-path" },
+    { "id": "E2E-02", "status": "automated", "command": "npm run test:e2e-playwright", "ciJob": "playwright-example" },
+    { "id": "E2E-03", "status": "automated", "command": "npm run test:e2e-karate", "ciJob": "karate-example" },
+    { "id": "E2E-03M", "status": "automated", "command": "npm run test:e2e-mobile", "ciJob": "mobile-example" },
+    {
+      "id": "E2E-04",
+      "status": "partial",
+      "command": "harness and validator tests",
+      "ciJob": "coverage",
+      "note": "Dedicated enterprise runner not yet added; see P3-001"
+    },
+    {
+      "id": "E2E-05",
+      "status": "automated",
+      "command": "npm run test:e2e-update-migration",
+      "ciJob": "update-migration"
+    },
+    {
+      "id": "E2E-06",
+      "status": "automated",
+      "command": "npm run test:e2e-clean-install",
+      "ciJob": "clean-install"
+    },
+    {
+      "id": "E2E-07",
+      "status": "automated",
+      "command": "npm run test:adapter-support",
+      "ciJob": "adapter-support"
+    },
+    {
+      "id": "E2E-08",
+      "status": "automated",
+      "command": "npm run test:e2e-adversarial",
+      "ciJob": "adversarial-failure"
+    },
+    {
+      "id": "E2E-09",
+      "status": "automated",
+      "command": "npm run test:e2e-release-dry-run",
+      "ciJob": "release-dry-run",
+      "note": "Local pack/post-publish smoke; live RC publish verified in TASK-080"
+    }
+  ],
+  "documentationParity": {
+    "englishSpanishReadme": "automated",
+    "evidence": ["npm run docs:check", "README.md", "README.es.md"]
+  },
+  "localValidationEvidence": [
+    "npm ci",
+    "npm run lint",
+    "npm run format:check",
+    "npm run docs:check",
+    "npm run validate:oss-extraction",
+    "node .github/scripts/verify-npm-pack.mjs",
+    "npm run test:readiness-audit"
+  ],
+  "reviewChecklistRuns": [
+    {
+      "reviewDate": "2026-06-25",
+      "reviewer": "engineering lead (implementation author)",
+      "milestonesReviewed": ["M4", "M5", "M6 preparation"],
+      "decision": "PASS_WITH_ACTIONS",
+      "notes": "Automated evidence complete; human gates listed in open-risk-register.v1.json.",
+      "checklist": "tasks/REVIEW-CHECKLIST.md"
+    },
+    {
+      "reviewDate": null,
+      "reviewer": "independent reviewer (required)",
+      "milestonesReviewed": ["M6 RC gate"],
+      "decision": "pending",
+      "notes": "Schedule before TASK-080 RC publish.",
+      "checklist": "tasks/REVIEW-CHECKLIST.md"
+    }
+  ],
+  "openRiskRegister": "docs/qa-ai/open-risk-register.v1.json"
+}

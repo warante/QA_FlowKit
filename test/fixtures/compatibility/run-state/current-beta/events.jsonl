@@ -1,0 +1,2 @@
+{"timestamp":"2026-06-25T12:00:00.000Z","type":"run.started","track":"quick","rfId":"RF-101"}
+{"timestamp":"2026-06-25T12:00:01.000Z","type":"phase.activated","phaseId":"intake"}

@@ -1,0 +1,40 @@
+name: RC post-publish validation
+
+# TASK-080: run full RC smoke against a published 1.0.0-rc.N on npm.
+# Automatic path: release-please publish job invokes the same script for *-rc.* versions.
+# This workflow is the manual retry / soak gate after the first RC ships.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Published RC version (for example 1.0.0-rc.1)
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rc-post-publish-${{ inputs.version }}
+  cancel-in-progress: false
+
+jobs:
+  validate-rc:
+    name: RC post-publish (${{ inputs.version }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          registry-url: https://registry.npmjs.org
+
+      - name: Run RC post-publish validation
+        env:
+          QA_FLOWKIT_RC_VERSION: ${{ inputs.version }}
+        run: node .github/scripts/run-rc-post-publish-validation.mjs --version "${{ inputs.version }}"

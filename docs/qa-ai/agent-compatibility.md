@@ -78,17 +78,28 @@ The framework agents under `.qa-ai/agents/` are role instructions. If a tool doe
 
 ## Supported adapters
 
-| Adapter       | Generated path                                                 | Purpose                                                                       |
-| ------------- | -------------------------------------------------------------- | ----------------------------------------------------------------------------- |
-| Generic       | `AGENTS.md`                                                    | Cross-agent behavior and safety policy.                                       |
-| Claude Code   | `.claude/agents/`, `.claude/commands/` or the generated plugin | Claude-specific agent, slash command and hook integration.                    |
-| Codex Desktop | `.codex/README.md`, `.codex/prompts/`                          | Codex onboarding prompts and local validation commands.                       |
-| OpenCode      | `.opencode/agents/`, `.opencode/commands/`                     | OpenCode agent and slash command documentation.                               |
-| Cline         | `.clinerules`, `.cline/`                                       | Cline behavior rules and docs.                                                |
-| Continue      | `.continue/`                                                   | Review/check documentation.                                                   |
-| Aider         | `.aider.conf.yml`, `.aider/`                                   | Aider read-list and usage notes.                                              |
-| Goose         | `.goose/recipes/qa-flowkit.yaml`                               | Reusable Goose workflow recipe.                                               |
-| Gemini CLI    | `GEMINI.md`                                                    | Gemini CLI project context that points back to the shared QA AI instructions. |
+Adapter support is declared in [`adapter-support.v1.json`](adapter-support.v1.json) and checked by
+`npm run test:adapter-support`. The levels are:
+
+- `template-verified`: template files are present, packaged and checked for required shared workflow guidance.
+- `cli-smoke-verified`: template verification plus automated init/sync/doctor or parity checks in local CI.
+- `host-e2e-verified`: CLI smoke verification plus a dated real-host run using the advertised host UI.
+
+| Adapter       | Generated path                                                 | Support level        | Verified on | Purpose                                                                       |
+| ------------- | -------------------------------------------------------------- | -------------------- | ----------- | ----------------------------------------------------------------------------- |
+| Generic       | `AGENTS.md`                                                    | `cli-smoke-verified` | 2026-06-25  | Cross-agent behavior and safety policy.                                       |
+| Claude Code   | `.claude/agents/`, `.claude/commands/` or the generated plugin | `cli-smoke-verified` | 2026-06-25  | Claude-specific agent, slash command and hook integration.                    |
+| Codex Desktop | `.codex/README.md`, `.codex/prompts/`                          | `template-verified`  | 2026-06-25  | Codex onboarding prompts and local validation commands.                       |
+| OpenCode      | `.opencode/agents/`, `.opencode/commands/`                     | `cli-smoke-verified` | 2026-06-25  | OpenCode agent and slash command documentation.                               |
+| Cline         | `.clinerules`, `.cline/`                                       | `template-verified`  | 2026-06-25  | Cline behavior rules and docs.                                                |
+| Continue      | `.continue/`                                                   | `template-verified`  | 2026-06-25  | Review/check documentation.                                                   |
+| Aider         | `.aider.conf.yml`, `.aider/`                                   | `template-verified`  | 2026-06-25  | Aider read-list and usage notes.                                              |
+| Goose         | `.goose/recipes/qa-flowkit.yaml`                               | `template-verified`  | 2026-06-25  | Reusable Goose workflow recipe.                                               |
+| Gemini CLI    | `GEMINI.md`                                                    | `template-verified`  | 2026-06-25  | Gemini CLI project context that points back to the shared QA AI instructions. |
+
+No adapter is currently advertised as `host-e2e-verified`. The retrospective pilot evidence confirms Claude Code and
+OpenCode were usable in a real repository, but the 1.0 support table only upgrades an adapter to host E2E after a fresh,
+dated run on the current release candidate.
 
 ## Command Metadata and Execution
 

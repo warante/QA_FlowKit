@@ -1,0 +1,85 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-06-25",
+  "qaFlowKitVersion": "0.5.8-beta.0",
+  "owner": "release engineer",
+  "risks": [
+    {
+      "id": "P1-001",
+      "severity": "P1",
+      "title": "GitHub Private Vulnerability Reporting not confirmed enabled",
+      "epic": "Epic 13 / TASK-053",
+      "status": "open",
+      "mitigation": "SECURITY.md documents GitHub advisory reporting and a private maintainer contact fallback.",
+      "owner": "maintainer",
+      "targetMilestone": "M6",
+      "evidence": "tasks/EPIC-13-product-baseline.md"
+    },
+    {
+      "id": "P1-002",
+      "severity": "P1",
+      "title": "Second independent REVIEW-CHECKLIST pass pending",
+      "epic": "Epic 19 / TASK-078",
+      "status": "open",
+      "mitigation": "First engineering pass recorded in readiness-audit.v1.json; assign an independent reviewer.",
+      "owner": "QA lead",
+      "targetMilestone": "M6",
+      "evidence": "tasks/REVIEW-CHECKLIST.md"
+    },
+    {
+      "id": "P1-003",
+      "severity": "P1",
+      "title": "Beta-to-1.0 migration walkthrough by a non-author pending",
+      "epic": "Epic 17",
+      "status": "open",
+      "mitigation": "Automated E2E-05 passes; schedule a human walkthrough using docs/qa-ai/beta-to-1.0-migration.md.",
+      "owner": "QA lead",
+      "targetMilestone": "M6",
+      "evidence": "docs/qa-ai/beta-to-1.0-migration.md"
+    },
+    {
+      "id": "P2-001",
+      "severity": "P2",
+      "title": "Epic 16 pilot evidence deferred",
+      "epic": "Epic 16",
+      "status": "accepted",
+      "mitigation": "M3 gate deferred; RC proceeds on contract freeze and automated E2E evidence. Revisit before stable 1.0 if product requires three pilots.",
+      "owner": "product manager",
+      "targetMilestone": "M7",
+      "evidence": "tasks/EPIC-16-pilots-and-metrics.md"
+    },
+    {
+      "id": "P2-002",
+      "severity": "P2",
+      "title": "Epic 14/15 formal usability and example sign-off in validation",
+      "epic": "Epics 14-15",
+      "status": "open",
+      "mitigation": "E2E-01 through E2E-03M are green in CI; complete task-level Done transitions after facilitator review.",
+      "owner": "developer experience engineer",
+      "targetMilestone": "M6",
+      "evidence": "tasks/EPIC-14-first-use-experience.md"
+    },
+    {
+      "id": "P3-001",
+      "severity": "P3",
+      "title": "Dedicated E2E-04 enterprise CI scenario not implemented",
+      "epic": "Epic 19",
+      "status": "accepted",
+      "mitigation": "Enterprise release-gate behavior covered by harness and validator tests; add dedicated E2E-04 runner if RC soak finds gaps.",
+      "owner": "QA automation engineer",
+      "targetMilestone": "post-RC",
+      "evidence": "tasks/README.md"
+    },
+    {
+      "id": "P3-002",
+      "severity": "P3",
+      "title": "Live RC publish verification deferred to TASK-080",
+      "epic": "Epic 19 / TASK-080",
+      "status": "open",
+      "mitigation": "E2E-09 dry-run covers pack, dist-tag policy and post-publish install smoke locally.",
+      "owner": "release engineer",
+      "targetMilestone": "M6",
+      "evidence": "npm run test:e2e-release-dry-run"
+    }
+  ]
+}

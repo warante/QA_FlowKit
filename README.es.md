@@ -65,7 +65,18 @@ Durante Beta, fija instalaciones reproducibles o CI a `npx qa-flowkit@beta ...` 
 explícitamente. Cuando el agente cree o actualice artefactos QA, ejecuta `npx qa-flowkit validate-target` como quality
 gate del repositorio.
 
-El demo determinista RF-101, incluido un fallo intencionado del validador y su corrección, está documentado en
+## Demo
+
+| Formato                                                     | Descripción                                                       |
+| ----------------------------------------------------------- | ----------------------------------------------------------------- |
+| [Recorrido estático](docs/qa-ai/demo.md)                    | Historia RF-101, fixtures y salida E2E esperada                   |
+| [Guion de grabación](docs/qa-ai/demo-script.md)             | Guion de demo terminal de dos minutos para mantenedores           |
+| [Transcripción y subtítulos](docs/qa-ai/demo-transcript.md) | Texto alternativo, subtítulos y fallback estático                 |
+| `npm run test:e2e-quick`                                    | Repetición automatizada en un repositorio destino temporal limpio |
+
+La captura grabada puede publicarse desde el guion cuando esté lista; hoy el camino estático es el fallback soportado.
+
+El demo determinista RF-101, incluido un fallo intencionado del validador y su corrección, también está documentado en
 [Primeros pasos](docs/qa-ai/getting-started.md#reproduce-the-verified-path). Desde este repositorio fuente puedes
 repetirlo:
 
@@ -211,7 +222,7 @@ npx qa-flowkit validate-target
 ```
 
 `update` sustituye el framework conservando `.qa-ai/state/`, perfiles y artefactos del usuario fuera de `.qa-ai/`.
-Consulta la [guía de actualización](docs/qa-ai/getting-started.md#upgrading-an-existing-target).
+Consulta la [guía de migración beta a 1.0](docs/qa-ai/beta-to-1.0-migration.md).
 
 ## Documentación
 
@@ -229,6 +240,7 @@ Consulta la [guía de actualización](docs/qa-ai/getting-started.md#upgrading-an
 | Solución de problemas               | [Troubleshooting](docs/qa-ai/troubleshooting.md)                           |
 | Estabilidad                         | [Política de estabilidad](docs/qa-ai/stability-policy.md)                  |
 | Contratos públicos                  | [Inventario de contratos](docs/qa-ai/public-contracts.md)                  |
+| Modelo de amenazas                  | [Threat Model](docs/qa-ai/threat-model.md)                                 |
 | Medición de pilotos                 | [Metodología de pilotos](docs/qa-ai/pilot-methodology.md)                  |
 | Ingesta externa                     | [External Intake](docs/qa-ai/external-intake.md)                           |
 | Sync gobernado de pruebas           | [Governed Sync](docs/qa-ai/governed-sync.md)                               |

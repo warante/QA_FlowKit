@@ -2,6 +2,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { parsePackOutput, validatePackFileList } from './lib/npm-pack-allowlist.mjs';
 
 const sourceRoot = process.cwd();
 const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
@@ -131,68 +132,12 @@ async function validateCommandInteractionContract(packageRoot) {
   );
 }
 
-function parsePackOutput(stdout) {
-  const parsed = JSON.parse(stdout);
-  const item = Array.isArray(parsed) ? parsed[0] : parsed;
-  if (!item?.filename || !Array.isArray(item.files)) {
-    throw new Error('Unexpected npm pack --json output.');
-  }
-  return item;
+function parsePackOutputLocal(stdout) {
+  return parsePackOutput(stdout);
 }
 
-function validatePackFileList(files) {
-  const names = files.map((file) => file.path).sort();
-  const required = [
-    'bin/qa-flowkit.mjs',
-    '.qa-ai/scripts/init.mjs',
-    '.qa-ai/scripts/doctor.mjs',
-    '.qa-ai/contracts/workflow.v1.json',
-    '.qa-ai/contracts/config.v1.schema.json',
-    '.qa-ai/scripts/qa-run.mjs',
-    '.qa-ai/scripts/qa-metrics.mjs',
-    '.qa-ai/scripts/validate-config.mjs',
-    '.qa-ai/scripts/validate-untrusted-content.mjs',
-    '.qa-ai/scripts/validate-test-coverage.mjs',
-    '.qa-ai/scripts/lib/config-schema.mjs',
-    '.qa-ai/scripts/lib/injection-patterns.mjs',
-    '.qa-ai/scripts/lib/test-coverage.mjs',
-    '.qa-ai/rules/untrusted-content.rules.md',
-    '.qa-ai/rules/ai-testing.rules.md',
-    '.qa-ai/agents/specialists/available/security.md',
-    '.qa-ai/templates/source-analysis.template.md',
-    '.qa-ai/scripts/lib/harness-paths.mjs',
-    '.qa-ai/scripts/lib/harness-modification.mjs',
-    '.qa-ai/scripts/lib/harness-messages.mjs',
-    '.qa-ai/adapters/opencode/commands/qa-init.md',
-    '.qa-ai/workflows/command-interaction.md',
-    'README.md',
-    'README.es.md',
-    'LICENSE',
-    'package.json'
-  ];
-  const forbiddenPrefixes = [
-    '.github/',
-    '.claude/',
-    '.opencode/',
-    '.npm-cache/',
-    'qa-ai-output/',
-    'features/',
-    'tests/'
-  ];
-  const forbiddenExact = [
-    'qa-ai.config.yaml',
-    '.qa-ai/state/init-manifest.json',
-    '.qa-ai/agents/specialists/active.md'
-  ];
-
-  for (const relPath of required) {
-    if (!names.includes(relPath)) throw new Error(`Pack file list is missing required path: ${relPath}`);
-  }
-  for (const relPath of names) {
-    if (forbiddenExact.includes(relPath) || forbiddenPrefixes.some((prefix) => relPath.startsWith(prefix))) {
-      throw new Error(`Pack file list includes forbidden path: ${relPath}`);
-    }
-  }
+function validatePackFileListLocal(files) {
+  return validatePackFileList(files);
 }
 
 function cliPath(targetRoot) {
@@ -230,8 +175,8 @@ async function main() {
       cwd: sourceRoot,
       env: { npm_config_cache: npmCache }
     });
-    const packInfo = parsePackOutput(packResult.stdout);
-    validatePackFileList(packInfo.files);
+    const packInfo = parsePackOutputLocal(packResult.stdout);
+    validatePackFileListLocal(packInfo.files);
     const tarball = path.join(packDir, packInfo.filename);
     await assertExists(tarball, 'packed tarball');
 

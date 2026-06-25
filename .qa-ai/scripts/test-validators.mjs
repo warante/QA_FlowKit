@@ -2660,6 +2660,8 @@ test('secret scan detects fake token in governed apply log artifact', async () =
 
     assert.ok(findings.some((finding) => finding.pattern === 'github-token'));
     assert.ok(findings.every((finding) => finding.label === 'qa-ai-output/test-management-apply-log.md'));
+    assert.ok(findings.every((finding) => finding.excerpt.includes('[REDACTED]')));
+    assert.ok(!findings.some((finding) => finding.excerpt.includes('ghp_abcdefghijklmnopqrstuvwxyz1234567890abcd')));
   } finally {
     await fs.rm(tmp, { recursive: true, force: true });
   }
