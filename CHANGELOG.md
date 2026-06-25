@@ -48,6 +48,19 @@ this feature PR is merged.
 - Cross-platform smoke and npm-pack checks now account for generated adapters and framework-specific example paths.
 - Documentation drift and missing packaged contract files now fail validation before release.
 
+## [0.5.9-beta.0](https://github.com/warante/QA_FlowKit/compare/v0.5.8-beta.0...v0.5.9-beta.0) (2026-06-25)
+
+
+### Added
+
+* automatización de readiness 1.0 y endurecimiento de contratos ([#41](https://github.com/warante/QA_FlowKit/issues/41)) ([400a050](https://github.com/warante/QA_FlowKit/commit/400a050ccd099ba14974290ce98081cd93d1111a))
+
+
+### Fixed
+
+* keep release-managed adapter support out of prettier ([#45](https://github.com/warante/QA_FlowKit/issues/45)) ([8d2ee23](https://github.com/warante/QA_FlowKit/commit/8d2ee23ebdec1a735808d3e6b63381f98345b5f7))
+* version release validation artifacts ([#43](https://github.com/warante/QA_FlowKit/issues/43)) ([94bb65b](https://github.com/warante/QA_FlowKit/commit/94bb65bbb221b3aad06a6c87742aaef3b617ddc2))
+
 ## [0.5.8-beta.0](https://github.com/warante/QA_FlowKit/compare/v0.5.7-beta.0...v0.5.8-beta.0) (2026-06-24)
 
 
