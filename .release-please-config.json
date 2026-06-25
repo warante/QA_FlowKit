@@ -32,6 +32,66 @@
           "type": "json",
           "path": ".claude-plugin/marketplace.json",
           "jsonpath": "$.plugins[0].version"
+        },
+        {
+          "type": "json",
+          "path": "docs/qa-ai/adapter-support.v1.json",
+          "jsonpath": "$.qaFlowKitVersion"
+        },
+        {
+          "type": "json",
+          "path": "docs/qa-ai/adapter-support.v1.json",
+          "jsonpath": "$.adapters[0].versionRange"
+        },
+        {
+          "type": "json",
+          "path": "docs/qa-ai/adapter-support.v1.json",
+          "jsonpath": "$.adapters[1].versionRange"
+        },
+        {
+          "type": "json",
+          "path": "docs/qa-ai/adapter-support.v1.json",
+          "jsonpath": "$.adapters[2].versionRange"
+        },
+        {
+          "type": "json",
+          "path": "docs/qa-ai/adapter-support.v1.json",
+          "jsonpath": "$.adapters[3].versionRange"
+        },
+        {
+          "type": "json",
+          "path": "docs/qa-ai/adapter-support.v1.json",
+          "jsonpath": "$.adapters[4].versionRange"
+        },
+        {
+          "type": "json",
+          "path": "docs/qa-ai/adapter-support.v1.json",
+          "jsonpath": "$.adapters[5].versionRange"
+        },
+        {
+          "type": "json",
+          "path": "docs/qa-ai/adapter-support.v1.json",
+          "jsonpath": "$.adapters[6].versionRange"
+        },
+        {
+          "type": "json",
+          "path": "docs/qa-ai/adapter-support.v1.json",
+          "jsonpath": "$.adapters[7].versionRange"
+        },
+        {
+          "type": "json",
+          "path": "docs/qa-ai/adapter-support.v1.json",
+          "jsonpath": "$.adapters[8].versionRange"
+        },
+        {
+          "type": "json",
+          "path": "docs/qa-ai/stable-release-config.v1.json",
+          "jsonpath": "$.qaFlowKitVersion"
+        },
+        {
+          "type": "json",
+          "path": "docs/qa-ai/stable-release-pr.v1.json",
+          "jsonpath": "$.qaFlowKitVersion"
         }
       ]
     }
