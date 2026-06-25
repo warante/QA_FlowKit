@@ -25,14 +25,18 @@ init update bootstrap config doctor
 validate-config validate-untrusted-content validate-external-intake validate-target validate-features validate-karate-features validate-maestro-flows
 validate-traceability validate-sync-plan validate-sync-diff validate-sync-result validate-active-specialists
 validate-release-gate validate-test-design
-sync-adapters help clean version run
+sync-adapters export-report help clean version run
 ```
 
-Experimental command:
+Experimental commands:
 
 ```text
-validate-test-coverage
+validate-test-coverage validate-quality-report metrics
 ```
+
+Stable command names mean the command is intentionally public. They do not freeze every output field, wording detail
+or generated report shape. Experimental commands are available for adopters, but their options, JSON diagnostics or
+reporting semantics may change before the release-candidate contract freeze.
 
 Stable `run` subcommands:
 
@@ -45,6 +49,31 @@ success for an explicitly requested `--allow-empty` or `--allow-missing` outcome
 
 Commands documented with `--json` keep stdout as parseable JSON and send failures to stderr with a non-zero exit
 code. Required top-level meanings are stable; new optional diagnostic fields may be added during beta.
+
+Stable JSON output surfaces:
+
+```text
+help --json
+validate-untrusted-content --json
+validate-external-intake --json
+validate-sync-diff --json
+validate-sync-result --json
+run start --json
+run status --json
+run next --json
+run check --json
+run retry --json
+run set-rf --json
+run approve --json
+run resume --json
+```
+
+Experimental JSON output surfaces:
+
+```text
+metrics --json
+validate-quality-report --json
+```
 
 Canonical options and behavior are documented in [CLI Reference](cli-reference.md).
 
@@ -60,8 +89,20 @@ automation testDesign traceability release approval commands
 New optional keys may be introduced with safe defaults. Removing a key, changing its type or changing an existing
 default requires a migration path. See [Configuration Schema](config-schema.md).
 
-`sources.analysisPath` and `testDesign.coverage` are additive experimental keys. They do not reinterpret existing
-configuration.
+Experimental configuration areas are additive and must not reinterpret existing stable configuration:
+
+```text
+sources.analysisPath
+testDesign.coverage
+testDesign.nonFunctionalCoverage
+testDesign.quality
+validators
+validators.custom
+execution
+execution.resultsPaths
+execution.evalResultsPaths
+execution.quarantine
+```
 
 Preset IDs are public. The `webdriverio-playwright-api` preset remains available as a deprecated compatibility preset;
 new projects should use `playwright-full`.
@@ -76,6 +117,13 @@ new projects should use `playwright-full`.
 | `events.jsonl`                                  | `experimental` | Append-only audit events; individual optional fields vary |
 | `.lock` and atomic temporary files              | `internal`     | Never parse or commit                                     |
 | `.qa-ai/state/init-manifest.json`, `version: 1` | `experimental` | Used by cleanup and update                                |
+
+Machine-readable schema files and compatibility fixtures are documented in
+[Schema compatibility](schema-compatibility.md). Verification:
+
+```bash
+npm run test:compatibility-fixtures
+```
 
 The harness state directory is public and preserved, but consumers should use CLI JSON output instead of reading
 state files directly. See [Agent Harness](agent-harness.md) and
@@ -118,7 +166,8 @@ Current deprecated compatibility surfaces:
 
 ```bash
 npm run contracts:check
+npm run test:cli-contracts
 ```
 
 The check compares the inventory with the actual CLI, run subcommands, preset files and required collection
-directories. A new public command fails CI until it is classified.
+directories. CLI JSON golden scenarios are defined in `.qa-ai/contracts/cli-contracts.v1.json`.

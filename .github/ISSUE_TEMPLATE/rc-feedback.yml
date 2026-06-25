@@ -1,0 +1,84 @@
+name: RC feedback
+description: Report feedback while testing the 1.0.0-rc release candidate.
+title: 'rc: '
+labels:
+  - rc-feedback
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form while validating `qa-flowkit@rc` before stable `1.0.0`.
+        See [RC known limitations](https://github.com/warante/QA_FlowKit/blob/main/docs/qa-ai/rc-known-limitations.md).
+  - type: input
+    id: rc-version
+    attributes:
+      label: RC version tested
+      placeholder: 1.0.0-rc.1
+    validations:
+      required: true
+  - type: dropdown
+    id: scenario
+    attributes:
+      label: Primary scenario
+      options:
+        - Clean install (npx qa-flowkit@rc init)
+        - Update from beta (npx qa-flowkit@rc update)
+        - Quick path / manual-only workflow
+        - Standard Playwright example
+        - Karate / API example
+        - Mobile (Maestro + Karate) example
+        - Adapter bootstrap (Claude/OpenCode)
+        - Documentation / migration guide
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What worked or failed?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. npx qa-flowkit@rc init --preset manual-only
+        2. npx qa-flowkit@rc doctor --strict
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: |
+        OS:
+        Node.js:
+        npm channel: rc
+        Agent/tool (if any):
+    validations:
+      required: true
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Suggested severity
+      options:
+        - P0 — blocks RC adoption
+        - P1 — major workflow broken
+        - P2 — workaround exists
+        - P3 — documentation or polish
+    validations:
+      required: true

@@ -24,6 +24,18 @@ const allowlistSubstrings = [
   'token: <'
 ];
 
+function redactedExcerpt(line, regex) {
+  return line.trim().replace(regex, '[REDACTED]').slice(0, 120);
+}
+
+export function redactSecretsInText(text) {
+  let redacted = String(text || '');
+  for (const { regex } of patterns) {
+    redacted = redacted.replace(regex, '[REDACTED]');
+  }
+  return redacted;
+}
+
 export function scanTextForSecrets(text, label = 'content') {
   const findings = [];
   const lines = String(text || '').split(/\r?\n/);
@@ -38,7 +50,7 @@ export function scanTextForSecrets(text, label = 'content') {
           label,
           line: index + 1,
           pattern: name,
-          excerpt: line.trim().slice(0, 120)
+          excerpt: redactedExcerpt(line, regex)
         });
       }
     }

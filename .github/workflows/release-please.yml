@@ -126,6 +126,16 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          if [[ "${PKG_VERSION}" == *"-rc."* ]]; then
+            echo "RC release detected; running full post-publish validation."
+            node .github/scripts/run-rc-post-publish-validation.mjs --version "${PKG_VERSION}"
+            exit 0
+          fi
+          if [[ "${PKG_VERSION}" != *-* ]]; then
+            echo "Stable release detected; running full post-publish validation."
+            node .github/scripts/run-stable-post-publish-validation.mjs --version "${PKG_VERSION}"
+            exit 0
+          fi
           # npm registry propagation can lag a few seconds after publish; retry before failing.
           PUBLISHED=""
           for attempt in 1 2 3 4 5 6; do

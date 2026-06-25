@@ -9,10 +9,15 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   npm-pack:
     name: npm pack allowlist
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -32,6 +37,7 @@ jobs:
   adapter-parity:
     name: adapter template parity
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -39,9 +45,21 @@ jobs:
       - name: Verify adapter parity
         run: node .github/scripts/verify-adapter-parity.mjs
 
+  adapter-support:
+    name: adapter support inventory
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Verify adapter support manifest
+        run: npm run test:adapter-support
+
   claude-plugin:
     name: Claude plugin
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -66,6 +84,7 @@ jobs:
     name: golden target validate-target
     needs: npm-pack
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -82,6 +101,7 @@ jobs:
     name: karate target validate-target
     needs: npm-pack
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -98,6 +118,7 @@ jobs:
     name: 'Karate example (${{ matrix.os }})'
     needs: npm-pack
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
 
     strategy:
       fail-fast: false
@@ -126,6 +147,7 @@ jobs:
     name: 'Playwright example (${{ matrix.os }})'
     needs: npm-pack
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
 
     strategy:
       fail-fast: false
@@ -148,6 +170,7 @@ jobs:
     name: 'Maestro + Karate mobile example (${{ matrix.os }})'
     needs: npm-pack
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
 
     strategy:
       fail-fast: false
@@ -176,6 +199,7 @@ jobs:
     name: 'Quick path (${{ matrix.os }}, Node ${{ matrix.node }})'
     needs: npm-pack
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
 
     strategy:
       fail-fast: false
@@ -199,6 +223,7 @@ jobs:
     name: 'Manual example (${{ matrix.os }}, Node ${{ matrix.node }})'
     needs: npm-pack
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
 
     strategy:
       fail-fast: false
@@ -218,6 +243,132 @@ jobs:
       - name: Validate packed manual-only public example
         run: npm run test:e2e-manual-example
 
+  update-migration:
+    name: 'Update migration (${{ matrix.os }}, Node ${{ matrix.node }})'
+    needs: npm-pack
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node: ['20', '22']
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Run beta-to-1.0 update migration validation
+        run: npm run test:e2e-update-migration
+
+  clean-install:
+    name: 'Clean install (${{ matrix.os }}, Node ${{ matrix.node }})'
+    needs: npm-pack
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node: ['20', '22']
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Run packed clean-install validation (E2E-06)
+        run: npm run test:e2e-clean-install
+
+  adversarial-failure:
+    name: 'Adversarial failure paths (${{ matrix.os }}, Node ${{ matrix.node }})'
+    needs: npm-pack
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node: ['20', '22']
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Run adversarial failure-path validation (E2E-08)
+        run: npm run test:e2e-adversarial
+
+  release-dry-run:
+    name: Release dry-run (E2E-09)
+    needs: npm-pack
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+
+      - name: Run release dry-run validation
+        run: npm run test:e2e-release-dry-run
+
+  stable-config-rehearsal:
+    name: Stable config rehearsal (TASK-083)
+    needs: npm-pack
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+
+      - name: Run stable config rehearsal
+        run: npm run test:e2e-stable-config-rehearsal
+
+  stable-release-pr-rehearsal:
+    name: Stable Release PR rehearsal (TASK-084)
+    needs: npm-pack
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+
+      - name: Run stable Release PR rehearsal
+        run: npm run test:e2e-stable-release-pr-rehearsal
+
   # Ruleset "Protect release branches" requires check context "Validate starter" (not matrix names).
   validate-starter:
     name: Validate starter
@@ -225,6 +376,7 @@ jobs:
       [
         npm-pack,
         adapter-parity,
+        adapter-support,
         claude-plugin,
         golden-target,
         karate-target,
@@ -232,9 +384,16 @@ jobs:
         playwright-example,
         mobile-example,
         quick-path,
-        manual-example
+        manual-example,
+        update-migration,
+        clean-install,
+        adversarial-failure,
+        release-dry-run,
+        stable-config-rehearsal,
+        stable-release-pr-rehearsal
       ]
     runs-on: ubuntu-latest
+    timeout-minutes: 25
 
     defaults:
       run:
@@ -310,6 +469,7 @@ jobs:
     name: Coverage
     needs: npm-pack
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - name: Checkout
@@ -332,6 +492,7 @@ jobs:
       [
         npm-pack,
         adapter-parity,
+        adapter-support,
         claude-plugin,
         golden-target,
         karate-target,
@@ -339,9 +500,16 @@ jobs:
         playwright-example,
         mobile-example,
         quick-path,
-        manual-example
+        manual-example,
+        update-migration,
+        clean-install,
+        adversarial-failure,
+        release-dry-run,
+        stable-config-rehearsal,
+        stable-release-pr-rehearsal
       ]
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
 
     strategy:
       fail-fast: false

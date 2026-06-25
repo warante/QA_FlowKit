@@ -1,0 +1,40 @@
+name: Stable post-publish validation
+
+# TASK-085: run full stable smoke against a published 1.0.0 on npm @latest.
+# Automatic path: release-please publish job for stable semver (no prerelease suffix).
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Published stable version (for example 1.0.0)
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: stable-post-publish-${{ inputs.version }}
+  cancel-in-progress: false
+
+jobs:
+  validate-stable:
+    name: Stable post-publish (${{ inputs.version }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          registry-url: https://registry.npmjs.org
+
+      - name: Run stable post-publish validation
+        env:
+          QA_FLOWKIT_STABLE_VERSION: ${{ inputs.version }}
+        run: node .github/scripts/run-stable-post-publish-validation.mjs --version "${{ inputs.version }}"

@@ -1,0 +1,114 @@
+{
+  "schemaVersion": 1,
+  "freezeDate": "2026-06-25",
+  "exitCodes": {
+    "success": 0,
+    "failure": 1
+  },
+  "jsonRules": {
+    "pureStdout": "Commands documented with --json must print only parseable JSON to stdout on success.",
+    "errorsToStderr": "Human-readable failures may use stderr; exit code is 1.",
+    "ordering": "Stable list outputs use workflow track order or lexicographic path order as documented per command."
+  },
+  "scenarios": [
+    {
+      "id": "version-prints-package-version",
+      "setup": "golden-target",
+      "command": ["version"],
+      "exitCode": 0,
+      "stdoutPattern": "^\\d+\\.\\d+\\.\\d+",
+      "stderrEmpty": true
+    },
+    {
+      "id": "unknown-command-exits-nonzero",
+      "setup": "golden-target",
+      "command": ["unknown-command-xyzzy"],
+      "exitCode": 1
+    },
+    {
+      "id": "help-json-initialized",
+      "setup": "golden-target",
+      "command": ["help", "--json"],
+      "exitCode": 0,
+      "json": {
+        "requiredKeys": [
+          "initialized",
+          "configExists",
+          "track",
+          "recommendations",
+          "phases",
+          "pendingPhaseIds",
+          "completedPhaseIds",
+          "skippedPhaseIds"
+        ],
+        "stderrEmpty": true
+      }
+    },
+    {
+      "id": "validate-config-json-pass",
+      "setup": "golden-target",
+      "command": ["validate-config", "--json"],
+      "exitCode": 0,
+      "json": {
+        "requiredKeys": ["ok"],
+        "equals": { "ok": true },
+        "stderrEmpty": true
+      }
+    },
+    {
+      "id": "validate-config-json-fail",
+      "setup": "golden-target-invalid-config",
+      "command": ["validate-config", "--json"],
+      "exitCode": 1,
+      "json": {
+        "requiredKeys": ["ok", "errors"],
+        "equals": { "ok": false },
+        "errorsMinItems": 1
+      }
+    },
+    {
+      "id": "run-status-no-active-json",
+      "setup": "golden-target",
+      "command": ["run", "status", "--json"],
+      "exitCode": 0,
+      "json": {
+        "requiredKeys": ["active", "runs"],
+        "equals": { "active": false },
+        "stderrEmpty": true
+      }
+    },
+    {
+      "id": "run-start-json",
+      "setup": "golden-target",
+      "command": ["run", "start", "--rf", "RF-101", "--json"],
+      "exitCode": 0,
+      "json": {
+        "requiredKeys": ["schemaVersion", "runId", "track", "status", "phases"],
+        "equals": { "schemaVersion": 1, "track": "quick", "status": "active" },
+        "stderrEmpty": true
+      }
+    },
+    {
+      "id": "update-dry-run-json",
+      "setup": "golden-target",
+      "command": ["update", "--dry-run", "--json"],
+      "exitCode": 0,
+      "json": {
+        "requiredKeys": ["schemaVersion", "targetPackageVersion", "preservedPaths", "userOwnedPaths", "adaptersToSync"],
+        "stderrEmpty": true
+      }
+    },
+    {
+      "id": "validate-workflow-contract-json",
+      "setup": "golden-target",
+      "script": ".qa-ai/scripts/validate-workflow-contract.mjs",
+      "command": ["--json"],
+      "exitCode": 0,
+      "json": {
+        "requiredKeys": ["ok"],
+        "equals": { "ok": true },
+        "stderrEmpty": true
+      }
+    }
+  ]
+}

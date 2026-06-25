@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-06-25",
+  "qaFlowKitVersion": "0.5.8-beta.0",
+  "task": "TASK-083",
+  "status": "prepared",
+  "activeConfig": ".release-please-config.json",
+  "preparedStableConfig": ".release-please-config.stable.json",
+  "expectedStableVersion": "1.0.0",
+  "expectedDistTag": "latest",
+  "approvalRecord": "docs/qa-ai/stable-release-approval.v1.json",
+  "mergedAt": null,
+  "mergePrUrl": null,
+  "rehearsalCommand": "npm run test:e2e-stable-config-rehearsal"
+}

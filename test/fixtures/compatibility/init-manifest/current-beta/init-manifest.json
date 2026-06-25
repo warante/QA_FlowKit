@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "createdAt": "2026-06-25T12:00:00.000Z",
+  "updatedAt": "2026-06-25T12:00:00.000Z",
+  "entries": [
+    {
+      "path": "qa-ai.config.yaml",
+      "type": "file",
+      "category": "generated",
+      "source": "init",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "createdAt": "2026-06-25T12:00:00.000Z",
+      "updatedAt": "2026-06-25T12:00:00.000Z"
+    },
+    {
+      "path": "features",
+      "type": "directory",
+      "category": "generated",
+      "source": "init",
+      "createdAt": "2026-06-25T12:00:00.000Z",
+      "updatedAt": "2026-06-25T12:00:00.000Z"
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/warante/QA_FlowKit/.qa-ai/contracts/workflow.v1.schema.json",
+  "title": "QA FlowKit workflow contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "trackOrder", "phases"],
+  "properties": {
+    "schemaVersion": { "type": "integer", "enum": [1] },
+    "trackOrder": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": { "type": "string" },
+        "minItems": 1
+      }
+    },
+    "phases": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "name", "permissions"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+          "name": { "type": "string" },
+          "slashCommand": { "type": "string" },
+          "guidance": { "type": "array", "items": { "type": "string" } },
+          "inputs": { "type": "array" },
+          "outputs": { "type": "array" },
+          "entryApprovals": { "type": "array", "items": { "type": "string" } },
+          "validators": { "type": "array", "items": { "type": "string" } },
+          "skipConditions": { "type": "array" },
+          "requiresRfId": { "type": "boolean" },
+          "permissions": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["createLocal", "modifyExisting", "externalWrite", "delete"],
+            "properties": {
+              "createLocal": { "type": "string" },
+              "modifyExisting": { "type": "string" },
+              "externalWrite": { "type": "string" },
+              "delete": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

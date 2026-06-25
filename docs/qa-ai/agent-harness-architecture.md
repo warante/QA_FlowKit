@@ -26,6 +26,8 @@ The first increment is a deterministic control plane around the existing agents,
 - Performing external Jira, TestRail, CI or GitHub writes.
 - Guaranteeing enforcement against an agent that bypasses QA FlowKit and uses unrestricted shell access.
 
+See [Threat Model](threat-model.md) for the full trust boundary, control layers and verification mapping.
+
 ## Components
 
 ```mermaid

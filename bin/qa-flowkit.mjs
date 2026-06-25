@@ -83,6 +83,7 @@ Examples:
   npx qa-flowkit init
   npx qa-flowkit init --preset manual-only --interface-language es --gherkin-language es
   npx qa-flowkit update
+  npx qa-flowkit update --dry-run --json
   npx qa-flowkit doctor --strict
   npx qa-flowkit validate-config --json
   npx qa-flowkit run start --rf RF-123
@@ -186,6 +187,19 @@ async function init(args) {
 async function update(args) {
   await assertPackagedFramework();
   await assertTargetFramework('update');
+
+  const planModulePath = path.join(packagedFramework, 'scripts', 'lib', 'update-plan.mjs');
+  const { buildUpdatePlan, formatUpdatePlan } = await import(pathToFileURL(planModulePath).href);
+  const plan = await buildUpdatePlan({ cwd, packageRoot });
+
+  if (hasFlag(args, 'dry-run')) {
+    if (hasFlag(args, 'json')) {
+      console.log(JSON.stringify(plan, null, 2));
+    } else {
+      console.log(formatUpdatePlan(plan));
+    }
+    return;
+  }
 
   const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-flowkit-update-'));
   const backupFramework = path.join(tempRoot, '.qa-ai');

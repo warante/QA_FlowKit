@@ -3,6 +3,15 @@
 This is the static, reproducible demo for QA FlowKit's five-minute path. It uses no external services, credentials or
 model execution.
 
+Machine-readable status: [`demo.v1.json`](demo.v1.json) (`static_ready` until a recording is published).
+
+| Asset                                                           | Purpose                                                   |
+| --------------------------------------------------------------- | --------------------------------------------------------- |
+| [Recording script](demo-script.md)                              | Two-minute terminal capture script for maintainers        |
+| [Transcript and captions](demo-transcript.md)                   | Accessible narration, alt text and caption track          |
+| [Getting started](getting-started.md#deterministic-rf-101-demo) | Evaluator-facing walkthrough                              |
+| [`test/fixtures/quick-path/`](../../test/fixtures/quick-path/)  | Public RF-101 input, invalid feature and expected outputs |
+
 ## Story
 
 Input:
@@ -43,8 +52,9 @@ Expected summary:
 Quick path E2E passed in <duration>ms.
 ```
 
-The exact public input and outputs live under [`test/fixtures/quick-path/`](../../test/fixtures/quick-path/). The runner
-is [`.github/scripts/run-quick-path-validation.mjs`](../../.github/scripts/run-quick-path-validation.mjs).
+The runner is [`.github/scripts/run-quick-path-validation.mjs`](../../.github/scripts/run-quick-path-validation.mjs).
+
+Verification: `npm run test:product-demo`.
 
 ## What this demonstrates
 
@@ -55,4 +65,7 @@ is [`.github/scripts/run-quick-path-validation.mjs`](../../.github/scripts/run-q
 - Final Gherkin and traceability pass the strict target gate.
 - No Jira, TestRail, network service or secret is required.
 
-This static walkthrough is the accessible fallback for the short recorded demo planned before `1.0.0`.
+## Recorded demo
+
+A short terminal capture can be published from [`demo-script.md`](demo-script.md). Until then, this static walkthrough
+and `npm run test:e2e-quick` are the supported public demo paths.

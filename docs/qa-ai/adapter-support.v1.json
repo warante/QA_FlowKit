@@ -1,0 +1,115 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-06-25",
+  "qaFlowKitVersion": "0.5.8-beta.0",
+  "supportLevels": {
+    "template-verified": "Template files are present, packaged and checked for required shared workflow guidance.",
+    "cli-smoke-verified": "Template verification plus automated init/sync/doctor or parity checks in local CI.",
+    "host-e2e-verified": "CLI smoke verification plus a dated real-host run using the advertised host UI."
+  },
+  "adapters": [
+    {
+      "id": "generic",
+      "name": "Generic",
+      "level": "cli-smoke-verified",
+      "generatedPaths": ["AGENTS.md"],
+      "verifiedOn": "2026-06-25",
+      "versionRange": "0.5.8-beta.0",
+      "evidence": [
+        ".qa-ai/adapters/generic/AGENTS.md",
+        ".qa-ai/scripts/smoke-test.mjs",
+        ".github/scripts/verify-adapter-support.mjs"
+      ],
+      "notes": "Portable instruction layer used by all hosts."
+    },
+    {
+      "id": "claude",
+      "name": "Claude Code",
+      "level": "cli-smoke-verified",
+      "generatedPaths": [".claude/agents/", ".claude/commands/", ".claude/settings/hooks.json"],
+      "verifiedOn": "2026-06-25",
+      "versionRange": "0.5.8-beta.0",
+      "evidence": [
+        ".github/scripts/verify-adapter-parity.mjs",
+        ".qa-ai/scripts/test-hooks.mjs",
+        ".qa-ai/scripts/bootstrap-agent-adapters.mjs",
+        ".qa-ai/adapters/claude/commands/qa-init.md"
+      ],
+      "notes": "Root copies are parity-checked and hook configuration is tested; current host UI evidence is not claimed."
+    },
+    {
+      "id": "codex",
+      "name": "Codex Desktop",
+      "level": "template-verified",
+      "generatedPaths": [".codex/README.md", ".codex/prompts/"],
+      "verifiedOn": "2026-06-25",
+      "versionRange": "0.5.8-beta.0",
+      "evidence": [".qa-ai/adapters/codex/README.md", ".qa-ai/adapters/codex/prompts/implement-project.md"],
+      "notes": "Hookless host guidance; validation is manual through documented scripts."
+    },
+    {
+      "id": "opencode",
+      "name": "OpenCode",
+      "level": "cli-smoke-verified",
+      "generatedPaths": [".opencode/agents/", ".opencode/commands/"],
+      "verifiedOn": "2026-06-25",
+      "versionRange": "0.5.8-beta.0",
+      "evidence": [
+        ".github/scripts/verify-adapter-parity.mjs",
+        ".qa-ai/scripts/bootstrap-agent-adapters.mjs",
+        ".qa-ai/adapters/opencode/commands/qa-init.md"
+      ],
+      "notes": "Root copies are parity-checked; current host UI evidence is not claimed."
+    },
+    {
+      "id": "cline",
+      "name": "Cline",
+      "level": "template-verified",
+      "generatedPaths": [".clinerules", ".cline/"],
+      "verifiedOn": "2026-06-25",
+      "versionRange": "0.5.8-beta.0",
+      "evidence": [".qa-ai/adapters/cline/.clinerules", ".qa-ai/adapters/cline/.cline/README.md"],
+      "notes": "Instruction template only; no automated Cline host run is claimed."
+    },
+    {
+      "id": "continue",
+      "name": "Continue",
+      "level": "template-verified",
+      "generatedPaths": [".continue/"],
+      "verifiedOn": "2026-06-25",
+      "versionRange": "0.5.8-beta.0",
+      "evidence": [".qa-ai/adapters/continue/README.md", ".qa-ai/adapters/continue/checks/qa-feature-conventions.md"],
+      "notes": "Review/check guidance only; no automated Continue host run is claimed."
+    },
+    {
+      "id": "aider",
+      "name": "Aider",
+      "level": "template-verified",
+      "generatedPaths": [".aider.conf.yml", ".aider/"],
+      "verifiedOn": "2026-06-25",
+      "versionRange": "0.5.8-beta.0",
+      "evidence": [".qa-ai/adapters/aider/.aider.conf.yml", ".qa-ai/adapters/aider/.aider/README.md"],
+      "notes": "Read-list and usage notes only; no automated Aider host run is claimed."
+    },
+    {
+      "id": "goose",
+      "name": "Goose",
+      "level": "template-verified",
+      "generatedPaths": [".goose/recipes/qa-flowkit.yaml"],
+      "verifiedOn": "2026-06-25",
+      "versionRange": "0.5.8-beta.0",
+      "evidence": [".qa-ai/adapters/goose/recipes/qa-flowkit.yaml"],
+      "notes": "Recipe template only; no automated Goose host run is claimed."
+    },
+    {
+      "id": "gemini",
+      "name": "Gemini CLI",
+      "level": "template-verified",
+      "generatedPaths": ["GEMINI.md"],
+      "verifiedOn": "2026-06-25",
+      "versionRange": "0.5.8-beta.0",
+      "evidence": [".qa-ai/adapters/gemini/GEMINI.md"],
+      "notes": "Project context template only; no automated Gemini CLI host run is claimed."
+    }
+  ]
+}

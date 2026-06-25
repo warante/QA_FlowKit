@@ -80,7 +80,7 @@ Acceptance:
 **Owner:** Developer relations
 **Depends on:** TASK-056
 
-**Status:** In progress
+**Status:** In validation (static demo, script, transcript and verifier ready; recorded capture pending)
 
 Subtasks:
 
@@ -103,6 +103,18 @@ Documentation:
 Acceptance:
 
 - Demo output is reproducible from the documented commit/tag.
+
+**Evidence (source repo):**
+
+- Demo hub: `docs/qa-ai/demo.md`, `docs/qa-ai/demo.v1.json` (`status: static_ready`).
+- Recording script: `docs/qa-ai/demo-script.md`.
+- Transcript and captions: `docs/qa-ai/demo-transcript.md`.
+- Fixtures and E2E: `test/fixtures/quick-path/`, `npm run test:e2e-quick`.
+- Verification: `.github/scripts/verify-product-demo.mjs` → `npm run test:product-demo`.
+- Unit tests: `.github/scripts/test-product-demo.mjs`.
+- README embed table: `README.md`, `README.es.md`.
+- Included in `npm run validate:oss-extraction`.
+- **Pending human:** terminal recording, PM/security review, optional README video embed when `recordedMedia` is published.
 
 ## TASK-058 - Validate onboarding usability
 
@@ -143,5 +155,6 @@ Acceptance:
 - E2E-01 runner: `.github/scripts/run-quick-path-validation.mjs`.
 - CI matrix: Ubuntu and Windows on Node.js 20 and 22 in `.github/workflows/ci.yml`.
 - Guided path and intentional failure: `docs/qa-ai/getting-started.md`.
-- Reproducible static demo: `docs/qa-ai/demo.md`.
-- Remaining validation: external 30-second comprehension study, recorded demo and five-participant usability study.
+- Reproducible static demo: `docs/qa-ai/demo.md`, `docs/qa-ai/demo-script.md`, `docs/qa-ai/demo-transcript.md`.
+- Demo verification: `npm run test:product-demo`.
+- Remaining validation: recorded terminal capture, external 30-second comprehension study and five-participant usability study.

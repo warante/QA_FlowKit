@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 2,
+  "trackOrder": {
+    "quick": ["intake"]
+  },
+  "phases": [
+    {
+      "id": "intake",
+      "name": "Intake",
+      "permissions": {
+        "createLocal": "allowed",
+        "modifyExisting": "approval",
+        "externalWrite": "denied",
+        "delete": "denied"
+      }
+    }
+  ]
+}

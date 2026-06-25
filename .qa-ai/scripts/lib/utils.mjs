@@ -1,3 +1,4 @@
+import fsSync from 'node:fs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import crypto from 'node:crypto';
@@ -168,6 +169,18 @@ export function resolveRepoPath(cwd, relativePath, { label = 'path', allowRoot =
   if (!target.inside || (!allowRoot && target.resolved === root)) {
     throw new Error(`Invalid ${label}: path must stay inside the repository (${value}).`);
   }
+
+  try {
+    const realRoot = fsSync.realpathSync.native(root);
+    const realTarget = fsSync.realpathSync.native(target.resolved);
+    const realInside = realTarget === realRoot || realTarget.startsWith(`${realRoot}${path.sep}`);
+    if (!realInside || (!allowRoot && realTarget === realRoot)) {
+      throw new Error(`Invalid ${label}: path must stay inside the repository (${value}).`);
+    }
+  } catch (error) {
+    if (error.code !== 'ENOENT') throw error;
+  }
+
   return target.resolved;
 }
 

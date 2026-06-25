@@ -93,8 +93,9 @@ PowerShell uses the same command. The E2E creates a temporary target repository,
 quick-track phase, proves the intentional validator failure, corrects it and runs strict target validation. CI runs
 this scenario on Ubuntu and Windows with Node.js 20 and 22.
 
-Fixture: [`test/fixtures/quick-path/`](../../test/fixtures/quick-path/). Static demo:
-[demo.md](demo.md). Pilot notes: [pilot-findings.md](pilot-findings.md). Future pilots use the common
+Fixture: [`test/fixtures/quick-path/`](../../test/fixtures/quick-path/). Demo hub:
+[demo.md](demo.md) · [demo-script.md](demo-script.md) · [demo-transcript.md](demo-transcript.md). Pilot notes:
+[pilot-findings.md](pilot-findings.md). Future pilots use the common
 [pilot methodology](pilot-methodology.md).
 
 For the reviewed final repository rather than the phase-by-phase fixture, see the

@@ -27,7 +27,6 @@ async function main() {
     return;
   }
 
-  logHeader('QA help');
   const report = await inspectQaWorkflow(process.cwd());
 
   if (args.json) {
@@ -35,6 +34,7 @@ async function main() {
     return;
   }
 
+  logHeader('QA help');
   console.log(formatHelpReport(report, { query }));
 }
 

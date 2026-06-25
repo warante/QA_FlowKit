@@ -1,0 +1,224 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-06-25",
+  "qaFlowKitVersion": "0.5.8-beta.0",
+  "requiredBranchProtectionContexts": ["Validate starter", "Coverage", "Analyze JavaScript"],
+  "checks": [
+    {
+      "workflow": ".github/workflows/ci.yml",
+      "jobId": "npm-pack",
+      "name": "npm pack allowlist",
+      "owner": "release engineer",
+      "required": false,
+      "timeoutMinutes": 10,
+      "triage": "Package allowlist or tarball drift. Inspect npm pack output and verify package files."
+    },
+    {
+      "workflow": ".github/workflows/ci.yml",
+      "jobId": "adapter-parity",
+      "name": "adapter template parity",
+      "owner": "developer experience engineer",
+      "required": false,
+      "timeoutMinutes": 10,
+      "triage": "Root adapter copies drifted from .qa-ai/adapters. Edit templates first, then sync root copies."
+    },
+    {
+      "workflow": ".github/workflows/ci.yml",
+      "jobId": "adapter-support",
+      "name": "adapter support inventory",
+      "owner": "developer experience engineer",
+      "required": false,
+      "timeoutMinutes": 10,
+      "triage": "Adapter support manifest drifted from templates or docs. Update adapter-support.v1.json and agent-compatibility.md."
+    },
+    {
+      "workflow": ".github/workflows/ci.yml",
+      "jobId": "claude-plugin",
+      "name": "Claude plugin",
+      "owner": "developer experience engineer",
+      "required": false,
+      "timeoutMinutes": 10,
+      "triage": "Generated Claude plugin drifted or plugin structure is invalid. Rebuild/check plugin output."
+    },
+    {
+      "workflow": ".github/workflows/ci.yml",
+      "jobId": "golden-target",
+      "name": "golden target validate-target",
+      "owner": "QA automation engineer",
+      "required": false,
+      "timeoutMinutes": 15,
+      "triage": "Golden target validation failed. Inspect validate-target output and fixture expectations."
+    },
+    {
+      "workflow": ".github/workflows/ci.yml",
+      "jobId": "karate-target",
+      "name": "karate target validate-target",
+      "owner": "QA automation engineer",
+      "required": false,
+      "timeoutMinutes": 15,
+      "triage": "Karate target validation failed. Inspect Karate feature, traceability and target config errors."
+    },
+    {
+      "workflow": ".github/workflows/ci.yml",
+      "jobId": "karate-example",
+      "name": "Karate example (${{ matrix.os }})",
+      "owner": "QA automation engineer",
+      "required": false,
+      "timeoutMinutes": 20,
+      "triage": "Packed Karate example failed. Compare OS-specific runtime output and structural validation errors."
+    },
+    {
+      "workflow": ".github/workflows/ci.yml",
+      "jobId": "playwright-example",
+      "name": "Playwright example (${{ matrix.os }})",
+      "owner": "QA automation engineer",
+      "required": false,
+      "timeoutMinutes": 20,
+      "triage": "Packed Playwright example failed. Inspect app startup, Playwright runtime and strict target validation."
+    },
+    {
+      "workflow": ".github/workflows/ci.yml",
+      "jobId": "mobile-example",
+      "name": "Maestro + Karate mobile example (${{ matrix.os }})",
+      "owner": "QA automation engineer",
+      "required": false,
+      "timeoutMinutes": 20,
+      "triage": "Mobile structural/runtime check failed. Inspect Maestro validation and Karate API output."
+    },
+    {
+      "workflow": ".github/workflows/ci.yml",
+      "jobId": "quick-path",
+      "name": "Quick path (${{ matrix.os }}, Node ${{ matrix.node }})",
+      "owner": "QA automation engineer",
+      "required": false,
+      "timeoutMinutes": 10,
+      "triage": "Quick path regression. Inspect the intentional failure/correction sequence and target validation."
+    },
+    {
+      "workflow": ".github/workflows/ci.yml",
+      "jobId": "manual-example",
+      "name": "Manual example (${{ matrix.os }}, Node ${{ matrix.node }})",
+      "owner": "QA automation engineer",
+      "required": false,
+      "timeoutMinutes": 10,
+      "triage": "Manual-only packed example failed. Inspect init, generated artifacts and strict validation output."
+    },
+    {
+      "workflow": ".github/workflows/ci.yml",
+      "jobId": "update-migration",
+      "name": "Update migration (${{ matrix.os }}, Node ${{ matrix.node }})",
+      "owner": "release engineer",
+      "required": false,
+      "timeoutMinutes": 15,
+      "triage": "Beta-to-1.0 update migration failed. Inspect preserved paths, legacy config keys and active run state."
+    },
+    {
+      "workflow": ".github/workflows/ci.yml",
+      "jobId": "clean-install",
+      "name": "Clean install (${{ matrix.os }}, Node ${{ matrix.node }})",
+      "owner": "release engineer",
+      "required": false,
+      "timeoutMinutes": 15,
+      "triage": "Packed tarball clean install (E2E-06) failed. Inspect allowlist drift, primary CLI commands and folder-copy fallback."
+    },
+    {
+      "workflow": ".github/workflows/ci.yml",
+      "jobId": "adversarial-failure",
+      "name": "Adversarial failure paths (${{ matrix.os }}, Node ${{ matrix.node }})",
+      "owner": "QA automation engineer",
+      "required": false,
+      "timeoutMinutes": 15,
+      "triage": "E2E-08 adversarial paths failed. Inspect path escape, secret redaction, corrupt state and clean manifest handling."
+    },
+    {
+      "workflow": ".github/workflows/ci.yml",
+      "jobId": "release-dry-run",
+      "name": "Release dry-run (E2E-09)",
+      "owner": "release engineer",
+      "required": false,
+      "timeoutMinutes": 15,
+      "triage": "E2E-09 release dry-run failed. Inspect dist-tag policy, pack allowlist and post-publish install smoke."
+    },
+    {
+      "workflow": ".github/workflows/ci.yml",
+      "jobId": "stable-config-rehearsal",
+      "name": "Stable config rehearsal (TASK-083)",
+      "owner": "release engineer",
+      "required": false,
+      "timeoutMinutes": 15,
+      "triage": "TASK-083 stable config rehearsal failed. Inspect prepared stable policy, dist-tag latest mapping and pack smoke."
+    },
+    {
+      "workflow": ".github/workflows/ci.yml",
+      "jobId": "stable-release-pr-rehearsal",
+      "name": "Stable Release PR rehearsal (TASK-084)",
+      "owner": "release engineer",
+      "required": false,
+      "timeoutMinutes": 15,
+      "triage": "TASK-084 Release PR rehearsal failed. Inspect review paths, release notes template links and publish workflow readiness."
+    },
+    {
+      "workflow": ".github/workflows/ci.yml",
+      "jobId": "validate-starter",
+      "name": "Validate starter",
+      "owner": "release engineer",
+      "required": true,
+      "timeoutMinutes": 25,
+      "triage": "Canonical starter gate failed. Use the failing named step to route docs, contracts, lint, E2E or smoke issues."
+    },
+    {
+      "workflow": ".github/workflows/ci.yml",
+      "jobId": "coverage",
+      "name": "Coverage",
+      "owner": "QA automation engineer",
+      "required": true,
+      "timeoutMinutes": 15,
+      "triage": "Validator/harness coverage dropped below threshold. Add focused tests or intentionally update coverage policy."
+    },
+    {
+      "workflow": ".github/workflows/ci.yml",
+      "jobId": "validate",
+      "name": "Validate (${{ matrix.os }}, Node ${{ matrix.node }})",
+      "owner": "release engineer",
+      "required": false,
+      "timeoutMinutes": 25,
+      "triage": "Matrix validation failed. Compare OS/Node differences and the failing named validation step."
+    },
+    {
+      "workflow": ".github/workflows/codeql.yml",
+      "jobId": "analyze",
+      "name": "Analyze JavaScript",
+      "owner": "security engineer",
+      "required": true,
+      "timeoutMinutes": 15,
+      "triage": "CodeQL analysis failed or found an alert. Inspect the Security tab and query output."
+    }
+  ],
+  "scheduledChecks": [
+    {
+      "workflow": ".github/workflows/rc-post-publish.yml",
+      "jobId": "validate-rc",
+      "name": "RC post-publish (${{ inputs.version }})",
+      "owner": "release engineer",
+      "timeoutMinutes": 20,
+      "triage": "Live RC post-publish smoke failed. Inspect dist-tag rc, clean install and oldest-supported-beta update path."
+    },
+    {
+      "workflow": ".github/workflows/stable-post-publish.yml",
+      "jobId": "validate-stable",
+      "name": "Stable post-publish (${{ inputs.version }})",
+      "owner": "release engineer",
+      "timeoutMinutes": 25,
+      "triage": "Live stable post-publish smoke failed. Inspect dist-tag latest, pack allowlist, clean install and beta update path."
+    },
+    {
+      "workflow": ".github/workflows/example-compatibility.yml",
+      "jobId": "validate-examples",
+      "name": "Examples (${{ matrix.os }}, Node ${{ matrix.node }}, ${{ inputs.channel || 'beta' }})",
+      "owner": "release engineer",
+      "timeoutMinutes": 15,
+      "artifact": "example-compatibility-${{ matrix.os }}-node-${{ matrix.node }}-${{ inputs.channel || 'beta' }}",
+      "triage": "Scheduled channel compatibility failed. Download compatibility-report.json and compare channel, OS and Node."
+    }
+  ]
+}

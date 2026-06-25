@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "oldestSupportedBeta": "0.5.0-beta.0",
+  "marker": "QA_FLOWKIT_MIGRATION_FIXTURE_MARKER",
+  "paths": [
+    "qa-ai.config.yaml",
+    "qa-ai-output/user-preserved-artifact.md",
+    "features/functional/RF-101-TC-001-login.feature",
+    ".qa-ai/config-profiles/team-profile.yaml",
+    ".qa-ai/state/preserved-marker.json"
+  ]
+}

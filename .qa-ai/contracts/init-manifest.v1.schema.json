@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/warante/QA_FlowKit/.qa-ai/contracts/init-manifest.v1.schema.json",
+  "title": "QA FlowKit init manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "entries"],
+  "properties": {
+    "version": { "type": "integer", "enum": [1] },
+    "createdAt": { "type": "string" },
+    "updatedAt": { "type": "string" },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "type", "category", "source"],
+        "properties": {
+          "path": { "type": "string" },
+          "type": { "type": "string", "enum": ["file", "directory"] },
+          "category": { "type": "string" },
+          "source": { "type": "string" },
+          "sha256": { "type": "string" },
+          "createdAt": { "type": "string" },
+          "updatedAt": { "type": "string" }
+        }
+      }
+    }
+  }
+}

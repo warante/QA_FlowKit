@@ -1,6 +1,6 @@
 # Epic 19 - 1.0 Release Candidate and Readiness
 
-**Status:** Planned
+**Status:** In progress
 **Milestone:** M6
 **Accountable:** Release engineer
 **Contributors:** All profiles; final approval by product manager, engineering lead, QA lead, security engineer and maintainer
@@ -14,6 +14,8 @@ stable release.
 
 **Owner:** QA lead
 **Depends on:** Epics 13-18
+
+**Status:** In validation
 
 Subtasks:
 
@@ -38,10 +40,22 @@ Acceptance:
 
 - Cross-functional go/no-go record is approved for RC creation.
 
+Implementation evidence:
+
+- Readiness audit: `docs/qa-ai/readiness-audit.md` and `docs/qa-ai/readiness-audit.v1.json`.
+- Open risk register: `docs/qa-ai/open-risk-register.v1.json`.
+- Verification: `npm run test:readiness-audit`, `npm run test:readiness-audit:unit`, included in
+  `npm run validate:oss-extraction`.
+- Engineering REVIEW-CHECKLIST pass recorded on 2026-06-25 (`PASS_WITH_ACTIONS`).
+- Pending human gates: independent checklist pass, non-author migration walkthrough, cross-functional sign-offs in
+  `readiness-audit.v1.json`, maintainer security settings per `security-readiness.md`.
+
 ## TASK-079 - Rehearse stable release configuration
 
 **Owner:** Release engineer
 **Depends on:** TASK-078
+
+**Status:** In validation
 
 Subtasks:
 
@@ -67,10 +81,25 @@ Acceptance:
 - Release configuration review shows RC semver would publish to `rc`, then stable semver would publish to `latest`
   exactly once after a separately approved configuration change.
 
+Implementation evidence:
+
+- Prepared policies: `.release-please-config.rc.json` (rc) and `.release-please-config.stable.json` (latest); active
+  `.release-please-config.json` remains **beta** until RC transition PR.
+- Dist-tag helper: `.github/scripts/lib/npm-dist-tag.mjs` (parity with publish workflow bash).
+- Policy verification: `.github/scripts/verify-release-policy.mjs`, `npm run test:release-policy`.
+- E2E-09 dry-run: `.github/scripts/run-release-dry-run-validation.mjs`, CI job `release-dry-run`,
+  `npm run test:e2e-release-dry-run`.
+- Documentation: `docs/qa-ai/beta-to-rc-release.md`, updates to `release-checklist.md`.
+- `run-release-please.mjs` supports `RELEASE_PLEASE_CONFIG_FILE` for RC rehearsal.
+- Validation passed: `npm run test:release-policy`, `npm run test:release-policy:unit`,
+  `npm run test:e2e-release-dry-run`.
+- Pending human gate: confirm npm Trusted Publishing for `release-please.yml` (see `security-readiness.md`).
+
 ## TASK-080 - Publish and validate `1.0.0-rc`
 
 **Owner:** Release engineer
 **Depends on:** TASK-079
+**Status:** In validation (automation ready; live publish pending maintainer merge of RC config)
 
 Subtasks:
 
@@ -88,10 +117,21 @@ Acceptance:
 
 - Published RC passes E2E-01 through E2E-09 as applicable.
 
+**Evidence (source repo):**
+
+- Post-publish validator: `.github/scripts/run-rc-post-publish-validation.mjs` (`--version` / `--local-simulation`).
+- Unit tests: `.github/scripts/test-rc-post-publish.mjs` → `npm run test:rc-post-publish:unit`.
+- Local rehearsal: `npm run test:rc-post-publish -- --local-simulation` (included in `validate:oss-extraction`).
+- Workflows: `release-please.yml` (automatic RC path), `rc-post-publish.yml` (`workflow_dispatch`).
+- Docs: `docs/qa-ai/rc-known-limitations.md`, `docs/qa-ai/rc-release-notes.template.md`, `beta-to-1.0-migration.md` (`@rc`).
+- Feedback: `.github/ISSUE_TEMPLATE/rc-feedback.yml`.
+- **Pending human:** merge `.release-please-config.rc.json`, merge Release PR, run example-compatibility with `rc`, open RC feedback issue.
+
 ## TASK-081 - Run the RC soak and defect closure
 
 **Owner:** Product manager
 **Depends on:** TASK-080
+**Status:** In validation (soak tracking automation ready; awaiting first published RC start)
 
 Subtasks:
 
@@ -115,10 +155,20 @@ Acceptance:
 - No unresolved P0/P1 issue.
 - No contract-changing fix has landed without a completed renewed soak.
 
+**Evidence (source repo):**
+
+- Soak state artifact: `docs/qa-ai/rc-soak-status.v1.json`.
+- Verification script: `.github/scripts/verify-rc-soak-status.mjs` → `npm run test:rc-soak`.
+- Unit tests: `.github/scripts/test-rc-soak-status.mjs` → `npm run test:rc-soak:unit`.
+- Documentation: `docs/qa-ai/beta-to-rc-release.md` (TASK-081 checklist), `docs/qa-ai/release-checklist.md` (`rc` dist-tag convention).
+- Included in `npm run validate:oss-extraction`.
+- **Pending human:** start soak after first `1.0.0-rc.N`, keep issue triage cadence, record near-end clean-install/update reruns, finalize sign-offs.
+
 ## TASK-082 - Approve stable release
 
 **Owner:** Maintainer
 **Depends on:** TASK-081
+**Status:** In validation (approval record ready; awaiting completed soak and sign-offs)
 
 Subtasks:
 
@@ -135,6 +185,14 @@ Documentation:
 Acceptance:
 
 - M6 gate passes and Epic 20 is unblocked.
+
+**Evidence (source repo):**
+
+- Approval record: `docs/qa-ai/stable-release-approval.v1.json`, `docs/qa-ai/stable-release-approval.md`.
+- Verification: `.github/scripts/verify-stable-release-approval.mjs` → `npm run test:stable-release-approval`.
+- Unit tests: `.github/scripts/test-stable-release-approval.mjs` → `npm run test:stable-release-approval:unit`.
+- Included in `npm run validate:oss-extraction`.
+- **Pending human:** complete TASK-081 soak, confirm security/npm settings, record sign-offs, set `approved` + `epic20Unblocked`.
 
 ## Epic exit criteria
 

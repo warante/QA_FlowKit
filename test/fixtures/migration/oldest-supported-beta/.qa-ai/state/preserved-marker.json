@@ -1,0 +1,4 @@
+{
+  "marker": "QA_FLOWKIT_MIGRATION_FIXTURE_MARKER",
+  "note": "Custom state file that must survive update."
+}

@@ -37,6 +37,8 @@ All commands except `init` require `.qa-ai/` in the target repository and delega
 - Existing adapters remain valid.
 - `update` replaces only `.qa-ai/`, preserving `.qa-ai/state/` and `.qa-ai/config-profiles/`.
 - The manual folder-copy flow remains supported when npm is not available.
+- E2E-06 (`npm run test:e2e-clean-install`) verifies packed tarball install, primary stable CLI commands, spaced and
+  non-ASCII paths, and offline folder-copy init in CI on Ubuntu and Windows.
 
 ## Release path
 

@@ -138,6 +138,9 @@ Safety principles (detailed in `.qa-ai/rules/` — start at `.qa-ai/rules/README
 - Modified generated files are protected by hash checks unless `--include-modified` is explicitly passed.
 - Secrets are never stored in `.qa-ai/` or generated repository files.
 
+The security boundary, assets, abuse cases and accepted residual risks are tracked in the
+[Threat Model](threat-model.md).
+
 ## Init manifest
 
 The init manifest is generated in the target repository:

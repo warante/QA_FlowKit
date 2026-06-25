@@ -32,7 +32,9 @@ CI runs [`.github/scripts/verify-adapter-parity.mjs`](.github/scripts/verify-ada
 4. Add validation logic when adding a new rule.
 5. Follow the lifecycle and version-reference rules in [stability-policy.md](docs/qa-ai/stability-policy.md).
 6. Run `npm run docs:check` and `npm run validate:oss-extraction` locally.
-7. Open a PR with a clear summary and manual validation steps.
+7. When editing workflows or release gates, update [`docs/qa-ai/required-checks.v1.json`](docs/qa-ai/required-checks.v1.json)
+   and confirm `npm run test:required-checks` passes.
+8. Open a PR with a clear summary and manual validation steps.
 
 Changes under `examples/`, presets or target validators must also keep
 [`examples/compatibility.json`](examples/compatibility.json) current. Run:

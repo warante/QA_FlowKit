@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 2,
+  "runId": "unsupported-run-state",
+  "workflowVersion": 1,
+  "rfId": null,
+  "track": "quick",
+  "status": "active",
+  "activePhaseId": null,
+  "phases": {},
+  "approvals": [],
+  "createdAt": "2026-06-25T12:00:00.000Z",
+  "updatedAt": "2026-06-25T12:00:00.000Z"
+}

@@ -1,7 +1,8 @@
 #!/usr/bin/env node
+import fs from 'node:fs/promises';
 import path from 'node:path';
-import { validateConfigFile } from './lib/config-schema.mjs';
-import { logHeader, parseArgs } from './lib/utils.mjs';
+import { validateConfigContractContent } from './lib/contract-schemas.mjs';
+import { logHeader, parseArgs, pathExists } from './lib/utils.mjs';
 
 const args = parseArgs(process.argv);
 
@@ -27,32 +28,43 @@ async function main() {
   const configPath = args.config
     ? path.resolve(process.cwd(), String(args.config))
     : path.join(process.cwd(), 'qa-ai.config.yaml');
-  const result = await validateConfigFile(process.cwd(), configPath);
-  const allowMissing = Boolean(args['allow-missing']);
-  const missingConfig = result.errors.some((error) => error.includes('file is missing'));
-  const outputResult =
-    allowMissing && missingConfig
-      ? {
-          ok: true,
-          skipped: true,
-          errors: []
-        }
-      : result;
+
+  if (!(await pathExists(configPath))) {
+    const result = {
+      ok: false,
+      errors: [`${path.relative(process.cwd(), configPath) || configPath}: file is missing`]
+    };
+    const allowMissing = Boolean(args['allow-missing']);
+    const outputResult = allowMissing ? { ok: true, skipped: true, errors: [] } : result;
+    if (args.json) {
+      console.log(JSON.stringify(outputResult, null, 2));
+    } else {
+      logHeader('QA FlowKit config validator');
+      if (outputResult.ok && outputResult.skipped) {
+        console.log('Skipping config validation (missing qa-ai.config.yaml under --allow-missing).');
+      } else {
+        for (const error of result.errors) console.log(`[FAIL] ${error}`);
+      }
+    }
+    if (!outputResult.ok) process.exit(1);
+    return;
+  }
+
+  const content = await fs.readFile(configPath, 'utf8');
+  const result = await validateConfigContractContent(content, process.cwd(), configPath);
 
   if (args.json) {
-    console.log(JSON.stringify(outputResult, null, 2));
+    console.log(JSON.stringify(result, null, 2));
   } else {
     logHeader('QA FlowKit config validator');
-    if (outputResult.ok && outputResult.skipped) {
-      console.log('Skipping config validation (missing qa-ai.config.yaml under --allow-missing).');
-    } else if (outputResult.ok) {
+    if (result.ok) {
       console.log('[PASS] qa-ai.config.yaml is valid.');
     } else {
-      for (const error of outputResult.errors) console.log(`[FAIL] ${error}`);
+      for (const error of result.errors) console.log(`[FAIL] ${error}`);
     }
   }
 
-  if (!outputResult.ok) process.exit(1);
+  if (!result.ok) process.exit(1);
 }
 
 main().catch((error) => {

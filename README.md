@@ -62,7 +62,18 @@ instructions (`AGENTS.md`, `GEMINI.md`, `.codex/README.md`, etc.).
 During Beta, pin reproducible setup or CI to `npx qa-flowkit@beta ...` when you need the beta channel explicitly.
 After the agent creates or updates QA artifacts, run `npx qa-flowkit validate-target` as the repository quality gate.
 
-The deterministic RF-101 demo, including an intentional validator failure and correction, is documented in
+## Demo
+
+| Format                                                   | Description                                                |
+| -------------------------------------------------------- | ---------------------------------------------------------- |
+| [Static walkthrough](docs/qa-ai/demo.md)                 | RF-101 story, fixtures and expected E2E output             |
+| [Recording script](docs/qa-ai/demo-script.md)            | Two-minute terminal demo script for maintainers            |
+| [Transcript and captions](docs/qa-ai/demo-transcript.md) | Alt text, captions and static fallback                     |
+| `npm run test:e2e-quick`                                 | One-command automated replay from a clean temporary target |
+
+A recorded capture can be published from the script when ready; the static path is the supported fallback today.
+
+The deterministic RF-101 demo, including an intentional validator failure and correction, is also documented in
 [Getting Started](docs/qa-ai/getting-started.md#reproduce-the-verified-path). From this source repository you can
 replay it:
 
@@ -205,7 +216,7 @@ npx qa-flowkit validate-target
 ```
 
 `update` replaces the framework folder while preserving `.qa-ai/state/`, config profiles and user-owned artifacts
-outside `.qa-ai/`. Review the [upgrade and migration guide](docs/qa-ai/getting-started.md#upgrading-an-existing-target).
+outside `.qa-ai/`. Review the [beta-to-1.0 migration guide](docs/qa-ai/beta-to-1.0-migration.md).
 
 ## Documentation
 
@@ -223,6 +234,7 @@ outside `.qa-ai/`. Review the [upgrade and migration guide](docs/qa-ai/getting-s
 | Troubleshooting              | [Troubleshooting](docs/qa-ai/troubleshooting.md)                            |
 | Product stability            | [Stability Policy](docs/qa-ai/stability-policy.md)                          |
 | Public contracts             | [Contract Inventory](docs/qa-ai/public-contracts.md)                        |
+| Threat model                 | [Threat Model](docs/qa-ai/threat-model.md)                                  |
 | Pilot measurement            | [Pilot Methodology](docs/qa-ai/pilot-methodology.md)                        |
 | External requirements intake | [External Intake](docs/qa-ai/external-intake.md)                            |
 | Governed test sync           | [Governed Sync](docs/qa-ai/governed-sync.md)                                |

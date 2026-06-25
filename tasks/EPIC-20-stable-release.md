@@ -14,7 +14,8 @@ from beta to stable support.
 ## TASK-083 - Merge the stable release configuration
 
 **Owner:** Maintainer
-**Depends on:** TASK-082
+**Depends on:** TASK-082 (`docs/qa-ai/stable-release-approval.v1.json` → `status: approved`, `epic20Unblocked: true`)
+**Status:** In validation (stable policy prepared; merge pending TASK-082 + maintainer PR)
 
 Subtasks:
 
@@ -32,10 +33,22 @@ Acceptance:
 
 - Release Please is configured to propose `1.0.0` and publish stable semver to `latest`.
 
+**Evidence (source repo):**
+
+- Prepared policy: `.release-please-config.stable.json` (active remains beta until merge).
+- Config record: `docs/qa-ai/stable-release-config.v1.json`, `docs/qa-ai/stable-release-config.md`.
+- Verification: `.github/scripts/verify-stable-release-config.mjs` → `npm run test:stable-release-config`.
+- Rehearsal: `.github/scripts/run-stable-config-rehearsal.mjs` → `npm run test:e2e-stable-config-rehearsal`.
+- CI job: `stable-config-rehearsal` in `.github/workflows/ci.yml`.
+- Helpers: `.github/scripts/lib/stable-release-config.mjs`.
+- Included in `npm run validate:oss-extraction`.
+- **Pending human:** TASK-082 approval, merge stable config PR, update record to `merged`, green CI on `main`.
+
 ## TASK-084 - Review and merge the `1.0.0` Release PR
 
 **Owner:** Maintainer
 **Depends on:** TASK-083
+**Status:** In validation (review assets ready; awaiting release-please Release PR)
 
 Subtasks:
 
@@ -53,10 +66,22 @@ Acceptance:
 
 - Automated workflow creates one GitHub Release/tag and starts one npm publish.
 
+**Evidence (source repo):**
+
+- Release PR record: `docs/qa-ai/stable-release-pr.v1.json`, `docs/qa-ai/stable-release-pr.md`.
+- Release notes template: `docs/qa-ai/stable-release-notes.template.md`.
+- Verification: `.github/scripts/verify-stable-release-pr.mjs` → `npm run test:stable-release-pr`.
+- Rehearsal: `.github/scripts/run-stable-release-pr-rehearsal.mjs` → `npm run test:e2e-stable-release-pr-rehearsal`.
+- Helpers: `.github/scripts/lib/stable-release-pr.mjs`.
+- CI job: `stable-release-pr-rehearsal` in `.github/workflows/ci.yml`.
+- Included in `npm run validate:oss-extraction`.
+- **Pending human:** merge TASK-083 config, review Release PR `chore: release 1.0.0`, merge PR, update record to `merged`.
+
 ## TASK-085 - Perform post-publish verification
 
 **Owner:** Release engineer
 **Depends on:** TASK-084
+**Status:** In validation (automation ready; live stable publish pending)
 
 Subtasks:
 
@@ -76,10 +101,22 @@ Acceptance:
 
 - M7 gate passes; all post-publish checks succeed.
 
+**Evidence (source repo):**
+
+- Post-publish validator: `.github/scripts/run-stable-post-publish-validation.mjs` (`--version` / `--local-simulation`).
+- Status record: `docs/qa-ai/stable-post-publish.v1.json`, `docs/qa-ai/stable-post-publish.md`.
+- Unit tests: `.github/scripts/test-stable-post-publish.mjs` → `npm run test:stable-post-publish:unit`.
+- Status verifier: `npm run test:stable-post-publish-status`.
+- Workflows: `release-please.yml` (automatic stable path), `stable-post-publish.yml` (`workflow_dispatch`).
+- Helpers: `.github/scripts/lib/stable-version.mjs`.
+- Included in `npm run validate:oss-extraction`.
+- **Pending human:** publish `1.0.0` to `latest`, run example-compatibility channel `latest`, update record to `completed`.
+
 ## TASK-086 - Announce stable availability
 
 **Owner:** Developer relations
 **Depends on:** TASK-085
+**Status:** In validation (announcement assets ready; public README still Beta until publish)
 
 Subtasks:
 
@@ -95,6 +132,18 @@ Documentation:
 Acceptance:
 
 - All public entry points use stable commands and accurate support claims.
+
+**Evidence (source repo):**
+
+- Announcement record: `docs/qa-ai/stable-announcement.v1.json`, `docs/qa-ai/stable-announcement.md`.
+- Template: `docs/qa-ai/stable-announcement.template.md`.
+- Entrypoint flip list: `docs/qa-ai/stable-public-entrypoints.v1.json`.
+- Stable policy text: `docs/qa-ai/stability-policy-stable.md`.
+- Feedback: `.github/ISSUE_TEMPLATE/stable-feedback.yml`.
+- Verification: `.github/scripts/verify-stable-announcement.mjs` → `npm run test:stable-announcement`.
+- Unit tests: `.github/scripts/test-stable-announcement.mjs`.
+- Included in `npm run validate:oss-extraction`.
+- **Pending human:** TASK-085 complete, flip README/README.es/SECURITY per entrypoints manifest, publish announcement, set `status: published`.
 
 ## TASK-087 - Run the 30-day post-release review
 

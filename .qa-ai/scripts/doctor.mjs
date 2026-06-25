@@ -14,10 +14,12 @@ import {
   LEGACY_ARTIFACT_ALIASES,
   loadQaAiConfig,
   parseArgs,
+  parseSimpleYaml,
   pathExists,
   resolveRepoPath,
   logHeader
 } from './lib/utils.mjs';
+import { collectLegacyConfigSignals, LEGACY_CONFIG_MIGRATION_DOC } from './lib/config-legacy.mjs';
 
 const cwd = process.cwd();
 const args = parseArgs(process.argv);
@@ -659,6 +661,17 @@ async function main() {
       for (const conflict of inferredConflicts) {
         console.log(`[FAIL] inferred acceptance criteria policy: conflicting values at ${conflict}`);
       }
+    }
+
+    const rawConfig = parseSimpleYaml(configInfo.content, configInfo.path);
+    const legacyConfigKeys = collectLegacyConfigSignals(rawConfig);
+    if (legacyConfigKeys.length === 0) {
+      console.log('[PASS] config legacy keys: none detected');
+    } else {
+      warned += 1;
+      console.log(
+        `[WARN] config legacy keys: ${legacyConfigKeys.join(', ')}. Migrate to requirements.inferredAcceptanceCriteria; see ${LEGACY_CONFIG_MIGRATION_DOC}.`
+      );
     }
 
     const changeMeKeys = findChangeMeKeys(configInfo.content);

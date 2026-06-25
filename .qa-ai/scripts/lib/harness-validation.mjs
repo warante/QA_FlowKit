@@ -2,7 +2,7 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { usesKarate } from './automation-framework.mjs';
 import { normalizeGateDecision } from './release-gate.mjs';
-import { scanTextForSecrets } from './secret-patterns.mjs';
+import { redactSecretsInText, scanTextForSecrets } from './secret-patterns.mjs';
 import { hashFile, parseSimpleYaml, pathExists, readText, resolveRepoPath } from './utils.mjs';
 import { resolveContractPath, resolveOutputSpec } from './harness-contract.mjs';
 import {
@@ -21,13 +21,7 @@ export const DEFAULT_MAX_VALIDATION_ATTEMPTS = 2;
 export function redactDiagnostics(text) {
   const findings = scanTextForSecrets(text);
   if (findings.length === 0) return String(text || '').slice(0, 4000);
-  let redacted = String(text || '');
-  for (const finding of findings) {
-    if (finding.excerpt) {
-      redacted = redacted.replaceAll(finding.excerpt, '[REDACTED]');
-    }
-  }
-  return redacted.slice(0, 4000);
+  return redactSecretsInText(text).slice(0, 4000);
 }
 
 export function assertNoteHasNoSecrets(note) {

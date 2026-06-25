@@ -42,7 +42,9 @@ Use this section when a user asks to release, publish to npm, bump the package v
 
 | File                                   | Role                                                      |
 | -------------------------------------- | --------------------------------------------------------- |
-| `.release-please-config.json`          | Versioning rules, prerelease `beta`, changelog sections   |
+| `.release-please-config.json`          | Active **beta** versioning (`prerelease-type: beta`)      |
+| `.release-please-config.rc.json`       | Prepared RC policy (`prerelease-type: rc`) — merge at RC  |
+| `.release-please-config.stable.json`   | Prepared stable policy — merge after RC soak (Epic 20)    |
 | `.release-please-manifest.json`        | Last released version (release-please updates on release) |
 | `.github/workflows/release-please.yml` | Release PR + npm publish on Release PR merge              |
 | `.github/workflows/publish-npm.yml`    | Manual fallback only (`workflow_dispatch`)                |
@@ -97,21 +99,31 @@ Optional: add a classic PAT with `repo` scope as secret `RELEASE_PLEASE_TOKEN` i
 
 - [ ] Use Conventional Commit prefixes in **PR titles** (squash-merge): `feat:`, `fix:`, `docs:`, `chore:`, `ci:`, etc.
 - [ ] CI is green (includes `npm pack` allowlist check and full validation matrix).
+- [ ] Required branch protection contexts match [`ci-observability.md`](ci-observability.md): `Validate starter`,
+      `Coverage` and `Analyze JavaScript`.
+- [ ] Security readiness checks in [`security-readiness.md`](security-readiness.md) are current for the candidate commit.
+- [ ] 1.0 readiness audit in [`readiness-audit.md`](readiness-audit.md) is current and `npm run test:readiness-audit` passes.
 - [ ] No secrets in generated or committed QA artifacts.
 - [ ] If Claude plugin skills changed, `node .github/scripts/build-claude-plugin.mjs --check` passes and the generated plugin output is committed.
 
 ### Shipping a release
 
 1. Merge feature/fix PRs to `main` with conventional titles.
-2. **Release Please** opens or updates a **Release PR** (`chore: release X.Y.Z`) with bumped `package.json`, plugin version manifests, `.release-please-manifest.json`, and `CHANGELOG.md`.
-3. Review the Release PR (version bump, changelog, dist-tag implications).
-4. **Merge the Release PR** (do not squash unrelated commits into it manually).
-5. On merge, Release Please creates a **GitHub Release** + git tag and triggers the **publish** job:
+2. Complete the **pre-RC security sign-off** in [`security-readiness.md`](security-readiness.md) (human checks for branch
+   protection, GitHub Security alerts, Dependabot triage and npm Trusted Publishing).
+3. Review [`beta-to-rc-release.md`](beta-to-rc-release.md) and confirm `npm run test:e2e-release-dry-run` passes on the candidate commit.
+4. **Release Please** opens or updates a **Release PR** (`chore: release X.Y.Z`) with bumped `package.json`, plugin version manifests, `.release-please-manifest.json`, and `CHANGELOG.md`.
+5. Review the Release PR (version bump, changelog, dist-tag implications).
+6. **Merge the Release PR** (do not squash unrelated commits into it manually).
+7. On merge, Release Please creates a **GitHub Release** + git tag and triggers the **publish** job:
    - `npm ci`, lint, format check, `validate:oss-extraction`
    - `npm pack` allowlist verification
    - `npm publish --provenance` with automatic dist-tag (`alpha`, `beta`, or `latest`)
    - Post-publish: `npm view` + install smoke of the published tarball
-6. For releases with Claude plugin changes, a human maintainer submits or updates the community marketplace entry after the GitHub Release is published. Do not automate community-marketplace submission from CI.
+8. For releases with Claude plugin changes, a human maintainer submits or updates the community marketplace entry after the GitHub Release is published. Do not automate community-marketplace submission from CI.
+
+See [beta-to-rc-release.md](beta-to-rc-release.md) for RC dist-tag (`rc`), stable (`latest`) transition, TASK-082
+approval and rollback limits.
 
 ### Version conventions
 
@@ -119,6 +131,7 @@ Optional: add a classic PAT with `repo` scope as secret `RELEASE_PLEASE_TOKEN` i
 | --------------- | -------- | ------------------------------- |
 | `x.y.z-alpha.N` | `alpha`  | Early preview, API may change   |
 | `x.y.z-beta.N`  | `beta`   | Feature-complete, stabilization |
+| `x.y.z-rc.N`    | `rc`     | Release candidate soak          |
 | `x.y.z`         | `latest` | Stable, production-ready        |
 
 Prerelease series is configured in [.release-please-config.json](../../.release-please-config.json) (`prerelease: true`, `prerelease-type: beta`). See [stability-policy.md](stability-policy.md) for the beta exit checklist. To move to stable releases, set `prerelease: false` and remove `prerelease-type` when ready for `1.0.0`.
@@ -128,6 +141,7 @@ Prerelease series is configured in [.release-please-config.json](../../.release-
 - [ ] Verify `npm view qa-flowkit version` returns the new version.
 - [ ] Confirm the [GitHub Release](https://github.com/warante/QA_FlowKit/releases) notes match the changelog section.
 - [ ] For significant releases, update README badges or community notes if the stability label changed.
+- [ ] After stable `1.0.0` publish, complete [TASK-086 stable announcement](stable-announcement.md).
 
 ## Manual fallback
 

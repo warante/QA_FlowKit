@@ -1,0 +1,61 @@
+name: Stable feedback
+description: Report feedback after adopting qa-flowkit@latest stable 1.0.0.
+title: 'stable: '
+labels:
+  - stable-feedback
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form after adopting `qa-flowkit@latest` (`1.0.0+`).
+        See [stability policy (stable)](https://github.com/warante/QA_FlowKit/blob/main/docs/qa-ai/stability-policy-stable.md).
+  - type: input
+    id: version
+    attributes:
+      label: Version tested
+      placeholder: 1.0.0
+    validations:
+      required: true
+  - type: dropdown
+    id: scenario
+    attributes:
+      label: Primary scenario
+      options:
+        - Clean install (npx qa-flowkit@latest init)
+        - Update from beta or RC
+        - Quick path / manual-only workflow
+        - Standard Playwright example
+        - Karate / API example
+        - Mobile (Maestro + Karate) example
+        - Adapter bootstrap
+        - Documentation / migration guide
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: |
+        OS:
+        Node.js:
+        npm channel: latest
+    validations:
+      required: true
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Suggested severity
+      options:
+        - P0 — blocks stable adoption
+        - P1 — major workflow broken
+        - P2 — workaround exists
+        - P3 — documentation or polish
+    validations:
+      required: true

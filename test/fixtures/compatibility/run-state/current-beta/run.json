@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "runId": "RF-101-20260625120000000",
+  "workflowVersion": 1,
+  "rfId": "RF-101",
+  "track": "quick",
+  "status": "active",
+  "activePhaseId": "intake",
+  "phases": {
+    "context": {
+      "status": "skipped",
+      "attempts": 0,
+      "outputs": [],
+      "baselineOutputs": [],
+      "baselineCaptured": false,
+      "lastValidation": null,
+      "blockedReason": null,
+      "skipReason": "knowledge.enabled is false"
+    },
+    "intake": {
+      "status": "active",
+      "attempts": 0,
+      "outputs": [],
+      "baselineOutputs": [],
+      "baselineCaptured": false,
+      "lastValidation": null,
+      "blockedReason": null
+    },
+    "normalize": {
+      "status": "pending",
+      "attempts": 0,
+      "outputs": [],
+      "baselineOutputs": [],
+      "baselineCaptured": false,
+      "lastValidation": null,
+      "blockedReason": null
+    },
+    "gherkin": {
+      "status": "pending",
+      "attempts": 0,
+      "outputs": [],
+      "baselineOutputs": [],
+      "baselineCaptured": false,
+      "lastValidation": null,
+      "blockedReason": null
+    },
+    "traceability": {
+      "status": "pending",
+      "attempts": 0,
+      "outputs": [],
+      "baselineOutputs": [],
+      "baselineCaptured": false,
+      "lastValidation": null,
+      "blockedReason": null
+    },
+    "pr": {
+      "status": "pending",
+      "attempts": 0,
+      "outputs": [],
+      "baselineOutputs": [],
+      "baselineCaptured": false,
+      "lastValidation": null,
+      "blockedReason": null
+    }
+  },
+  "approvals": [],
+  "createdAt": "2026-06-25T12:00:00.000Z",
+  "updatedAt": "2026-06-25T12:00:01.000Z"
+}
