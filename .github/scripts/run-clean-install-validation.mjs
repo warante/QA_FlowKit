@@ -92,7 +92,7 @@ async function installPackedCli(targetRoot, tarball, npmCache) {
 
 async function extractTarball(tarball, extractDir) {
   await fs.mkdir(extractDir, { recursive: true });
-  run('tar', ['-xzf', tarball, '-C', extractDir]);
+  run('tar', ['-xzf', path.basename(tarball), '-C', extractDir], { cwd: path.dirname(tarball) });
   const packageDir = path.join(extractDir, 'package');
   await assertExists(packageDir, 'extracted package directory');
   return packageDir;
