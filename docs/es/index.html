@@ -280,30 +280,154 @@ abre tu CLI de IA y usa la superficie de comandos generada:
         <div class="command-groups">
           <div class="command-group">
             <h3>En tu agente IA</h3>
+            <p class="command-group-note">
+              Comandos slash generados en <code>.claude/commands/</code> o <code>.opencode/commands/</code> tras el
+              init. Cada tarjeta enlaza a la definición del comando en el framework.
+            </p>
             <div class="command-grid">
               <article class="command-card">
-                <code>/qa-help</code>
-                <p>Guía contextual — qué hacer ahora en el flujo QA.</p>
+                <a
+                  class="command-card-link"
+                  href="https://github.com/warante/QA_FlowKit/blob/main/.qa-ai/adapters/opencode/commands/qa-help.md"
+                >
+                  <code>/qa-help</code>
+                  <p>Guía contextual — qué hacer ahora en el flujo QA.</p>
+                </a>
               </article>
               <article class="command-card">
-                <code>/qa-init</code>
-                <p>Inicialización guiada de QA FlowKit dentro de la sesión del agente.</p>
+                <a
+                  class="command-card-link"
+                  href="https://github.com/warante/QA_FlowKit/blob/main/.qa-ai/adapters/opencode/commands/qa-init.md"
+                >
+                  <code>/qa-init</code>
+                  <p>Inicialización guiada de QA FlowKit dentro de la sesión del agente.</p>
+                </a>
               </article>
               <article class="command-card">
-                <code>/qa-add-tests</code>
-                <p>Añadir pruebas QA para un requisito (RF) nuevo.</p>
+                <a
+                  class="command-card-link"
+                  href="https://github.com/warante/QA_FlowKit/blob/main/.qa-ai/adapters/opencode/commands/qa-config.md"
+                >
+                  <code>/qa-config</code>
+                  <p>Importar o exportar perfiles reutilizables de <code>qa-ai.config.yaml</code>.</p>
+                </a>
               </article>
               <article class="command-card">
-                <code>/qa-full-flow</code>
-                <p>Ejecutar el flujo completo guiado de QA FlowKit de principio a fin.</p>
+                <a
+                  class="command-card-link"
+                  href="https://github.com/warante/QA_FlowKit/blob/main/.qa-ai/adapters/opencode/commands/qa-full-flow.md"
+                >
+                  <code>/qa-full-flow</code>
+                  <p>Ejecutar el flujo completo guiado de QA FlowKit de principio a fin.</p>
+                </a>
               </article>
               <article class="command-card">
-                <code>/qa-validate-features</code>
-                <p>Validar archivos Gherkin de diseño QA contra las reglas del framework.</p>
+                <a
+                  class="command-card-link"
+                  href="https://github.com/warante/QA_FlowKit/blob/main/.qa-ai/adapters/opencode/commands/qa-add-tests.md"
+                >
+                  <code>/qa-add-tests</code>
+                  <p>Añadir pruebas QA para un requisito (RF) nuevo.</p>
+                </a>
               </article>
               <article class="command-card">
-                <code>/qa-gate</code>
-                <p>Decisión de release gate para flujos del track enterprise.</p>
+                <a
+                  class="command-card-link"
+                  href="https://github.com/warante/QA_FlowKit/blob/main/.qa-ai/adapters/opencode/commands/qa-update-tests.md"
+                >
+                  <code>/qa-update-tests</code>
+                  <p>Revisar y aplicar actualizaciones aprobadas a pruebas existentes tras cambios en el RF.</p>
+                </a>
+              </article>
+              <article class="command-card">
+                <a
+                  class="command-card-link"
+                  href="https://github.com/warante/QA_FlowKit/blob/main/.qa-ai/adapters/opencode/commands/qa-automation-plan.md"
+                >
+                  <code>/qa-automation-plan</code>
+                  <p>Clasificar archivos <code>.feature</code> existentes y planificar el backlog de automatización.</p>
+                </a>
+              </article>
+              <article class="command-card">
+                <a
+                  class="command-card-link"
+                  href="https://github.com/warante/QA_FlowKit/blob/main/.qa-ai/adapters/opencode/commands/qa-coverage.md"
+                >
+                  <code>/qa-coverage</code>
+                  <p>Analizar cobertura funcional entre RFs, pruebas manuales y automatizadas.</p>
+                </a>
+              </article>
+              <article class="command-card">
+                <a
+                  class="command-card-link"
+                  href="https://github.com/warante/QA_FlowKit/blob/main/.qa-ai/adapters/opencode/commands/qa-impact.md"
+                >
+                  <code>/qa-impact</code>
+                  <p>Proponer pruebas afectadas a partir de una rama, commit, PR o referencia de cambio.</p>
+                </a>
+              </article>
+              <article class="command-card">
+                <a
+                  class="command-card-link"
+                  href="https://github.com/warante/QA_FlowKit/blob/main/.qa-ai/adapters/opencode/commands/qa-quality.md"
+                >
+                  <code>/qa-quality</code>
+                  <p>Evaluar la calidad Gherkin de un RF o ruta de features.</p>
+                </a>
+              </article>
+              <article class="command-card">
+                <a
+                  class="command-card-link"
+                  href="https://github.com/warante/QA_FlowKit/blob/main/.qa-ai/adapters/opencode/commands/qa-status.md"
+                >
+                  <code>/qa-status</code>
+                  <p>Resumir configuración, artefactos, salud de features y siguientes pasos recomendados.</p>
+                </a>
+              </article>
+              <article class="command-card">
+                <a
+                  class="command-card-link"
+                  href="https://github.com/warante/QA_FlowKit/blob/main/.qa-ai/adapters/opencode/commands/qa-doctor.md"
+                >
+                  <code>/qa-doctor</code>
+                  <p>Comprobaciones de salud del framework y del repositorio objetivo.</p>
+                </a>
+              </article>
+              <article class="command-card">
+                <a
+                  class="command-card-link"
+                  href="https://github.com/warante/QA_FlowKit/blob/main/.qa-ai/adapters/opencode/commands/qa-clean.md"
+                >
+                  <code>/qa-clean</code>
+                  <p>Vista previa o ejecución de limpieza basada en manifiesto de archivos generados.</p>
+                </a>
+              </article>
+              <article class="command-card">
+                <a
+                  class="command-card-link"
+                  href="https://github.com/warante/QA_FlowKit/blob/main/.qa-ai/adapters/opencode/commands/qa-validate-features.md"
+                >
+                  <code>/qa-validate-features</code>
+                  <p>Validar archivos Gherkin de diseño QA contra las reglas del framework.</p>
+                </a>
+              </article>
+              <article class="command-card">
+                <a
+                  class="command-card-link"
+                  href="https://github.com/warante/QA_FlowKit/blob/main/.qa-ai/adapters/opencode/commands/qa-validate-karate-features.md"
+                >
+                  <code>/qa-validate-karate-features</code>
+                  <p>Validar features Karate ejecutables contra las reglas del framework.</p>
+                </a>
+              </article>
+              <article class="command-card">
+                <a
+                  class="command-card-link"
+                  href="https://github.com/warante/QA_FlowKit/blob/main/.qa-ai/adapters/opencode/commands/qa-gate.md"
+                >
+                  <code>/qa-gate</code>
+                  <p>Decisión de release gate para flujos del track enterprise.</p>
+                </a>
               </article>
             </div>
           </div>
@@ -342,9 +466,16 @@ abre tu CLI de IA y usa la superficie de comandos generada:
           </div>
         </div>
         <p class="command-note">
-          Referencia completa:
-          <a href="https://github.com/warante/QA_FlowKit/blob/main/docs/qa-ai/cli-reference.md">Referencia de la CLI</a>
-          — incluye 16 comandos <code>/qa-*</code> y validadores adicionales.
+          Referencias completas:
+          <a href="https://github.com/warante/QA_FlowKit/blob/main/docs/qa-ai/agent-compatibility.md"
+            >Comandos slash de agente</a
+          >
+          ·
+          <a href="https://github.com/warante/QA_FlowKit/blob/main/docs/qa-ai/cli-reference.md">Referencia CLI</a>
+          ·
+          <a href="https://github.com/warante/QA_FlowKit/tree/main/.qa-ai/adapters/opencode/commands"
+            >Fuentes de comandos</a
+          >
         </p>
       </section>
 
@@ -398,6 +529,9 @@ abre tu CLI de IA y usa la superficie de comandos generada:
       <div class="footer-links">
         <a href="https://github.com/warante/QA_FlowKit">Repositorio en GitHub</a>
         <a href="https://github.com/warante/QA_FlowKit/blob/main/README.es.md">README</a>
+        <a href="https://github.com/warante/QA_FlowKit/blob/main/docs/qa-ai/agent-compatibility.md"
+          >Comandos de agente</a
+        >
         <a href="https://github.com/warante/QA_FlowKit/blob/main/docs/qa-ai/cli-reference.md">Referencia CLI</a>
         <a href="https://github.com/warante/QA_FlowKit/blob/main/docs/qa-ai/demo.md">Demo RF-101</a>
       </div>

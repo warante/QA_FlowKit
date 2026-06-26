@@ -612,6 +612,29 @@ code {
   font-size: 0.92rem;
 }
 
+.command-group-note {
+  margin: 0 0 18px;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.command-card-link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.command-card-link:hover code,
+.command-card-link:focus-visible code {
+  color: var(--accent);
+}
+
+.command-card-link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
 .command-note {
   margin-top: 28px;
   padding: 18px 22px;
