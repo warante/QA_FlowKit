@@ -2,7 +2,7 @@
 
 Machine-readable record: [`stable-release-config.v1.json`](stable-release-config.v1.json).
 
-**Status:** `prepared` (active config remains **beta** until maintainer merge)  
+**Status:** `prepared` (active config remains **rc** until maintainer merge of stable policy)  
 **Depends on:** [`stable-release-approval.v1.json`](stable-release-approval.v1.json) → `approved`
 
 ## Merge procedure (maintainers)

@@ -57,14 +57,15 @@ export async function verifyReleasePolicy({ root = repoRoot } = {}) {
   ]);
   const versionedManifests = await collectVersionedManifestPaths(root);
 
-  assert(active.prerelease === true, 'active config must remain prerelease during beta', errors);
-  assert(
-    active['prerelease-type'] === 'beta',
-    'active config must use prerelease-type beta until RC transition PR',
-    errors
-  );
+  assert(active.prerelease === true, 'active config must remain prerelease during RC line', errors);
+  assert(active['prerelease-type'] === 'rc', 'active config must use prerelease-type rc', errors);
   assert(rc.prerelease === true, 'RC config must keep prerelease true', errors);
   assert(rc['prerelease-type'] === 'rc', 'RC config must use prerelease-type rc', errors);
+  assert(
+    JSON.stringify(active) === JSON.stringify(rc),
+    'active config must match prepared RC config after RC transition',
+    errors
+  );
   assert(stable.prerelease === false, 'stable config must disable prerelease', errors);
   assert(stable['prerelease-type'] === undefined, 'stable config must not set prerelease-type', errors);
 
@@ -109,7 +110,7 @@ async function main() {
     for (const error of result.errors) console.error(`- ${error}`);
     process.exit(1);
   }
-  console.log('Release policy verification passed (beta active, rc/stable configs prepared).');
+  console.log('Release policy verification passed (rc active, stable config prepared).');
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

@@ -43,6 +43,9 @@ The current asset, trust-boundary and residual-risk inventory is maintained in t
 
 - Pull requests run `npm audit --audit-level=low` in [`.github/workflows/ci.yml`](.github/workflows/ci.yml), so any
   reported low, moderate, high or critical vulnerability fails the audit step.
+- [`.npmrc`](.npmrc) sets `min-release-age=2`, so npm refuses package versions published less than two days ago.
+  CI upgrades to npm CLI `>= 11.10.0` before `npm ci` so the policy is enforced (see
+  [security readiness](docs/qa-ai/security-readiness.md)).
 - `validate-target` with `doctor --strict` scans `qa-ai-output/` and `features/` for secret-like values (see `.qa-ai/scripts/lib/secret-patterns.mjs`).
 - The golden target fixture in `test/fixtures/golden-target/` is validated in CI without permissive allow flags.
 

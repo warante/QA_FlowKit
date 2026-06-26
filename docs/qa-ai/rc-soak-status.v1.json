@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-06-25",
+  "generatedAt": "2026-06-26",
   "qaFlowKitVersion": "0.5.9-beta.0",
   "task": "TASK-081",
   "status": "planned",
@@ -27,10 +27,29 @@
     "openIssues": [],
     "knownIssuesSummary": "Pending first RC publish."
   },
+  "earlySoakHumanGates": [
+    {
+      "id": "P1-002",
+      "title": "Independent REVIEW-CHECKLIST pass",
+      "status": "planned",
+      "targetVersion": "1.0.0-rc",
+      "owner": "QA lead",
+      "dueBefore": "TASK-082",
+      "evidence": "tasks/REVIEW-CHECKLIST.md"
+    },
+    {
+      "id": "P1-003",
+      "title": "Non-author beta-to-1.0 migration walkthrough",
+      "status": "planned",
+      "targetVersion": "1.0.0-rc",
+      "owner": "QA lead",
+      "dueBefore": "TASK-082",
+      "evidence": "docs/qa-ai/beta-to-1.0-migration.md (npx qa-flowkit@rc)"
+    }
+  ],
   "riskAcceptance": {
     "openP0": [],
     "openP1": [
-      "P1-001",
       "P1-002",
       "P1-003"
     ],
@@ -38,13 +57,6 @@
       "P2-001",
       "P3-001"
     ],
-    "notes": "Update after RC feedback triage."
-  },
-  "signOffs": {
-    "productManager": "pending",
-    "engineeringLead": "pending",
-    "qaLead": "pending",
-    "securityEngineer": "pending",
-    "maintainer": "pending"
+    "notes": "P1-002 and P1-003 intentionally deferred to early RC soak; close before TASK-082. Cross-functional sign-offs for stable 1.0.0 are recorded in stable-release-approval.v1.json."
   }
 }

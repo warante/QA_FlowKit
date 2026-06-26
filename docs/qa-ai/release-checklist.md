@@ -42,8 +42,8 @@ Use this section when a user asks to release, publish to npm, bump the package v
 
 | File                                   | Role                                                      |
 | -------------------------------------- | --------------------------------------------------------- |
-| `.release-please-config.json`          | Active **beta** versioning (`prerelease-type: beta`)      |
-| `.release-please-config.rc.json`       | Prepared RC policy (`prerelease-type: rc`) — merge at RC  |
+| `.release-please-config.json`          | Active **RC** versioning (`prerelease-type: rc`)          |
+| `.release-please-config.rc.json`       | RC policy reference (matches active after RC transition)  |
 | `.release-please-config.stable.json`   | Prepared stable policy — merge after RC soak (Epic 20)    |
 | `.release-please-manifest.json`        | Last released version (release-please updates on release) |
 | `.github/workflows/release-please.yml` | Release PR + npm publish on Release PR merge              |
@@ -134,7 +134,7 @@ approval and rollback limits.
 | `x.y.z-rc.N`    | `rc`     | Release candidate soak          |
 | `x.y.z`         | `latest` | Stable, production-ready        |
 
-Prerelease series is configured in [.release-please-config.json](../../.release-please-config.json) (`prerelease: true`, `prerelease-type: beta`). See [stability-policy.md](stability-policy.md) for the beta exit checklist. To move to stable releases, set `prerelease: false` and remove `prerelease-type` when ready for `1.0.0`.
+Prerelease series is configured in [.release-please-config.json](../../.release-please-config.json) (`prerelease: true`, `prerelease-type: rc`). See [beta-to-rc-release.md](beta-to-rc-release.md) for RC publish and [stability-policy.md](stability-policy.md) for the stable transition after soak.
 
 ### After publishing
 

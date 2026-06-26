@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-06-25",
+  "generatedAt": "2026-06-26",
   "qaFlowKitVersion": "0.5.9-beta.0",
   "owner": "release engineer",
   "risks": [
@@ -9,11 +9,11 @@
       "severity": "P1",
       "title": "GitHub Private Vulnerability Reporting not confirmed enabled",
       "epic": "Epic 13 / TASK-053",
-      "status": "open",
+      "status": "closed",
       "mitigation": "SECURITY.md documents GitHub advisory reporting and a private maintainer contact fallback.",
       "owner": "maintainer",
       "targetMilestone": "M6",
-      "evidence": "tasks/EPIC-13-product-baseline.md"
+      "evidence": "gh api repos/warante/QA_FlowKit/private-vulnerability-reporting returned {\"enabled\":true} on 2026-06-26; public /security/advisories shows Report a vulnerability"
     },
     {
       "id": "P1-002",
@@ -21,10 +21,10 @@
       "title": "Second independent REVIEW-CHECKLIST pass pending",
       "epic": "Epic 19 / TASK-078",
       "status": "open",
-      "mitigation": "First engineering pass recorded in readiness-audit.v1.json; assign an independent reviewer.",
+      "mitigation": "Deferred to early RC soak (1.0.0-rc). First engineering pass recorded in readiness-audit.v1.json; assign an independent reviewer after the first RC publish and before TASK-082.",
       "owner": "QA lead",
       "targetMilestone": "M6",
-      "evidence": "tasks/REVIEW-CHECKLIST.md"
+      "evidence": "tasks/REVIEW-CHECKLIST.md; planned during RC soak — see docs/qa-ai/rc-soak-status.v1.json earlySoakHumanGates"
     },
     {
       "id": "P1-003",
@@ -32,10 +32,10 @@
       "title": "Beta-to-1.0 migration walkthrough by a non-author pending",
       "epic": "Epic 17",
       "status": "open",
-      "mitigation": "Automated E2E-05 passes; schedule a human walkthrough using docs/qa-ai/beta-to-1.0-migration.md.",
+      "mitigation": "Deferred to early RC soak (1.0.0-rc). Automated E2E-05 passes; non-author walkthrough uses npx qa-flowkit@rc per docs/qa-ai/beta-to-1.0-migration.md before TASK-082.",
       "owner": "QA lead",
       "targetMilestone": "M6",
-      "evidence": "docs/qa-ai/beta-to-1.0-migration.md"
+      "evidence": "docs/qa-ai/beta-to-1.0-migration.md; planned during RC soak — see docs/qa-ai/rc-soak-status.v1.json earlySoakHumanGates"
     },
     {
       "id": "P2-001",

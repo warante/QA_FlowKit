@@ -8,6 +8,15 @@ const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../
 const ALLOWED_STATUS = new Set(['pending', 'in_review', 'approved', 'blocked']);
 const ALLOWED_DECISIONS = new Set(['GO', 'GO_WITH_ACCEPTED_RISKS', 'NO_GO']);
 const ALLOWED_SIGN_OFF = new Set(['pending', 'approved', 'rejected']);
+const APPROVED_SIGN_OFF_PATTERN = /^approved \d{4}-\d{2}-\d{2}$/;
+
+function isValidSignOffValue(value) {
+  return ALLOWED_SIGN_OFF.has(value) || APPROVED_SIGN_OFF_PATTERN.test(value);
+}
+
+function isApprovedSignOff(value) {
+  return value === 'approved' || APPROVED_SIGN_OFF_PATTERN.test(value);
+}
 const ALLOWED_HUMAN_SETTING = new Set(['pending', 'confirmed', 'not_applicable']);
 
 function assert(condition, message, errors) {
@@ -86,7 +95,7 @@ export async function verifyStableReleaseApproval({ root = repoRoot } = {}) {
   );
 
   for (const [role, value] of Object.entries(approval.signOffs || {})) {
-    assert(ALLOWED_SIGN_OFF.has(value), `signOff ${role} has invalid value: ${value}`, errors);
+    assert(isValidSignOffValue(value), `signOff ${role} has invalid value: ${value}`, errors);
   }
 
   for (const [setting, value] of Object.entries(approval.humanSettings || {})) {
@@ -111,7 +120,7 @@ export async function verifyStableReleaseApproval({ root = repoRoot } = {}) {
     assert(openP1.length === 0, 'approved stable release cannot have open P1 risks', errors);
 
     for (const [role, value] of Object.entries(approval.signOffs || {})) {
-      assert(value === 'approved', `approved record requires signOff ${role} approved`, errors);
+      assert(isApprovedSignOff(value), `approved record requires signOff ${role} approved`, errors);
     }
 
     for (const [setting, value] of Object.entries(approval.humanSettings || {})) {

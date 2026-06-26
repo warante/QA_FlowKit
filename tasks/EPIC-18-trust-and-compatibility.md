@@ -204,7 +204,9 @@ Implementation evidence:
 - Added security readiness summary: `docs/qa-ai/security-readiness.md`.
 - Updated threat model to point at the pre-RC security/dependency review and remaining human-maintainer checks.
 - Reviewed runtime/dev dependency posture: no production dependencies; dev-only toolchain recorded.
-- Confirmed weekly Dependabot coverage for npm and GitHub Actions.
+- Confirmed Dependabot configuration: GitHub alerts, security updates, malware alerts and grouped security updates
+  enabled; weekly version updates for npm (root and `examples/playwright-full`) and GitHub Actions in
+  `.github/dependabot.yml` with two-day cooldown aligned to `.npmrc` release-age policy.
 - Confirmed audit threshold and CodeQL workflow/config documentation.
 - Recorded accepted residual risks with owner and review date.
 - Validation passed: `npm audit --audit-level=low`, `npm ls --depth=0`, `npm run test:required-checks`,

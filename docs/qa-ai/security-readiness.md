@@ -1,6 +1,6 @@
 # Security Readiness
 
-This pre-RC summary records the current security and dependency review for QA FlowKit `0.5.8-beta.0`. It avoids
+This pre-RC summary records the current security and dependency review for QA FlowKit `0.5.9-beta.0`. It avoids
 exploit-level detail and points maintainers to the checks that must stay green before an RC or stable release.
 
 Review date: 2026-06-25
@@ -16,13 +16,44 @@ Runtime dependency policy:
 - Current top-level dev dependencies are `@eslint/js`, `@stryker-mutator/core`, `c8`, `eslint`, `prettier` and
   `release-please`.
 - `package.json` keeps the `qs` override at `6.15.2`.
-- Dependabot is configured weekly for npm and GitHub Actions in `.github/dependabot.yml`.
+- [`.npmrc`](../../.npmrc) enforces `min-release-age=2` so npm refuses versions published less than two days ago.
+  Requires npm CLI `>= 11.10.0`; CI uses [`.github/actions/setup-node-with-npm-policy`](../../.github/actions/setup-node-with-npm-policy/action.yml)
+  before `npm ci`.
+- Dependabot is configured weekly for npm and GitHub Actions in `.github/dependabot.yml`, with a two-day
+  `cooldown.default-days` aligned to the npm release-age gate.
 
 Evidence:
 
 - `npm ls --depth=0`
 - `npm audit --audit-level=low` returned `found 0 vulnerabilities` on 2026-06-25.
 - CI runs dependency policy checks and `npm audit --audit-level=low` in `.github/workflows/ci.yml`.
+
+## Dependabot Configuration
+
+Repository and GitHub settings (confirmed 2026-06-26):
+
+| Setting                     | Status                                  |
+| --------------------------- | --------------------------------------- |
+| Dependency graph            | enabled                                 |
+| Dependabot alerts           | enabled (1 rule active)                 |
+| Dependabot security updates | enabled                                 |
+| Dependabot malware alerts   | enabled                                 |
+| Grouped security updates    | enabled                                 |
+| Dependabot version updates  | configured via `.github/dependabot.yml` |
+
+Version-update coverage in `.github/dependabot.yml`:
+
+- `github-actions` at repository root (weekly, limit 5 open PRs).
+- `npm` at repository root (weekly, limit 5 open PRs, `cooldown.default-days: 2`).
+- `npm` at `examples/playwright-full` (weekly, limit 3 open PRs, `cooldown.default-days: 2`).
+
+Operational follow-up (not configuration): review or explicitly defer open Dependabot PRs before RC; triage any new
+high or critical alerts in GitHub Security.
+
+Evidence:
+
+- `.github/dependabot.yml`
+- `gh api repos/warante/QA_FlowKit/dependabot/alerts?state=open` returned `0` open alerts on 2026-06-26.
 
 ## Static Analysis And CI Gates
 
@@ -83,7 +114,7 @@ Accepted limitation:
 | QA FlowKit is not a sandbox for a hostile agent or unrestricted host shell.                                           | security engineer             | 2026-06-25  | accepted                       |
 | Hookless hosts rely on documented validation discipline rather than automatic stop hooks.                             | developer experience engineer | 2026-06-25  | accepted                       |
 | External write enforcement depends on users and host tooling honoring approval gates.                                 | engineering lead              | 2026-06-25  | accepted                       |
-| npm Trusted Publishing and GitHub security settings require human maintainer verification.                            | release engineer              | 2026-06-25  | accepted with pre-RC checklist |
+| npm Trusted Publishing requires human maintainer verification before RC.                                              | release engineer              | 2026-06-25  | accepted with pre-RC checklist |
 | GitHub-owned Actions are major-version pinned, not SHA pinned.                                                        | release engineer              | 2026-06-25  | accepted                       |
 | CodeQL currently focuses on `.qa-ai/scripts`; docs/templates are covered by repository validation rather than CodeQL. | security engineer             | 2026-06-25  | accepted                       |
 
@@ -91,11 +122,19 @@ Accepted limitation:
 
 Before publishing an RC, a maintainer should confirm:
 
-- GitHub branch protection requires `Validate starter`, `Coverage` and `Analyze JavaScript`.
-- GitHub Security has no untriaged high or critical alerts.
+- GitHub Private Vulnerability Reporting is enabled (confirmed 2026-06-26:
+  `gh api repos/warante/QA_FlowKit/private-vulnerability-reporting` → `{"enabled":true}`).
+- GitHub branch protection requires `Validate starter`, `Coverage` and `Analyze JavaScript` (confirmed 2026-06-26:
+  ruleset **Protect release branches** active on `main`; required status checks listed above).
+- Dependabot configuration is complete (confirmed 2026-06-26; see [Dependabot Configuration](#dependabot-configuration)).
+- GitHub Security has no untriaged high or critical alerts (confirmed 2026-06-26: Security overview reviewed;
+  no open high/critical Dependabot, CodeQL or advisory items requiring triage).
 - Dependabot PRs are reviewed or explicitly deferred.
-- npm Trusted Publishing is configured for `release-please.yml`, or `NPM_TOKEN` fallback is intentionally retained as a
-  temporary secret.
+- npm Trusted Publishing is configured for `release-please.yml` (confirmed 2026-06-26: npmjs.com package `qa-flowkit` →
+  Trusted Publisher → `warante/QA_FlowKit` / `release-please.yml`; publish verified on `0.5.9-beta.0` via Release
+  Please workflow with provenance).
+- Release Please can open and update Release PRs on `main` (confirmed 2026-06-26: workflow permissions allow PR creation;
+  Release Please path verified on `0.5.9-beta.0`).
 - The Release PR validation is green on the candidate commit.
 
 ## Local Evidence Captured

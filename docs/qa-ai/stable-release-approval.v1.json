@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-06-25",
+  "generatedAt": "2026-06-26",
   "qaFlowKitVersion": "0.5.9-beta.0",
   "task": "TASK-082",
   "milestone": "M6",
   "status": "pending",
   "decision": null,
-  "decisionSummary": "Awaiting completed RC soak (TASK-081) and cross-functional sign-offs before stable policy merge.",
+  "decisionSummary": "Awaiting completed RC soak (TASK-081), closed P1-002/P1-003, and cross-functional sign-offs (Fase 2) before stable policy merge.",
   "epic20Unblocked": false,
   "prerequisites": {
     "rcSoakRecord": "docs/qa-ai/rc-soak-status.v1.json",
@@ -15,9 +15,10 @@
     "securityReadiness": "docs/qa-ai/security-readiness.md"
   },
   "humanSettings": {
-    "npmTrustedPublishing": "pending",
-    "githubPrivateVulnerabilityReporting": "pending",
+    "npmTrustedPublishing": "confirmed",
+    "githubPrivateVulnerabilityReporting": "confirmed",
     "branchProtectionContexts": "pending",
+    "dependabotConfiguration": "confirmed",
     "dependabotTriaged": "pending"
   },
   "stablePolicyMergeApproved": false,
@@ -32,7 +33,6 @@
   "riskAcceptance": {
     "openP0": [],
     "openP1": [
-      "P1-001",
       "P1-002",
       "P1-003"
     ],

@@ -35,7 +35,7 @@ Acceptance:
 
 **Evidence (source repo):**
 
-- Prepared policy: `.release-please-config.stable.json` (active remains beta until merge).
+- Prepared policy: `.release-please-config.stable.json` (active remains rc until stable merge).
 - Config record: `docs/qa-ai/stable-release-config.v1.json`, `docs/qa-ai/stable-release-config.md`.
 - Verification: `.github/scripts/verify-stable-release-config.mjs` → `npm run test:stable-release-config`.
 - Rehearsal: `.github/scripts/run-stable-config-rehearsal.mjs` → `npm run test:e2e-stable-config-rehearsal`.

@@ -80,22 +80,22 @@ QA FlowKit mixes four kinds of controls. Public docs must not describe one layer
 | Secret-like values enter QA artifacts                                 | Strict target validation scans `qa-ai-output/` and `features/`; sync mapping rejects secret-like fields.       | Pattern scanners can miss novel secrets and can produce false positives.                          |
 | Malicious custom validator runs arbitrary code                        | Custom validators must be repo-local, cannot shadow built-ins, and must pass `--self-test --json`.             | Custom validator code still executes as local Node.js; treat it as trusted repo code.             |
 | Release package includes private or unexpected files                  | npm pack allowlist and smoke pack tests run locally and in CI/release workflows.                               | Maintainer must verify release workflow settings and npm Trusted Publishing.                      |
-| Dependency or action vulnerability ships                              | CI runs `npm audit --audit-level=low`, CodeQL and dependency policy checks.                                    | Human security review and open advisory triage are required before RC.                            |
+| Dependency or action vulnerability ships                              | CI runs `npm audit --audit-level=low`, CodeQL, dependency policy checks and `.npmrc` `min-release-age=2`.      | Human security review and open advisory triage are required before RC.                            |
 
 ## Threat-To-Verification Mapping
 
-| Abuse case (summary)            | Primary automated verification                                                             |
-| ------------------------------- | ------------------------------------------------------------------------------------------ |
-| Prompt injection in inputs      | `npm run test:e2e-adversarial`; `validate-untrusted-content` in `validate:oss-extraction`  |
-| Config path escape              | `npm run test:e2e-adversarial`; path tests in `test-validators.mjs` / `test-harness.mjs`   |
-| Unsafe overwrite on init/sync   | `npm run test:e2e-adversarial`; `npm run qa:smoke-npm`                                     |
-| Update loses preserved state    | `npm run test:e2e-update-migration` (E2E-05)                                               |
-| Unapproved phase modification   | Harness baseline tests in `test-harness.mjs`; `npm run test:e2e-quick`                     |
-| Ungoverned external writes      | `validate-sync-*` validators; release-gate tests; proposal-first artifact checks           |
-| Secret-like values in artifacts | `validate-target` / `secret-patterns` tests; golden target CI                              |
-| Malicious custom validator      | `doctor` config checks; custom-validator tests in `test-validators.mjs`                    |
-| Unexpected npm tarball contents | `node .github/scripts/verify-npm-pack.mjs`; `npm run test:e2e-clean-install` (E2E-06)      |
-| Dependency or CI compromise     | `npm audit --audit-level=low`; CodeQL `Analyze JavaScript`; `npm run test:required-checks` |
+| Abuse case (summary)            | Primary automated verification                                                                                           |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| Prompt injection in inputs      | `npm run test:e2e-adversarial`; `validate-untrusted-content` in `validate:oss-extraction`                                |
+| Config path escape              | `npm run test:e2e-adversarial`; path tests in `test-validators.mjs` / `test-harness.mjs`                                 |
+| Unsafe overwrite on init/sync   | `npm run test:e2e-adversarial`; `npm run qa:smoke-npm`                                                                   |
+| Update loses preserved state    | `npm run test:e2e-update-migration` (E2E-05)                                                                             |
+| Unapproved phase modification   | Harness baseline tests in `test-harness.mjs`; `npm run test:e2e-quick`                                                   |
+| Ungoverned external writes      | `validate-sync-*` validators; release-gate tests; proposal-first artifact checks                                         |
+| Secret-like values in artifacts | `validate-target` / `secret-patterns` tests; golden target CI                                                            |
+| Malicious custom validator      | `doctor` config checks; custom-validator tests in `test-validators.mjs`                                                  |
+| Unexpected npm tarball contents | `node .github/scripts/verify-npm-pack.mjs`; `npm run test:e2e-clean-install` (E2E-06)                                    |
+| Dependency or CI compromise     | `npm audit --audit-level=low`; `.npmrc` `min-release-age=2`; CodeQL `Analyze JavaScript`; `npm run test:required-checks` |
 
 Operational controls that cannot be fully automated from the repository alone are listed in
 [`security-readiness.md`](security-readiness.md) (branch protection, npm Trusted Publishing, advisory triage).

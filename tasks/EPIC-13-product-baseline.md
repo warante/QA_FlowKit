@@ -75,7 +75,7 @@ Acceptance:
 **Owner:** Security engineer
 **Depends on:** TASK-051
 
-**Status:** Blocked
+**Status:** Done
 
 Subtasks:
 
@@ -95,10 +95,11 @@ Validation:
 - Human maintainer verifies the private reporting feature is enabled in repository settings.
 - Security engineer performs a no-submit walkthrough.
 
-Current blocker:
+Verification (2026-06-26):
 
-- GitHub API check on 2026-06-07 returned `{"enabled":false}` for private vulnerability reporting.
-- Enabling the repository setting is an external administrative write and requires explicit maintainer approval.
+- Maintainer enabled Private Vulnerability Reporting in repository settings.
+- `gh api repos/warante/QA_FlowKit/private-vulnerability-reporting` returned `{"enabled":true}`.
+- Public `/security/advisories` shows **Report a vulnerability** without requiring a public issue.
 
 Acceptance:
 
@@ -141,10 +142,9 @@ Acceptance:
 
 ## Epic exit criteria
 
-- TASK-051, TASK-052 and TASK-054 are Done.
-- TASK-053 awaits human confirmation that GitHub Private Vulnerability Reporting is enabled.
+- TASK-051, TASK-052, TASK-053 and TASK-054 are Done.
 - The automated validation matrix is green.
-- M1 remains open until TASK-053 and product/security/release owner approval are complete.
+- M1 baseline complete; cross-functional sign-offs for stable `1.0.0` are recorded in `stable-release-approval.v1.json` (TASK-082).
 
 ## Implementation evidence
 
@@ -152,7 +152,7 @@ Acceptance:
   `docs/qa-ai/stability-policy.md`.
 - Corrected public claims: `README.md`, `README.es.md`, `SECURITY.md` and `CONTRIBUTING.md`.
 - Private reporting entry point: `SECURITY.md` and `.github/ISSUE_TEMPLATE/config.yml`.
-- Private reporting setting evidence: GitHub API reports disabled as of 2026-06-07.
+- Private reporting setting evidence: GitHub API `private-vulnerability-reporting` returned `{"enabled":true}` on 2026-06-26 (previously disabled on 2026-06-07).
 - Automated checker: `.github/scripts/verify-documentation-consistency.mjs`.
 - Unit coverage: `.github/scripts/test-documentation-consistency.mjs`.
 - CI integration: named `Check documentation consistency` steps plus `validate:oss-extraction`.
