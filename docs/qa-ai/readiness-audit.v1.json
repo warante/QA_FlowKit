@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "auditDate": "2026-06-25",
-  "qaFlowKitVersion": "0.5.8-beta.0",
+  "qaFlowKitVersion": "0.5.9-beta.0",
   "milestoneTarget": "M6",
   "task": "TASK-078",
   "decision": "PASS_WITH_ACTIONS",
@@ -19,28 +19,40 @@
       "milestone": "M1",
       "status": "blocked",
       "summary": "Documentation consistency automated; TASK-053 awaits GitHub Private Vulnerability Reporting enablement.",
-      "evidence": ["tasks/EPIC-13-product-baseline.md", "npm run docs:check"]
+      "evidence": [
+        "tasks/EPIC-13-product-baseline.md",
+        "npm run docs:check"
+      ]
     },
     {
       "epic": 14,
       "milestone": "M2",
       "status": "in_validation",
       "summary": "README IA and E2E-01 quick path implemented; formal usability evidence pending.",
-      "evidence": ["tasks/EPIC-14-first-use-experience.md", "npm run test:e2e-quick"]
+      "evidence": [
+        "tasks/EPIC-14-first-use-experience.md",
+        "npm run test:e2e-quick"
+      ]
     },
     {
       "epic": 15,
       "milestone": "M2",
       "status": "in_validation",
       "summary": "Public examples and packed validation jobs are active in CI.",
-      "evidence": ["examples/README.md", "npm run test:e2e-manual-example"]
+      "evidence": [
+        "examples/README.md",
+        "npm run test:e2e-manual-example"
+      ]
     },
     {
       "epic": 16,
       "milestone": "M3",
       "status": "deferred",
       "summary": "Pilot program deferred; accepted risk P2-001 for RC path.",
-      "evidence": ["tasks/EPIC-16-pilots-and-metrics.md", "docs/qa-ai/open-risk-register.v1.json"]
+      "evidence": [
+        "tasks/EPIC-16-pilots-and-metrics.md",
+        "docs/qa-ai/open-risk-register.v1.json"
+      ]
     },
     {
       "epic": 17,
@@ -68,10 +80,30 @@
     }
   ],
   "e2eScenarios": [
-    { "id": "E2E-01", "status": "automated", "command": "npm run test:e2e-quick", "ciJob": "quick-path" },
-    { "id": "E2E-02", "status": "automated", "command": "npm run test:e2e-playwright", "ciJob": "playwright-example" },
-    { "id": "E2E-03", "status": "automated", "command": "npm run test:e2e-karate", "ciJob": "karate-example" },
-    { "id": "E2E-03M", "status": "automated", "command": "npm run test:e2e-mobile", "ciJob": "mobile-example" },
+    {
+      "id": "E2E-01",
+      "status": "automated",
+      "command": "npm run test:e2e-quick",
+      "ciJob": "quick-path"
+    },
+    {
+      "id": "E2E-02",
+      "status": "automated",
+      "command": "npm run test:e2e-playwright",
+      "ciJob": "playwright-example"
+    },
+    {
+      "id": "E2E-03",
+      "status": "automated",
+      "command": "npm run test:e2e-karate",
+      "ciJob": "karate-example"
+    },
+    {
+      "id": "E2E-03M",
+      "status": "automated",
+      "command": "npm run test:e2e-mobile",
+      "ciJob": "mobile-example"
+    },
     {
       "id": "E2E-04",
       "status": "partial",
@@ -113,7 +145,11 @@
   ],
   "documentationParity": {
     "englishSpanishReadme": "automated",
-    "evidence": ["npm run docs:check", "README.md", "README.es.md"]
+    "evidence": [
+      "npm run docs:check",
+      "README.md",
+      "README.es.md"
+    ]
   },
   "localValidationEvidence": [
     "npm ci",
@@ -128,7 +164,11 @@
     {
       "reviewDate": "2026-06-25",
       "reviewer": "engineering lead (implementation author)",
-      "milestonesReviewed": ["M4", "M5", "M6 preparation"],
+      "milestonesReviewed": [
+        "M4",
+        "M5",
+        "M6 preparation"
+      ],
       "decision": "PASS_WITH_ACTIONS",
       "notes": "Automated evidence complete; human gates listed in open-risk-register.v1.json.",
       "checklist": "tasks/REVIEW-CHECKLIST.md"
@@ -136,7 +176,9 @@
     {
       "reviewDate": null,
       "reviewer": "independent reviewer (required)",
-      "milestonesReviewed": ["M6 RC gate"],
+      "milestonesReviewed": [
+        "M6 RC gate"
+      ],
       "decision": "pending",
       "notes": "Schedule before TASK-080 RC publish.",
       "checklist": "tasks/REVIEW-CHECKLIST.md"
