@@ -33,9 +33,10 @@ RELEASE_PLEASE_CONFIG_FILE=.release-please-config.stable.json node .github/scrip
 
 ## Expected behavior after merge
 
-| Item                    | Value    |
-| ----------------------- | -------- |
-| `prerelease`            | `false`  |
-| `prerelease-type`       | unset    |
-| Next Release PR version | `1.0.0`  |
-| npm dist-tag on publish | `latest` |
+| Item                    | Value        |
+| ----------------------- | ------------ |
+| `versioning`            | `prerelease` |
+| `prerelease`            | `false`      |
+| `prerelease-type`       | unset        |
+| Next Release PR version | `1.0.0`      |
+| npm dist-tag on publish | `latest`     |

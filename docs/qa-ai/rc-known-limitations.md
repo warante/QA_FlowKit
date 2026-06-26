@@ -14,7 +14,7 @@ Update it for every `1.0.0-rc.N` release.
 
 ## Known limitations
 
-1. **Release-please RC policy is active on `main`** (`prerelease-type: rc`). The next Release PR from release-please should propose `1.0.0-rc.N`; local `package.json` may still show the last beta until that Release PR merges.
+1. **Release-please RC policy is active on `main`** (`versioning: prerelease`, `prerelease-type: rc`). The next Release PR from release-please should propose `1.0.0-rc.N`; local `package.json` may still show the last beta until that Release PR merges.
 2. **Private vulnerability reporting** (Epic 13 / TASK-053) is enabled; use [SECURITY.md](../../SECURITY.md) and GitHub Security Advisories for private disclosure.
 3. **Pilot repositories** are not guaranteed to track `@rc` automatically; pin `qa-flowkit@rc` explicitly in CI and docs.
 4. **npm registry propagation** can lag a few minutes after publish; post-publish jobs retry `npm view` before failing.
