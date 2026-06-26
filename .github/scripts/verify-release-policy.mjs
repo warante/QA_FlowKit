@@ -59,8 +59,10 @@ export async function verifyReleasePolicy({ root = repoRoot } = {}) {
 
   assert(active.prerelease === true, 'active config must remain prerelease during RC line', errors);
   assert(active['prerelease-type'] === 'rc', 'active config must use prerelease-type rc', errors);
+  assert(active.versioning === 'prerelease', 'active config must use prerelease versioning strategy', errors);
   assert(rc.prerelease === true, 'RC config must keep prerelease true', errors);
   assert(rc['prerelease-type'] === 'rc', 'RC config must use prerelease-type rc', errors);
+  assert(rc.versioning === 'prerelease', 'RC config must use prerelease versioning strategy', errors);
   assert(
     JSON.stringify(active) === JSON.stringify(rc),
     'active config must match prepared RC config after RC transition',
@@ -68,6 +70,7 @@ export async function verifyReleasePolicy({ root = repoRoot } = {}) {
   );
   assert(stable.prerelease === false, 'stable config must disable prerelease', errors);
   assert(stable['prerelease-type'] === undefined, 'stable config must not set prerelease-type', errors);
+  assert(stable.versioning === 'prerelease', 'stable config must use prerelease versioning strategy', errors);
 
   assert(packageKeys(active) === packageKeys(rc), 'RC config package map must match active config', errors);
   assert(packageKeys(active) === packageKeys(stable), 'stable config package map must match active config', errors);
