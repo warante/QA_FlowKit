@@ -58,7 +58,7 @@ The first release (`0.4.0-alpha.0`) was published manually. Subsequent releases 
 
 **Configuration:**
 
-- [`.release-please-config.json`](../../.release-please-config.json) — versioning, prerelease `alpha`, changelog sections
+- [`.release-please-config.json`](../../.release-please-config.json) — versioning, prerelease channel and changelog sections
 - [`.release-please-manifest.json`](../../.release-please-manifest.json) — last released version per package root
 
 See [release-checklist.md](release-checklist.md) for maintainer setup and post-release checks.

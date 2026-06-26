@@ -1,15 +1,15 @@
 # Beta to RC and RC to Stable Release
 
 This guide describes the release-please policy files for the `1.0.0` path. The active configuration on `main` uses
-the **RC** line (`prerelease-type: rc`) after the RC transition PR (TASK-080).
+the **RC** line (`versioning: prerelease`, `prerelease-type: rc`) after the RC transition PR (TASK-080).
 
 Policy files:
 
-| File                                 | Purpose                                            | npm dist-tag for `1.0.0-rc.N` / `1.0.0` |
-| ------------------------------------ | -------------------------------------------------- | --------------------------------------- |
-| `.release-please-config.json`        | **Active** RC line (`prerelease-type: rc`)         | `rc`                                    |
-| `.release-please-config.rc.json`     | Prepared RC reference (matches active after merge) | `rc`                                    |
-| `.release-please-config.stable.json` | Prepared stable transition (`prerelease: false`)   | `latest`                                |
+| File                                 | Purpose                                             | npm dist-tag for `1.0.0-rc.N` / `1.0.0` |
+| ------------------------------------ | --------------------------------------------------- | --------------------------------------- |
+| `.release-please-config.json`        | **Active** RC line (`versioning: prerelease`, `rc`) | `rc`                                    |
+| `.release-please-config.rc.json`     | Prepared RC reference (matches active after merge)  | `rc`                                    |
+| `.release-please-config.stable.json` | Prepared stable transition (`prerelease: false`)    | `latest`                                |
 
 Automated checks: `npm run test:release-policy` and `npm run test:e2e-release-dry-run` (E2E-09).
 
@@ -26,10 +26,11 @@ Prerequisites:
 Steps (maintainers):
 
 1. Open a PR that replaces `.release-please-config.json` with the contents of `.release-please-config.rc.json` (or merge
-   the RC config file by setting `prerelease-type` to `rc`).
+   the RC config file by setting `versioning: prerelease` and `prerelease-type` to `rc`).
 2. Merge feature work to `main` with conventional PR titles as usual.
-3. Let **release-please** open/update the Release PR (`chore: release 1.0.0-rc.N`). Do **not** hand-edit
-   `package.json` versions.
+3. Let **release-please** open/update the Release PR (`chore: release 1.0.0-rc.N`). The workflow wrapper forces the
+   first beta-to-RC bridge with `--release-as=1.0.0-rc.1` while `.release-please-manifest.json` still points at the
+   beta line; later RCs increment normally as `1.0.0-rc.N`. Do **not** hand-edit `package.json` versions.
 4. Review the Release PR: version `1.0.0-rc.N`, changelog, plugin manifests.
 5. Merge the Release PR. The publish job in [`.github/workflows/release-please.yml`](../../.github/workflows/release-please.yml):
    - runs `validate:oss-extraction` and `verify-npm-pack.mjs`;
@@ -118,8 +119,8 @@ npm run test:e2e-stable-config-rehearsal
 Steps (maintainers):
 
 1. Confirm TASK-082 `stable-release-approval.v1.json` is `approved`.
-2. Merge a PR that replaces `.release-please-config.json` with `.release-please-config.stable.json` (`prerelease:
-false`, no `prerelease-type`). Do **not** hand-edit versions or changelog.
+2. Merge a PR that replaces `.release-please-config.json` with `.release-please-config.stable.json` (`versioning:
+prerelease`, `prerelease: false`, no `prerelease-type`). Do **not** hand-edit versions or changelog.
 3. Update `stable-release-config.v1.json` → `status: merged`, `mergedAt`, `mergePrUrl`.
 4. Merge the release-please Release PR for **`1.0.0`** (TASK-084, not `1.0.0-rc.N`). See
    [`stable-release-pr.v1.json`](stable-release-pr.v1.json) and [`stable-release-notes.template.md`](stable-release-notes.template.md).

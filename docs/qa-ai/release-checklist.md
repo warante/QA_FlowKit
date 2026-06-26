@@ -40,15 +40,15 @@ Use this section when a user asks to release, publish to npm, bump the package v
 
 ### Canonical files
 
-| File                                   | Role                                                      |
-| -------------------------------------- | --------------------------------------------------------- |
-| `.release-please-config.json`          | Active **RC** versioning (`prerelease-type: rc`)          |
-| `.release-please-config.rc.json`       | RC policy reference (matches active after RC transition)  |
-| `.release-please-config.stable.json`   | Prepared stable policy — merge after RC soak (Epic 20)    |
-| `.release-please-manifest.json`        | Last released version (release-please updates on release) |
-| `.github/workflows/release-please.yml` | Release PR + npm publish on Release PR merge              |
-| `.github/workflows/publish-npm.yml`    | Manual fallback only (`workflow_dispatch`)                |
-| `.github/scripts/verify-npm-pack.mjs`  | Tarball allowlist check                                   |
+| File                                   | Role                                                                       |
+| -------------------------------------- | -------------------------------------------------------------------------- |
+| `.release-please-config.json`          | Active **RC** versioning (`versioning: prerelease`, `prerelease-type: rc`) |
+| `.release-please-config.rc.json`       | RC policy reference (matches active after RC transition)                   |
+| `.release-please-config.stable.json`   | Prepared stable policy — merge after RC soak (Epic 20)                     |
+| `.release-please-manifest.json`        | Last released version (release-please updates on release)                  |
+| `.github/workflows/release-please.yml` | Release PR + npm publish on Release PR merge                               |
+| `.github/workflows/publish-npm.yml`    | Manual fallback only (`workflow_dispatch`)                                 |
+| `.github/scripts/verify-npm-pack.mjs`  | Tarball allowlist check                                                    |
 
 ### Agent MUST NOT
 
@@ -118,7 +118,7 @@ Optional: add a classic PAT with `repo` scope as secret `RELEASE_PLEASE_TOKEN` i
 7. On merge, Release Please creates a **GitHub Release** + git tag and triggers the **publish** job:
    - `npm ci`, lint, format check, `validate:oss-extraction`
    - `npm pack` allowlist verification
-   - `npm publish --provenance` with automatic dist-tag (`alpha`, `beta`, or `latest`)
+   - `npm publish --provenance` with automatic dist-tag (`alpha`, `beta`, `rc`, or `latest`)
    - Post-publish: `npm view` + install smoke of the published tarball
 8. For releases with Claude plugin changes, a human maintainer submits or updates the community marketplace entry after the GitHub Release is published. Do not automate community-marketplace submission from CI.
 
@@ -134,7 +134,9 @@ approval and rollback limits.
 | `x.y.z-rc.N`    | `rc`     | Release candidate soak          |
 | `x.y.z`         | `latest` | Stable, production-ready        |
 
-Prerelease series is configured in [.release-please-config.json](../../.release-please-config.json) (`prerelease: true`, `prerelease-type: rc`). See [beta-to-rc-release.md](beta-to-rc-release.md) for RC publish and [stability-policy.md](stability-policy.md) for the stable transition after soak.
+Prerelease series is configured in [.release-please-config.json](../../.release-please-config.json) (`versioning:
+prerelease`, `prerelease: true`, `prerelease-type: rc`). See [beta-to-rc-release.md](beta-to-rc-release.md) for RC
+publish and [stability-policy.md](stability-policy.md) for the stable transition after soak.
 
 ### After publishing
 
