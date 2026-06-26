@@ -14,20 +14,21 @@ Update it for every `1.0.0-rc.N` release.
 
 ## Known limitations
 
-1. **Beta config line still active on `main`** until maintainers merge `.release-please-config.rc.json`. Local `package.json` may still show `*-beta.*` while rehearsal scripts simulate RC publish.
-2. **Private vulnerability reporting** (Epic 13 / TASK-053) may still be pending; use [SECURITY.md](../../SECURITY.md) for disclosure paths.
+1. **Release-please RC policy is active on `main`** (`prerelease-type: rc`). The next Release PR from release-please should propose `1.0.0-rc.N`; local `package.json` may still show the last beta until that Release PR merges.
+2. **Private vulnerability reporting** (Epic 13 / TASK-053) is enabled; use [SECURITY.md](../../SECURITY.md) and GitHub Security Advisories for private disclosure.
 3. **Pilot repositories** are not guaranteed to track `@rc` automatically; pin `qa-flowkit@rc` explicitly in CI and docs.
 4. **npm registry propagation** can lag a few minutes after publish; post-publish jobs retry `npm view` before failing.
 5. **No npm unpublish** for widely consumed RC builds; ship forward fixes as the next `1.0.0-rc.N`.
 6. **Example compatibility** scheduled runs default to `@beta`; switch to `rc` via workflow_dispatch after the first RC publish (see [example-compatibility.yml](../../.github/workflows/example-compatibility.yml)).
-7. **Human sign-offs** from [readiness-audit.md](readiness-audit.md) remain required before treating RC as production-ready.
+7. **P1-002 / P1-003** (independent checklist and migration walkthrough) close during **early RC soak** with `npx qa-flowkit@rc` and must be done before TASK-082 (`rc-soak-status.v1.json` → `earlySoakHumanGates`).
+8. **Cross-functional sign-offs** for stable `1.0.0` are required at **TASK-082** ([`stable-release-approval.v1.json`](stable-release-approval.v1.json)), not before the first RC publish.
 
 ## Stable disposition (TASK-082)
 
 Final known-issues and risk acceptance for stable `1.0.0` are recorded in
 [`stable-release-approval.v1.json`](stable-release-approval.v1.json). Update this section when TASK-082 is approved.
 
-Current state: **pending** — RC soak and cross-functional sign-offs not complete.
+Current state: **pending** — RC soak not complete; stable go/no-go sign-offs recorded in TASK-082.
 
 ## Out of scope for RC
 

@@ -22,8 +22,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
+      - name: Setup Node.js with npm release-age policy
+        uses: ./.github/actions/setup-node-with-npm-policy
         with:
           node-version: '20'
 
@@ -403,8 +403,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
+      - name: Setup Node.js with npm release-age policy
+        uses: ./.github/actions/setup-node-with-npm-policy
         with:
           node-version: '20'
 
@@ -475,8 +475,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
+      - name: Setup Node.js with npm release-age policy
+        uses: ./.github/actions/setup-node-with-npm-policy
         with:
           node-version: '20'
 
@@ -530,8 +530,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
+      - name: Setup Node.js with npm release-age policy
+        uses: ./.github/actions/setup-node-with-npm-policy
         with:
           node-version: ${{ matrix.node }}
 

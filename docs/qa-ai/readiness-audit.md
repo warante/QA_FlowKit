@@ -4,33 +4,41 @@ Machine-readable record: [`readiness-audit.v1.json`](readiness-audit.v1.json). O
 [`open-risk-register.v1.json`](open-risk-register.v1.json).
 
 **Audit date:** 2026-06-25  
-**Package line:** `0.5.8-beta.0`  
+**Package line:** `0.5.9-beta.0`  
 **Task:** TASK-078 (Epic 19)  
 **Decision:** `PASS_WITH_ACTIONS`
 
 ## Summary
 
 Automated validation, contract freeze (Epic 17) and trust baseline (Epic 18) are complete with CI matrix coverage on
-Ubuntu and Windows. Epics 13–16 retain documented gaps that do not block technical RC rehearsal but require explicit
-sign-off or acceptance before publishing `1.0.0-rc`.
+Ubuntu and Windows. Epics 13–16 retain documented gaps captured in the open risk register; accepted P2/P3 items do not
+block publishing `1.0.0-rc`.
 
-RC creation is **not** approved until:
+RC publish (`TASK-080`) requires:
 
-1. Cross-functional sign-offs in `readiness-audit.v1.json` are recorded.
-2. An **independent** reviewer completes [`tasks/REVIEW-CHECKLIST.md`](../../tasks/REVIEW-CHECKLIST.md).
-3. A **non-author** follows [`beta-to-1.0-migration.md`](beta-to-1.0-migration.md) successfully.
-4. Maintainer confirms human-only checks in [`security-readiness.md`](security-readiness.md).
+1. Decision `PASS` or `PASS_WITH_ACTIONS` with no open P0 blockers.
+2. Maintainer confirms human-only checks in [`security-readiness.md`](security-readiness.md).
+3. Full CI and CodeQL green on the candidate commit.
+
+**Deferred to early RC soak (`1.0.0-rc`)** — must complete before TASK-082 stable approval:
+
+4. An **independent** reviewer completes [`tasks/REVIEW-CHECKLIST.md`](../../tasks/REVIEW-CHECKLIST.md) (P1-002).
+5. A **non-author** follows [`beta-to-1.0-migration.md`](beta-to-1.0-migration.md) with `npx qa-flowkit@rc` (P1-003).
+
+**Cross-functional go/no-go sign-offs** for stable `1.0.0` are recorded in
+[`stable-release-approval.v1.json`](stable-release-approval.v1.json) during **TASK-082**, after RC soak completes —
+not before the first RC publish.
 
 ## Epic gate review
 
-| Epic | Milestone | Status        | Notes                                                   |
-| ---- | --------- | ------------- | ------------------------------------------------------- |
-| 13   | M1        | blocked       | TASK-053: enable GitHub Private Vulnerability Reporting |
-| 14   | M2        | in validation | E2E-01 green; usability study pending                   |
-| 15   | M2        | in_validation | Examples validated in CI                                |
-| 16   | M3        | deferred      | Accepted risk P2-001 for RC                             |
-| 17   | M4        | done          | Contract freeze + E2E-05/06                             |
-| 18   | M5        | done          | Threat model + E2E-07/08                                |
+| Epic | Milestone | Status        | Notes                                                            |
+| ---- | --------- | ------------- | ---------------------------------------------------------------- |
+| 13   | M1        | done          | TASK-053: Private Vulnerability Reporting confirmed (2026-06-26) |
+| 14   | M2        | in validation | E2E-01 green; usability study pending                            |
+| 15   | M2        | in_validation | Examples validated in CI                                         |
+| 16   | M3        | deferred      | Accepted risk P2-001 for RC                                      |
+| 17   | M4        | done          | Contract freeze + E2E-05/06                                      |
+| 18   | M5        | done          | Threat model + E2E-07/08                                         |
 
 ## E2E scenario status
 
@@ -69,20 +77,20 @@ CI must also be green on the candidate commit, including CodeQL `Analyze JavaScr
 
 ## Open risks (summary)
 
-| ID     | Severity | Title                                   | Status   |
-| ------ | -------- | --------------------------------------- | -------- |
-| P1-001 | P1       | GitHub Private Vulnerability Reporting  | open     |
-| P1-002 | P1       | Independent REVIEW-CHECKLIST pass       | open     |
-| P1-003 | P1       | Non-author migration walkthrough        | open     |
-| P2-001 | P2       | Epic 16 pilots deferred                 | accepted |
-| P2-002 | P2       | Epic 14/15 formal sign-off              | open     |
-| P3-001 | P3       | Dedicated E2E-04 runner                 | accepted |
-| P3-002 | P3       | Live RC publish verification (TASK-080) | open     |
+| ID     | Severity | Title                                   | Status                     |
+| ------ | -------- | --------------------------------------- | -------------------------- |
+| P1-001 | P1       | GitHub Private Vulnerability Reporting  | closed                     |
+| P1-002 | P1       | Independent REVIEW-CHECKLIST pass       | open (deferred to RC soak) |
+| P1-003 | P1       | Non-author migration walkthrough        | open (deferred to RC soak) |
+| P2-001 | P2       | Epic 16 pilots deferred                 | accepted                   |
+| P2-002 | P2       | Epic 14/15 formal sign-off              | open                       |
+| P3-001 | P3       | Dedicated E2E-04 runner                 | accepted                   |
+| P3-002 | P3       | Live RC publish verification (TASK-080) | open                       |
 
 Full register: [`open-risk-register.v1.json`](open-risk-register.v1.json).
 
 ## Next steps
 
-1. **TASK-080** — publish `1.0.0-rc` after go/no-go sign-offs and RC config merge.
-2. **TASK-081** — 14-day minimum soak (`rc-soak-status.v1.json`).
-3. **TASK-082** — stable release approval (`stable-release-approval.v1.json`) unblocks Epic 20.
+1. **TASK-080** — merge the release-please Release PR for `1.0.0-rc.N` (RC config is active on `main`).
+2. **TASK-081** — 14-day minimum soak (`rc-soak-status.v1.json`); close P1-002/P1-003 during early soak.
+3. **TASK-082** — cross-functional go/no-go sign-offs and stable release approval (`stable-release-approval.v1.json`) unblocks Epic 20.

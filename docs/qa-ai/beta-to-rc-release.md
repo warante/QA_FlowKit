@@ -1,15 +1,15 @@
 # Beta to RC and RC to Stable Release
 
-This guide describes the **reviewed but unmerged** release-please policy files for the `1.0.0` path. The active
-configuration on `main` remains **beta** until maintainers merge the RC transition PR.
+This guide describes the release-please policy files for the `1.0.0` path. The active configuration on `main` uses
+the **RC** line (`prerelease-type: rc`) after the RC transition PR (TASK-080).
 
 Policy files:
 
-| File                                 | Purpose                                          | npm dist-tag for `1.0.0-rc.N` / `1.0.0` |
-| ------------------------------------ | ------------------------------------------------ | --------------------------------------- |
-| `.release-please-config.json`        | **Active** beta line (`prerelease-type: beta`)   | `beta`                                  |
-| `.release-please-config.rc.json`     | Prepared RC transition (`prerelease-type: rc`)   | `rc`                                    |
-| `.release-please-config.stable.json` | Prepared stable transition (`prerelease: false`) | `latest`                                |
+| File                                 | Purpose                                            | npm dist-tag for `1.0.0-rc.N` / `1.0.0` |
+| ------------------------------------ | -------------------------------------------------- | --------------------------------------- |
+| `.release-please-config.json`        | **Active** RC line (`prerelease-type: rc`)         | `rc`                                    |
+| `.release-please-config.rc.json`     | Prepared RC reference (matches active after merge) | `rc`                                    |
+| `.release-please-config.stable.json` | Prepared stable transition (`prerelease: false`)   | `latest`                                |
 
 Automated checks: `npm run test:release-policy` and `npm run test:e2e-release-dry-run` (E2E-09).
 
@@ -17,8 +17,9 @@ Automated checks: `npm run test:release-policy` and `npm run test:e2e-release-dr
 
 Prerequisites:
 
-- [`readiness-audit.md`](readiness-audit.md) decision is `PASS` or accepted `PASS_WITH_ACTIONS` with no open P0/P1
-  blockers.
+- [`readiness-audit.md`](readiness-audit.md) decision is `PASS` or accepted `PASS_WITH_ACTIONS` with no open P0
+  blockers. P1-002 and P1-003 may remain open for early RC soak and must close before TASK-082 (see
+  [`rc-soak-status.v1.json`](rc-soak-status.v1.json) `earlySoakHumanGates`).
 - [`security-readiness.md`](security-readiness.md) human checks complete.
 - Full CI and CodeQL green on the candidate commit.
 
@@ -94,8 +95,9 @@ npm run test:stable-release-approval:unit
 
 Approval checklist:
 
-1. Confirm `rc-soak-status.v1.json` is `completed`.
-2. Record cross-functional sign-offs and human-only settings in `stable-release-approval.v1.json`.
+1. Confirm `rc-soak-status.v1.json` is `completed` and P1-002/P1-003 are closed in `open-risk-register.v1.json`.
+2. Complete **Fase 2 — cross-functional sign-offs** (see [`stable-release-approval.md`](stable-release-approval.md)) and
+   record them in `stable-release-approval.v1.json`.
 3. Set `stablePolicyMergeApproved: true`, `decision: GO` (or `GO_WITH_ACCEPTED_RISKS`), `status: approved`,
    `epic20Unblocked: true`.
 4. Update [`rc-known-limitations.md`](rc-known-limitations.md) with final known-issues disposition.

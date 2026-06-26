@@ -28,13 +28,14 @@ CI runs [`.github/scripts/verify-adapter-parity.mjs`](.github/scripts/verify-ada
 
 1. Create an issue describing the problem or improvement.
 2. Create a branch from `main`.
-3. Add or update documentation when behavior changes.
-4. Add validation logic when adding a new rule.
-5. Follow the lifecycle and version-reference rules in [stability-policy.md](docs/qa-ai/stability-policy.md).
-6. Run `npm run docs:check` and `npm run validate:oss-extraction` locally.
-7. When editing workflows or release gates, update [`docs/qa-ai/required-checks.v1.json`](docs/qa-ai/required-checks.v1.json)
+3. Use npm CLI `>= 11.10.0` locally so [`.npmrc`](.npmrc) `min-release-age=2` is enforced on `npm ci` / `npm install`.
+4. Add or update documentation when behavior changes.
+5. Add validation logic when adding a new rule.
+6. Follow the lifecycle and version-reference rules in [stability-policy.md](docs/qa-ai/stability-policy.md).
+7. Run `npm run docs:check` and `npm run validate:oss-extraction` locally.
+8. When editing workflows or release gates, update [`docs/qa-ai/required-checks.v1.json`](docs/qa-ai/required-checks.v1.json)
    and confirm `npm run test:required-checks` passes.
-8. Open a PR with a clear summary and manual validation steps.
+9. Open a PR with a clear summary and manual validation steps.
 
 Changes under `examples/`, presets or target validators must also keep
 [`examples/compatibility.json`](examples/compatibility.json) current. Run:

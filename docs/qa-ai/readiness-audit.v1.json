@@ -5,23 +5,17 @@
   "milestoneTarget": "M6",
   "task": "TASK-078",
   "decision": "PASS_WITH_ACTIONS",
-  "decisionSummary": "Technical gates for contract freeze (M4), trust baseline (M5) and automated E2E coverage are green locally. RC creation requires maintainer confirmation of human-only settings, an independent REVIEW-CHECKLIST pass and a non-author migration walkthrough.",
-  "signOffs": {
-    "productManager": "pending",
-    "engineeringLead": "pending",
-    "qaLead": "pending",
-    "securityEngineer": "pending",
-    "maintainer": "pending"
-  },
+  "decisionSummary": "Technical gates for contract freeze (M4), trust baseline (M5) and automated E2E coverage are green locally. GitHub Private Vulnerability Reporting confirmed enabled (TASK-053, 2026-06-26). P1-002 and P1-003 are deferred to early RC soak (1.0.0-rc) and must close before TASK-082 stable approval. Cross-functional go/no-go sign-offs are recorded in stable-release-approval.v1.json (TASK-082), not at RC publish.",
   "epicGates": [
     {
       "epic": 13,
       "milestone": "M1",
-      "status": "blocked",
-      "summary": "Documentation consistency automated; TASK-053 awaits GitHub Private Vulnerability Reporting enablement.",
+      "status": "done",
+      "summary": "Documentation consistency automated; GitHub Private Vulnerability Reporting confirmed enabled (TASK-053, 2026-06-26).",
       "evidence": [
         "tasks/EPIC-13-product-baseline.md",
-        "npm run docs:check"
+        "npm run docs:check",
+        "gh api repos/warante/QA_FlowKit/private-vulnerability-reporting"
       ]
     },
     {
@@ -180,7 +174,7 @@
         "M6 RC gate"
       ],
       "decision": "pending",
-      "notes": "Schedule before TASK-080 RC publish.",
+      "notes": "Deferred to early RC soak after first 1.0.0-rc publish; complete before TASK-082 stable gate.",
       "checklist": "tasks/REVIEW-CHECKLIST.md"
     }
   ],

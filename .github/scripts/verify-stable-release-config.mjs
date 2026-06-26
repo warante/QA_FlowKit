@@ -72,7 +72,7 @@ export async function verifyStableReleaseConfig({ root = repoRoot } = {}) {
 
   if (record.status === 'prepared') {
     assert(active.prerelease === true, 'prepared status expects active prerelease policy until merge', errors);
-    assert(active['prerelease-type'] === 'beta', 'prepared status expects active beta prerelease-type', errors);
+    assert(active['prerelease-type'] === 'rc', 'prepared status expects active rc prerelease-type', errors);
     assert(!activeMatchesStable, 'prepared status expects active config to differ from merged stable policy', errors);
   }
 

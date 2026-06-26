@@ -11,3 +11,13 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    cooldown:
+      default-days: 2
+
+  - package-ecosystem: npm
+    directory: /examples/playwright-full
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 3
+    cooldown:
+      default-days: 2
