@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="QA FlowKit turns AI-assisted QA work into a repeatable, reviewable repository workflow."
+    />
+    <title>QA FlowKit | AI-assisted QA workflows for real repositories</title>
+    <link rel="alternate" hreflang="en" href="https://warante.github.io/QA_FlowKit/" />
+    <link rel="alternate" hreflang="es" href="https://warante.github.io/QA_FlowKit/es/" />
+    <link rel="stylesheet" href="assets/styles.css" />
+  </head>
+  <body>
+    <header class="topbar" aria-label="Primary navigation">
+      <a class="brand" href="#top" aria-label="QA FlowKit home">
+        <span class="brand-mark">QF</span>
+        <span>QA FlowKit</span>
+      </a>
+      <nav>
+        <a href="#workflow">Workflow</a>
+        <a href="#features">Features</a>
+        <a href="#install">Install</a>
+        <a href="es/" lang="es">ES</a>
+        <a href="https://github.com/warante/QA_FlowKit">GitHub</a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Open-source QA workflow starter</p>
+          <h1>QA FlowKit</h1>
+          <p class="lede">
+            Turn AI-assisted QA work into a repeatable, reviewable repository workflow with deterministic checks,
+            traceability, agent instructions and PR-ready outputs.
+          </p>
+          <div class="actions" aria-label="Primary actions">
+            <a class="button primary" href="#install">Start in five minutes</a>
+            <a class="button secondary" href="https://www.npmjs.com/package/qa-flowkit">View npm package</a>
+          </div>
+        </div>
+        <div class="terminal-panel" aria-label="QA FlowKit command preview">
+          <div class="terminal-bar">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <pre><code>npx qa-flowkit init
+npx qa-flowkit doctor
+
+/qa-help
+/qa-add-tests
+/qa-full-flow</code></pre>
+        </div>
+      </section>
+
+      <section class="signal-strip" aria-label="Project signals">
+        <div>
+          <strong>Node.js 20+</strong>
+          <span>Native CLI and portable scripts</span>
+        </div>
+        <div>
+          <strong>Beta / RC ready</strong>
+          <span>Release-please and npm publishing workflow</span>
+        </div>
+        <div>
+          <strong>Agent friendly</strong>
+          <span>Codex Desktop, Claude Code, OpenCode and more</span>
+        </div>
+      </section>
+
+      <section class="section" id="workflow">
+        <div class="section-heading">
+          <p class="eyebrow">Repository-first control</p>
+          <h2>From requirements to release evidence</h2>
+          <p>
+            The AI reasons and edits files. QA FlowKit controls phase order, required outputs, approvals and pass/fail
+            checks so teams do not rely only on prompt discipline.
+          </p>
+        </div>
+        <div class="workflow">
+          <div>Requirement</div>
+          <div>Test design</div>
+          <div>Gherkin</div>
+          <div>Traceability</div>
+          <div>Automation plan</div>
+          <div>Release gate</div>
+        </div>
+      </section>
+
+      <section class="section split" id="features">
+        <div class="section-heading">
+          <p class="eyebrow">What it installs</p>
+          <h2>A portable QA harness for target repositories</h2>
+          <p>
+            QA FlowKit adds the framework folder, target configuration, generated artifacts, Gherkin features and
+            optional agent adapters directly inside the repository under test.
+          </p>
+        </div>
+        <div class="feature-grid">
+          <article>
+            <h3>Traceable test design</h3>
+            <p>Validate RF links, duplicate IDs, coverage obligations and acceptance-criteria blocks.</p>
+          </article>
+          <article>
+            <h3>Deterministic validators</h3>
+            <p>Check Gherkin language, required tags, sync plans, release gates and generated QA artifacts.</p>
+          </article>
+          <article>
+            <h3>Workflow tracks</h3>
+            <p>Choose quick, standard or enterprise depth depending on governance and automation needs.</p>
+          </article>
+          <article>
+            <h3>Safety boundaries</h3>
+            <p>Keep outputs local, reject unsafe paths, scan untrusted content and avoid external writes in the MVP.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section bands" aria-label="Supported presets and adapters">
+        <div>
+          <h2>Presets</h2>
+          <p>
+            manual-only, playwright-full, maestro-karate-mobile, karate-full, webdriverio-playwright-api and
+            selenium-jest-browserstack.
+          </p>
+        </div>
+        <div>
+          <h2>Adapters</h2>
+          <p>
+            Claude Code, Codex Desktop, OpenCode, Cline, Continue, Aider, Goose, Gemini CLI and generic AGENTS.md
+            instructions.
+          </p>
+        </div>
+      </section>
+
+      <section class="section install" id="install">
+        <div>
+          <p class="eyebrow">Five-minute start</p>
+          <h2>Install in the repository where QA work happens</h2>
+          <p>Run the CLI, choose an adapter, open your AI coding tool and use the generated QA command surface.</p>
+        </div>
+        <pre><code>npx qa-flowkit init
+npx qa-flowkit doctor
+npx qa-flowkit validate-target</code></pre>
+      </section>
+    </main>
+
+    <footer>
+      <span>MIT licensed open-source QA workflow starter.</span>
+      <a href="https://github.com/warante/QA_FlowKit">GitHub repository</a>
+    </footer>
+  </body>
+</html>
