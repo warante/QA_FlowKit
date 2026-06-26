@@ -40,6 +40,61 @@
         },
         {
           "type": "json",
+          "path": "docs/qa-ai/demo.v1.json",
+          "jsonpath": "$.qaFlowKitVersion"
+        },
+        {
+          "type": "json",
+          "path": "docs/qa-ai/open-risk-register.v1.json",
+          "jsonpath": "$.qaFlowKitVersion"
+        },
+        {
+          "type": "json",
+          "path": "docs/qa-ai/rc-soak-status.v1.json",
+          "jsonpath": "$.qaFlowKitVersion"
+        },
+        {
+          "type": "json",
+          "path": "docs/qa-ai/readiness-audit.v1.json",
+          "jsonpath": "$.qaFlowKitVersion"
+        },
+        {
+          "type": "json",
+          "path": "docs/qa-ai/required-checks.v1.json",
+          "jsonpath": "$.qaFlowKitVersion"
+        },
+        {
+          "type": "json",
+          "path": "docs/qa-ai/stable-announcement.v1.json",
+          "jsonpath": "$.qaFlowKitVersion"
+        },
+        {
+          "type": "json",
+          "path": "docs/qa-ai/stable-post-publish.v1.json",
+          "jsonpath": "$.qaFlowKitVersion"
+        },
+        {
+          "type": "json",
+          "path": "docs/qa-ai/stable-public-entrypoints.v1.json",
+          "jsonpath": "$.qaFlowKitVersion"
+        },
+        {
+          "type": "json",
+          "path": "docs/qa-ai/stable-release-approval.v1.json",
+          "jsonpath": "$.qaFlowKitVersion"
+        },
+        {
+          "type": "json",
+          "path": "docs/qa-ai/stable-release-config.v1.json",
+          "jsonpath": "$.qaFlowKitVersion"
+        },
+        {
+          "type": "json",
+          "path": "docs/qa-ai/stable-release-pr.v1.json",
+          "jsonpath": "$.qaFlowKitVersion"
+        },
+        {
+          "type": "json",
           "path": "docs/qa-ai/adapter-support.v1.json",
           "jsonpath": "$.adapters[0].versionRange"
         },
@@ -82,16 +137,6 @@
           "type": "json",
           "path": "docs/qa-ai/adapter-support.v1.json",
           "jsonpath": "$.adapters[8].versionRange"
-        },
-        {
-          "type": "json",
-          "path": "docs/qa-ai/stable-release-config.v1.json",
-          "jsonpath": "$.qaFlowKitVersion"
-        },
-        {
-          "type": "json",
-          "path": "docs/qa-ai/stable-release-pr.v1.json",
-          "jsonpath": "$.qaFlowKitVersion"
         }
       ]
     }

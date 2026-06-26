@@ -24,11 +24,38 @@ async function readJsonFromRoot(root, relativePath) {
   return JSON.parse(await fs.readFile(path.join(root, relativePath), 'utf8'));
 }
 
+async function collectVersionedManifestPaths(root) {
+  const docsDir = path.join(root, 'docs', 'qa-ai');
+  const entries = await fs.readdir(docsDir);
+  const manifests = [];
+
+  for (const entry of entries) {
+    if (!entry.endsWith('.v1.json')) continue;
+    const relativePath = path.join('docs', 'qa-ai', entry).replace(/\\/g, '/');
+    const manifest = await readJsonFromRoot(root, relativePath);
+    if (Object.hasOwn(manifest, 'qaFlowKitVersion')) {
+      manifests.push(relativePath);
+    }
+  }
+
+  return manifests.sort();
+}
+
+function extraFileKeys(config) {
+  return new Set((config.packages?.['.']?.['extra-files'] || []).map((file) => `${file.path}#${file.jsonpath}`));
+}
+
 export async function verifyReleasePolicy({ root = repoRoot } = {}) {
   const errors = [];
   const active = await readJsonFromRoot(root, ACTIVE_CONFIG);
   const rc = await readJsonFromRoot(root, RC_CONFIG);
   const stable = await readJsonFromRoot(root, STABLE_CONFIG);
+  const configs = new Map([
+    [ACTIVE_CONFIG, active],
+    [RC_CONFIG, rc],
+    [STABLE_CONFIG, stable]
+  ]);
+  const versionedManifests = await collectVersionedManifestPaths(root);
 
   assert(active.prerelease === true, 'active config must remain prerelease during beta', errors);
   assert(
@@ -43,6 +70,21 @@ export async function verifyReleasePolicy({ root = repoRoot } = {}) {
 
   assert(packageKeys(active) === packageKeys(rc), 'RC config package map must match active config', errors);
   assert(packageKeys(active) === packageKeys(stable), 'stable config package map must match active config', errors);
+
+  const activeExtraFileKeys = extraFileKeys(active);
+  for (const [configPath, config] of configs) {
+    const configExtraFileKeys = extraFileKeys(config);
+    for (const manifestPath of versionedManifests) {
+      assert(
+        configExtraFileKeys.has(`${manifestPath}#$.qaFlowKitVersion`),
+        `${configPath} must update ${manifestPath} qaFlowKitVersion`,
+        errors
+      );
+    }
+    for (const key of activeExtraFileKeys) {
+      assert(configExtraFileKeys.has(key), `${configPath} extra-files must include ${key}`, errors);
+    }
+  }
 
   const samples = [
     ['0.5.8-beta.0', 'beta'],
