@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "generatedAt": "2026-06-25",
-  "qaFlowKitVersion": "0.5.8-beta.0",
+  "qaFlowKitVersion": "0.5.9-beta.0",
   "task": "TASK-082",
   "milestone": "M6",
   "status": "pending",
@@ -31,8 +31,15 @@
   },
   "riskAcceptance": {
     "openP0": [],
-    "openP1": ["P1-001", "P1-002", "P1-003"],
-    "acceptedRisks": ["P2-001", "P3-001"],
+    "openP1": [
+      "P1-001",
+      "P1-002",
+      "P1-003"
+    ],
+    "acceptedRisks": [
+      "P2-001",
+      "P3-001"
+    ],
     "rcKnownIssuesDisposition": "Pending TASK-082 approval; see rc-known-limitations.md."
   }
 }

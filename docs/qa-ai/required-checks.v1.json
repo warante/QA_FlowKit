@@ -1,8 +1,12 @@
 {
   "schemaVersion": 1,
   "generatedAt": "2026-06-25",
-  "qaFlowKitVersion": "0.5.8-beta.0",
-  "requiredBranchProtectionContexts": ["Validate starter", "Coverage", "Analyze JavaScript"],
+  "qaFlowKitVersion": "0.5.9-beta.0",
+  "requiredBranchProtectionContexts": [
+    "Validate starter",
+    "Coverage",
+    "Analyze JavaScript"
+  ],
   "checks": [
     {
       "workflow": ".github/workflows/ci.yml",

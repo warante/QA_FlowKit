@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "generatedAt": "2026-06-25",
-  "qaFlowKitVersion": "0.5.8-beta.0",
+  "qaFlowKitVersion": "0.5.9-beta.0",
   "task": "TASK-086",
   "lifecycle": "beta",
   "flipToStable": [
@@ -25,19 +25,27 @@
     },
     {
       "path": "SECURITY.md",
-      "checks": ["Lifecycle claim: Stable (not Beta)"]
+      "checks": [
+        "Lifecycle claim: Stable (not Beta)"
+      ]
     },
     {
       "path": "docs/qa-ai/stability-policy.md",
-      "checks": ["Replace beta policy body with stability-policy-stable.md"]
+      "checks": [
+        "Replace beta policy body with stability-policy-stable.md"
+      ]
     },
     {
       "path": "docs/qa-ai/getting-started.md",
-      "checks": ["Default channel @latest in install examples"]
+      "checks": [
+        "Default channel @latest in install examples"
+      ]
     },
     {
       "path": "docs/qa-ai/release-checklist.md",
-      "checks": ["Stable maintenance section current"]
+      "checks": [
+        "Stable maintenance section current"
+      ]
     }
   ]
 }
