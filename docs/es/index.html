@@ -19,8 +19,10 @@
         <span>QA FlowKit</span>
       </a>
       <nav>
+        <a href="#why">Por qué</a>
         <a href="#workflow">Flujo</a>
         <a href="#features">Funciones</a>
+        <a href="#commands">Comandos</a>
         <a href="#install">Instalar</a>
         <a href="../" lang="en">EN</a>
         <a href="https://github.com/warante/QA_FlowKit">GitHub</a>
@@ -38,6 +40,7 @@
           </p>
           <div class="actions" aria-label="Acciones principales">
             <a class="button primary" href="#install">Empezar en cinco minutos</a>
+            <a class="button secondary" href="#commands">Ver comandos</a>
             <a class="button secondary" href="https://www.npmjs.com/package/qa-flowkit">Ver paquete npm</a>
           </div>
         </div>
@@ -48,7 +51,8 @@
             <span></span>
           </div>
           <pre><code>npx qa-flowkit init
-npx qa-flowkit doctor
+
+abre tu CLI de IA y usa la superficie de comandos generada:
 
 /qa-help
 /qa-add-tests
@@ -62,12 +66,78 @@ npx qa-flowkit doctor
           <span>CLI nativo y scripts portables</span>
         </div>
         <div>
-          <strong>Beta / RC ready</strong>
+          <strong>RC ready</strong>
           <span>Release-please y flujo de publicacion npm</span>
         </div>
         <div>
           <strong>Preparado para agentes</strong>
           <span>Codex Desktop, Claude Code, OpenCode y mas</span>
+        </div>
+      </section>
+
+      <section class="section" id="why">
+        <div class="section-heading">
+          <p class="eyebrow">Hecho para equipos QA</p>
+          <h2>Por que QA FlowKit</h2>
+          <p>
+            Los agentes de IA pueden generar pruebas rapido, pero los equipos QA siguen necesitando estructura,
+            trazabilidad, puntos de aprobacion y validacion reproducible. QA FlowKit esta 100% orientado al flujo QA —
+            no es scaffolding de aplicaciones ni prompts genericos de codigo.
+          </p>
+        </div>
+        <div class="why-grid">
+          <article class="why-card">
+            <span class="card-number" aria-hidden="true">1</span>
+            <h3>El problema</h3>
+            <p>
+              Los prompts ad hoc producen Gherkin inconsistente, enlaces RF perdidos y CI sin contrato claro de que
+              significa “terminado” en QA.
+            </p>
+          </article>
+          <article class="why-card">
+            <span class="card-number" aria-hidden="true">2</span>
+            <h3>El enfoque</h3>
+            <p>
+              Un harness QA en el repositorio: fases, aprobaciones explicitas y validadores deterministas — no solo
+              disciplina de prompt.
+            </p>
+          </article>
+          <article class="why-card">
+            <span class="card-number" aria-hidden="true">3</span>
+            <h3>Para flujos QA</h3>
+            <p>
+              Desde el intake de requisitos hasta Gherkin, matriz de trazabilidad, plan de automatizacion y evidencia de
+              release — cada paso tiene salidas definidas.
+            </p>
+          </article>
+          <article class="why-card">
+            <span class="card-number" aria-hidden="true">4</span>
+            <h3>Limites claros</h3>
+            <p>
+              Sin modelo de IA propio, sin telemetria, sin escrituras externas silenciosas. Los artefactos permanecen
+              locales y auditables en el repositorio.
+            </p>
+          </article>
+        </div>
+        <div class="compare-columns" aria-label="Sin harness frente a con QA FlowKit">
+          <article class="problem">
+            <h3>Sin harness QA</h3>
+            <ul>
+              <li>Prompts puntuales sin orden de fases</li>
+              <li>Archivos <code>.feature</code> inconsistentes y tags faltantes</li>
+              <li>RF y criterios de aceptacion perdidos entre sesiones</li>
+              <li>CI sin quality gate compartido para artefactos QA</li>
+            </ul>
+          </article>
+          <article class="solution">
+            <h3>Con QA FlowKit</h3>
+            <ul>
+              <li><code>/qa-help</code> recomienda el siguiente paso del workflow</li>
+              <li><code>validate-target</code> ejecuta el quality gate completo del repositorio</li>
+              <li><code>run start | next | check</code> retoma el trabajo entre sesiones del agente</li>
+              <li>Planes de sync proposal-first — sin escrituras silenciosas en test management</li>
+            </ul>
+          </article>
         </div>
       </section>
 
@@ -80,13 +150,66 @@ npx qa-flowkit doctor
             aprobaciones y los checks de exito o fallo para que el equipo no dependa solo de la disciplina del prompt.
           </p>
         </div>
-        <div class="workflow">
-          <div>Requisito</div>
-          <div>Diseno de pruebas</div>
-          <div>Gherkin</div>
-          <div>Trazabilidad</div>
-          <div>Plan de automatizacion</div>
-          <div>Release gate</div>
+        <div class="workflow-pipeline" aria-label="Pipeline del flujo QA">
+          <div class="workflow-node">
+            <span class="phase">Paso 1</span>
+            <strong>Requisito</strong>
+            <span>Intake e ID RF</span>
+          </div>
+          <div class="workflow-connector" aria-hidden="true">→</div>
+          <div class="workflow-node">
+            <span class="phase">Pasos 2–3</span>
+            <strong>Diseno de pruebas</strong>
+            <span>Cobertura y sync plan</span>
+          </div>
+          <div class="workflow-connector" aria-hidden="true">→</div>
+          <div class="workflow-node">
+            <span class="phase">Paso 4</span>
+            <strong>Gherkin</strong>
+            <span>Archivos <code>.feature</code></span>
+          </div>
+          <div class="workflow-connector" aria-hidden="true">→</div>
+          <div class="workflow-node">
+            <span class="phase">Paso 6</span>
+            <strong>Trazabilidad</strong>
+            <span>Matriz RF → prueba</span>
+          </div>
+          <div class="workflow-connector" aria-hidden="true">→</div>
+          <div class="workflow-node">
+            <span class="phase">Pasos 7–8</span>
+            <strong>Automatizacion</strong>
+            <span>Viabilidad y specs</span>
+          </div>
+          <div class="workflow-connector" aria-hidden="true">→</div>
+          <div class="workflow-node">
+            <span class="phase">Paso 9</span>
+            <strong>Release gate</strong>
+            <span>Evidencia lista para PR</span>
+          </div>
+        </div>
+        <div class="workflow-layers">
+          <div class="workflow-layer agent">
+            <h3>Agente IA</h3>
+            <p>
+              Razona sobre requisitos, redacta Gherkin, propone sync plans y automatizacion — edita archivos en el repo.
+            </p>
+          </div>
+          <div class="workflow-layer harness">
+            <h3>Harness QA FlowKit</h3>
+            <p>
+              Valida salidas, bloquea fases invalidas, registra aprobaciones y mantiene estado resumible en
+              <code>.qa-ai/state/</code>.
+            </p>
+          </div>
+        </div>
+        <p class="workflow-notes">
+          Los gates clave incluyen confirmacion del ID RF oficial, sync de test management proposal-first y validacion
+          determinista de Gherkin antes de trazabilidad y decisiones de release.
+        </p>
+        <div class="track-pills" aria-label="Tracks de workflow">
+          <span class="track-pill"><strong>quick</strong> — requisitos, Gherkin, trazabilidad</span>
+          <span class="track-pill"><strong>standard</strong> — diseno completo y plan de automatizacion</span>
+          <span class="track-pill"><strong>enterprise</strong> — validacion estricta y release gate</span>
         </div>
       </section>
 
@@ -113,6 +236,10 @@ npx qa-flowkit doctor
             <p>Elige quick, standard o enterprise segun la profundidad de gobierno y automatizacion que necesites.</p>
           </article>
           <article>
+            <h3>Harness resumible</h3>
+            <p>Estado persistente de ejecucion, event log y <code>run status</code> entre sesiones del agente.</p>
+          </article>
+          <article>
             <h3>Limites de seguridad</h3>
             <p>
               Mantiene las salidas locales, rechaza rutas inseguras, escanea contenido no confiable y evita escrituras
@@ -122,20 +249,107 @@ npx qa-flowkit doctor
         </div>
       </section>
 
+      <section class="section" id="commands">
+        <div class="section-heading">
+          <p class="eyebrow">Superficie de comandos</p>
+          <h2>Comandos CLI y de agente</h2>
+          <p>
+            Ejecuta setup y validacion desde la terminal. Impulsa el flujo QA desde tu herramienta de IA con comandos
+            slash generados.
+          </p>
+        </div>
+        <div class="command-groups">
+          <div class="command-group">
+            <h3>En tu terminal</h3>
+            <div class="command-grid">
+              <article class="command-card">
+                <code>npx qa-flowkit init</code>
+                <p>Instala <code>.qa-ai/</code>, genera config, carpetas y adaptadores de agente seleccionados.</p>
+              </article>
+              <article class="command-card">
+                <code>npx qa-flowkit doctor</code>
+                <p>Health check de la instalacion del framework y la configuracion del repo objetivo.</p>
+              </article>
+              <article class="command-card">
+                <code>npx qa-flowkit help</code>
+                <p>Recomienda el siguiente paso del workflow QA segun los artefactos actuales.</p>
+              </article>
+              <article class="command-card">
+                <code>npx qa-flowkit run start | next | check</code>
+                <p>Harness resumible con validacion por fase y gates de aprobacion.</p>
+              </article>
+              <article class="command-card">
+                <code>npx qa-flowkit validate-target</code>
+                <p>Ejecuta el quality gate completo del repositorio objetivo (doctor estricto + validadores).</p>
+              </article>
+              <article class="command-card">
+                <code>npx qa-flowkit export-report</code>
+                <p>Exporta casos de prueba alineados con Gherkin a Cucumber JSON, Allure o JUnit XML.</p>
+              </article>
+            </div>
+          </div>
+          <div class="command-group">
+            <h3>En tu agente IA</h3>
+            <div class="command-grid">
+              <article class="command-card">
+                <code>/qa-help</code>
+                <p>Guia contextual — que hacer ahora en el workflow QA.</p>
+              </article>
+              <article class="command-card">
+                <code>/qa-init</code>
+                <p>Inicializacion guiada de QA FlowKit dentro de la sesion del agente.</p>
+              </article>
+              <article class="command-card">
+                <code>/qa-add-tests</code>
+                <p>Anadir pruebas QA para un requisito (RF) nuevo.</p>
+              </article>
+              <article class="command-card">
+                <code>/qa-full-flow</code>
+                <p>Ejecutar el workflow completo guiado de QA FlowKit de principio a fin.</p>
+              </article>
+              <article class="command-card">
+                <code>/qa-validate-features</code>
+                <p>Validar archivos Gherkin de diseno QA contra las reglas del framework.</p>
+              </article>
+              <article class="command-card">
+                <code>/qa-gate</code>
+                <p>Decision de release gate para workflows del track enterprise.</p>
+              </article>
+            </div>
+          </div>
+        </div>
+        <p class="command-note">
+          Referencia completa:
+          <a href="https://github.com/warante/QA_FlowKit/blob/main/docs/qa-ai/cli-reference.md">CLI Reference</a>
+          — incluye 16 comandos <code>/qa-*</code> y validadores adicionales.
+        </p>
+      </section>
+
       <section class="section bands" aria-label="Presets y adaptadores soportados">
         <div>
           <h2>Presets</h2>
-          <p>
-            manual-only, playwright-full, maestro-karate-mobile, karate-full, webdriverio-playwright-api y
-            selenium-jest-browserstack.
-          </p>
+          <div class="chip-list">
+            <span class="chip">manual-only</span>
+            <span class="chip">playwright-full</span>
+            <span class="chip">maestro-karate-mobile</span>
+            <span class="chip">karate-full</span>
+            <span class="chip">webdriverio-playwright-api</span>
+            <span class="chip">selenium-jest-browserstack</span>
+          </div>
         </div>
         <div>
           <h2>Adaptadores</h2>
-          <p>
-            Claude Code, Codex Desktop, OpenCode, Cline, Continue, Aider, Goose, Gemini CLI e instrucciones genericas
-            AGENTS.md.
-          </p>
+          <div class="chip-list">
+            <span class="chip">Claude Code</span>
+            <span class="chip">Codex Desktop</span>
+            <span class="chip">OpenCode</span>
+            <span class="chip">Cline</span>
+            <span class="chip">Continue</span>
+            <span class="chip">Aider</span>
+            <span class="chip">Goose</span>
+            <span class="chip">Gemini CLI</span>
+            <span class="chip">AGENTS.md</span>
+          </div>
         </div>
       </section>
 
@@ -148,14 +362,23 @@ npx qa-flowkit doctor
           </p>
         </div>
         <pre><code>npx qa-flowkit init
-npx qa-flowkit doctor
-npx qa-flowkit validate-target</code></pre>
+
+abre tu CLI de IA y usa la superficie de comandos generada:
+
+/qa-help
+/qa-add-tests
+/qa-full-flow</code></pre>
       </section>
     </main>
 
     <footer>
       <span>Starter QA open source con licencia MIT.</span>
-      <a href="https://github.com/warante/QA_FlowKit">Repositorio en GitHub</a>
+      <div class="footer-links">
+        <a href="https://github.com/warante/QA_FlowKit">Repositorio en GitHub</a>
+        <a href="https://github.com/warante/QA_FlowKit/blob/main/README.es.md">README</a>
+        <a href="https://github.com/warante/QA_FlowKit/blob/main/docs/qa-ai/cli-reference.md">Referencia CLI</a>
+        <a href="https://github.com/warante/QA_FlowKit/blob/main/docs/qa-ai/demo.md">Demo RF-101</a>
+      </div>
     </footer>
   </body>
 </html>

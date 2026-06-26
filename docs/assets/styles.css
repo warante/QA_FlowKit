@@ -268,26 +268,272 @@ code {
   color: var(--muted);
 }
 
-.workflow {
+.why-grid {
   display: grid;
-  grid-template-columns: repeat(6, minmax(130px, 1fr));
-  gap: 1px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
   margin-top: 38px;
-  background: var(--line);
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  overflow: hidden;
 }
 
-.workflow div {
+.why-card {
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+
+.why-card .card-number {
   display: grid;
-  min-height: 116px;
+  width: 32px;
+  height: 32px;
+  margin-bottom: 14px;
   place-items: center;
-  padding: 18px;
+  border-radius: 50%;
+  background: var(--green);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.why-card p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.compare-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 32px;
+}
+
+.compare-columns article {
+  padding: clamp(24px, 4vw, 32px);
+  border-radius: 8px;
+}
+
+.compare-columns .problem {
+  border: 1px solid #e8c9b0;
+  background: #fdf6ef;
+}
+
+.compare-columns .solution {
+  border: 1px solid #b8d4c8;
+  background: #eef6f1;
+}
+
+.compare-columns h3 {
+  margin-bottom: 12px;
+}
+
+.compare-columns ul {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: var(--muted);
+}
+
+.compare-columns li + li {
+  margin-top: 8px;
+}
+
+.workflow-pipeline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 0;
+  margin-top: 38px;
+}
+
+.workflow-node {
+  display: flex;
+  flex: 1 1 120px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 120px;
+  padding: 16px 12px;
+  border: 2px solid var(--green);
+  border-radius: 8px;
+  background: var(--panel);
+  text-align: center;
+}
+
+.workflow-node .phase {
+  margin-bottom: 6px;
+  color: var(--green);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.workflow-node strong {
+  display: block;
+  color: var(--green-dark);
+  font-size: 0.95rem;
+  line-height: 1.25;
+}
+
+.workflow-node span {
+  display: block;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
+.workflow-connector {
+  display: flex;
+  flex: 0 0 28px;
+  align-items: center;
+  justify-content: center;
+  color: var(--green);
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+.workflow-layers {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 28px;
+}
+
+.workflow-layer {
+  padding: 20px 24px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+}
+
+.workflow-layer.agent {
+  background: #eef2f7;
+}
+
+.workflow-layer.harness {
+  background: #eef6f1;
+  border-color: #b8d4c8;
+}
+
+.workflow-layer h3 {
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+}
+
+.workflow-layer p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.workflow-notes {
+  margin: 24px 0 0;
+  color: var(--muted);
+  max-width: 880px;
+}
+
+.track-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.track-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
   background: var(--panel);
   color: var(--green-dark);
-  font-weight: 800;
-  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.command-groups {
+  display: grid;
+  gap: 40px;
+  margin-top: 38px;
+}
+
+.command-group h3 {
+  margin-bottom: 16px;
+  color: var(--green-dark);
+  font-size: 1.1rem;
+}
+
+.command-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.command-card {
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+
+.command-card code {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--green-dark);
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.command-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.command-note {
+  margin-top: 28px;
+  padding: 18px 22px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f3f6f4;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.command-note a {
+  color: var(--green-dark);
+  font-weight: 700;
+}
+
+.chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--panel);
+  color: var(--ink);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.feature-grid article.feature-wide {
+  grid-column: 1 / -1;
+}
+
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 24px;
 }
 
 .split {
@@ -368,8 +614,22 @@ footer a {
     border-bottom: 1px solid var(--line);
   }
 
-  .workflow {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .why-grid,
+  .compare-columns,
+  .workflow-layers,
+  .command-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .workflow-pipeline {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .workflow-connector {
+    flex: 0 0 auto;
+    min-height: 24px;
+    transform: rotate(90deg);
   }
 }
 
@@ -391,9 +651,12 @@ footer a {
     font-size: clamp(3.6rem, 20vw, 5.5rem);
   }
 
-  .feature-grid,
-  .workflow {
+  .feature-grid {
     grid-template-columns: 1fr;
+  }
+
+  .feature-grid article.feature-wide {
+    grid-column: auto;
   }
 
   footer {
