@@ -5,11 +5,11 @@ the **RC** line (`prerelease-type: rc`) after the RC transition PR (TASK-080).
 
 Policy files:
 
-| File                                 | Purpose                                          | npm dist-tag for `1.0.0-rc.N` / `1.0.0` |
-| ------------------------------------ | ------------------------------------------------ | --------------------------------------- |
-| `.release-please-config.json`        | **Active** RC line (`prerelease-type: rc`)       | `rc`                                    |
-| `.release-please-config.rc.json`     | Prepared RC reference (matches active after merge) | `rc`                                  |
-| `.release-please-config.stable.json` | Prepared stable transition (`prerelease: false`) | `latest`                                |
+| File                                 | Purpose                                            | npm dist-tag for `1.0.0-rc.N` / `1.0.0` |
+| ------------------------------------ | -------------------------------------------------- | --------------------------------------- |
+| `.release-please-config.json`        | **Active** RC line (`prerelease-type: rc`)         | `rc`                                    |
+| `.release-please-config.rc.json`     | Prepared RC reference (matches active after merge) | `rc`                                    |
+| `.release-please-config.stable.json` | Prepared stable transition (`prerelease: false`)   | `latest`                                |
 
 Automated checks: `npm run test:release-policy` and `npm run test:e2e-release-dry-run` (E2E-09).
 

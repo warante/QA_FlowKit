@@ -36,14 +36,14 @@ Record the maintainer go/no-go decision to merge the stable release-please polic
 Run after RC soak completes and before merging `.release-please-config.stable.json`. Each role confirms in a PR or
 issue (link it in the approval PR). Suggested value format: `"approved YYYY-MM-DD"` instead of `"pending"`.
 
-| Rol                 | Campo JSON           | Responsable      |
-| ------------------- | -------------------- | ---------------- |
-| Product manager     | `productManager`     | PM               |
-| Engineering lead    | `engineeringLead`    | Eng lead         |
-| QA lead             | `qaLead`             | QA lead          |
-| Security engineer   | `securityEngineer`   | Security         |
-| Release engineer    | `releaseEngineer`    | Release engineer |
-| Maintainer          | `maintainer`         | Maintainer       |
+| Rol               | Campo JSON         | Responsable      |
+| ----------------- | ------------------ | ---------------- |
+| Product manager   | `productManager`   | PM               |
+| Engineering lead  | `engineeringLead`  | Eng lead         |
+| QA lead           | `qaLead`           | QA lead          |
+| Security engineer | `securityEngineer` | Security         |
+| Release engineer  | `releaseEngineer`  | Release engineer |
+| Maintainer        | `maintainer`       | Maintainer       |
 
 Each role confirms:
 
