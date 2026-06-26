@@ -1,32 +1,41 @@
 <!doctype html>
-<html lang="es">
+<html lang="es" data-lang-en="../" data-lang-es="./">
   <head>
     <meta charset="utf-8" />
+    <script src="../assets/lang-detect.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0c1117" />
     <meta
       name="description"
       content="QA FlowKit convierte el trabajo de QA asistido por IA en un flujo repetible y revisable dentro del repositorio."
     />
     <title>QA FlowKit | Flujos QA asistidos por IA para repositorios reales</title>
+    <link rel="canonical" href="https://warante.github.io/QA_FlowKit/es/" />
     <link rel="alternate" hreflang="en" href="https://warante.github.io/QA_FlowKit/" />
     <link rel="alternate" hreflang="es" href="https://warante.github.io/QA_FlowKit/es/" />
+    <link rel="alternate" hreflang="x-default" href="https://warante.github.io/QA_FlowKit/" />
     <link rel="stylesheet" href="../assets/styles.css" />
   </head>
   <body>
-    <header class="topbar" aria-label="Navegacion principal">
+    <header class="topbar" aria-label="Navegación principal">
       <a class="brand" href="#top" aria-label="Inicio de QA FlowKit">
         <span class="brand-mark">QF</span>
         <span>QA FlowKit</span>
       </a>
-      <nav>
-        <a href="#why">Por qué</a>
-        <a href="#workflow">Flujo</a>
-        <a href="#features">Funciones</a>
-        <a href="#commands">Comandos</a>
-        <a href="#install">Instalar</a>
-        <a href="../" lang="en">EN</a>
-        <a href="https://github.com/warante/QA_FlowKit">GitHub</a>
-      </nav>
+      <div class="topbar-end">
+        <nav aria-label="Secciones del sitio">
+          <a href="#why">Por qué</a>
+          <a href="#workflow">Flujo</a>
+          <a href="#features">Funciones</a>
+          <a href="#commands">Comandos</a>
+          <a href="#install">Instalar</a>
+        </nav>
+        <div class="lang-switcher" role="group" aria-label="Idioma">
+          <a class="lang-option" href="../" hreflang="en" lang="en" data-lang-choice="en">English</a>
+          <span class="lang-option is-active" lang="es" aria-current="page">Español</span>
+        </div>
+        <a class="topbar-cta" href="https://github.com/warante/QA_FlowKit">GitHub</a>
+      </div>
     </header>
 
     <main id="top">
@@ -39,7 +48,7 @@
             validaciones deterministas, trazabilidad, instrucciones para agentes y salidas listas para PR.
           </p>
           <div class="actions" aria-label="Acciones principales">
-            <a class="button primary" href="#install">Empezar en cinco minutos</a>
+            <a class="button primary" href="#install">Empezar en dos minutos</a>
             <a class="button secondary" href="#commands">Ver comandos</a>
             <a class="button secondary" href="https://www.npmjs.com/package/qa-flowkit">Ver paquete npm</a>
           </div>
@@ -54,35 +63,34 @@
 
 abre tu CLI de IA y usa la superficie de comandos generada:
 
-/qa-help
-/qa-add-tests
+/qa-init
 /qa-full-flow</code></pre>
         </div>
       </section>
 
-      <section class="signal-strip" aria-label="Senales del proyecto">
+      <section class="signal-strip" aria-label="Señales del proyecto">
         <div>
           <strong>Node.js 20+</strong>
           <span>CLI nativo y scripts portables</span>
         </div>
         <div>
           <strong>RC ready</strong>
-          <span>Release-please y flujo de publicacion npm</span>
+          <span>Release-please y flujo de publicación npm</span>
         </div>
         <div>
           <strong>Preparado para agentes</strong>
-          <span>Codex Desktop, Claude Code, OpenCode y mas</span>
+          <span>Claude Code, OpenCode, Codex Desktop y más</span>
         </div>
       </section>
 
       <section class="section" id="why">
         <div class="section-heading">
-          <p class="eyebrow">Hecho para equipos QA</p>
-          <h2>Por que QA FlowKit</h2>
+          <p class="eyebrow">Hecho por y para equipos QA</p>
+          <h2>Por qué QA FlowKit</h2>
           <p>
-            Los agentes de IA pueden generar pruebas rapido, pero los equipos QA siguen necesitando estructura,
-            trazabilidad, puntos de aprobacion y validacion reproducible. QA FlowKit esta 100% orientado al flujo QA —
-            no es scaffolding de aplicaciones ni prompts genericos de codigo.
+            Los agentes de IA pueden generar pruebas rápido, pero los equipos QA siguen necesitando estructura,
+            trazabilidad, puntos de aprobación y validación reproducible. QA FlowKit está 100% orientado al flujo QA —
+            no es andamiaje de aplicaciones ni prompts genéricos de código.
           </p>
         </div>
         <div class="why-grid">
@@ -90,7 +98,7 @@ abre tu CLI de IA y usa la superficie de comandos generada:
             <span class="card-number" aria-hidden="true">1</span>
             <h3>El problema</h3>
             <p>
-              Los prompts ad hoc producen Gherkin inconsistente, enlaces RF perdidos y CI sin contrato claro de que
+              Los prompts ad hoc producen Gherkin inconsistente, enlaces RF perdidos y CI sin contrato claro de qué
               significa “terminado” en QA.
             </p>
           </article>
@@ -98,7 +106,7 @@ abre tu CLI de IA y usa la superficie de comandos generada:
             <span class="card-number" aria-hidden="true">2</span>
             <h3>El enfoque</h3>
             <p>
-              Un harness QA en el repositorio: fases, aprobaciones explicitas y validadores deterministas — no solo
+              Un arnés QA en el repositorio: fases, aprobaciones explícitas y validadores deterministas — no solo
               disciplina de prompt.
             </p>
           </article>
@@ -106,36 +114,39 @@ abre tu CLI de IA y usa la superficie de comandos generada:
             <span class="card-number" aria-hidden="true">3</span>
             <h3>Para flujos QA</h3>
             <p>
-              Desde el intake de requisitos hasta Gherkin, matriz de trazabilidad, plan de automatizacion y evidencia de
-              release — cada paso tiene salidas definidas.
+              Desde la ingesta de requisitos hasta Gherkin, matriz de trazabilidad, plan de automatización y evidencia
+              de release — cada paso tiene salidas definidas.
             </p>
           </article>
           <article class="why-card">
             <span class="card-number" aria-hidden="true">4</span>
-            <h3>Limites claros</h3>
+            <h3>Límites claros</h3>
             <p>
-              Sin modelo de IA propio, sin telemetria, sin escrituras externas silenciosas. Los artefactos permanecen
+              Sin modelo de IA propio, sin telemetría, sin escrituras externas silenciosas. Los artefactos permanecen
               locales y auditables en el repositorio.
             </p>
           </article>
         </div>
-        <div class="compare-columns" aria-label="Sin harness frente a con QA FlowKit">
+        <div class="compare-columns" aria-label="Sin arnés frente a con QA FlowKit">
           <article class="problem">
-            <h3>Sin harness QA</h3>
+            <h3>Sin arnés de QA</h3>
             <ul>
               <li>Prompts puntuales sin orden de fases</li>
               <li>Archivos <code>.feature</code> inconsistentes y tags faltantes</li>
-              <li>RF y criterios de aceptacion perdidos entre sesiones</li>
-              <li>CI sin quality gate compartido para artefactos QA</li>
+              <li>RF y criterios de aceptación perdidos entre sesiones</li>
+              <li>CI sin puerta de calidad compartida para artefactos QA</li>
             </ul>
           </article>
           <article class="solution">
             <h3>Con QA FlowKit</h3>
             <ul>
-              <li><code>/qa-help</code> recomienda el siguiente paso del workflow</li>
-              <li><code>validate-target</code> ejecuta el quality gate completo del repositorio</li>
+              <li><code>/qa-help</code> recomienda el siguiente paso del flujo de trabajo</li>
+              <li><code>validate-target</code> ejecuta la puerta de calidad completa del repositorio</li>
               <li><code>run start | next | check</code> retoma el trabajo entre sesiones del agente</li>
-              <li>Planes de sync proposal-first — sin escrituras silenciosas en test management</li>
+              <li>
+                Planes de sincronización solo-propuesta (proposal-first) — sin escrituras silenciosas en gestión de
+                pruebas
+              </li>
             </ul>
           </article>
         </div>
@@ -147,20 +158,21 @@ abre tu CLI de IA y usa la superficie de comandos generada:
           <h2>De requisitos a evidencia de release</h2>
           <p>
             La IA razona y edita archivos. QA FlowKit controla el orden de fases, las salidas requeridas, las
-            aprobaciones y los checks de exito o fallo para que el equipo no dependa solo de la disciplina del prompt.
+            aprobaciones y las comprobaciones de éxito o fallo para que el equipo no dependa solo de la disciplina del
+            prompt.
           </p>
         </div>
-        <div class="workflow-pipeline" aria-label="Pipeline del flujo QA">
+        <div class="workflow-pipeline" aria-label="Recorrido del flujo QA">
           <div class="workflow-node">
             <span class="phase">Paso 1</span>
             <strong>Requisito</strong>
-            <span>Intake e ID RF</span>
+            <span>Ingesta e ID RF</span>
           </div>
           <div class="workflow-connector" aria-hidden="true">→</div>
           <div class="workflow-node">
             <span class="phase">Pasos 2–3</span>
-            <strong>Diseno de pruebas</strong>
-            <span>Cobertura y sync plan</span>
+            <strong>Diseño de pruebas</strong>
+            <span>Cobertura y plan de sincronización</span>
           </div>
           <div class="workflow-connector" aria-hidden="true">→</div>
           <div class="workflow-node">
@@ -177,8 +189,8 @@ abre tu CLI de IA y usa la superficie de comandos generada:
           <div class="workflow-connector" aria-hidden="true">→</div>
           <div class="workflow-node">
             <span class="phase">Pasos 7–8</span>
-            <strong>Automatizacion</strong>
-            <span>Viabilidad y specs</span>
+            <strong>Automatización</strong>
+            <span>Viabilidad y especificaciones</span>
           </div>
           <div class="workflow-connector" aria-hidden="true">→</div>
           <div class="workflow-node">
@@ -191,58 +203,65 @@ abre tu CLI de IA y usa la superficie de comandos generada:
           <div class="workflow-layer agent">
             <h3>Agente IA</h3>
             <p>
-              Razona sobre requisitos, redacta Gherkin, propone sync plans y automatizacion — edita archivos en el repo.
+              Razona sobre requisitos, redacta Gherkin, propone planes de sincronización y automatización — edita
+              archivos en el repositorio.
             </p>
           </div>
           <div class="workflow-layer harness">
-            <h3>Harness QA FlowKit</h3>
+            <h3>Arnés QA FlowKit</h3>
             <p>
-              Valida salidas, bloquea fases invalidas, registra aprobaciones y mantiene estado resumible en
+              Valida salidas, bloquea fases inválidas, registra aprobaciones y mantiene estado resumible en
               <code>.qa-ai/state/</code>.
             </p>
           </div>
         </div>
         <p class="workflow-notes">
-          Los gates clave incluyen confirmacion del ID RF oficial, sync de test management proposal-first y validacion
-          determinista de Gherkin antes de trazabilidad y decisiones de release.
+          Las puertas de control clave incluyen confirmación del ID RF oficial, sincronización de gestión de pruebas en
+          modo solo-propuesta (proposal-first) y validación determinista de Gherkin antes de trazabilidad y decisiones
+          de release.
         </p>
-        <div class="track-pills" aria-label="Tracks de workflow">
+        <div class="track-pills" aria-label="Tracks del flujo">
           <span class="track-pill"><strong>quick</strong> — requisitos, Gherkin, trazabilidad</span>
-          <span class="track-pill"><strong>standard</strong> — diseno completo y plan de automatizacion</span>
-          <span class="track-pill"><strong>enterprise</strong> — validacion estricta y release gate</span>
+          <span class="track-pill"><strong>standard</strong> — diseño completo y plan de automatización</span>
+          <span class="track-pill"><strong>enterprise</strong> — validación estricta y release gate</span>
         </div>
       </section>
 
       <section class="section split" id="features">
         <div class="section-heading">
-          <p class="eyebrow">Que instala</p>
-          <h2>Un harness QA portable para repositorios objetivo</h2>
+          <p class="eyebrow">Qué instala</p>
+          <h2>Un arnés QA portable para repositorios de QA</h2>
           <p>
-            QA FlowKit anade la carpeta del framework, configuracion del repo objetivo, artefactos generados, features
-            Gherkin y adaptadores opcionales para agentes dentro del repositorio bajo prueba.
+            QA FlowKit añade la carpeta del framework, configuración del repositorio objetivo, artefactos generados,
+            archivos Gherkin y adaptadores opcionales para agentes dentro del repositorio bajo prueba.
           </p>
         </div>
         <div class="feature-grid">
           <article>
-            <h3>Diseno trazable</h3>
-            <p>Valida enlaces RF, IDs duplicados, obligaciones de cobertura y bloques de criterios de aceptacion.</p>
+            <h3>Diseño trazable</h3>
+            <p>Valida enlaces RF, IDs duplicados, obligaciones de cobertura y bloques de criterios de aceptación.</p>
           </article>
           <article>
             <h3>Validadores deterministas</h3>
-            <p>Comprueba idioma Gherkin, tags requeridos, planes de sync, release gates y artefactos QA generados.</p>
-          </article>
-          <article>
-            <h3>Tracks de workflow</h3>
-            <p>Elige quick, standard o enterprise segun la profundidad de gobierno y automatizacion que necesites.</p>
-          </article>
-          <article>
-            <h3>Harness resumible</h3>
-            <p>Estado persistente de ejecucion, event log y <code>run status</code> entre sesiones del agente.</p>
-          </article>
-          <article>
-            <h3>Limites de seguridad</h3>
             <p>
-              Mantiene las salidas locales, rechaza rutas inseguras, escanea contenido no confiable y evita escrituras
+              Comprueba idioma Gherkin, tags requeridos, planes de sincronización, release gates y artefactos QA
+              generados.
+            </p>
+          </article>
+          <article>
+            <h3>Tracks del flujo</h3>
+            <p>Elige quick, standard o enterprise según la profundidad de gobierno y automatización que necesites.</p>
+          </article>
+          <article>
+            <h3>Arnés resumible</h3>
+            <p>
+              Estado persistente de ejecución, registro de eventos y <code>run status</code> entre sesiones del agente.
+            </p>
+          </article>
+          <article>
+            <h3>Límites de seguridad</h3>
+            <p>
+              Mantiene las salidas locales, rechaza rutas inseguras, escanea contenido no fiable y evita escrituras
               externas en el MVP.
             </p>
           </article>
@@ -254,33 +273,66 @@ abre tu CLI de IA y usa la superficie de comandos generada:
           <p class="eyebrow">Superficie de comandos</p>
           <h2>Comandos CLI y de agente</h2>
           <p>
-            Ejecuta setup y validacion desde la terminal. Impulsa el flujo QA desde tu herramienta de IA con comandos
-            slash generados.
+            Ejecuta la configuración inicial y la validación desde la terminal. Impulsa el flujo QA desde tu herramienta
+            de IA con comandos slash generados.
           </p>
         </div>
         <div class="command-groups">
+          <div class="command-group">
+            <h3>En tu agente IA</h3>
+            <div class="command-grid">
+              <article class="command-card">
+                <code>/qa-help</code>
+                <p>Guía contextual — qué hacer ahora en el flujo QA.</p>
+              </article>
+              <article class="command-card">
+                <code>/qa-init</code>
+                <p>Inicialización guiada de QA FlowKit dentro de la sesión del agente.</p>
+              </article>
+              <article class="command-card">
+                <code>/qa-add-tests</code>
+                <p>Añadir pruebas QA para un requisito (RF) nuevo.</p>
+              </article>
+              <article class="command-card">
+                <code>/qa-full-flow</code>
+                <p>Ejecutar el flujo completo guiado de QA FlowKit de principio a fin.</p>
+              </article>
+              <article class="command-card">
+                <code>/qa-validate-features</code>
+                <p>Validar archivos Gherkin de diseño QA contra las reglas del framework.</p>
+              </article>
+              <article class="command-card">
+                <code>/qa-gate</code>
+                <p>Decisión de release gate para flujos del track enterprise.</p>
+              </article>
+            </div>
+          </div>
           <div class="command-group">
             <h3>En tu terminal</h3>
             <div class="command-grid">
               <article class="command-card">
                 <code>npx qa-flowkit init</code>
-                <p>Instala <code>.qa-ai/</code>, genera config, carpetas y adaptadores de agente seleccionados.</p>
+                <p>
+                  Instala <code>.qa-ai/</code>, genera la configuración, carpetas y adaptadores de agente seleccionados.
+                </p>
               </article>
               <article class="command-card">
                 <code>npx qa-flowkit doctor</code>
-                <p>Health check de la instalacion del framework y la configuracion del repo objetivo.</p>
+                <p>
+                  Comprobación de estado de la instalación del framework y la configuración del repositorio objetivo.
+                </p>
               </article>
               <article class="command-card">
                 <code>npx qa-flowkit help</code>
-                <p>Recomienda el siguiente paso del workflow QA segun los artefactos actuales.</p>
+                <p>Recomienda el siguiente paso del flujo QA según los artefactos actuales.</p>
               </article>
               <article class="command-card">
                 <code>npx qa-flowkit run start | next | check</code>
-                <p>Harness resumible con validacion por fase y gates de aprobacion.</p>
+                <p>Arnés resumible con validación por fase y puertas de aprobación.</p>
               </article>
               <article class="command-card">
                 <code>npx qa-flowkit validate-target</code>
-                <p>Ejecuta el quality gate completo del repositorio objetivo (doctor estricto + validadores).</p>
+                <p>Ejecuta la puerta de calidad completa del repositorio objetivo (doctor estricto + validadores).</p>
               </article>
               <article class="command-card">
                 <code>npx qa-flowkit export-report</code>
@@ -288,39 +340,10 @@ abre tu CLI de IA y usa la superficie de comandos generada:
               </article>
             </div>
           </div>
-          <div class="command-group">
-            <h3>En tu agente IA</h3>
-            <div class="command-grid">
-              <article class="command-card">
-                <code>/qa-help</code>
-                <p>Guia contextual — que hacer ahora en el workflow QA.</p>
-              </article>
-              <article class="command-card">
-                <code>/qa-init</code>
-                <p>Inicializacion guiada de QA FlowKit dentro de la sesion del agente.</p>
-              </article>
-              <article class="command-card">
-                <code>/qa-add-tests</code>
-                <p>Anadir pruebas QA para un requisito (RF) nuevo.</p>
-              </article>
-              <article class="command-card">
-                <code>/qa-full-flow</code>
-                <p>Ejecutar el workflow completo guiado de QA FlowKit de principio a fin.</p>
-              </article>
-              <article class="command-card">
-                <code>/qa-validate-features</code>
-                <p>Validar archivos Gherkin de diseno QA contra las reglas del framework.</p>
-              </article>
-              <article class="command-card">
-                <code>/qa-gate</code>
-                <p>Decision de release gate para workflows del track enterprise.</p>
-              </article>
-            </div>
-          </div>
         </div>
         <p class="command-note">
           Referencia completa:
-          <a href="https://github.com/warante/QA_FlowKit/blob/main/docs/qa-ai/cli-reference.md">CLI Reference</a>
+          <a href="https://github.com/warante/QA_FlowKit/blob/main/docs/qa-ai/cli-reference.md">Referencia de la CLI</a>
           — incluye 16 comandos <code>/qa-*</code> y validadores adicionales.
         </p>
       </section>
@@ -355,8 +378,8 @@ abre tu CLI de IA y usa la superficie de comandos generada:
 
       <section class="section install" id="install">
         <div>
-          <p class="eyebrow">Inicio en cinco minutos</p>
-          <h2>Instalalo en el repositorio donde ocurre el QA</h2>
+          <p class="eyebrow">Inicio en dos minutos</p>
+          <h2>Instala QA FlowKit en el repositorio de QA</h2>
           <p>
             Ejecuta la CLI, elige un adaptador, abre tu herramienta de IA y usa la superficie de comandos QA generada.
           </p>
@@ -365,9 +388,8 @@ abre tu CLI de IA y usa la superficie de comandos generada:
 
 abre tu CLI de IA y usa la superficie de comandos generada:
 
-/qa-help
-/qa-add-tests
-/qa-full-flow</code></pre>
+/qa-init
+/qa-add-tests</code></pre>
       </section>
     </main>
 
@@ -380,5 +402,18 @@ abre tu CLI de IA y usa la superficie de comandos generada:
         <a href="https://github.com/warante/QA_FlowKit/blob/main/docs/qa-ai/demo.md">Demo RF-101</a>
       </div>
     </footer>
+
+    <button type="button" class="scroll-top" aria-label="Ir arriba" aria-hidden="true" tabindex="-1">
+      <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+        <path
+          d="M5 12.5 10 7.5 15 12.5"
+          stroke="currentColor"
+          stroke-width="1.75"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+    </button>
+    <script src="../assets/scroll-top.js"></script>
   </body>
 </html>
