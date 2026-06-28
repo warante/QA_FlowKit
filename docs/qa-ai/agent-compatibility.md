@@ -73,6 +73,10 @@ Interactive command behavior:
 - `/qa-clean` previews cleanup first, then asks for scope and execution approval.
 - `/qa-validate-features` uses the configured feature path unless the user asks for a custom path.
 - `/qa-doctor` runs without extra input.
+- `/qa-enable-enterprise` enables enterprise governance on an initialized repository: explains the difference from init
+  templates, warns when the current track is `quick`, asks for approval, then sets `project.qaTrack: enterprise` in
+  `qa-ai.config.yaml`. Does not run `/qa-gate` automatically.
+- `/qa-gate` records the release gate decision; use only when `project.qaTrack` is `enterprise`.
 
 The framework agents under `.qa-ai/agents/` are role instructions. If a tool does not expose them as callable subagents, it must read `.qa-ai/agents/README.md`, the matching phase agent and `.qa-ai/agents/specialists/active.md` directly before doing QA workflow work. When `knowledge.enabled` is true, it must also read the configured QA knowledge summary and init decisions artifacts before planning.
 

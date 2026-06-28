@@ -215,10 +215,19 @@ open your AI CLI and use the generated command surface:
           Key control gates include official RF ID confirmation, proposal-first test-management synchronization and
           deterministic Gherkin validation before traceability and release decisions.
         </p>
-        <div class="track-pills" aria-label="Flow tracks">
-          <span class="track-pill"><strong>quick</strong> — requirements, Gherkin, traceability</span>
-          <span class="track-pill"><strong>standard</strong> — full test design &amp; automation plan</span>
-          <span class="track-pill"><strong>enterprise</strong> — strict validation &amp; release gate</span>
+        <div class="track-levels" aria-label="Workflow depth at setup">
+          <p class="track-levels-intro">
+            When you install QA FlowKit, you choose how much of the QA journey it guides. Both options keep tests,
+            traceability and validators inside your repository.
+          </p>
+          <div class="track-pills">
+            <span class="track-pill"
+              ><strong>Quick</strong> — Manual QA teams: requirements → Gherkin → traceability matrix</span
+            >
+            <span class="track-pill"
+              ><strong>Standard</strong> — Full workflow: test design, automation planning and PR-ready outputs</span
+            >
+          </div>
         </div>
       </section>
 
@@ -243,8 +252,11 @@ open your AI CLI and use the generated command surface:
             </p>
           </article>
           <article>
-            <h3>Flow tracks</h3>
-            <p>Choose quick, standard or enterprise depth depending on governance and automation needs.</p>
+            <h3>Right-sized workflow</h3>
+            <p>
+              Start lean for manual QA or use the full path when you plan automation. Teams with audit needs can add an
+              optional formal release checklist later.
+            </p>
           </article>
           <article>
             <h3>Resumable harness</h3>
@@ -412,10 +424,19 @@ open your AI CLI and use the generated command surface:
               <article class="command-card">
                 <a
                   class="command-card-link"
+                  href="https://github.com/warante/QA_FlowKit/blob/main/.qa-ai/adapters/opencode/commands/qa-enable-enterprise.md"
+                >
+                  <code>/qa-enable-enterprise</code>
+                  <p>Optional: formal release checklist and stricter validation for audit-sensitive teams.</p>
+                </a>
+              </article>
+              <article class="command-card">
+                <a
+                  class="command-card-link"
                   href="https://github.com/warante/QA_FlowKit/blob/main/.qa-ai/adapters/opencode/commands/qa-gate.md"
                 >
                   <code>/qa-gate</code>
-                  <p>Release gate decision for enterprise track flows.</p>
+                  <p>Record a documented go/no-go decision when using the optional release checklist.</p>
                 </a>
               </article>
             </div>

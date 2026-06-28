@@ -220,10 +220,20 @@ abre tu CLI de IA y usa la superficie de comandos generada:
           modo solo-propuesta (proposal-first) y validación determinista de Gherkin antes de trazabilidad y decisiones
           de release.
         </p>
-        <div class="track-pills" aria-label="Tracks del flujo">
-          <span class="track-pill"><strong>quick</strong> — requisitos, Gherkin, trazabilidad</span>
-          <span class="track-pill"><strong>standard</strong> — diseño completo y plan de automatización</span>
-          <span class="track-pill"><strong>enterprise</strong> — validación estricta y release gate</span>
+        <div class="track-levels" aria-label="Profundidad del flujo al instalar">
+          <p class="track-levels-intro">
+            Al instalar QA FlowKit eliges cuánto del recorrido QA quieres que guíe. En ambos casos las pruebas, la
+            trazabilidad y los validadores quedan en tu repositorio.
+          </p>
+          <div class="track-pills">
+            <span class="track-pill"
+              ><strong>Quick</strong> — Equipos de QA manual: requisitos → Gherkin → matriz de trazabilidad</span
+            >
+            <span class="track-pill"
+              ><strong>Standard</strong> — Flujo completo: diseño de pruebas, plan de automatización y salidas para
+              PR</span
+            >
+          </div>
         </div>
       </section>
 
@@ -249,8 +259,11 @@ abre tu CLI de IA y usa la superficie de comandos generada:
             </p>
           </article>
           <article>
-            <h3>Tracks del flujo</h3>
-            <p>Elige quick, standard o enterprise según la profundidad de gobierno y automatización que necesites.</p>
+            <h3>Flujo a tu medida</h3>
+            <p>
+              Empieza ligero para QA manual o usa el recorrido completo si vas a automatizar. Equipos con requisitos de
+              auditoría pueden añadir después un checklist formal de release opcional.
+            </p>
           </article>
           <article>
             <h3>Arnés resumible</h3>
@@ -423,10 +436,19 @@ abre tu CLI de IA y usa la superficie de comandos generada:
               <article class="command-card">
                 <a
                   class="command-card-link"
+                  href="https://github.com/warante/QA_FlowKit/blob/main/.qa-ai/adapters/opencode/commands/qa-enable-enterprise.md"
+                >
+                  <code>/qa-enable-enterprise</code>
+                  <p>Opcional: checklist formal de release y validación más estricta para equipos con auditoría.</p>
+                </a>
+              </article>
+              <article class="command-card">
+                <a
+                  class="command-card-link"
                   href="https://github.com/warante/QA_FlowKit/blob/main/.qa-ai/adapters/opencode/commands/qa-gate.md"
                 >
                   <code>/qa-gate</code>
-                  <p>Decisión de release gate para flujos del track enterprise.</p>
+                  <p>Registrar una decisión documentada de go/no-go al usar el checklist de release opcional.</p>
                 </a>
               </article>
             </div>

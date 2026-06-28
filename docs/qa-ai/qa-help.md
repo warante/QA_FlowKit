@@ -24,29 +24,38 @@ node .qa-ai/scripts/qa-help.mjs --json
 
 ## Workflow tracks (`project.qaTrack`)
 
-Set during `init` (from preset or `--qa-track`):
+Init chooses the **workflow depth** (`quick` or `standard` via preset). **Enterprise governance** is a separate
+setting (`project.qaTrack: enterprise`) that adds release-gate validation on top of **standard** — enable it after init
+with `/qa-enable-enterprise` in your agent (or `--qa-track enterprise` / manual config edit).
 
-| Track        | Best for                                             | Active phases                                                                                |
-| ------------ | ---------------------------------------------------- | -------------------------------------------------------------------------------------------- |
-| `quick`      | Manual QA, narrow scope, Gherkin + traceability + PR | Context (optional), intake, normalization, Gherkin (proposal + features), traceability, PR   |
-| `standard`   | Full QA AI workflow (default)                        | All phases when tools and frameworks are configured, including system and per-RF test design |
-| `enterprise` | Teams that require strict target validation          | Same as `standard`, plus `/qa-gate` and `validate-release-gate.mjs`                          |
+| Track / mode | When it applies                                       | Active phases                                                                                   |
+| ------------ | ----------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `quick`      | Init with `manual-only` (or `--qa-track quick`)       | Context (optional), intake, normalization, Gherkin (proposal + features), traceability, PR      |
+| `standard`   | Default automation presets and most inits             | Full workflow when tools and frameworks are configured, including system and per-RF test design |
+| `enterprise` | **After init** — governance on standard, not a preset | Same phases as `standard`, plus `/qa-gate` and `validate-release-gate.mjs` in `validate-target` |
 
-### Preset defaults
+### Preset defaults (init depth only)
 
-| Preset                       | Default track       |
-| ---------------------------- | ------------------- |
-| `manual-only`                | `quick`             |
-| `playwright-full`            | `standard`          |
-| `maestro-karate-mobile`      | `standard`          |
-| `webdriverio-playwright-api` | `standard` (legacy) |
-| `selenium-jest-browserstack` | `standard`          |
+| Preset                       | Default `project.qaTrack` |
+| ---------------------------- | ------------------------- |
+| `manual-only`                | `quick`                   |
+| `playwright-full`            | `standard`                |
+| `maestro-karate-mobile`      | `standard`                |
+| `webdriverio-playwright-api` | `standard` (legacy)       |
+| `selenium-jest-browserstack` | `standard`                |
+| `karate-full`                | `standard`                |
 
-Override at init:
+No preset sets `enterprise` by default. Use one of:
 
 ```bash
-node .qa-ai/scripts/init.mjs --preset manual-only --qa-track quick
+# Preferred after the repository is initialized (agent session)
+/qa-enable-enterprise
+
+# Advanced at init time
 node .qa-ai/scripts/init.mjs --preset playwright-full --qa-track enterprise
+
+# Manual
+# qa-ai.config.yaml → project.qaTrack: enterprise
 ```
 
 ## How `qa-help` decides the next step

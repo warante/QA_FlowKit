@@ -4,11 +4,17 @@ Formal go/no-go record inspired by BMAD Test Architect (TEA) `*trace` gate decis
 
 ## When to use
 
-- `project.qaTrack: enterprise` in `qa-ai.config.yaml`
-- Regulated or audit-sensitive releases
+- Regulated or audit-sensitive releases on an initialized **standard** workflow
 - When the team needs a single YAML artifact with evidence paths and residual risk
 
-Quick and standard tracks do not require a release gate file.
+Enable governance first (not part of init templates):
+
+```text
+/qa-enable-enterprise
+```
+
+That sets `project.qaTrack: enterprise` in `qa-ai.config.yaml`. Quick and standard tracks without this setting do not
+require a release gate file.
 
 ## Commands
 
@@ -17,10 +23,11 @@ node .qa-ai/scripts/validate-release-gate.mjs
 npm run qa:validate-release-gate
 ```
 
-Agent command (after adapter sync):
+Agent commands (after adapter sync):
 
 ```text
-/qa-gate
+/qa-enable-enterprise   # enable governance on standard (once per repository)
+/qa-gate                # record the go/no-go decision
 ```
 
 Enterprise target validation includes the release gate:

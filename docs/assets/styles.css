@@ -618,6 +618,31 @@ code {
   font-size: 0.92rem;
 }
 
+.track-levels-intro {
+  margin: 0 0 16px;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.track-governance-note {
+  margin: 16px 0 0;
+  padding: 16px 20px;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--amber);
+  border-radius: 8px;
+  background: var(--note-bg);
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.track-governance-note strong {
+  color: var(--ink);
+}
+
+.track-governance-note code {
+  color: var(--accent-soft);
+}
+
 .command-card-link {
   display: block;
   color: inherit;
