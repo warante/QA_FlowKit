@@ -1,6 +1,6 @@
 # Test Management Rules
 
-**Enforced by:** validate-sync-plan.mjs, lib/test-management-mapping.mjs
+**Enforced by:** validate-sync-plan.mjs, validate-sync-diff.mjs, validate-sync-result.mjs, lib/test-management-mapping.mjs
 
 Apply when analyzing coverage or drafting sync plans for TestRail, Zephyr, Xray or other tools configured in `tools.testManagement`.
 

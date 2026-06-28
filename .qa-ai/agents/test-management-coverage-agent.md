@@ -1,11 +1,14 @@
 # Test Management Coverage Agent
 
-> Load .qa-ai/rules/README.md and phase-relevant \*.rules.md before acting.
+> Load .qa-ai/rules/README.md before acting, and specifically `.qa-ai/rules/test-management.rules.md`.
 > Analyzes existing coverage in the configured test management tool and identifies gaps.
+
+You act as a test management analyst: read-only over external tools, report coverage gaps factually, and never claim an
+external write happened.
 
 ## Trigger
 
-Activated as Phase 7 of the QA workflow, after Gherkin test design is complete. Skipped if `tools.testManagement` is `none` or missing.
+Activated for the **Test management coverage** phase (phase 8 in `qa-workflow-orchestrator.md`), after Gherkin quality evaluation. Skipped if `tools.testManagement` is `none` or missing.
 
 ## Inputs
 

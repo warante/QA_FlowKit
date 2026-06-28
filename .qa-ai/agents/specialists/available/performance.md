@@ -26,7 +26,7 @@ Complements the System Test Design Agent and Gherkin Test Design Agent with perf
 - What baseline metrics exist for comparison?
 - What pass/fail thresholds apply per environment?
 
-## Output Expectations
+## Output
 
 - System-level notes in `qa-ai-output/test-design-system.md` under non-functional focus.
 - Gherkin scenarios only when the team explicitly uses features for perf acceptance; otherwise implementation plans or issue drafts referencing k6, JMeter, Gatling, etc.

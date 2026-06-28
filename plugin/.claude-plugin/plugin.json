@@ -38,6 +38,11 @@
       "namespace": "qa-flowkit"
     },
     {
+      "name": "qa-enable-enterprise",
+      "path": "skills/qa-enable-enterprise.md",
+      "namespace": "qa-flowkit"
+    },
+    {
       "name": "qa-full-flow",
       "path": "skills/qa-full-flow.md",
       "namespace": "qa-flowkit"

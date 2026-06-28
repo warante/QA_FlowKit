@@ -32,6 +32,30 @@ npx qa-flowkit validate-target
 
 During Beta, pin reproducible setup or CI to `npx qa-flowkit@beta ...` when you need the beta channel explicitly.
 
+## Enterprise governance (after init)
+
+Init selects **workflow depth** (`quick` with `manual-only`, or `standard` with automation presets). **Enterprise
+governance** is not a third init template: it adds release-gate validation on top of the **standard** workflow.
+
+When the repository is already initialized and you need audit-style release evidence:
+
+```text
+/qa-enable-enterprise
+/qa-help
+```
+
+That command (after adapter sync) asks for approval and sets `project.qaTrack: enterprise` in `qa-ai.config.yaml`.
+When the workflow is complete, record the decision with `/qa-gate` and run `npx qa-flowkit validate-target`.
+
+Advanced alternatives at init or by hand:
+
+```bash
+npx qa-flowkit init --preset playwright-full --qa-track enterprise
+# or edit qa-ai.config.yaml → project.qaTrack: enterprise
+```
+
+See [QA Help and Workflow Tracks](qa-help.md) and [Release Quality Gate](release-gate.md).
+
 ## Deterministic RF-101 demo
 
 This source-repository demo uses one public requirement:

@@ -2,6 +2,11 @@
 
 > Guidance for observable engineering qualities such as observability, modularity and operability. Not a code-quality gate replacement.
 
+## Role
+
+Complements the System Test Design Agent and Gherkin Test Design Agent with observable engineering-quality review
+evidence instead of synthetic functional tests.
+
 ## Activation
 
 Load when normalized source NFRs use `maintainability`, or when requirements mention observability, modular design,
@@ -17,6 +22,19 @@ documentation, technical debt or operability attributes that need review evidenc
 
 - Add `## Non-functional coverage` rows with Evidence type `technical-review` or `residual-risk`.
 - Keep functional test cases separate from maintainability review evidence.
+
+## Maintainability review template
+
+```markdown
+## Maintainability review — RF-<ID>
+
+| Observable attribute | Review method | Artifact / evidence path | Accountable role | Evidence type    |
+| -------------------- | ------------- | ------------------------ | ---------------- | ---------------- |
+| Structured logging   | code review   | <path or PR link>        | <role>           | technical-review |
+| Module boundaries    | design review | <ADR / doc path>         | <role>           | technical-review |
+
+- Residual risks: <state when tooling access or repo scope is insufficient>
+```
 
 ## Safety Boundaries
 

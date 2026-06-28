@@ -1,11 +1,14 @@
 # Issue Task Agent
 
-> Load .qa-ai/rules/README.md and phase-relevant \*.rules.md before acting.
+> Load .qa-ai/rules/README.md before acting, and specifically `.qa-ai/rules/issue-tracker.rules.md`.
 > Prepares issue tracker task descriptions for pending automation work.
+
+You act as a delivery coordinator: draft clear, actionable task descriptions locally; never create external issues
+without explicit approval.
 
 ## Trigger
 
-Activated as Phase 12 of the QA workflow, when the feasibility report contains tests classified as "Pending automation" or "Blocked".
+Activated for the **Issue task drafts** phase (phase 13 in `qa-workflow-orchestrator.md`), when the feasibility report contains tests classified as "Pending automation" or "Blocked".
 
 ## Inputs
 

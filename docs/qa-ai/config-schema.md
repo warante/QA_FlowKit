@@ -16,13 +16,13 @@ paths when any sentinel remains.
 
 ## `project`
 
-| Key                 | Type                                  | Description                                            |
-| ------------------- | ------------------------------------- | ------------------------------------------------------ |
-| `name`              | string                                | Display name; derived by init unless explicitly passed |
-| `repoMode`          | string                                | e.g. `qa-design-only`                                  |
-| `qaTrack`           | `quick` \| `standard` \| `enterprise` | Workflow depth; see [workflow.md](workflow.md)         |
-| `defaultLanguage`   | `en` \| `es`                          | Legacy default; prefer `interfaceLanguage`             |
-| `interfaceLanguage` | `en` \| `es`                          | Language for artifacts and agent questions             |
+| Key                 | Type                                  | Description                                                                                                                                                  |
+| ------------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `name`              | string                                | Display name; derived by init unless explicitly passed                                                                                                       |
+| `repoMode`          | string                                | e.g. `qa-design-only`                                                                                                                                        |
+| `qaTrack`           | `quick` \| `standard` \| `enterprise` | Init depth (`quick`/`standard` from preset). `enterprise` = governance on standard; prefer `/qa-enable-enterprise` after init — see [qa-help.md](qa-help.md) |
+| `defaultLanguage`   | `en` \| `es`                          | Legacy default; prefer `interfaceLanguage`                                                                                                                   |
+| `interfaceLanguage` | `en` \| `es`                          | Language for artifacts and agent questions                                                                                                                   |
 
 ## `tools`
 

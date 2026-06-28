@@ -8,41 +8,49 @@ Reusable repository configuration profiles can be imported or exported with `nod
 
 ## Load Order
 
-| Order | File                                                                                 | Purpose                                         |
-| ----- | ------------------------------------------------------------------------------------ | ----------------------------------------------- |
-| 1     | `.qa-ai/agents/qa-workflow-orchestrator.md`                                          | Coordinates the full QA flow (14 phases)        |
-| 2     | `knowledge.summaryPath` / `knowledge.decisionsPath` when `knowledge.enabled` is true | Adds team QA working-practice guidance          |
-| 3     | `.qa-ai/agents/specialists/active.md` when present                                   | Lists active specialists for the current config |
-| 4     | Files listed in `active.md`                                                          | Adds tool/framework-specific guidance           |
-| 5     | Matching phase agent                                                                 | Applies phase-specific rules                    |
+| Order | File                                                                                 | Purpose                                                                |
+| ----- | ------------------------------------------------------------------------------------ | ---------------------------------------------------------------------- |
+| 1     | `.qa-ai/agents/qa-workflow-orchestrator.md`                                          | Coordinates the full QA flow (15 numbered phases plus optional agents) |
+| 2     | `knowledge.summaryPath` / `knowledge.decisionsPath` when `knowledge.enabled` is true | Adds team QA working-practice guidance                                 |
+| 3     | `.qa-ai/agents/specialists/active.md` when present                                   | Lists active specialists for the current config                        |
+| 4     | Files listed in `active.md`                                                          | Adds tool/framework-specific guidance                                  |
+| 5     | Matching phase agent                                                                 | Applies phase-specific rules                                           |
 
 ## Phase Agents (orchestrator sequence)
 
-| #   | Phase                          | Agent File                                          |
-| --- | ------------------------------ | --------------------------------------------------- |
-| 1   | QA context intake              | `.qa-ai/agents/qa-context-intake-agent.md`          |
-| 2   | Requirements intake            | `.qa-ai/agents/requirements-intake-agent.md`        |
-| 3   | Requirements normalization     | `.qa-ai/agents/requirements-normalization-agent.md` |
-| 4   | System test design             | `.qa-ai/agents/test-design-system-agent.md`         |
-| 5   | Per-RF test design             | `.qa-ai/agents/gherkin-test-design-agent.md`        |
-| 6   | Gherkin feature generation     | `.qa-ai/agents/gherkin-test-design-agent.md`        |
-| 7   | Gherkin quality evaluation     | `.qa-ai/agents/gherkin-quality-agent.md`            |
-| 8   | Test management coverage       | `.qa-ai/agents/test-management-coverage-agent.md`   |
-| 9   | Test management sync planning  | `.qa-ai/agents/test-management-sync-agent.md`       |
-| 10  | Automation feasibility         | `.qa-ai/agents/automation-feasibility-agent.md`     |
-| 11  | UI/E2E implementation          | `.qa-ai/agents/webdriverio-implementation-agent.md` |
-| 12  | Mobile implementation          | `.qa-ai/agents/webdriverio-implementation-agent.md` |
-| 13  | API/integration implementation | `.qa-ai/agents/api-testing-agent.md`                |
-| 14  | Issue task draft               | `.qa-ai/agents/jira-task-agent.md`                  |
-| 15  | PR summary                     | `.qa-ai/agents/pr-agent.md`                         |
-| 16  | Release quality gate           | `.qa-ai/agents/release-gate-agent.md`               |
+This table mirrors the 15-phase sequence in `qa-workflow-orchestrator.md`, which is the single source of truth for phase numbering. Mobile implementation is part of phase 11 (UI/E2E implementation): it uses the UI implementation agent plus the active mobile specialist.
 
-## Optional agents
+| #   | Phase                            | Agent File                                          |
+| --- | -------------------------------- | --------------------------------------------------- |
+| 1   | QA context intake                | `.qa-ai/agents/qa-context-intake-agent.md`          |
+| 2   | Requirements intake              | `.qa-ai/agents/requirements-intake-agent.md`        |
+| 3   | Requirements normalization       | `.qa-ai/agents/requirements-normalization-agent.md` |
+| 4   | System test design               | `.qa-ai/agents/test-design-system-agent.md`         |
+| 5   | Per-RF test design               | `.qa-ai/agents/gherkin-test-design-agent.md`        |
+| 6   | Gherkin feature generation       | `.qa-ai/agents/gherkin-test-design-agent.md`        |
+| 7   | Gherkin quality evaluation       | `.qa-ai/agents/gherkin-quality-agent.md`            |
+| 8   | Test management coverage         | `.qa-ai/agents/test-management-coverage-agent.md`   |
+| 9   | Test management sync planning    | `.qa-ai/agents/test-management-sync-agent.md`       |
+| 10  | Automation feasibility           | `.qa-ai/agents/automation-feasibility-agent.md`     |
+| 11  | UI/E2E and mobile implementation | `.qa-ai/agents/ui-implementation-agent.md`          |
+| 12  | API/integration implementation   | `.qa-ai/agents/api-testing-agent.md`                |
+| 13  | Issue task draft                 | `.qa-ai/agents/jira-task-agent.md`                  |
+| 14  | PR summary                       | `.qa-ai/agents/pr-agent.md`                         |
+| 15  | Release quality gate             | `.qa-ai/agents/release-gate-agent.md`               |
 
-| Agent           | File                                     | When to load                                                         |
-| --------------- | ---------------------------------------- | -------------------------------------------------------------------- |
-| Defect report   | `.qa-ai/agents/defect-report-agent.md`   | After failures or exploratory findings                               |
-| Gherkin quality | `.qa-ai/agents/gherkin-quality-agent.md` | After Gherkin generation when `testDesign.quality.mode` is not `off` |
+## Optional and parallel agents
+
+These agents are not part of the numbered sequence. Load them on demand when their trigger applies.
+
+| Agent                            | File                                           | When to load                                                         |
+| -------------------------------- | ---------------------------------------------- | -------------------------------------------------------------------- |
+| Gherkin quality                  | `.qa-ai/agents/gherkin-quality-agent.md`       | After Gherkin generation when `testDesign.quality.mode` is not `off` |
+| External requirements intake     | `.qa-ai/agents/external-intake-agent.md`       | Before normalization when `sources.external.enabled` is true         |
+| Test management diff (governed)  | `.qa-ai/agents/test-management-diff-agent.md`  | Governed sync mode, after the sync plan is approved                  |
+| Test management apply (governed) | `.qa-ai/agents/test-management-apply-agent.md` | Governed sync mode, after the diff is reviewed and approved          |
+| Test healing                     | `.qa-ai/agents/test-healing-agent.md`          | When `automation.healing.enabled` is true and automated specs fail   |
+| Test impact analysis             | `.qa-ai/agents/test-impact-agent.md`           | Change-scoped runs to select affected tests from the matrix          |
+| Defect report                    | `.qa-ai/agents/defect-report-agent.md`         | After failures or exploratory findings                               |
 
 ## Specialists
 

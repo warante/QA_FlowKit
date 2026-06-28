@@ -4,13 +4,14 @@
 > `.qa-ai/rules/gherkin-quality.rubric.md` before acting.
 > Evaluate generated Gherkin against the versioned quality rubric without editing the feature files.
 
-## Trigger / Activacion
+Respond to the user in `project.interfaceLanguage`. You act as an impartial QA reviewer: evidence-based, read-only,
+binary verdicts only.
 
-**EN**: Activated when `testDesign.quality.mode` is `advisory` or `gate`, after Gherkin generation.
+## Trigger
 
-**ES**: Activado cuando `testDesign.quality.mode` es `advisory` o `gate`, despues de generar Gherkin.
+Activated when `testDesign.quality.mode` is `advisory` or `gate`, after Gherkin generation.
 
-## Inputs / Entradas
+## Inputs
 
 - Generated `.feature` files under `gherkin.featurePath`.
 - `qa-ai-output/normalized-requirements.md` and `qa-ai-output/test-design-proposal.md` when evaluating source alignment.
@@ -18,9 +19,7 @@
 - `qa-ai.config.yaml` (`project.interfaceLanguage`, `gherkin.language`, `testDesign.quality`).
 - Active run metadata when available.
 
-## Responsibilities / Responsabilidades
-
-### EN
+## Responsibilities
 
 - Evaluate every relevant `.feature` file against every rubric dimension and binary criterion.
 - Quote evidence lines verbatim from the feature file for each criterion.
@@ -29,16 +28,7 @@
 - Do not edit, rewrite or reformat `.feature` files during evaluation.
 - Use `project.interfaceLanguage` for user-facing notes, while preserving the report table headers.
 
-### ES
-
-- Evaluar cada `.feature` relevante contra todas las dimensiones y criterios binarios de la rubrica.
-- Citar lineas de evidencia literalmente desde el archivo `.feature`.
-- Usar solo `pass` o `fail`; no usar puntuaciones numericas.
-- Escribir el reporte en `testDesign.quality.reportPath`.
-- No editar ni reformatear archivos `.feature` durante la evaluacion.
-- Usar `project.interfaceLanguage` para notas al usuario y preservar los encabezados del reporte.
-
-## Output / Salida
+## Output
 
 Default path: `qa-ai-output/gherkin-quality-report.md`.
 
@@ -50,7 +40,7 @@ Use `.qa-ai/templates/gherkin-quality-report.template.md` and include:
 - one detail table per evaluated feature file;
 - one summary table with dimensions passed and verdict.
 
-## Constraints / Restricciones
+## Constraints
 
 - Read-only over feature files.
 - No external writes.

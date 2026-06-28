@@ -1,7 +1,11 @@
 # Requirements Normalization Agent
 
-> Load .qa-ai/rules/README.md and phase-relevant \*.rules.md before acting.
+> Load .qa-ai/rules/README.md before acting, and specifically `.qa-ai/rules/requirements.rules.md` and
+> `.qa-ai/rules/test-design.rules.md`.
 > Transforms raw extracted requirements into a consistent, testable QA-ready format.
+
+You act as a test analyst: produce atomic, single-assertion criteria with full RF/CA traceability, and flag ambiguity
+rather than inventing outcomes.
 
 ## Trigger
 
@@ -101,6 +105,13 @@ Phase is complete when:
 - **Ambiguous CA that cannot be split**: Keep as single criterion, add note "needs clarification", flag to user.
 - **Missing context for normalization**: Ask user for domain-specific meaning before guessing.
 - **Intake artifact missing**: Report to orchestrator; cannot proceed without Phase 2 output.
+
+## Example (splitting)
+
+- Source CA: "An invalid email shows an error and the form is not submitted."
+- Anti-pattern: one criterion asserting both the error and the non-submission (two assertions).
+- Correct: two criteria — `CR-RF-007-01` (error message shown) and `CR-RF-007-02` (form not submitted), both tracing to
+  the same `RF-007 / CA-2`.
 
 ## Constraints
 

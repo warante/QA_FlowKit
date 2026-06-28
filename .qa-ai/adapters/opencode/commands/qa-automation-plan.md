@@ -16,7 +16,7 @@ Read these files first:
 - `.qa-ai/agents/README.md`
 - `.qa-ai/agents/qa-workflow-orchestrator.md`
 - `.qa-ai/agents/automation-feasibility-agent.md`
-- `.qa-ai/agents/webdriverio-implementation-agent.md` when UI automation is configured
+- `.qa-ai/agents/ui-implementation-agent.md` when UI automation is configured
 - `.qa-ai/agents/api-testing-agent.md` when API automation is configured
 - `.qa-ai/agents/specialists/active.md` when present
 - `.qa-ai/workflows/automation-analysis.md`

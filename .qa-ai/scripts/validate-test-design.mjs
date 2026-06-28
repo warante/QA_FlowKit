@@ -24,6 +24,7 @@ Options:
   --proposal-path <file> Override per-RF proposal path
   --allow-missing        Return success when files are missing
   --require-rf-id        Fail when RF IDs are not mentioned in the proposal
+  --json                 Print machine-readable JSON only
   --help                 Show this help
 
 Validates qa-ai-output/test-design-system.md and test-design-proposal.md structure.
@@ -115,13 +116,28 @@ async function main() {
     return;
   }
 
-  logHeader('QA AI test design validator');
+  const jsonMode = Boolean(args.json);
+  if (!jsonMode) logHeader('QA AI test design validator');
   const result = await validateTestDesignArtifacts(cwd, {
     systemPath: args['system-path'],
     proposalPath: args['proposal-path'],
     allowMissing: Boolean(args['allow-missing']),
     requireRfId: Boolean(args['require-rf-id'])
   });
+
+  if (jsonMode) {
+    const warnings = (result.aiCoverage?.findings || []).filter((f) => f.severity !== 'error').map((f) => f.message);
+    console.log(
+      JSON.stringify({
+        ok: result.errors.length === 0,
+        errors: result.errors,
+        warnings,
+        findings: result.errors.map((message) => ({ severity: 'error', message }))
+      })
+    );
+    if (result.errors.length > 0) process.exit(1);
+    return;
+  }
 
   if (result.system.skipped) {
     console.log('SKIP - system test design file not found.');

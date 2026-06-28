@@ -35,10 +35,17 @@ Options:
   --features <dir>  Override configured feature root
   --allow-empty     Return success when no .feature files exist
   --allow-missing   Return success when the sync plan is missing
+  --json            Print machine-readable JSON only
   --help            Show this help
 
 Validates proposal-first language, feature identifier coverage, sync-plan table shape and duplicate plan IDs.
 `);
+}
+
+const jsonMode = Boolean(args.json);
+
+function emitJson(ok, errors = []) {
+  console.log(JSON.stringify({ ok, errors, findings: errors.map((message) => ({ severity: 'error', message })) }));
 }
 
 function normalizeId(value) {
@@ -133,14 +140,14 @@ async function main() {
     return;
   }
 
-  logHeader('QA AI sync plan validator');
+  if (!jsonMode) logHeader('QA AI sync plan validator');
   const configInfo = await loadQaAiConfig(cwd);
   const featureRoot = args.features || getConfigValue(configInfo.data, 'gherkin.featurePath', 'features');
   const resolvedSyncPlan = args.path
     ? { path: args.path, absPath: resolveRepoPath(cwd, args.path, { label: 'sync plan' }), isLegacy: false }
     : await resolveTestManagementSyncPlanPath(cwd, configInfo.data);
   const syncPlanPath = resolvedSyncPlan.path;
-  if (resolvedSyncPlan.isLegacy) {
+  if (resolvedSyncPlan.isLegacy && !jsonMode) {
     console.warn(
       `[WARN] Legacy sync plan path '${resolvedSyncPlan.path}' found. Rename it to '${resolvedSyncPlan.replacementPath}' to follow current conventions.`
     );
@@ -150,16 +157,30 @@ async function main() {
   const features = await collectFeatureIds(featureRootPath);
 
   if (features.length === 0) {
-    console.log(`No .feature files found under ${featureRoot}.`);
-    if (args['allow-empty']) return;
-    console.log('\nFAILED - no feature files found. Pass --allow-empty when this is expected.');
+    if (args['allow-empty']) {
+      if (jsonMode) emitJson(true);
+      else console.log(`No .feature files found under ${featureRoot}.`);
+      return;
+    }
+    if (jsonMode) emitJson(false, [`No .feature files found under ${featureRoot}.`]);
+    else {
+      console.log(`No .feature files found under ${featureRoot}.`);
+      console.log('\nFAILED - no feature files found. Pass --allow-empty when this is expected.');
+    }
     process.exit(1);
   }
 
   if (!(await pathExists(syncPlanFilePath))) {
-    console.log(`Sync plan not found at ${syncPlanPath}.`);
-    if (args['allow-missing']) return;
-    console.log('\nFAILED - create the sync plan or pass --allow-missing.');
+    if (args['allow-missing']) {
+      if (jsonMode) emitJson(true);
+      else console.log(`Sync plan not found at ${syncPlanPath}.`);
+      return;
+    }
+    if (jsonMode) emitJson(false, [`Sync plan not found at ${syncPlanPath}.`]);
+    else {
+      console.log(`Sync plan not found at ${syncPlanPath}.`);
+      console.log('\nFAILED - create the sync plan or pass --allow-missing.');
+    }
     process.exit(1);
   }
 
@@ -190,12 +211,17 @@ async function main() {
   await validateMappingFile(configInfo.data, errors);
 
   if (errors.length > 0) {
-    for (const error of errors) console.log(`[FAIL] ${error}`);
-    console.log(`\nFAILED - ${errors.length} sync plan validation error(s).`);
+    if (jsonMode) {
+      emitJson(false, errors);
+    } else {
+      for (const error of errors) console.log(`[FAIL] ${error}`);
+      console.log(`\nFAILED - ${errors.length} sync plan validation error(s).`);
+    }
     process.exit(1);
   }
 
-  console.log(`[PASS] ${syncPlanPath} is proposal-first and covers ${features.length} feature file(s).`);
+  if (jsonMode) emitJson(true);
+  else console.log(`[PASS] ${syncPlanPath} is proposal-first and covers ${features.length} feature file(s).`);
 }
 
 main().catch((error) => {

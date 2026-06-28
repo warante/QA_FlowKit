@@ -19,8 +19,17 @@ Options:
   --allow-empty    Success when no Karate .feature files exist
   --strict-rf      Require @rf: tags
   --no-duplicates  Skip cross-file @id duplicate check
+  --json           Print machine-readable JSON only
   --help           Show this help
 `);
+}
+
+const jsonMode = Boolean(args.json);
+
+function emitJson(ok, errors = [], warnings = []) {
+  console.log(
+    JSON.stringify({ ok, errors, warnings, findings: errors.map((message) => ({ severity: 'error', message })) })
+  );
 }
 
 async function main() {
@@ -29,22 +38,29 @@ async function main() {
     return;
   }
 
-  logHeader('QA AI Karate feature validator');
+  if (!jsonMode) logHeader('QA AI Karate feature validator');
   const configInfo = await loadQaAiConfig(cwd);
   if (!usesKarate(configInfo.data)) {
-    console.log(
-      'Karate is not configured (automation.api.framework or automation.ui.framework is not karate). Skipping.'
-    );
+    if (jsonMode) emitJson(true);
+    else
+      console.log(
+        'Karate is not configured (automation.api.framework or automation.ui.framework is not karate). Skipping.'
+      );
     return;
   }
 
   const roots = args.path ? [args.path] : karateFeatureRoots(configInfo.data);
   if (roots.length === 0) {
-    console.log('No Karate feature roots configured.');
     if (!args['allow-empty']) {
-      console.log('\nFAILED - configure automation.api.specsPath or automation.ui.specsPath for Karate.');
+      if (jsonMode) emitJson(false, ['configure automation.api.specsPath or automation.ui.specsPath for Karate.']);
+      else {
+        console.log('No Karate feature roots configured.');
+        console.log('\nFAILED - configure automation.api.specsPath or automation.ui.specsPath for Karate.');
+      }
       process.exit(1);
     }
+    if (jsonMode) emitJson(true);
+    else console.log('No Karate feature roots configured.');
     return;
   }
 
@@ -53,17 +69,20 @@ async function main() {
     const resolvedFile = resolveRepoPath(cwd, args.file, { label: 'single Karate feature file' });
     const absoluteRoots = roots.map((root) => resolveRepoPath(cwd, root, { label: 'Karate root' }));
     if (!absoluteRoots.some((r) => resolvedFile.startsWith(r))) {
-      console.log(`FAILED - file "${args.file}" is not under any configured Karate roots.`);
+      if (jsonMode) emitJson(false, [`file "${args.file}" is not under any configured Karate roots.`]);
+      else console.log(`FAILED - file "${args.file}" is not under any configured Karate roots.`);
       process.exit(1);
     }
     try {
       const stat = await fs.stat(resolvedFile);
       if (!stat.isFile()) {
-        console.log(`FAILED - file "${args.file}" is not a file.`);
+        if (jsonMode) emitJson(false, [`file "${args.file}" is not a file.`]);
+        else console.log(`FAILED - file "${args.file}" is not a file.`);
         process.exit(1);
       }
     } catch {
-      console.log(`FAILED - file "${args.file}" does not exist.`);
+      if (jsonMode) emitJson(false, [`file "${args.file}" does not exist.`]);
+      else console.log(`FAILED - file "${args.file}" does not exist.`);
       process.exit(1);
     }
     files.push(resolvedFile);
@@ -77,16 +96,23 @@ async function main() {
   }
 
   if (files.length === 0) {
-    console.log(`No .feature files found under: ${roots.join(', ')}`);
     if (!args['allow-empty']) {
-      console.log('\nFAILED - no Karate feature files found. Pass --allow-empty when expected.');
+      if (jsonMode) emitJson(false, [`No .feature files found under: ${roots.join(', ')}`]);
+      else {
+        console.log(`No .feature files found under: ${roots.join(', ')}`);
+        console.log('\nFAILED - no Karate feature files found. Pass --allow-empty when expected.');
+      }
       process.exit(1);
     }
+    if (jsonMode) emitJson(true);
+    else console.log(`No .feature files found under: ${roots.join(', ')}`);
     return;
   }
 
   const strictRf = Boolean(args['strict-rf']);
   let totalErrors = 0;
+  const aggErrors = [];
+  const aggWarnings = [];
   const results = [];
 
   for (const file of files) {
@@ -100,13 +126,20 @@ async function main() {
 
     const rel = relativeTo(cwd, file);
     if (result.errors.length === 0) {
-      console.log(`[PASS] ${rel}`);
-      for (const warning of result.warnings) console.log(`  [WARN] ${warning}`);
+      for (const warning of result.warnings) aggWarnings.push(`${rel}: ${warning}`);
+      if (!jsonMode) {
+        console.log(`[PASS] ${rel}`);
+        for (const warning of result.warnings) console.log(`  [WARN] ${warning}`);
+      }
     } else {
       totalErrors += result.errors.length;
-      console.log(`[FAIL] ${rel}`);
-      for (const error of result.errors) console.log(`  - ${error}`);
-      for (const warning of result.warnings) console.log(`  [WARN] ${warning}`);
+      for (const error of result.errors) aggErrors.push(`${rel}: ${error}`);
+      for (const warning of result.warnings) aggWarnings.push(`${rel}: ${warning}`);
+      if (!jsonMode) {
+        console.log(`[FAIL] ${rel}`);
+        for (const error of result.errors) console.log(`  - ${error}`);
+        for (const warning of result.warnings) console.log(`  [WARN] ${warning}`);
+      }
     }
   }
 
@@ -114,16 +147,21 @@ async function main() {
     const duplicateErrors = karateDuplicateIdErrors(results);
     if (duplicateErrors.length > 0) {
       totalErrors += duplicateErrors.length;
-      console.log('\nDuplicate identifiers:');
-      for (const error of duplicateErrors) console.log(`  - ${error}`);
+      for (const error of duplicateErrors) aggErrors.push(`Duplicate identifier: ${error}`);
+      if (!jsonMode) {
+        console.log('\nDuplicate identifiers:');
+        for (const error of duplicateErrors) console.log(`  - ${error}`);
+      }
     }
   }
 
   if (totalErrors > 0) {
-    console.log(`\nFAILED - ${totalErrors} Karate validation issue(s).`);
+    if (jsonMode) emitJson(false, aggErrors, aggWarnings);
+    else console.log(`\nFAILED - ${totalErrors} Karate validation issue(s).`);
     process.exit(1);
   }
-  console.log('\nVALID - all Karate feature files passed.');
+  if (jsonMode) emitJson(true, [], aggWarnings);
+  else console.log('\nVALID - all Karate feature files passed.');
 }
 
 main().catch((error) => {
