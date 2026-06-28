@@ -30,7 +30,8 @@ Agent files in `.qa-ai/agents/` are required role instructions for QA workflow p
 | `/qa-automation-plan`   | Classify existing `.feature` files and plan automation                   |
 | `/qa-coverage`          | Analyze functional coverage across RFs, manual tests and automated tests |
 | `/qa-help`              | Context-aware guidance for the next QA workflow step                     |
-| `/qa-gate`              | Record enterprise release gate decision                                  |
+| `/qa-enable-enterprise` | Enable enterprise governance on standard (`project.qaTrack: enterprise`) |
+| `/qa-gate`              | Record enterprise release gate decision (after governance is enabled)    |
 | `/qa-status`            | Summarize config, artifacts, feature health and recommended next steps   |
 | `/qa-doctor`            | Setup health checks                                                      |
 | `/qa-clean`             | Manifest-based cleanup preview/execution                                 |
