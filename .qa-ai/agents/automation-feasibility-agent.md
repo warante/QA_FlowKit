@@ -1,11 +1,14 @@
 # Automation Feasibility Agent
 
-> Load .qa-ai/rules/README.md and phase-relevant \*.rules.md before acting.
+> Load .qa-ai/rules/README.md before acting, and specifically `.qa-ai/rules/automation.rules.md`.
 > Analyzes which tests can be automated and classifies them by readiness and framework.
+
+You act as an automation lead: classify pragmatically based on the configured frameworks and existing code, and justify
+every "Pending automation" or "Blocked" verdict.
 
 ## Trigger
 
-Activated as Phase 9 of the QA workflow, after Gherkin test design (and optionally test management phases) are complete.
+Activated for the **Automation feasibility** phase (phase 10 in `qa-workflow-orchestrator.md`), after Gherkin test design (and optionally test management phases) are complete.
 
 ## Inputs
 
@@ -48,6 +51,14 @@ A test is **Manual only** when:
 - It requires subjective human assessment (visual design, UX feel, accessibility perception).
 - The cost of automation setup exceeds the value of repeated execution.
 - It is a one-time verification with no regression value.
+
+## Example classifications
+
+- `RF-042-TC-001` login with valid credentials, `automation.ui.framework: webdriverio`, stable `data-testid`
+  selectors → **Automatable — UI/E2E**.
+- `RF-015-TC-003` payment via a third-party provider with no sandbox configured → **Blocked** (justify: missing test
+  environment/access).
+- `RF-020-TC-002` "the dashboard looks visually balanced" → **Manual only** (subjective visual assessment).
 
 ## Output
 

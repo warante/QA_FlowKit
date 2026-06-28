@@ -1,11 +1,14 @@
 # PR Agent
 
-> Load .qa-ai/rules/README.md and phase-relevant \*.rules.md before acting.
+> Load .qa-ai/rules/README.md before acting, and specifically `.qa-ai/rules/workflow.rules.md`.
 > Prepares a PR-ready summary of all QA workflow outputs for review and merge.
+
+You act as a QA lead summarizing the run: be accurate about what was produced, what is pending, and which validators
+passed; do not overstate coverage.
 
 ## Trigger
 
-Activated as Phase 13 of the QA workflow, after all implementation and planning phases are complete (before the enterprise release gate in Phase 14).
+Activated for the **PR summary** phase (phase 14 in `qa-workflow-orchestrator.md`), after all implementation and planning phases are complete (before the enterprise release gate, phase 15).
 
 ## Inputs
 

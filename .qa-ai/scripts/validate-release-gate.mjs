@@ -23,6 +23,7 @@ Options:
   --path <file>       Override release gate file path
   --allow-missing     Return success when the gate file is missing
   --allow-pending     Allow decision: PENDING (draft gates only)
+  --json              Print machine-readable JSON only
   --help              Show this help
 
 Validates qa-ai-output/release-gate.yaml shape and decision rules.
@@ -115,7 +116,8 @@ async function main() {
     return;
   }
 
-  logHeader('QA AI release gate validator');
+  const jsonMode = Boolean(args.json);
+  if (!jsonMode) logHeader('QA AI release gate validator');
   const configInfo = await loadQaAiConfig(cwd);
   const gatePath = args.path || getConfigValue(configInfo.data, 'release.gatePath', 'qa-ai-output/release-gate.yaml');
 
@@ -125,17 +127,29 @@ async function main() {
   });
 
   if (result.skipped) {
-    console.log(`Release gate not found at ${gatePath}.`);
+    if (jsonMode) console.log(JSON.stringify({ ok: true, skipped: true, errors: [] }));
+    else console.log(`Release gate not found at ${gatePath}.`);
     return;
   }
 
   if (!result.ok) {
-    for (const error of result.errors) console.log(`[FAIL] ${error}`);
-    console.log(`\nFAILED - ${result.errors.length} release gate validation error(s).`);
+    if (jsonMode) {
+      console.log(
+        JSON.stringify({
+          ok: false,
+          errors: result.errors,
+          findings: result.errors.map((message) => ({ severity: 'error', message }))
+        })
+      );
+    } else {
+      for (const error of result.errors) console.log(`[FAIL] ${error}`);
+      console.log(`\nFAILED - ${result.errors.length} release gate validation error(s).`);
+    }
     process.exit(1);
   }
 
-  console.log(`[PASS] ${gatePath} decision=${result.decision}`);
+  if (jsonMode) console.log(JSON.stringify({ ok: true, decision: result.decision, errors: [] }));
+  else console.log(`[PASS] ${gatePath} decision=${result.decision}`);
 }
 
 if (import.meta.url === `file:///${toPosixPath(process.argv[1])}`) {

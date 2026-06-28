@@ -123,3 +123,17 @@ export function validateTestManagementMapping(data, { source = 'test management 
 
   return errors;
 }
+
+// Normalizes a parsed mapping file (object keyed by ID, or array of entries) into an array of
+// entry objects. Pushes a descriptive error when the parsed value is neither an object nor an array.
+export function normalizeMappingEntries(parsed, mappingPath, errors) {
+  if (Array.isArray(parsed)) return parsed;
+  if (parsed && typeof parsed === 'object') {
+    return Object.entries(parsed).map(([id, value]) => ({
+      id,
+      ...(value && typeof value === 'object' ? value : {})
+    }));
+  }
+  errors.push(`Mapping file ${mappingPath} must contain a JSON object or array.`);
+  return [];
+}

@@ -26,11 +26,20 @@ Options:
   --no-duplicates Skip cross-file duplicate ID validation
   --strict-tags  Require recommended @rf: and @id: tags
   --strict-layout  Treat folder placement warnings as errors
+  --json         Print machine-readable JSON only
   --help         Show this help
 
 Validates QA design .feature files under gherkin.featurePath only.
 For executable Karate features, use validate-karate-features.mjs.
 `);
+}
+
+const jsonMode = Boolean(args.json);
+
+function emitJson(ok, errors = [], warnings = []) {
+  console.log(
+    JSON.stringify({ ok, errors, warnings, findings: errors.map((message) => ({ severity: 'error', message })) })
+  );
 }
 
 async function main() {
@@ -39,7 +48,7 @@ async function main() {
     return;
   }
 
-  logHeader('QA AI feature validator');
+  if (!jsonMode) logHeader('QA AI feature validator');
   const configInfo = await loadQaAiConfig(cwd);
   const featureRoot = args.path || getConfigValue(configInfo.data, 'gherkin.featurePath', 'features');
   const language = normalizeLanguage(
@@ -64,17 +73,20 @@ async function main() {
   if (args.file) {
     const resolvedFile = resolveRepoPath(cwd, args.file, { label: 'single feature file' });
     if (!resolvedFile.startsWith(featureRootPath)) {
-      console.log(`FAILED - file "${args.file}" is not under feature root "${featureRoot}".`);
+      if (jsonMode) emitJson(false, [`file "${args.file}" is not under feature root "${featureRoot}".`]);
+      else console.log(`FAILED - file "${args.file}" is not under feature root "${featureRoot}".`);
       process.exit(1);
     }
     try {
       const stat = await fs.stat(resolvedFile);
       if (!stat.isFile()) {
-        console.log(`FAILED - file "${args.file}" is not a file.`);
+        if (jsonMode) emitJson(false, [`file "${args.file}" is not a file.`]);
+        else console.log(`FAILED - file "${args.file}" is not a file.`);
         process.exit(1);
       }
     } catch {
-      console.log(`FAILED - file "${args.file}" does not exist.`);
+      if (jsonMode) emitJson(false, [`file "${args.file}" does not exist.`]);
+      else console.log(`FAILED - file "${args.file}" does not exist.`);
       process.exit(1);
     }
     files = [resolvedFile];
@@ -84,15 +96,22 @@ async function main() {
   }
 
   if (files.length === 0) {
-    console.log(`No .feature files found under ${featureRoot}.`);
     if (!args['allow-empty']) {
-      console.log('\nFAILED - no feature files found. Pass --allow-empty when this is expected.');
+      if (jsonMode) emitJson(false, [`No .feature files found under ${featureRoot}.`]);
+      else {
+        console.log(`No .feature files found under ${featureRoot}.`);
+        console.log('\nFAILED - no feature files found. Pass --allow-empty when this is expected.');
+      }
       process.exit(1);
     }
+    if (jsonMode) emitJson(true);
+    else console.log(`No .feature files found under ${featureRoot}.`);
     return;
   }
 
   let totalErrors = 0;
+  const aggErrors = [];
+  const aggWarnings = [];
   const results = [];
   for (const file of files) {
     const content = await fs.readFile(file, 'utf8');
@@ -103,24 +122,38 @@ async function main() {
     results.push(result);
     const placement = validateFeatureFilePlacement(file, featureRootPath, content);
     result.placementWarnings = placement.warnings;
+    const rel = relativeTo(cwd, file);
 
     if (result.errors.length === 0 && placement.warnings.length === 0) {
-      console.log(`[PASS] ${relativeTo(cwd, file)}`);
+      if (!jsonMode) console.log(`[PASS] ${rel}`);
     } else if (result.errors.length === 0 && placement.warnings.length > 0) {
       if (strictLayout) {
         totalErrors += placement.warnings.length;
-        console.log(`[FAIL] ${relativeTo(cwd, file)}`);
-        for (const warning of placement.warnings) console.log(`  - ${warning}`);
+        for (const warning of placement.warnings) aggErrors.push(`${rel}: ${warning}`);
+        if (!jsonMode) {
+          console.log(`[FAIL] ${rel}`);
+          for (const warning of placement.warnings) console.log(`  - ${warning}`);
+        }
       } else {
-        console.log(`[PASS] ${relativeTo(cwd, file)}`);
-        for (const warning of placement.warnings) console.log(`  [WARN] ${warning}`);
+        for (const warning of placement.warnings) aggWarnings.push(`${rel}: ${warning}`);
+        if (!jsonMode) {
+          console.log(`[PASS] ${rel}`);
+          for (const warning of placement.warnings) console.log(`  [WARN] ${warning}`);
+        }
       }
     } else {
       totalErrors += result.errors.length;
       if (strictLayout) totalErrors += placement.warnings.length;
-      console.log(`[FAIL] ${relativeTo(cwd, file)}`);
-      for (const error of result.errors) console.log(`  - ${error}`);
-      for (const warning of placement.warnings) console.log(`  - ${warning}`);
+      for (const error of result.errors) aggErrors.push(`${rel}: ${error}`);
+      for (const warning of placement.warnings) {
+        if (strictLayout) aggErrors.push(`${rel}: ${warning}`);
+        else aggWarnings.push(`${rel}: ${warning}`);
+      }
+      if (!jsonMode) {
+        console.log(`[FAIL] ${rel}`);
+        for (const error of result.errors) console.log(`  - ${error}`);
+        for (const warning of placement.warnings) console.log(`  - ${warning}`);
+      }
     }
   }
 
@@ -128,16 +161,21 @@ async function main() {
     const duplicateErrors = duplicateIdErrors(results);
     if (duplicateErrors.length > 0) {
       totalErrors += duplicateErrors.length;
-      console.log('[FAIL] Duplicate identifier validation');
-      for (const error of duplicateErrors) console.log(`  - ${error}`);
+      for (const error of duplicateErrors) aggErrors.push(`Duplicate identifier: ${error}`);
+      if (!jsonMode) {
+        console.log('[FAIL] Duplicate identifier validation');
+        for (const error of duplicateErrors) console.log(`  - ${error}`);
+      }
     }
   }
 
   if (totalErrors > 0) {
-    console.log(`\nFAILED - ${totalErrors} validation errors.`);
+    if (jsonMode) emitJson(false, aggErrors, aggWarnings);
+    else console.log(`\nFAILED - ${totalErrors} validation errors.`);
     process.exit(1);
   }
-  console.log('\nVALID - all feature files passed.');
+  if (jsonMode) emitJson(true, [], aggWarnings);
+  else console.log('\nVALID - all feature files passed.');
 }
 
 main().catch((error) => {

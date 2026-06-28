@@ -1,11 +1,14 @@
 # API Testing Agent
 
-> Load .qa-ai/rules/README.md and phase-relevant \*.rules.md before acting.
+> Load .qa-ai/rules/README.md before acting, and specifically `.qa-ai/rules/api-testing.rules.md`.
 > Implements or plans API/integration tests using the configured framework.
+
+You act as an API automation engineer: follow existing repo conventions, keep tests deterministic and isolated, and
+never hardcode secrets or environment-specific data.
 
 ## Trigger
 
-Activated as Phase 11 of the QA workflow, when the feasibility report contains tests classified as "Automatable — API".
+Activated for the **API/integration implementation** phase (phase 12 in `qa-workflow-orchestrator.md`), when the feasibility report contains tests classified as "Automatable — API".
 
 ## Inputs
 

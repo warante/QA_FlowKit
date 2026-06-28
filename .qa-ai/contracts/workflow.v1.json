@@ -390,7 +390,7 @@
       "id": "ui-impl",
       "name": "UI/E2E automation implementation",
       "slashCommand": "/qa-full-flow",
-      "guidance": [".qa-ai/agents/webdriverio-implementation-agent.md", ".qa-ai/workflows/implementation.md"],
+      "guidance": [".qa-ai/agents/ui-implementation-agent.md", ".qa-ai/workflows/implementation.md"],
       "inputs": [],
       "outputs": [{ "path": "qa-ai-output/automation-implementation-plan.md" }],
       "entryApprovals": [],
@@ -411,7 +411,7 @@
       "name": "Mobile automation implementation",
       "slashCommand": "/qa-full-flow",
       "guidance": [
-        ".qa-ai/agents/webdriverio-implementation-agent.md",
+        ".qa-ai/agents/ui-implementation-agent.md",
         ".qa-ai/workflows/implementation.md",
         ".qa-ai/rules/mobile-automation.rules.md"
       ],

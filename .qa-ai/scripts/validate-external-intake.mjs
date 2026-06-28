@@ -3,6 +3,7 @@ import { scanText } from './lib/injection-patterns.mjs';
 import { normalizeColumn, parseMarkdownTable } from './lib/markdown-table.mjs';
 import {
   getConfigValue,
+  isIsoUtcDateString,
   loadQaAiConfig,
   logHeader,
   parseArgs,
@@ -35,11 +36,7 @@ Validates imported-requirements.md and imported-cases.md:
 `);
 }
 
-const ISO_TIMESTAMP_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/;
-
-function isValidIso(value) {
-  return ISO_TIMESTAMP_RE.test(String(value || '').trim());
-}
+const isValidIso = isIsoUtcDateString;
 
 function compileRfIdMatcher(pattern) {
   const source = String(pattern || '').trim();

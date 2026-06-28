@@ -2,6 +2,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { normalizeColumn, parseMarkdownTable } from './lib/markdown-table.mjs';
+import { normalizeMappingEntries } from './lib/test-management-mapping.mjs';
 import { getActiveRunId } from './lib/harness-run-store.mjs';
 import {
   getConfigValue,
@@ -41,18 +42,6 @@ function parseSnapshotTimestamp(content) {
 
 function toFindings(errors) {
   return errors.map((message) => ({ severity: 'error', message }));
-}
-
-function normalizeMappingEntries(parsed, mappingPath, errors) {
-  if (Array.isArray(parsed)) return parsed;
-  if (parsed && typeof parsed === 'object') {
-    return Object.entries(parsed).map(([id, value]) => ({
-      id,
-      ...(value && typeof value === 'object' ? value : {})
-    }));
-  }
-  errors.push(`Mapping file ${mappingPath} must contain a JSON object or array.`);
-  return [];
 }
 
 async function main() {

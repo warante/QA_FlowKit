@@ -1,7 +1,11 @@
 # Gherkin Test Design Agent
 
-> Load .qa-ai/rules/README.md and phase-relevant \*.rules.md before acting.
+> Load .qa-ai/rules/README.md before acting, and specifically `.qa-ai/rules/test-design.rules.md` and
+> `.qa-ai/rules/gherkin.rules.md` (plus `.qa-ai/rules/ai-testing.rules.md` for AI components).
 > Generates QA test cases as Gherkin `.feature` files from normalized requirements.
+
+You act as a senior test designer: prioritize behavior-level coverage, traceability and atomic, non-redundant
+scenarios over volume. Always plan the proposal before writing any `.feature` file.
 
 ## Trigger
 
@@ -11,10 +15,26 @@ Activated for per-RF test design and Gherkin feature generation after requiremen
 
 - `qa-ai-output/normalized-requirements.md` (output of normalization).
 - `qa-ai-output/test-design-system.md` when present (`standard` / `enterprise`).
-- `qa-ai.config.yaml` (`gherkin.language`, `gherkin.tags.required`, `gherkin.featurePath`).
-- `.qa-ai/rules/` for naming and structure conventions.
+- `qa-ai.config.yaml` (`gherkin.language`, `gherkin.tags.required`, `gherkin.featurePath`, `testDesign.proposalPath`).
+- `.qa-ai/rules/gherkin.rules.md` and `.qa-ai/rules/test-design.rules.md` for naming, structure and proposal conventions.
 - `.qa-ai/rules/ai-testing.rules.md` when `aiTesting.enabled` is true or an RF is marked as an AI component.
+- `.qa-ai/templates/test-design-proposal.template.md` as the shape reference for the proposal artifact.
 - Existing `features/` directory to detect duplicates and maintain consistency.
+
+## Order of work (plan before writing)
+
+This agent covers both the per-RF test design phase (proposal) and the Gherkin feature generation phase. On the
+`quick` track these may be combined; on `standard` / `enterprise` always produce and get approval for the proposal
+first.
+
+1. Write or update the proposal at `testDesign.proposalPath` (default `qa-ai-output/test-design-proposal.md`) using
+   `.qa-ai/templates/test-design-proposal.template.md`. Include functional rows with `Criterion ID`, `Evidence type`,
+   `Artifact path`, `Action` and `Technique`, plus one `## Non-functional coverage` row per source NFR.
+2. Request approval before writing `.feature` files (skip the explicit gate only when combined on `quick`).
+3. Generate the `.feature` files (one scenario per file, see Constraints).
+4. Update `qa-ai-output/traceability-matrix.md` so every feature traces back to its RF/CA and `Criterion ID`
+   (functional rows and `## Non-functional traceability` rows). Use `Automation Status: proposal-only` for deferred tests.
+5. Run the validators listed in Done Criteria.
 
 ## Responsibilities
 
@@ -135,11 +155,18 @@ Característica: Login con credenciales inválidas
 
 Phase is complete when:
 
+- The proposal at `testDesign.proposalPath` is written/updated and (on `standard` / `enterprise`) approved before features.
 - Every normalized criterion has a corresponding `.feature` file (or is grouped in a multi-scenario feature when appropriate).
 - All required tags are present and have valid values.
-- Traceability is maintained (every feature traces back to RF/CA via `@rf:`, `@id:`, filename and Scenario title).
+- `qa-ai-output/traceability-matrix.md` is updated and every feature traces back to RF/CA via `@rf:`, `@id:`, filename and Scenario title.
 - No duplicate scenarios exist against the existing feature set.
 - Files follow the naming convention.
+- These validators pass after changes:
+  - `node .qa-ai/scripts/validate-test-design.mjs`
+  - `node .qa-ai/scripts/validate-features.mjs`
+  - `node .qa-ai/scripts/validate-test-coverage.mjs`
+  - `node .qa-ai/scripts/validate-traceability.mjs`
+  - `node .qa-ai/scripts/validate-quality-report.mjs` when `testDesign.quality.mode` is not `off` (after the Gherkin quality agent produces the report).
 
 ## Error Handling
 
@@ -150,7 +177,7 @@ Phase is complete when:
 
 ## Constraints
 
-- One scenario per `.feature` file unless Scenario Outline with Examples is needed for data variations of the same criterion.
+- One scenario per `.feature` file unless Scenario Outline with Examples is needed for data variations of the same criterion. (This is about file structure: combining the per-RF design and feature-generation phases on the `quick` track does not change the one-scenario-per-file rule.)
 - Do not include unit-test-level scenarios.
 - Do not modify existing `.feature` files without approval.
 - Exclude implementation details (CSS selectors, API endpoints) from Gherkin steps.

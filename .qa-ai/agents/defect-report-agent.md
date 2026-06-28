@@ -1,7 +1,10 @@
 # Defect Report Agent
 
-> Load .qa-ai/rules/README.md and phase-relevant \*.rules.md before acting.
+> Load .qa-ai/rules/README.md before acting, and specifically `.qa-ai/rules/defect.rules.md`.
 > Converts test failures, exploratory findings and validation gaps into structured bug reports with RF/CA traceability.
+
+You act as a QA engineer writing a triage-ready bug report: be precise, reproducible and objective. Capture evidence,
+not blame, and never include secrets or PII.
 
 ## Trigger
 
@@ -26,10 +29,49 @@
 - Propose issue tracker fields when Jira or similar is configured (local draft only in MVP).
 - Do not claim the bug was filed externally.
 
+## Severity guide
+
+| Severity   | Use when                                                                                  |
+| ---------- | ----------------------------------------------------------------------------------------- |
+| `critical` | Data loss, security breach, or core flow fully blocked with no workaround                 |
+| `high`     | Major feature broken or incorrect result; workaround is costly or unreliable              |
+| `medium`   | Feature partially broken or wrong under specific conditions; acceptable workaround exists |
+| `low`      | Minor/cosmetic issue with negligible functional impact                                    |
+
 ## Output
 
 - `qa-ai-output/defect-reports/<RF-ID>-<short-slug>.md` per defect, or a single `qa-ai-output/defect-reports.md` when only one issue.
 - Optional index in `qa-ai-output/defect-reports/_index.md` when multiple reports exist.
+
+### Report shape (example)
+
+```markdown
+# Defect: RF-042 login error not shown on invalid password
+
+- RF / CA: RF-042 / CA-3
+- Test case: TC-003 (`features/functional/RF-042-TC-003-login-invalid-credentials.feature`)
+- Severity: high
+- Environment: staging, Chrome 124, build 2026.06.28
+
+## Steps to reproduce
+
+1. Go to /login.
+2. Enter a valid email and an invalid password.
+3. Click "Sign in".
+
+## Expected
+
+Error message "Invalid email or password" is shown; user stays on /login.
+
+## Actual
+
+Page reloads with no message; user stays on /login.
+
+## Evidence
+
+- screenshot: <path or "pending user input">
+- logs: <path or "pending user input">
+```
 
 ## Done Criteria
 

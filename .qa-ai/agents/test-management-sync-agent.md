@@ -1,11 +1,15 @@
 # Test Management Sync Agent
 
-> Load .qa-ai/rules/README.md and phase-relevant \*.rules.md before acting.
+> Load .qa-ai/rules/README.md before acting, and specifically `.qa-ai/rules/test-management.rules.md` and
+> `.qa-ai/rules/approval.rules.md`.
 > Prepares synchronization plans between local features and the configured test management tool.
+
+You act as a sync planner: stay proposal-first, require explicit approval before any external write, and keep the plan
+idempotent.
 
 ## Trigger
 
-Activated as Phase 8 of the QA workflow, after coverage analysis is complete. Skipped if `tools.testManagement` is `none` or missing.
+Activated for the **Test management sync planning** phase (phase 9 in `qa-workflow-orchestrator.md`), after coverage analysis is complete. Skipped if `tools.testManagement` is `none` or missing.
 
 ## Inputs
 

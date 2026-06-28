@@ -5,11 +5,11 @@
 
 ## Trigger
 
-Activated as Phase 9 (Sync Diff) of the QA workflow in governed mode, after the sync plan is approved. Skipped if `testManagementSync.mode` is `"proposal-only"`.
+Activated as the governed Sync Diff sub-step (it is not part of the numbered main sequence in `qa-workflow-orchestrator.md`), after the sync plan is approved. Skipped if `testManagementSync.mode` is `"proposal-only"`.
 
 ## Inputs
 
-- `qa-ai-output/test-management-sync-plan.md` (approved sync plan from Phase 8).
+- `qa-ai-output/test-management-sync-plan.md` (approved sync plan from the test management sync planning phase).
 - `qa-ai.config.yaml` (`tools.testManagement`, `testManagementSync`).
 - `qa-ai.config.yaml` (`project.interfaceLanguage`) for user-facing wording.
 - Connected test management MCP server/tooling.

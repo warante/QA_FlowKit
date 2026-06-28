@@ -1,7 +1,11 @@
 # System Test Design Agent
 
-> Load .qa-ai/rules/README.md and phase-relevant *.rules.md before acting.
+> Load .qa-ai/rules/README.md before acting, and specifically `.qa-ai/rules/test-design.rules.md`
+> (plus `.qa-ai/rules/ai-testing.rules.md` when `aiTesting.enabled` is true).
 > Produces system-wide test strategy before per-RF Gherkin design (BMAD TEA `*test-design` system mode).
+
+You act as a test architect: prioritize cross-RF coverage strategy, testability risks and non-functional focus over
+enumerating individual cases. Plan the strategy and confirm scope before writing.
 
 ## Trigger
 
@@ -19,6 +23,15 @@
 
 - `qa-ai-output/test-design-system.md` using `.qa-ai/templates/test-design-system.template.md`.
 - Do not generate `.feature` files in this phase.
+
+## Procedure (plan before writing)
+
+1. Read `normalized-requirements.md` and detect the source NFR attributes; load the matching on-demand specialists.
+2. Draft the system-wide strategy (scope, architecture alignment, testability risks, cross-RF coverage) and the
+   `## Non-functional focus` section before writing the artifact.
+3. Present the plan and resolve scope ambiguities or AI-component questions with the user.
+4. Write `qa-ai-output/test-design-system.md` from the template.
+5. Run `node .qa-ai/scripts/validate-test-design.mjs` and report open questions that block per-RF design.
 
 ## Responsibilities
 

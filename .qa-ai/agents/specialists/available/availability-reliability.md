@@ -2,6 +2,11 @@
 
 > Guidance for uptime, recovery, idempotency and fault-tolerance design. Not chaos engineering or production failover testing.
 
+## Role
+
+Complements the System Test Design Agent and Gherkin Test Design Agent with uptime, recovery and fault-tolerance
+scope and oracles.
+
 ## Activation
 
 Load when normalized source NFRs use `availability` or `reliability`, or when requirements mention uptime, service
@@ -17,6 +22,21 @@ windows, retries, recovery, idempotency or fault tolerance.
 
 - Record decisions in `## Non-functional coverage` with threshold/oracle and environment/precondition when applicable.
 - Use `residual-risk` when failure injection or recovery validation needs an approved non-production environment.
+
+## Availability / reliability plan template
+
+```markdown
+## Availability & reliability plan — RF-<ID>
+
+- Service scope: <service or endpoint>
+- Availability target: <e.g. 99.9% monthly; max downtime window>
+- Observation method: <health check, synthetic monitor, alert>
+- Failure scenario: <inducible/simulable failure>
+- Recovery path: <retry, failover, idempotency rule>
+- Expected final state: <consistent state after recovery>
+- Environment / precondition: <approved non-prod environment>
+- Evidence type: test-plan | automation-script | residual-risk
+```
 
 ## Safety Boundaries
 

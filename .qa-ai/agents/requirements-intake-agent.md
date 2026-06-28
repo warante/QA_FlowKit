@@ -1,7 +1,11 @@
 # Requirements Intake Agent
 
-> Load .qa-ai/rules/README.md and phase-relevant \*.rules.md before acting.
+> Load .qa-ai/rules/README.md before acting, and specifically `.qa-ai/rules/requirements.rules.md` and
+> `.qa-ai/rules/untrusted-content.rules.md`.
 > Reads and analyzes the configured requirement source to extract testable requirements.
+
+You act as a requirements analyst: extract only what the sources state, keep them authoritative, and surface
+contradictions and gaps instead of resolving them silently.
 
 ## Trigger
 
@@ -109,6 +113,13 @@ Phase is complete when:
 - **Requirement contradicts supporting design**: Record both statements and ask which behavior prevails.
 - **RF without ID**: Extract content, mark as `RF-PENDING-[N]`, and flag for user to assign official ID.
 - **Ambiguous criteria**: Add to "Pending Decisions" section, do not guess.
+
+## Example (anti-pattern vs. correct)
+
+- Anti-pattern: source says "the system should be fast"; the agent writes `CA: response under 200ms`. This invents a
+  threshold not in the source.
+- Correct: record the NFR with the source quote and `Measurable acceptance criterion: pending` plus an open question
+  asking for the target latency.
 
 ## Constraints
 

@@ -31,23 +31,38 @@ Read `project.qaTrack` from `qa-ai.config.yaml` (`quick`, `standard`, or `enterp
 
 Execute phases in order. Each phase depends on the previous one's output.
 
-| #   | Phase                      | Agent                                 | Skip condition                                                                                       |
-| --- | -------------------------- | ------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| 1   | QA context intake          | `qa-context-intake-agent.md`          | `knowledge.enabled` is false, or already completed (`qa-knowledge-summary.md` exists and is current) |
-| 2   | Requirements intake        | `requirements-intake-agent.md`        | User provides pre-analyzed requirements                                                              |
-| 3   | Requirements normalization | `requirements-normalization-agent.md` | Never skip                                                                                           |
-| 4   | System test design         | `test-design-system-agent.md`         | `quick` track                                                                                        |
-| 5   | Per-RF test design         | `gherkin-test-design-agent.md`        | Never skip (proposal); on `quick` may combine with phase 6                                           |
-| 6   | Gherkin feature generation | `gherkin-test-design-agent.md`        | Never skip                                                                                           |
-| 7   | Gherkin quality evaluation | `gherkin-quality-agent.md`            | `quick` track, or `testDesign.quality.mode` is `off`                                                 |
-| 8   | Test management coverage   | `test-management-coverage-agent.md`   | `quick` track, or `tools.testManagement` is `none` or missing                                        |
-| 9   | Test management sync       | `test-management-sync-agent.md`       | `quick` track, or `tools.testManagement` is `none` or missing                                        |
-| 10  | Automation feasibility     | `automation-feasibility-agent.md`     | `quick` track                                                                                        |
-| 11  | UI/E2E implementation      | `webdriverio-implementation-agent.md` | `quick` track, no UI automatable tests, or `automation.ui.framework` is `none`/`undecided`           |
-| 12  | API implementation         | `api-testing-agent.md`                | `quick` track, no API automatable tests, or `automation.api.framework` is `none`/`undecided`         |
-| 13  | Issue task drafts          | `jira-task-agent.md`                  | `quick` track, no pending automation tests, or `tools.issueTracker` is `none`/missing                |
-| 14  | PR summary                 | `pr-agent.md`                         | User explicitly skips                                                                                |
-| 15  | Release quality gate       | `release-gate-agent.md`               | `project.qaTrack` is not `enterprise`                                                                |
+| #   | Phase                            | Agent                                 | Skip condition                                                                                       |
+| --- | -------------------------------- | ------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| 1   | QA context intake                | `qa-context-intake-agent.md`          | `knowledge.enabled` is false, or already completed (`qa-knowledge-summary.md` exists and is current) |
+| 2   | Requirements intake              | `requirements-intake-agent.md`        | User provides pre-analyzed requirements                                                              |
+| 3   | Requirements normalization       | `requirements-normalization-agent.md` | Never skip                                                                                           |
+| 4   | System test design               | `test-design-system-agent.md`         | `quick` track                                                                                        |
+| 5   | Per-RF test design               | `gherkin-test-design-agent.md`        | Never skip (proposal); on `quick` may combine with phase 6                                           |
+| 6   | Gherkin feature generation       | `gherkin-test-design-agent.md`        | Never skip                                                                                           |
+| 7   | Gherkin quality evaluation       | `gherkin-quality-agent.md`            | `quick` track, or `testDesign.quality.mode` is `off`                                                 |
+| 8   | Test management coverage         | `test-management-coverage-agent.md`   | `quick` track, or `tools.testManagement` is `none` or missing                                        |
+| 9   | Test management sync             | `test-management-sync-agent.md`       | `quick` track, or `tools.testManagement` is `none` or missing                                        |
+| 10  | Automation feasibility           | `automation-feasibility-agent.md`     | `quick` track                                                                                        |
+| 11  | UI/E2E and mobile implementation | `ui-implementation-agent.md`          | `quick` track, no UI/mobile automatable tests, or `automation.ui.framework` is `none`/`undecided`    |
+| 12  | API implementation               | `api-testing-agent.md`                | `quick` track, no API automatable tests, or `automation.api.framework` is `none`/`undecided`         |
+| 13  | Issue task drafts                | `jira-task-agent.md`                  | `quick` track, no pending automation tests, or `tools.issueTracker` is `none`/missing                |
+| 14  | PR summary                       | `pr-agent.md`                         | User explicitly skips                                                                                |
+| 15  | Release quality gate             | `release-gate-agent.md`               | `project.qaTrack` is not `enterprise`                                                                |
+
+This 15-phase sequence is the single source of truth for phase numbering. `.qa-ai/agents/README.md` mirrors it; individual phase agents refer to the phase by name and cite this table for the number. Mobile implementation is covered by the UI/E2E implementation phase (phase 11) using the same UI implementation agent plus the active mobile specialist.
+
+## Optional and parallel agents
+
+These agents are not part of the numbered sequence above. Load them on demand when their trigger applies; they do not change the main phase numbering.
+
+| Agent                            | File                             | When to load                                                                |
+| -------------------------------- | -------------------------------- | --------------------------------------------------------------------------- |
+| External requirements intake     | `external-intake-agent.md`       | Before requirements normalization when `sources.external.enabled` is true   |
+| Test management diff (governed)  | `test-management-diff-agent.md`  | Governed sync mode, after the sync plan is approved                         |
+| Test management apply (governed) | `test-management-apply-agent.md` | Governed sync mode, after the diff is reviewed and approved                 |
+| Test healing                     | `test-healing-agent.md`          | When `automation.healing.enabled` is true and automated specs fail          |
+| Test impact analysis             | `test-impact-agent.md`           | On change-scoped runs to select affected tests from the traceability matrix |
+| Defect report                    | `defect-report-agent.md`         | After failures or exploratory findings that must be documented locally      |
 
 ## Responsibilities
 

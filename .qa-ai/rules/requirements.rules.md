@@ -1,6 +1,6 @@
 # Requirements and Traceability Rules
 
-**Enforced by:** validate-traceability.mjs
+**Enforced by:** validate-traceability.mjs, validate-test-coverage.mjs (source NFR rows)
 
 Apply during requirement intake, normalization, test design, coverage analysis and traceability updates.
 

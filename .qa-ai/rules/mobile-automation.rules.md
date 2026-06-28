@@ -1,6 +1,6 @@
 # Mobile Automation Rules
 
-**Enforced by:** `doctor.mjs` for configured paths; implementation behavior is prompt-guided
+**Enforced by:** `doctor.mjs` for configured paths; `validate-maestro-flows.mjs` for Maestro flow files; implementation behavior is prompt-guided
 
 Apply when `automation.mobile.framework` is configured.
 

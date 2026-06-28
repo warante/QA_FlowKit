@@ -382,3 +382,17 @@ export async function recordManifestEntries(cwd, entries) {
     entries: [...byKey.values()]
   });
 }
+
+// Lax ISO-8601 check: parses as a Date and requires a date-time form (must include "T").
+// Accepts offsets and "Z". Use for fields where a timezone offset is acceptable.
+export function isIsoDateString(value) {
+  const str = String(value || '');
+  if (!str.includes('T')) return false;
+  return !Number.isNaN(new Date(str).getTime());
+}
+
+// Strict ISO-8601 UTC check: requires the canonical YYYY-MM-DDTHH:MM:SS(.sss)Z form.
+// Use for artifacts that must record UTC timestamps (e.g. external intake "Imported at").
+export function isIsoUtcDateString(value) {
+  return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/.test(String(value || '').trim());
+}
