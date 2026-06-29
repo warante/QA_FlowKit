@@ -53,7 +53,7 @@ The first release (`0.4.0-alpha.0`) was published manually. Subsequent releases 
 3. Merge the Release PR. Release Please creates a GitHub Release + tag and runs the **publish** job:
    - `npm ci`, lint, format check, `validate:oss-extraction`
    - npm pack allowlist check (`.github/scripts/verify-npm-pack.mjs`)
-   - `npm publish --provenance --access public` with automatic dist-tag (`alpha`, `beta`, or `latest`)
+   - `npm publish --provenance --access public` with automatic dist-tag (`alpha`, `beta`, `rc`, or `latest`)
    - Post-publish verification (`npm view` + install smoke)
 
 **Configuration:**

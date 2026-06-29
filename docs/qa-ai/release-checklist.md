@@ -172,7 +172,10 @@ node .github/scripts/verify-npm-pack.mjs
 # Latest stable
 npm install qa-flowkit
 
-# Current beta line
+# Current RC line
+npm install qa-flowkit@rc
+
+# Legacy beta line
 npm install qa-flowkit@beta
 
 # Legacy alpha line

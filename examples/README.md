@@ -16,12 +16,12 @@ The examples intentionally do not include `.qa-ai/`. Their validation runners in
 
 ## Channel compatibility
 
-| Package source | Automation                          | Current policy                       |
-| -------------- | ----------------------------------- | ------------------------------------ |
-| Local tarball  | Every `validate:oss-extraction` run | Required for all four examples       |
-| `@beta`        | Weekly Ubuntu/Windows, Node 20/22   | Current published adopter channel    |
-| `@rc`          | Manual workflow dispatch            | Enabled when the RC lifecycle begins |
-| `@latest`      | Manual workflow dispatch            | Scheduled only after stable `1.0.0`  |
+| Package source | Automation                                                  | Current policy                      |
+| -------------- | ----------------------------------------------------------- | ----------------------------------- |
+| Local tarball  | Every `validate:oss-extraction` run                         | Required for all four examples      |
+| `@rc`          | Weekly Ubuntu/Windows, Node 20/22; manual workflow dispatch | Current published adopter channel   |
+| `@beta`        | Legacy migration testing only                               | Previous `0.5.x-beta.y` line        |
+| `@latest`      | Manual workflow dispatch                                    | Scheduled only after stable `1.0.0` |
 
 The inventory is [`compatibility.json`](compatibility.json). Hosted runs use the
 [`Example compatibility`](../.github/workflows/example-compatibility.yml) workflow and retain a JSON report per

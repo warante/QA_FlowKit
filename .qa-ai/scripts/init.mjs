@@ -784,9 +784,9 @@ async function main() {
   }
 
   if (withCi === 'github') {
-    const packageVersion = args['package-version'] || 'beta';
-    let majorVersion = 'main';
-    if (packageVersion !== 'beta') {
+    const packageVersion = args['package-version'] || 'rc';
+    let majorVersion = 'v1';
+    if (!['beta', 'rc', 'latest'].includes(packageVersion)) {
       const match = packageVersion.match(/^v?(\d+)/);
       if (match) {
         majorVersion = `v${match[1]}`;
@@ -805,7 +805,7 @@ async function main() {
       '    runs-on: ubuntu-latest',
       '    steps:',
       '      - name: Checkout Code',
-      '        uses: actions/checkout@v4',
+      '        uses: actions/checkout@v7',
       '',
       '      - name: QA FlowKit Validation',
       `        uses: warante/QA_FlowKit/actions/validate@${majorVersion}`,

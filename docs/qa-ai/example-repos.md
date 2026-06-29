@@ -92,7 +92,7 @@ Fixtures may omit explanatory material. Public examples must be understandable w
 - Mobile support must distinguish structural validation from actual emulator or device execution.
 - Compatibility claims come from named CI checks, not only generated adapter or preset files.
 
-The `Example compatibility` workflow runs every Monday against `qa-flowkit@beta` on Ubuntu and Windows with Node.js
+The `Example compatibility` workflow runs every Monday against `qa-flowkit@rc` on Ubuntu and Windows with Node.js
 20 and 22. It can also be dispatched manually for `rc` or `latest`. Those channels are not added to the schedule
 until their lifecycle phase begins, avoiding false support claims for unpublished channels.
 
@@ -105,11 +105,11 @@ npm run test:example-compatibility
 Run it against an allowed published channel or exact version:
 
 ```bash
-node .github/scripts/run-example-channel-validation.mjs --package-spec qa-flowkit@beta
+node .github/scripts/run-example-channel-validation.mjs --package-spec qa-flowkit@rc
 node .github/scripts/run-example-channel-validation.mjs --package-spec qa-flowkit@1.0.0-rc.1
 ```
 
-The runner accepts only `local`, the named `beta`, `rc` and `latest` channels, or an exact version. Each hosted
+The runner accepts only `local`, the named `rc`, `beta` and `latest` channels, or an exact version. Each hosted
 matrix job uploads a JSON report with the installed version, platform, Node.js version, example and duration.
 
 ## Maintenance and triage
@@ -157,7 +157,7 @@ jobs:
         with:
           node-version: '20'
       - name: Validate target repository
-        run: npx --yes qa-flowkit@beta validate-target
+        run: npx --yes qa-flowkit@rc validate-target
 ```
 
 Use the release channel defined by your compatibility policy; do not silently switch examples between `beta`, `rc`

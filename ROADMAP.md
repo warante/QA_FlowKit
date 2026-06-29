@@ -2,7 +2,7 @@
 
 ## Current status
 
-QA FlowKit is in **Beta**. The portable framework, npm CLI, deterministic validators, repository-native harness,
+QA FlowKit is in **Release Candidate**. The portable framework, npm CLI, deterministic validators, repository-native harness,
 release automation and first real target-repository pilot are complete.
 
 The remaining path to `1.0.0` is product stabilization, not broad feature expansion. Stable `1.0.0` requires:

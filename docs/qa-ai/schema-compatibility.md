@@ -1,6 +1,6 @@
 # Schema compatibility
 
-Versioned machine-readable contracts and representative beta fixtures for QA FlowKit.
+Versioned machine-readable contracts and representative compatibility fixtures for QA FlowKit.
 
 ## Registry
 
@@ -25,9 +25,9 @@ Unsupported versions must fail with an actionable migration message that referen
 
 ## Configuration
 
-### Current beta
+### Current RC
 
-The current beta contract is `version: 1` with the top-level sections documented in [config-schema.md](config-schema.md).
+The current RC contract is `version: 1` with the top-level sections documented in [config-schema.md](config-schema.md).
 
 ### Oldest supported beta
 

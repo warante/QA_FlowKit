@@ -3,7 +3,7 @@
 Machine-readable record: [`stable-announcement.v1.json`](stable-announcement.v1.json).  
 Public entrypoint flip list: [`stable-public-entrypoints.v1.json`](stable-public-entrypoints.v1.json).
 
-**Status:** `prepared` (README and SECURITY still describe **Beta** until TASK-085 completes)
+**Status:** `prepared` (README and SECURITY still describe **Release Candidate** until TASK-085 completes)
 
 ## When to run
 

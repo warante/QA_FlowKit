@@ -13,7 +13,7 @@ machine-readable source is
 | `internal`     | Implementation detail; consumers must not depend on it                                  |
 | `deprecated`   | Supported temporarily with a documented replacement and removal window                  |
 
-Classification does not mean every current beta detail is frozen. The release-candidate gate confirms the final
+Classification does not mean every RC detail is frozen. The stable release gate confirms the final
 stable set after migration fixtures and deferred pilot decisions are incorporated.
 
 ## CLI
@@ -48,7 +48,7 @@ Exit code `0` means success. Exit code `1` means usage, validation, safety or ru
 success for an explicitly requested `--allow-empty` or `--allow-missing` outcome.
 
 Commands documented with `--json` keep stdout as parseable JSON and send failures to stderr with a non-zero exit
-code. Required top-level meanings are stable; new optional diagnostic fields may be added during beta.
+code. Required top-level meanings are stable; new optional diagnostic fields may be added during RC.
 
 Stable JSON output surfaces:
 
@@ -149,7 +149,7 @@ wording are experimental even when their file locations are public.
 ## Deprecation Policy
 
 1. Add the replacement before deprecating the old surface.
-2. Emit documentation and, where practical, `doctor` guidance for at least one beta or minor release.
+2. Emit documentation and, where practical, `doctor` guidance for at least one RC or minor release.
 3. Preserve deprecated stable surfaces throughout `1.x` unless continued support creates a security or data-loss risk.
 4. Record removal in the migration guide and release notes.
 5. Never silently reinterpret existing configuration or state.

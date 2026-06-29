@@ -61,7 +61,7 @@ documented in the script source.
 | Init manifest entries                    | Lexicographic by `path` after merge                        |
 | `public-contracts.v1.json` command lists | Lexicographic                                              |
 
-Consumers must treat unspecified optional JSON fields as additive during beta; only required top-level meanings are
+Consumers must treat unspecified optional JSON fields as additive during RC; only required top-level meanings are
 frozen for 1.0.
 
 ## Deprecation warnings

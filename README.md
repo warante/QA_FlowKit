@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Node.js 20+](https://img.shields.io/badge/node.js-20%2B-339933.svg)](package.json)
-[![Status: Beta](https://img.shields.io/badge/status-Beta-orange.svg)](docs/qa-ai/stability-policy.md)
+[![Status: RC](https://img.shields.io/badge/status-RC-yellow.svg)](docs/qa-ai/stability-policy.md)
 [![CI](https://github.com/warante/QA_FlowKit/actions/workflows/ci.yml/badge.svg)](https://github.com/warante/QA_FlowKit/actions/workflows/ci.yml)
 [![npm version](https://img.shields.io/npm/v/qa-flowkit.svg)](https://www.npmjs.com/package/qa-flowkit)
 
@@ -17,7 +17,7 @@ requirement -> test design -> Gherkin -> traceability -> automation plan -> rele
 ```
 
 It is for QA and automation teams that want AI-generated artifacts without relying only on prompt discipline.
-QA FlowKit is currently in **Beta**; see the [stability policy](docs/qa-ai/stability-policy.md).
+QA FlowKit is currently in **Release Candidate**; see the [stability policy](docs/qa-ai/stability-policy.md).
 
 ## The Problem It Solves
 
@@ -59,7 +59,7 @@ Open the repository in your AI coding CLI. Use the generated QA command surface:
 project slash commands through generated adapters; agents without slash-command support use generated adapter
 instructions (`AGENTS.md`, `GEMINI.md`, `.codex/README.md`, etc.).
 
-During Beta, pin reproducible setup or CI to `npx qa-flowkit@beta ...` when you need the beta channel explicitly.
+During the RC line, pin reproducible setup or CI to `npx qa-flowkit@rc ...` when you need the `rc` channel explicitly.
 After the agent creates or updates QA artifacts, run `npx qa-flowkit validate-target` as the repository quality gate.
 
 ## Demo
@@ -121,13 +121,13 @@ The track controls workflow depth; presets configure frameworks and tools.
 | `playwright-full`            | `standard`    | Playwright UI + API         |
 | `maestro-karate-mobile`      | `standard`    | Maestro mobile + Karate API |
 | `karate-full`                | `standard`    | Karate API + UI             |
-| `webdriverio-playwright-api` | `standard`    | Legacy beta compatibility   |
+| `webdriverio-playwright-api` | `standard`    | Legacy compatibility preset |
 | `selenium-jest-browserstack` | `standard`    | Selenium/Jest               |
 
 Example:
 
 ```bash
-npx qa-flowkit@beta init --preset karate-full --adapters generic,claude
+npx qa-flowkit@rc init --preset karate-full --adapters generic,claude
 ```
 
 See the [configuration schema](docs/qa-ai/config-schema.md) for all generated keys.
@@ -210,7 +210,7 @@ see the [agent harness](docs/qa-ai/agent-harness.md) for the exact boundary.
 ## Updating
 
 ```bash
-npx qa-flowkit@beta update
+npx qa-flowkit@rc update
 npx qa-flowkit doctor --strict
 npx qa-flowkit validate-target
 ```

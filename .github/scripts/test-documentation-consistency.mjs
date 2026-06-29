@@ -23,12 +23,12 @@ test('stale prerelease versions fail in evergreen docs but historical files stay
   assert.match(errors[0], /README\.md:1/);
 });
 
-test('lifecycle claims require Beta in both READMEs and SECURITY', () => {
+test('lifecycle claims require Release Candidate in both READMEs and SECURITY', () => {
   const errors = validateLifecycleClaims(
     new Map([
-      ['README.md', 'QA FlowKit is in **Beta**'],
-      ['README.es.md', 'QA FlowKit está en fase **Beta**'],
-      ['SECURITY.md', 'The project is currently in Beta.']
+      ['README.md', 'QA FlowKit is in **Release Candidate**'],
+      ['README.es.md', 'QA FlowKit está en fase de **candidato a versión estable (RC)**'],
+      ['SECURITY.md', 'The project is currently in Release Candidate (RC).']
     ])
   );
   assert.deepEqual(errors, []);

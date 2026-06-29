@@ -4,10 +4,10 @@ QA FlowKit exposes the `qa-flowkit` binary through npm and delegates target-repo
 `.qa-ai/scripts/` framework.
 
 ```bash
-npx qa-flowkit@beta <command> [options]
+npx qa-flowkit@rc <command> [options]
 ```
 
-During Beta, pin CI and reproducible setup to `@beta`. Stable `1.0.0` will use the default `latest` channel.
+During the RC line, pin CI and reproducible setup to `@rc`. Stable `1.0.0` will use the default `latest` channel.
 Compatibility levels and deprecations are defined in [Public Contracts](public-contracts.md).
 
 ## Setup commands
@@ -22,7 +22,7 @@ Compatibility levels and deprecations are defined in [Public Contracts](public-c
 ### `init`
 
 ```bash
-npx qa-flowkit@beta init [options]
+npx qa-flowkit@rc init [options]
 ```
 
 Common options:
@@ -65,8 +65,8 @@ derives supported placeholders and fails with the offending key paths when an un
 ### `update`
 
 ```bash
-npx qa-flowkit@beta update
-npx qa-flowkit@beta update --dry-run --json
+npx qa-flowkit@rc update
+npx qa-flowkit@rc update --dry-run --json
 ```
 
 `update` replaces only `.qa-ai/` from the installed package and preserves:

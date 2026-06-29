@@ -14,12 +14,12 @@ Update it for every `1.0.0-rc.N` release.
 
 ## Known limitations
 
-1. **Release-please RC policy is active on `main`** (`versioning: prerelease`, `prerelease-type: rc`). The next Release PR from release-please should propose `1.0.0-rc.N`; local `package.json` may still show the last beta until that Release PR merges.
+1. **Release-please RC policy is active on `main`** (`versioning: prerelease`, `prerelease-type: rc`). Release PRs from release-please propose `1.0.0-rc.N` builds.
 2. **Private vulnerability reporting** (Epic 13 / TASK-053) is enabled; use [SECURITY.md](../../SECURITY.md) and GitHub Security Advisories for private disclosure.
 3. **Pilot repositories** are not guaranteed to track `@rc` automatically; pin `qa-flowkit@rc` explicitly in CI and docs.
 4. **npm registry propagation** can lag a few minutes after publish; post-publish jobs retry `npm view` before failing.
 5. **No npm unpublish** for widely consumed RC builds; ship forward fixes as the next `1.0.0-rc.N`.
-6. **Example compatibility** scheduled runs default to `@beta`; switch to `rc` via workflow_dispatch after the first RC publish (see [example-compatibility.yml](../../.github/workflows/example-compatibility.yml)).
+6. **Example compatibility** scheduled runs default to `@rc` (see [example-compatibility.yml](../../.github/workflows/example-compatibility.yml)).
 7. **P1-002 / P1-003** (independent checklist and migration walkthrough) close during **early RC soak** with `npx qa-flowkit@rc` and must be done before TASK-082 (`rc-soak-status.v1.json` → `earlySoakHumanGates`).
 8. **Cross-functional sign-offs** for stable `1.0.0` are required at **TASK-082** ([`stable-release-approval.v1.json`](stable-release-approval.v1.json)), not before the first RC publish.
 
