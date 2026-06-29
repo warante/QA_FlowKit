@@ -48,6 +48,21 @@ this feature PR is merged.
 - Cross-platform smoke and npm-pack checks now account for generated adapters and framework-specific example paths.
 - Documentation drift and missing packaged contract files now fail validation before release.
 
+## [1.0.0-rc.2](https://github.com/warante/QA_FlowKit/compare/v1.0.0-rc.1...v1.0.0-rc.2) (2026-06-28)
+
+
+### Added
+
+* agente UI genérico, comando enterprise y endurecimiento de validadores ([#58](https://github.com/warante/QA_FlowKit/issues/58)) ([e65f708](https://github.com/warante/QA_FlowKit/commit/e65f708ef81a9f0c4b48c5b6214fecf14974bfa2))
+
+
+### Documentation
+
+* add multilingual product landing page ([9fe19cc](https://github.com/warante/QA_FlowKit/commit/9fe19cc452206b14284651d313779fedff24afaa))
+* expand landing command reference ([f960a6c](https://github.com/warante/QA_FlowKit/commit/f960a6cdc2f2a8259eb99265fe81246cd430ea5a))
+* expand multilingual product landing page ([35e105c](https://github.com/warante/QA_FlowKit/commit/35e105c7ade2a4892ae65df5921fc5d77ffa35dc))
+* refine multilingual landing experience ([ef54233](https://github.com/warante/QA_FlowKit/commit/ef542339067cd9fb20e178a0f728e924da07a3d8))
+
 ## [1.0.0-rc.1](https://github.com/warante/QA_FlowKit/compare/v0.5.9-beta.0...v1.0.0-rc.1) (2026-06-26)
 
 

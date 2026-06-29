@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "generatedAt": "2026-06-25",
-  "qaFlowKitVersion": "1.0.0-rc.1",
+  "qaFlowKitVersion": "1.0.0-rc.2",
   "task": "TASK-083",
   "status": "prepared",
   "activeConfig": ".release-please-config.json",
