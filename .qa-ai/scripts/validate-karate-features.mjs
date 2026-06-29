@@ -3,7 +3,12 @@ import fs from 'node:fs/promises';
 import { isKarateUiFeaturePath, karateFeatureRoots, usesKarate } from './lib/automation-framework.mjs';
 import { karateDuplicateIdErrors, validateKarateFeatureContent } from './lib/karate-validate.mjs';
 import { listFilesRecursive, loadQaAiConfig, logHeader, parseArgs, relativeTo, resolveRepoPath } from './lib/utils.mjs';
-import { emitJson, isJsonMode } from './lib/validator-cli.mjs';
+import {
+  exitSingleFileFailure,
+  handleEmptyCollection,
+  resolveSingleCollectionFile
+} from './lib/collection-validator.mjs';
+import { emitJson, finishValidatorRun, isJsonMode, isValidatorMain } from './lib/validator-cli.mjs';
 
 const cwd = process.cwd();
 const args = parseArgs(process.argv);
@@ -60,26 +65,16 @@ async function main() {
 
   const files = [];
   if (args.file) {
-    const resolvedFile = resolveRepoPath(cwd, args.file, { label: 'single Karate feature file' });
     const absoluteRoots = roots.map((root) => resolveRepoPath(cwd, root, { label: 'Karate root' }));
-    if (!absoluteRoots.some((r) => resolvedFile.startsWith(r))) {
-      if (jsonMode) emitJson(false, [`file "${args.file}" is not under any configured Karate roots.`]);
-      else console.log(`FAILED - file "${args.file}" is not under any configured Karate roots.`);
-      process.exit(1);
-    }
-    try {
-      const stat = await fs.stat(resolvedFile);
-      if (!stat.isFile()) {
-        if (jsonMode) emitJson(false, [`file "${args.file}" is not a file.`]);
-        else console.log(`FAILED - file "${args.file}" is not a file.`);
-        process.exit(1);
-      }
-    } catch {
-      if (jsonMode) emitJson(false, [`file "${args.file}" does not exist.`]);
-      else console.log(`FAILED - file "${args.file}" does not exist.`);
-      process.exit(1);
-    }
-    files.push(resolvedFile);
+    const single = await resolveSingleCollectionFile({
+      cwd,
+      fileArg: args.file,
+      isUnderRoot: (resolved) => absoluteRoots.some((root) => resolved.startsWith(root)),
+      notUnderRootError: `file "${args.file}" is not under any configured Karate roots.`,
+      fileLabel: 'single Karate feature file'
+    });
+    if (!single.ok) exitSingleFileFailure(single, jsonMode);
+    files.push(single.file);
     args['no-duplicates'] = true;
   } else {
     for (const root of roots) {
@@ -89,17 +84,19 @@ async function main() {
     }
   }
 
-  if (files.length === 0) {
-    if (!args['allow-empty']) {
-      if (jsonMode) emitJson(false, [`No .feature files found under: ${roots.join(', ')}`]);
-      else {
-        console.log(`No .feature files found under: ${roots.join(', ')}`);
-        console.log('\nFAILED - no Karate feature files found. Pass --allow-empty when expected.');
-      }
-      process.exit(1);
-    }
-    if (jsonMode) emitJson(true);
-    else console.log(`No .feature files found under: ${roots.join(', ')}`);
+  if (
+    handleEmptyCollection({
+      fileCount: files.length,
+      allowEmpty: Boolean(args['allow-empty']),
+      jsonMode,
+      failureErrors: [`No .feature files found under: ${roots.join(', ')}`],
+      failureTextLines: [
+        `No .feature files found under: ${roots.join(', ')}`,
+        '\nFAILED - no Karate feature files found. Pass --allow-empty when expected.'
+      ],
+      successText: `No .feature files found under: ${roots.join(', ')}`
+    })
+  ) {
     return;
   }
 
@@ -149,16 +146,19 @@ async function main() {
     }
   }
 
-  if (totalErrors > 0) {
-    if (jsonMode) emitJson(false, aggErrors, aggWarnings);
-    else console.log(`\nFAILED - ${totalErrors} Karate validation issue(s).`);
-    process.exit(1);
-  }
-  if (jsonMode) emitJson(true, [], aggWarnings);
-  else console.log('\nVALID - all Karate feature files passed.');
+  finishValidatorRun({
+    ok: totalErrors === 0,
+    errors: aggErrors,
+    warnings: aggWarnings,
+    jsonMode,
+    successMessage: '\nVALID - all Karate feature files passed.',
+    failureMessage: `\nFAILED - ${totalErrors} Karate validation issue(s).`
+  });
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+if (isValidatorMain(import.meta.url)) {
+  main().catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
+}

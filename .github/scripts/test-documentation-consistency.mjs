@@ -59,6 +59,7 @@ test('canonical validation commands are required in maintainer docs', () => {
     ]),
     {
       scripts: {
+        'docs:build': 'node build.mjs',
         'docs:check': 'node check.mjs',
         'test:doc-consistency': 'node --test test.mjs',
         'validate:oss-extraction': 'node check.mjs'

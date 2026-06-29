@@ -1,12 +1,16 @@
 #!/usr/bin/env node
 import path from 'node:path';
-import { parseMarkdownTable, normalizeColumn } from './lib/markdown-table.mjs';
+import {
+  loadTraceabilityMatrix,
+  normalizeColumn,
+  parseMarkdownTable,
+  resolveArtifactOrMissing
+} from './lib/markdown-artifact-validator.mjs';
 import {
   getConfigValue,
   loadQaAiConfig,
   logHeader,
   parseArgs,
-  pathExists,
   readText,
   resolveRepoPath,
   toPosixPath
@@ -38,48 +42,23 @@ export async function validateHealingLog(cwd, options = {}) {
 
   const logAbsPath = resolveRepoPath(cwd, logPath, { label: 'healing log' });
 
-  if (!(await pathExists(logAbsPath))) {
-    if (allowMissing) {
-      return { ok: true, errors: [], warnings: [] };
-    }
-    return {
-      ok: false,
-      errors: [`Healing log file not found at: ${logPath}`],
-      warnings: []
-    };
+  const artifactCheck = await resolveArtifactOrMissing({
+    absPath: logAbsPath,
+    relPath: logPath,
+    allowMissing,
+    notFoundMessage: `Healing log file not found at: ${logPath}`
+  });
+  if (!artifactCheck.ok) return artifactCheck;
+  if (artifactCheck.missing) {
+    return { ok: true, errors: [], warnings: [] };
   }
 
-  // Load and parse traceability matrix to verify Test IDs
-  const matrixAbsPath = resolveRepoPath(cwd, matrixPath, { label: 'traceability matrix' });
-  if (!(await pathExists(matrixAbsPath))) {
-    return {
-      ok: false,
-      errors: [`Traceability matrix file not found at: ${matrixPath}`],
-      warnings: []
-    };
-  }
-
-  const matrixContent = await readText(matrixAbsPath);
-  const matrixTable = parseMarkdownTable(matrixContent, {
-    label: 'Traceability matrix',
+  const matrix = await loadTraceabilityMatrix(cwd, matrixPath, {
     requiredColumns: ['Test Management Case ID']
   });
+  if (!matrix.ok) return matrix;
 
-  if (matrixTable.errors.length > 0) {
-    return {
-      ok: false,
-      errors: matrixTable.errors.map((e) => `Traceability matrix error: ${e}`),
-      warnings: []
-    };
-  }
-
-  const validTestIds = new Set();
-  for (const row of matrixTable.rows) {
-    const rawId = String(row.values[normalizeColumn('Test Management Case ID')] || '').trim();
-    if (rawId) {
-      validTestIds.add(normalizeId(rawId));
-    }
-  }
+  const validTestIds = matrix.validTestIds;
 
   // Configure specs paths for path safety checks
   const uiPath = getConfigValue(config, 'automation.ui.specsPath');

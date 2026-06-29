@@ -10,6 +10,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { repoRoot } from './lib/ci-helpers.mjs';
+import { pathExists } from '../../.qa-ai/scripts/lib/utils.mjs';
 
 const adapterRoot = path.join(repoRoot, '.qa-ai', 'adapters', 'claude');
 const pluginRoot = path.join(repoRoot, 'plugin');
@@ -21,15 +22,6 @@ const bilingualDescription =
 
 async function readJson(filePath) {
   return JSON.parse(await fs.readFile(filePath, 'utf8'));
-}
-
-async function pathExists(filePath) {
-  try {
-    await fs.access(filePath);
-    return true;
-  } catch {
-    return false;
-  }
 }
 
 function slashPath(value) {

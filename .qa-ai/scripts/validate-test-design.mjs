@@ -12,6 +12,7 @@ import {
   readText,
   resolveRepoPath
 } from './lib/utils.mjs';
+import { isValidatorMain } from './lib/validator-cli.mjs';
 
 const cwd = process.cwd();
 const args = parseArgs(process.argv);
@@ -168,7 +169,9 @@ async function main() {
   console.log('\nVALID - test design artifacts passed validation.');
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+if (isValidatorMain(import.meta.url)) {
+  main().catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
+}

@@ -59,7 +59,8 @@ export {
 export { validateQualityReport } from '../../lib/quality-report.mjs';
 export { parseJUnitXml, parseCucumberJson, extractTestIds } from '../../lib/execution-results.mjs';
 export { parseEvalJson, parseGenericEvalJson, parsePromptfooJson } from '../../lib/eval-results.mjs';
-export { validateExecutionEvidence, resolveGlobs } from '../../validate-execution-evidence.mjs';
+export { validateExecutionEvidence } from '../../lib/execution-evidence-validate.mjs';
+export { globToRegex, resolveGlobs } from '../../lib/glob.mjs';
 export { validateReleaseGateFile } from '../../validate-release-gate.mjs';
 export { validateHealingLog } from '../../validate-healing-log.mjs';
 export { validateTestImpact } from '../../validate-test-impact.mjs';

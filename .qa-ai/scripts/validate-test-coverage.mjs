@@ -7,6 +7,7 @@ import {
   validateSourceNfrCoverage
 } from './lib/nfr-coverage.mjs';
 import { mergeSemanticCoverageResults, validateSemanticCoverage } from './lib/semantic-coverage.mjs';
+import { isValidatorMain } from './lib/validator-cli.mjs';
 import {
   getConfigValue,
   listFilesRecursive,
@@ -189,11 +190,13 @@ async function main() {
   if (!result.ok) process.exit(1);
 }
 
-main().catch((error) => {
-  if (args.json) {
-    console.log(JSON.stringify({ ok: false, error: error.message }, null, 2));
-  } else {
-    console.error(error);
-  }
-  process.exit(1);
-});
+if (isValidatorMain(import.meta.url)) {
+  main().catch((error) => {
+    if (args.json) {
+      console.log(JSON.stringify({ ok: false, error: error.message }, null, 2));
+    } else {
+      console.error(error);
+    }
+    process.exit(1);
+  });
+}

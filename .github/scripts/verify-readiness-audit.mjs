@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import fs from 'node:fs/promises';
-import { isMain, repoRoot } from './lib/ci-helpers.mjs';
+import { assert, isMain, repoRoot } from './lib/ci-helpers.mjs';
 import path from 'node:path';
 
 const ALLOWED_DECISIONS = new Set(['PASS', 'PASS_WITH_ACTIONS', 'FAIL']);
@@ -8,10 +8,6 @@ const ALLOWED_EPIC_STATUS = new Set(['done', 'blocked', 'deferred', 'in_validati
 const ALLOWED_E2E_STATUS = new Set(['automated', 'partial', 'planned', 'manual']);
 const ALLOWED_SEVERITY = new Set(['P0', 'P1', 'P2', 'P3']);
 const REQUIRED_EPICS = [13, 14, 15, 16, 17, 18];
-
-function assert(condition, message, errors) {
-  if (!condition) errors.push(message);
-}
 
 async function readJson(filePath) {
   return JSON.parse(await fs.readFile(filePath, 'utf8'));

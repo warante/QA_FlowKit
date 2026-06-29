@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="{{lang}}" data-lang-en="{{data_lang_en}}" data-lang-es="{{data_lang_es}}">
+  <head>
+    <meta charset="utf-8" />
+    <script src="{{assets_prefix}}lang-detect.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0c1117" />
+    <meta
+      name="description"
+      content="{{meta_description}}"
+    />
+    <title>{{title}}</title>
+    <link rel="canonical" href="{{canonical}}" />
+    <link rel="alternate" hreflang="en" href="{{hreflang_en}}" />
+    <link rel="alternate" hreflang="es" href="{{hreflang_es}}" />
+    <link rel="alternate" hreflang="x-default" href="{{hreflang_en}}" />
+    <link rel="stylesheet" href="{{assets_prefix}}styles.css" />
+  </head>
+  <body>
+    <header class="topbar" aria-label="{{aria_topbar}}">
+      <a class="brand" href="#top" aria-label="{{aria_brand}}">
+        <span class="brand-mark">QF</span>
+        <span>QA FlowKit</span>
+      </a>
+      <div class="topbar-end">
+        <nav aria-label="{{aria_nav}}">
+{{nav_links}}
+        </nav>
+        <div class="lang-switcher" role="group" aria-label="{{aria_lang_switcher}}">
+{{lang_switcher}}
+        </div>
+        <a class="topbar-cta" href="https://github.com/warante/QA_FlowKit">GitHub</a>
+      </div>
+    </header>
+
+    <main id="top">
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">{{hero_eyebrow}}</p>
+          <h1>{{hero_title}}</h1>
+          <p class="lede">
+            {{hero_lede}}
+          </p>
+          <div class="actions" aria-label="{{aria_hero_actions}}">
+{{hero_actions}}
+          </div>
+        </div>
+        <div class="terminal-panel" aria-label="{{aria_hero_terminal}}">
+          <div class="terminal-bar">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <pre><code>{{hero_terminal_code}}</code></pre>
+        </div>
+      </section>
+
+      <section class="signal-strip" aria-label="{{aria_signals}}">
+{{signals}}
+      </section>
+
+      <section class="section" id="why">
+        <div class="section-heading">
+          <p class="eyebrow">{{why_eyebrow}}</p>
+          <h2>{{why_title}}</h2>
+          <p>
+            {{why_intro}}
+          </p>
+        </div>
+        <div class="why-grid">
+{{why_cards}}
+        </div>
+        <div class="compare-columns" aria-label="{{aria_compare}}">
+          <article class="problem">
+            <h3>{{why_without_title}}</h3>
+            <ul>
+{{why_without_items}}
+            </ul>
+          </article>
+          <article class="solution">
+            <h3>{{why_with_title}}</h3>
+            <ul>
+{{why_with_items}}
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="workflow">
+        <div class="section-heading">
+          <p class="eyebrow">{{workflow_eyebrow}}</p>
+          <h2>{{workflow_title}}</h2>
+          <p>
+            {{workflow_intro}}
+          </p>
+        </div>
+        <div class="workflow-pipeline" aria-label="{{aria_workflow_pipeline}}">
+{{workflow_pipeline}}
+        </div>
+        <div class="workflow-layers">
+{{workflow_layers}}
+        </div>
+        <p class="workflow-notes">
+          {{workflow_notes}}
+        </p>
+        <div class="track-levels" aria-label="{{aria_track_levels}}">
+          <p class="track-levels-intro">
+            {{workflow_track_intro}}
+          </p>
+          <div class="track-pills">
+{{workflow_track_pills}}
+          </div>
+        </div>
+      </section>
+
+      <section class="section split" id="features">
+        <div class="section-heading">
+          <p class="eyebrow">{{features_eyebrow}}</p>
+          <h2>{{features_title}}</h2>
+          <p>
+            {{features_intro}}
+          </p>
+        </div>
+        <div class="feature-grid">
+{{features_grid}}
+        </div>
+      </section>
+
+      <section class="section" id="commands">
+        <div class="section-heading">
+          <p class="eyebrow">{{commands_eyebrow}}</p>
+          <h2>{{commands_title}}</h2>
+          <p>
+            {{commands_intro}}
+          </p>
+        </div>
+        <div class="command-groups">
+          <div class="command-group">
+            <h3>{{commands_agent_group_title}}</h3>
+            <p class="command-group-note">
+              {{commands_agent_group_note}}
+            </p>
+            <div class="command-grid">
+{{agent_commands}}
+            </div>
+          </div>
+          <div class="command-group">
+            <h3>{{commands_terminal_group_title}}</h3>
+            <div class="command-grid">
+{{terminal_commands}}
+            </div>
+          </div>
+        </div>
+        <p class="command-note">
+          {{commands_note_prefix}}
+          {{commands_note_links}}
+        </p>
+      </section>
+
+      <section class="section bands" aria-label="{{aria_bands}}">
+        <div>
+          <h2>{{bands_presets_title}}</h2>
+          <div class="chip-list">
+{{bands_presets}}
+          </div>
+        </div>
+        <div>
+          <h2>{{bands_adapters_title}}</h2>
+          <div class="chip-list">
+{{bands_adapters}}
+          </div>
+        </div>
+      </section>
+
+      <section class="section install" id="install">
+        <div>
+          <p class="eyebrow">{{install_eyebrow}}</p>
+          <h2>{{install_title}}</h2>
+          <p>{{install_intro}}</p>
+        </div>
+        <pre><code>{{install_terminal_code}}</code></pre>
+      </section>
+    </main>
+
+    <footer>
+      <span>{{footer_tagline}}</span>
+      <div class="footer-links">
+{{footer_links}}
+      </div>
+    </footer>
+
+    <button type="button" class="scroll-top" aria-label="{{aria_scroll_top}}" aria-hidden="true" tabindex="-1">
+      <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+        <path
+          d="M5 12.5 10 7.5 15 12.5"
+          stroke="currentColor"
+          stroke-width="1.75"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+    </button>
+    <script src="{{assets_prefix}}scroll-top.js"></script>
+  </body>
+</html>

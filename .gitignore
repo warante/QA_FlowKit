@@ -1,5 +1,6 @@
 # Cursor IDE (local)
 .cursor/
+!.cursor/README.md
 
 # Secrets and local env
 .env

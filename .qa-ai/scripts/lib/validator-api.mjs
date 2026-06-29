@@ -1,0 +1,41 @@
+/**
+ * Central map of in-process validator APIs for validate-target-runner.
+ * Each entry: async (cwd, options) => { ok, errors, warnings, findings?, skipped? }
+ */
+export { validateDesignFeatures } from './gherkin-features-validate.mjs';
+export { validateKarateFeatures } from './karate-features-validate.mjs';
+export { validateMaestroFlowsCollection as validateMaestroFlows } from './maestro-flows-validate.mjs';
+export { validateConfig } from './config-validate.mjs';
+export { validateActiveSpecialists } from './active-specialists-validate.mjs';
+export { validateUntrustedContent } from './untrusted-content-validate.mjs';
+export { validateHealingLog } from '../validate-healing-log.mjs';
+export { validateTestImpact } from '../validate-test-impact.mjs';
+export { validateTraceability } from '../validate-traceability.mjs';
+export { validateReleaseGateFile } from '../validate-release-gate.mjs';
+export { validateExecutionEvidence } from './execution-evidence-validate.mjs';
+export { validateTestCoverage } from '../validate-test-coverage.mjs';
+export { validateTestDesignArtifacts } from '../validate-test-design.mjs';
+export { validateQualityReport } from './quality-report.mjs';
+export { validateWorkflowContractFile as validateWorkflowContractApi } from './workflow-contract-validate.mjs';
+
+/** Convert standard validator result to JSON findings shape used by validate-target. */
+export function toFindings(result) {
+  const findings = [];
+  for (const message of result.errors || []) {
+    findings.push({ message, severity: 'error' });
+  }
+  for (const message of result.warnings || []) {
+    findings.push({ message, severity: 'warning' });
+  }
+  if (Array.isArray(result.findings)) {
+    for (const finding of result.findings) {
+      findings.push({
+        file: finding.file || finding.path || '',
+        line: typeof finding.line === 'number' ? finding.line : undefined,
+        message: finding.message || finding.excerpt || String(finding),
+        severity: finding.severity || 'error'
+      });
+    }
+  }
+  return findings;
+}

@@ -1,14 +1,10 @@
 #!/usr/bin/env node
 import fs from 'node:fs/promises';
-import { isMain, repoRoot } from './lib/ci-helpers.mjs';
+import { assert, isMain, repoRoot } from './lib/ci-helpers.mjs';
 import path from 'node:path';
 
 const ALLOWED_STATUS = new Set(['planned', 'in_progress', 'completed']);
 const ALLOWED_STEP_STATUS = new Set(['pending', 'passed', 'failed']);
-
-function assert(condition, message, errors) {
-  if (!condition) errors.push(message);
-}
 
 async function readJson(filePath) {
   return JSON.parse(await fs.readFile(filePath, 'utf8'));

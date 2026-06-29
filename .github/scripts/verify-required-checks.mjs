@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import fs from 'node:fs/promises';
-import { repoRoot } from './lib/ci-helpers.mjs';
+import { assert, repoRoot } from './lib/ci-helpers.mjs';
 import path from 'node:path';
 
 const manifestPath = path.join(repoRoot, 'docs', 'qa-ai', 'required-checks.v1.json');
@@ -20,10 +20,6 @@ function findJobBlock(workflowText, jobId) {
 
 function collectChecks(manifest) {
   return [...(manifest.checks || []), ...(manifest.scheduledChecks || [])];
-}
-
-function assert(condition, message, errors) {
-  if (!condition) errors.push(message);
 }
 
 async function main() {

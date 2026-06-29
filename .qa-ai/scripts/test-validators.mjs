@@ -7,5 +7,6 @@ import './test/validators/markdown-sync.mjs';
 import './test/validators/gherkin.mjs';
 import './test/validators/sync-diff.mjs';
 import './test/validators/execution.mjs';
-import './test/validators/healing-impact.mjs';
+import './test/validators/healing-log.mjs';
+import './test/validators/test-impact.mjs';
 import './test/validators/subprocess.mjs';

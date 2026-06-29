@@ -1,11 +1,9 @@
-import { getConfigValue, loadQaAiConfig, pathExists, hashFile, resolveTestManagementSyncPlanPath } from './utils.mjs';
-import { getPhaseMap, getPhaseSkipReason, getTrackPhaseOrder, loadWorkflowContract } from './harness-contract.mjs';
+import { loadQaAiConfig } from './utils.mjs';
+import { getPhaseMap, getTrackPhaseOrder, loadWorkflowContract } from './harness-contract.mjs';
 import { buildPhaseBlockers, buildPhasePacket, buildStatusReport } from './harness-context.mjs';
-import { interfaceLanguage, renderBlockers } from './harness-messages.mjs';
 import {
   appendRunEvent,
   assertMutableRun,
-  createEmptyPhaseState,
   createRunDirectory,
   getActiveRunId,
   listRunIds,
@@ -14,9 +12,8 @@ import {
   withRunLock,
   writeRunSnapshot
 } from './harness-run-store.mjs';
-import { parseModificationApprovalGate, buildModificationBlockers } from './harness-modification.mjs';
+import { buildModificationBlockers } from './harness-modification.mjs';
 import {
-  assertNoteHasNoSecrets,
   assertConfigPathsSafe,
   collectOutputHashes,
   DEFAULT_MAX_VALIDATION_ATTEMPTS,
@@ -25,80 +22,17 @@ import {
   verifyPhaseInputs,
   verifyPhaseOutputs
 } from './harness-validation.mjs';
-import { normalizeQaTrack } from './harness-contract.mjs';
+import { buildRunId } from './harness/run-id.mjs';
+import {
+  blockerHelp,
+  gatherPhaseBlockers,
+  initializePhaseStates,
+  maybeUnblockEntryBlockedPhase
+} from './harness/phase-transitions.mjs';
+import { checkAndInvalidateSyncPlanApproval } from './harness/approvals.mjs';
 
-function sanitizeRunIdPart(value) {
-  return (
-    String(value || 'anon')
-      .trim()
-      .replace(/[^A-Za-z0-9._-]+/g, '-')
-      .replace(/^-+|-+$/g, '')
-      .slice(0, 48) || 'anon'
-  );
-}
-
-function formatRunIdTimestamp(date) {
-  return date.toISOString().replace(/[-:]/g, '').replace('.', '');
-}
-
-export function buildRunId(rfId, { now = new Date(), disambiguator = 0 } = {}) {
-  const stamp = formatRunIdTimestamp(now);
-  const suffix = disambiguator > 0 ? `-${disambiguator}` : '';
-  return `${sanitizeRunIdPart(rfId)}-${stamp}${suffix}`;
-}
-
-async function gatherPhaseBlockers({ cwd, phaseDef, snapshot, config, approvals }) {
-  const phaseState = snapshot.phases?.[phaseDef.id];
-  let currentOutputs = null;
-  if (phaseState?.baselineCaptured) {
-    currentOutputs = await collectOutputHashes(cwd, config, phaseDef.outputs || []);
-  }
-  const blockers = buildPhaseBlockers({
-    cwd,
-    phaseDef,
-    snapshot,
-    config,
-    approvals,
-    currentOutputs
-  });
-  const inputCheck = await verifyPhaseInputs(cwd, config, phaseDef);
-  if (!inputCheck.ok) {
-    blockers.push({
-      type: 'missing-inputs',
-      missing: inputCheck.missing,
-      message: 'Required inputs are missing.'
-    });
-  }
-  return blockers;
-}
-
-function blockerHelp(blockers, config, phaseDef = null) {
-  const enriched = (blockers || []).map((blocker) => ({
-    ...blocker,
-    phaseId: blocker.phaseId || phaseDef?.id,
-    phaseName: blocker.phaseName || phaseDef?.name
-  }));
-  return renderBlockers(enriched, interfaceLanguage(config));
-}
-
-function initializePhaseStates(contract, config) {
-  const phaseMap = getPhaseMap(contract);
-  const track = normalizeQaTrack(getConfigValue(config, 'project.qaTrack', 'standard'));
-  const order = getTrackPhaseOrder(contract, track);
-  const phases = {};
-
-  for (const phaseId of order) {
-    const def = phaseMap.get(phaseId);
-    const skipReason = getPhaseSkipReason(config, def);
-    phases[phaseId] = {
-      ...createEmptyPhaseState(),
-      status: skipReason ? 'skipped' : 'pending',
-      skipReason: skipReason || null
-    };
-  }
-
-  return { track, phases };
-}
+export { buildRunId } from './harness/run-id.mjs';
+export { approveGate, retryPhase } from './harness/approvals.mjs';
 
 function firstActionablePhaseId(snapshot, contract) {
   const order = getTrackPhaseOrder(contract, snapshot.track);
@@ -123,16 +57,6 @@ function syncRunStatus(snapshot) {
     return;
   }
   snapshot.status = 'active';
-}
-
-function maybeUnblockEntryBlockedPhase(snapshot, blockers) {
-  if (!snapshot.activePhaseId) return;
-  const phaseState = snapshot.phases[snapshot.activePhaseId];
-  if (phaseState.status === 'blocked' && phaseState.blockedReason === 'entry' && blockers.length === 0) {
-    phaseState.status = 'active';
-    phaseState.blockedReason = null;
-    snapshot.status = 'active';
-  }
 }
 
 export async function startRun(cwd, { rfId = null, now = new Date() } = {}) {
@@ -259,42 +183,6 @@ export async function resumeRun(cwd, runId) {
       blockers
     });
   });
-}
-
-async function checkAndInvalidateSyncPlanApproval(cwd, snapshot, config, runId) {
-  const existingApprovalIndex = (snapshot.approvals || []).findIndex(
-    (item) => item.gate === 'external-write:test-management'
-  );
-  if (existingApprovalIndex === -1) return false;
-
-  const approval = snapshot.approvals[existingApprovalIndex];
-  if (!approval.planHash) return false;
-
-  const { absPath: absSyncPlanPath } = await resolveTestManagementSyncPlanPath(cwd, config);
-
-  if (await pathExists(absSyncPlanPath)) {
-    const currentHash = await hashFile(absSyncPlanPath);
-    if (currentHash !== approval.planHash) {
-      snapshot.approvals.splice(existingApprovalIndex, 1);
-
-      await appendRunEvent(cwd, runId, {
-        type: 'approval_invalidated',
-        gate: 'external-write:test-management',
-        reason: 'plan_hash_changed',
-        previousHash: approval.planHash,
-        currentHash
-      });
-
-      if (snapshot.activePhaseId === 'sync-apply') {
-        const phaseState = snapshot.phases['sync-apply'];
-        phaseState.status = 'blocked';
-        phaseState.blockedReason = 'entry';
-        snapshot.status = 'blocked';
-      }
-      return true;
-    }
-  }
-  return false;
 }
 
 export async function nextPhase(cwd) {
@@ -653,58 +541,6 @@ export async function checkPhase(cwd, { maxAttempts = DEFAULT_MAX_VALIDATION_ATT
   });
 }
 
-export async function retryPhase(cwd) {
-  const runId = await getActiveRunId(cwd);
-  if (!runId) throw new Error('No active run. Start one with: npx qa-flowkit run start');
-
-  return withRunLock(cwd, runId, async () => {
-    const snapshot = await readRunSnapshot(cwd, runId);
-    assertMutableRun(snapshot);
-
-    const phaseId = snapshot.activePhaseId;
-    if (!phaseId) throw new Error('No active phase. Run: npx qa-flowkit run next');
-
-    const phaseState = snapshot.phases[phaseId];
-    if (phaseState.status !== 'blocked' || phaseState.blockedReason !== 'validation') {
-      throw new Error('Retry only applies to the active phase blocked by validation failures.');
-    }
-
-    const previousAttempts = phaseState.attempts || 0;
-    phaseState.attempts = 0;
-    phaseState.status = 'active';
-    phaseState.blockedReason = null;
-    snapshot.status = 'active';
-
-    await writeRunSnapshot(cwd, snapshot);
-    await appendRunEvent(cwd, runId, {
-      type: 'phase.retry_requested',
-      phaseId,
-      previousAttempts
-    });
-
-    const contract = await loadWorkflowContract(cwd);
-    const configInfo = await loadQaAiConfig(cwd);
-    const phaseDef = getPhaseMap(contract).get(phaseId);
-
-    return {
-      ok: true,
-      runId,
-      phaseId,
-      status: 'active',
-      attempts: 0,
-      previousAttempts,
-      message: 'Validation attempts reset. Fix artifacts and run: npx qa-flowkit run check',
-      phase: buildPhasePacket({
-        cwd,
-        snapshot,
-        phaseDef,
-        config: configInfo.data,
-        blockers: []
-      }).phase
-    };
-  });
-}
-
 export async function setRfId(cwd, rfId) {
   const runId = await getActiveRunId(cwd);
   if (!runId) throw new Error('No active run. Start one with: npx qa-flowkit run start');
@@ -736,91 +572,6 @@ export async function setRfId(cwd, rfId) {
 
     await writeRunSnapshot(cwd, snapshot);
     await appendRunEvent(cwd, runId, { type: 'rf.set', rfId: normalized });
-    return snapshot;
-  });
-}
-
-export async function approveGate(cwd, gate, { note = '' } = {}) {
-  const runId = await getActiveRunId(cwd);
-  if (!runId) throw new Error('No active run. Start one with: npx qa-flowkit run start');
-  const gateId = String(gate || '').trim();
-  if (!gateId) throw new Error('Approval gate is required.');
-  assertNoteHasNoSecrets(note);
-
-  return withRunLock(cwd, runId, async () => {
-    const snapshot = await readRunSnapshot(cwd, runId);
-    assertMutableRun(snapshot);
-
-    const scopedPhaseId = parseModificationApprovalGate(gateId);
-    if (scopedPhaseId) {
-      if (scopedPhaseId !== snapshot.activePhaseId) {
-        throw new Error(
-          `Gate ${gateId} is scoped to phase ${scopedPhaseId}; active phase is ${snapshot.activePhaseId || 'none'}.`
-        );
-      }
-      const contract = await loadWorkflowContract(cwd);
-      const configInfo = await loadQaAiConfig(cwd);
-      const phaseDef = getPhaseMap(contract).get(scopedPhaseId);
-      const phaseState = snapshot.phases[scopedPhaseId];
-      const currentOutputs = await collectOutputHashes(cwd, configInfo.data, phaseDef.outputs || []);
-      const pending = buildModificationBlockers({
-        phaseDef,
-        phaseState,
-        currentOutputs,
-        approvals: snapshot.approvals
-      });
-      if (pending.length === 0) {
-        throw new Error(`Gate ${gateId} is not required for the current phase outputs.`);
-      }
-    }
-
-    const existing = snapshot.approvals || [];
-    let recordedHash = null;
-    if (!existing.some((item) => item.gate === gateId)) {
-      const approvalObj = {
-        gate: gateId,
-        decision: 'approved',
-        phaseId: scopedPhaseId || snapshot.activePhaseId || null,
-        timestamp: new Date().toISOString(),
-        note: note ? String(note).trim() : ''
-      };
-      if (gateId === 'external-write:test-management') {
-        const configInfo = await loadQaAiConfig(cwd);
-        const { absPath: absSyncPlanPath } = await resolveTestManagementSyncPlanPath(cwd, configInfo.data);
-        if (await pathExists(absSyncPlanPath)) {
-          recordedHash = await hashFile(absSyncPlanPath);
-          approvalObj.planHash = recordedHash;
-        }
-      }
-      existing.push(approvalObj);
-      snapshot.approvals = existing;
-    }
-
-    const contract = await loadWorkflowContract(cwd);
-    const configInfo = await loadQaAiConfig(cwd);
-    const phaseMap = getPhaseMap(contract);
-
-    if (snapshot.activePhaseId) {
-      const phaseDef = phaseMap.get(snapshot.activePhaseId);
-      const phaseState = snapshot.phases[snapshot.activePhaseId];
-      await ensurePhaseBaseline(cwd, configInfo.data, phaseState, phaseDef);
-      const blockers = await gatherPhaseBlockers({
-        cwd,
-        phaseDef,
-        snapshot,
-        config: configInfo.data,
-        approvals: snapshot.approvals
-      });
-      maybeUnblockEntryBlockedPhase(snapshot, blockers);
-    }
-
-    await writeRunSnapshot(cwd, snapshot);
-    await appendRunEvent(cwd, runId, {
-      type: 'approval.recorded',
-      gate: gateId,
-      phaseId: scopedPhaseId || snapshot.activePhaseId || null,
-      ...(recordedHash ? { planHash: recordedHash } : {})
-    });
     return snapshot;
   });
 }

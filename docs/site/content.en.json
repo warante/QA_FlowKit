@@ -1,0 +1,339 @@
+{
+  "lang": "en",
+  "data_lang_en": "./",
+  "data_lang_es": "es/",
+  "assets_prefix": "assets/",
+  "meta": {
+    "description": "QA FlowKit turns AI-assisted QA work into a repeatable, reviewable repository workflow.",
+    "title": "QA FlowKit | AI-assisted QA workflows for real repositories",
+    "canonical": "https://warante.github.io/QA_FlowKit/",
+    "hreflang_en": "https://warante.github.io/QA_FlowKit/",
+    "hreflang_es": "https://warante.github.io/QA_FlowKit/es/"
+  },
+  "aria": {
+    "topbar": "Primary navigation",
+    "brand": "QA FlowKit home",
+    "nav": "Site sections",
+    "lang_switcher": "Language",
+    "hero_actions": "Primary actions",
+    "hero_terminal": "QA FlowKit command preview",
+    "signals": "Project signals",
+    "compare": "Without harness versus with QA FlowKit",
+    "workflow_pipeline": "QA workflow path",
+    "track_levels": "Workflow depth at setup",
+    "bands": "Supported presets and adapters",
+    "scroll_top": "Back to top"
+  },
+  "nav": [
+    { "href": "#why", "label": "Why" },
+    { "href": "#workflow", "label": "Workflow" },
+    { "href": "#features", "label": "Features" },
+    { "href": "#commands", "label": "Commands" },
+    { "href": "#install", "label": "Install" }
+  ],
+  "lang_switcher": [
+    { "tag": "span", "lang": "en", "label": "English", "active": true },
+    {
+      "tag": "a",
+      "href": "es/",
+      "hreflang": "es",
+      "lang": "es",
+      "label": "Español",
+      "data_lang_choice": "es",
+      "active": false
+    }
+  ],
+  "hero": {
+    "eyebrow": "Starter QA open source",
+    "title": "QA FlowKit",
+    "lede": "Turn AI-assisted QA work into a repeatable, reviewable repository workflow with deterministic checks, traceability, agent instructions and PR-ready outputs.",
+    "actions": [
+      { "href": "#install", "label": "Start in two minutes", "variant": "primary" },
+      { "href": "#commands", "label": "View commands", "variant": "secondary" },
+      { "href": "https://www.npmjs.com/package/qa-flowkit", "label": "View npm package", "variant": "secondary" }
+    ],
+    "terminal_code": "npx qa-flowkit init\n\nopen your AI CLI and use the generated command surface:\n\n/qa-init\n/qa-full-flow"
+  },
+  "signals": [
+    { "strong": "Node.js 20+", "span": "Native CLI and portable scripts" },
+    { "strong": "RC ready", "span": "Release-please and npm publishing workflow" },
+    { "strong": "Agent ready", "span": "Claude Code, OpenCode, Codex Desktop and more" }
+  ],
+  "why": {
+    "eyebrow": "Built by and for QA teams",
+    "title": "Why QA FlowKit",
+    "intro": "AI agents can generate tests quickly, but QA teams still need structure, traceability, approval points and reproducible validation. QA FlowKit is 100% oriented to QA workflow — not app scaffolding or generic coding prompts.",
+    "cards": [
+      {
+        "number": "1",
+        "title": "The problem",
+        "text": "Ad hoc prompts produce inconsistent Gherkin, lost RF links and CI with no clear contract for what “done” means in QA."
+      },
+      {
+        "number": "2",
+        "title": "The approach",
+        "text": "A repository-native QA harness: phased workflows, explicit approvals and deterministic validators — not prompt discipline alone."
+      },
+      {
+        "number": "3",
+        "title": "For QA workflows",
+        "text": "From requirement intake through Gherkin, traceability matrix, automation plan and release evidence — every step has defined outputs."
+      },
+      {
+        "number": "4",
+        "title": "Clear boundaries",
+        "text": "No bundled AI model, no telemetry, no silent external writes. Artifacts stay local and auditable inside the repository."
+      }
+    ],
+    "without": {
+      "title": "Without a QA harness",
+      "items": [
+        "One-off prompts with no phase order",
+        "Inconsistent <code>.feature</code> files and missing tags",
+        "RF and acceptance criteria lost across sessions",
+        "CI has no shared quality gate for QA artifacts"
+      ]
+    },
+    "with": {
+      "title": "With QA FlowKit",
+      "items": [
+        "<code>/qa-help</code> recommends the next workflow step",
+        "<code>validate-target</code> runs the full repository quality gate",
+        "<code>run start | next | check</code> resumes work across agent sessions",
+        "Proposal-first synchronization plans — no silent test-management writes"
+      ]
+    }
+  },
+  "workflow": {
+    "eyebrow": "Repository-first control",
+    "title": "From requirements to release evidence",
+    "intro": "The AI reasons and edits files. QA FlowKit controls phase order, required outputs, approvals and pass/fail checks so teams do not rely only on prompt discipline.",
+    "nodes": [
+      { "phase": "Step 1", "strong": "Requirement", "span": "Intake &amp; RF ID" },
+      { "phase": "Steps 2–3", "strong": "Test design", "span": "Coverage &amp; synchronization plan" },
+      { "phase": "Step 4", "strong": "Gherkin", "span": "<code>.feature</code> files" },
+      { "phase": "Step 6", "strong": "Traceability", "span": "RF → test matrix" },
+      { "phase": "Steps 7–8", "strong": "Automation", "span": "Feasibility &amp; specifications" },
+      { "phase": "Step 9", "strong": "Release gate", "span": "PR-ready evidence" }
+    ],
+    "layers": [
+      {
+        "class": "agent",
+        "title": "AI agent",
+        "text": "Reasons about requirements, drafts Gherkin, proposes synchronization plans and automation — edits files in the repository."
+      },
+      {
+        "class": "harness",
+        "title": "QA FlowKit harness",
+        "text": "Validates outputs, blocks invalid phases, records approvals and keeps resumable run state under <code>.qa-ai/state/</code>."
+      }
+    ],
+    "notes": "Key control gates include official RF ID confirmation, proposal-first test-management synchronization and deterministic Gherkin validation before traceability and release decisions.",
+    "track_intro": "When you install QA FlowKit, you choose how much of the QA journey it guides. Both options keep tests, traceability and validators inside your repository.",
+    "tracks": [
+      "<strong>Quick</strong> — Manual QA teams: requirements → Gherkin → traceability matrix",
+      "<strong>Standard</strong> — Full workflow: test design, automation planning and PR-ready outputs"
+    ]
+  },
+  "features": {
+    "eyebrow": "What it installs",
+    "title": "A portable QA harness for QA repositories",
+    "intro": "QA FlowKit adds the framework folder, target repository configuration, generated artifacts, Gherkin files and optional agent adapters directly inside the repository under test.",
+    "items": [
+      {
+        "title": "Traceable test design",
+        "text": "Validate RF links, duplicate IDs, coverage obligations and acceptance-criteria blocks."
+      },
+      {
+        "title": "Deterministic validators",
+        "text": "Check Gherkin language, required tags, synchronization plans, release gates and generated QA artifacts."
+      },
+      {
+        "title": "Right-sized workflow",
+        "text": "Start lean for manual QA or use the full path when you plan automation. Teams with audit needs can add an optional formal release checklist later."
+      },
+      {
+        "title": "Resumable harness",
+        "text": "Persistent run state, append-only event log and <code>run status</code> across agent sessions."
+      },
+      {
+        "title": "Safety boundaries",
+        "text": "Keep outputs local, reject unsafe paths, scan untrusted content and avoid external writes in the MVP."
+      }
+    ]
+  },
+  "commands": {
+    "eyebrow": "Command surface",
+    "title": "CLI and agent commands",
+    "intro": "Run initial setup and validation from the terminal. Drive the QA flow from your AI coding tool with generated slash commands.",
+    "agent_group_title": "In your AI agent",
+    "agent_group_note": "Slash commands generated under <code>.claude/commands/</code> or <code>.opencode/commands/</code> after init. Each card links to its command definition in the framework.",
+    "terminal_group_title": "In your terminal",
+    "note_prefix": "Full references:",
+    "note_links": [
+      {
+        "href": "https://github.com/warante/QA_FlowKit/blob/main/docs/qa-ai/agent-compatibility.md",
+        "label": "Agent slash commands"
+      },
+      {
+        "href": "https://github.com/warante/QA_FlowKit/blob/main/docs/qa-ai/cli-reference.md",
+        "label": "CLI reference"
+      },
+      {
+        "href": "https://github.com/warante/QA_FlowKit/tree/main/.qa-ai/adapters/opencode/commands",
+        "label": "Command sources"
+      }
+    ],
+    "agent_commands": [
+      {
+        "slug": "qa-help",
+        "code": "/qa-help",
+        "description": "Context-aware guidance — what to do next in the QA flow."
+      },
+      {
+        "slug": "qa-init",
+        "code": "/qa-init",
+        "description": "Guided QA FlowKit initialization inside the agent session."
+      },
+      {
+        "slug": "qa-config",
+        "code": "/qa-config",
+        "description": "Import or export reusable <code>qa-ai.config.yaml</code> profiles."
+      },
+      {
+        "slug": "qa-full-flow",
+        "code": "/qa-full-flow",
+        "description": "Run the full guided QA FlowKit flow from start to finish."
+      },
+      { "slug": "qa-add-tests", "code": "/qa-add-tests", "description": "Add QA tests for a new requirement (RF)." },
+      {
+        "slug": "qa-update-tests",
+        "code": "/qa-update-tests",
+        "description": "Review and apply approved updates to existing tests after RF changes."
+      },
+      {
+        "slug": "qa-automation-plan",
+        "code": "/qa-automation-plan",
+        "description": "Classify existing <code>.feature</code> files and plan automation backlog."
+      },
+      {
+        "slug": "qa-coverage",
+        "code": "/qa-coverage",
+        "description": "Analyze functional coverage across RFs, manual tests and automated tests."
+      },
+      {
+        "slug": "qa-impact",
+        "code": "/qa-impact",
+        "description": "Propose affected tests from a branch, commit, PR or change reference."
+      },
+      {
+        "slug": "qa-quality",
+        "code": "/qa-quality",
+        "description": "Evaluate Gherkin quality for an RF or feature path."
+      },
+      {
+        "slug": "qa-status",
+        "code": "/qa-status",
+        "description": "Summarize config, artifacts, feature health and recommended next steps."
+      },
+      {
+        "slug": "qa-doctor",
+        "code": "/qa-doctor",
+        "description": "Run setup health checks for the framework and target repository."
+      },
+      {
+        "slug": "qa-clean",
+        "code": "/qa-clean",
+        "description": "Preview or execute manifest-based cleanup of generated files."
+      },
+      {
+        "slug": "qa-validate-features",
+        "code": "/qa-validate-features",
+        "description": "Validate QA design Gherkin files against framework rules."
+      },
+      {
+        "slug": "qa-validate-karate-features",
+        "code": "/qa-validate-karate-features",
+        "description": "Validate executable Karate features against framework rules."
+      },
+      {
+        "slug": "qa-enable-enterprise",
+        "code": "/qa-enable-enterprise",
+        "description": "Optional: formal release checklist and stricter validation for audit-sensitive teams."
+      },
+      {
+        "slug": "qa-gate",
+        "code": "/qa-gate",
+        "description": "Record a documented go/no-go decision when using the optional release checklist."
+      }
+    ],
+    "terminal_commands": [
+      {
+        "code": "npx qa-flowkit init",
+        "description": "Install <code>.qa-ai/</code>, generate configuration, folders and selected agent adapters."
+      },
+      {
+        "code": "npx qa-flowkit doctor",
+        "description": "Installation health check for the framework and target repository configuration."
+      },
+      { "code": "npx qa-flowkit help", "description": "Recommend the next QA flow step based on current artifacts." },
+      {
+        "code": "npx qa-flowkit run start | next | check",
+        "description": "Resumable harness with per-phase validation and approval gates."
+      },
+      {
+        "code": "npx qa-flowkit validate-target",
+        "description": "Run the full target-repository quality gate (strict doctor + validators)."
+      },
+      {
+        "code": "npx qa-flowkit export-report",
+        "description": "Export Gherkin-aligned test cases to Cucumber JSON, Allure or JUnit XML."
+      }
+    ]
+  },
+  "bands": {
+    "presets_title": "Presets",
+    "presets": [
+      "manual-only",
+      "playwright-full",
+      "maestro-karate-mobile",
+      "karate-full",
+      "webdriverio-playwright-api",
+      "selenium-jest-browserstack"
+    ],
+    "adapters_title": "Adapters",
+    "adapters": [
+      "Claude Code",
+      "Codex Desktop",
+      "OpenCode",
+      "Cline",
+      "Continue",
+      "Aider",
+      "Goose",
+      "Gemini CLI",
+      "AGENTS.md"
+    ]
+  },
+  "install": {
+    "eyebrow": "Two-minute start",
+    "title": "Install QA FlowKit in the QA repository",
+    "intro": "Run the CLI, choose an adapter, open your AI coding tool and use the generated QA command surface.",
+    "terminal_code": "npx qa-flowkit init\n\nopen your AI CLI and use the generated command surface:\n\n/qa-init\n/qa-add-tests"
+  },
+  "footer": {
+    "tagline": "MIT licensed open-source QA workflow starter.",
+    "links": [
+      { "href": "https://github.com/warante/QA_FlowKit", "label": "GitHub repository" },
+      { "href": "https://github.com/warante/QA_FlowKit/blob/main/README.md", "label": "README" },
+      {
+        "href": "https://github.com/warante/QA_FlowKit/blob/main/docs/qa-ai/agent-compatibility.md",
+        "label": "Agent commands"
+      },
+      {
+        "href": "https://github.com/warante/QA_FlowKit/blob/main/docs/qa-ai/cli-reference.md",
+        "label": "CLI reference"
+      },
+      { "href": "https://github.com/warante/QA_FlowKit/blob/main/docs/qa-ai/demo.md", "label": "RF-101 demo" }
+    ]
+  }
+}

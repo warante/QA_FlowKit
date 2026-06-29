@@ -5,6 +5,7 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { cliValidatorCommandMap } from '../.qa-ai/scripts/lib/validator-registry.mjs';
+import { pathExists } from '../.qa-ai/scripts/lib/utils.mjs';
 
 const packageRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const packagedFramework = path.join(packageRoot, '.qa-ai');
@@ -80,15 +81,6 @@ Examples:
   npx qa-flowkit export-report --format allure --out qa-ai-output/reports/allure
   npx qa-flowkit metrics --json
 `);
-}
-
-async function pathExists(filePath) {
-  try {
-    await fs.access(filePath);
-    return true;
-  } catch {
-    return false;
-  }
 }
 
 function hasFlag(args, name) {

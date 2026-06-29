@@ -79,13 +79,20 @@ export async function listFilesRecursive(dirPath, predicate = () => true) {
   const files = [];
   const items = await fs.readdir(dirPath, { withFileTypes: true });
   items.sort((a, b) => a.name.localeCompare(b.name));
-  for (const item of items) {
-    const fullPath = path.join(dirPath, item.name);
-    if (item.isDirectory()) {
-      files.push(...(await listFilesRecursive(fullPath, predicate)));
-    } else if (item.isFile() && predicate(fullPath)) {
-      files.push(fullPath);
-    }
+  const childLists = await Promise.all(
+    items.map(async (item) => {
+      const fullPath = path.join(dirPath, item.name);
+      if (item.isDirectory()) {
+        return listFilesRecursive(fullPath, predicate);
+      }
+      if (item.isFile() && predicate(fullPath)) {
+        return [fullPath];
+      }
+      return [];
+    })
+  );
+  for (const childFiles of childLists) {
+    files.push(...childFiles);
   }
   return files;
 }

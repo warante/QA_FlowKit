@@ -141,6 +141,22 @@ Safety principles (detailed in `.qa-ai/rules/` — start at `.qa-ai/rules/README
 The security boundary, assets, abuse cases and accepted residual risks are tracked in the
 [Threat Model](threat-model.md).
 
+## Repository-only assets
+
+Some paths exist only in the QA FlowKit **source repository** for maintainer workflows. They are excluded from the npm tarball and are not copied into target repositories by `init`.
+
+| Path                            | Purpose                                                                                           | In npm package?              |
+| ------------------------------- | ------------------------------------------------------------------------------------------------- | ---------------------------- |
+| `.cursor/skills/`               | Optional Cursor Agent Skills for local dogfooding (third-party or maintainer-local)               | No                           |
+| `.cursor/` (except README)      | Local Cursor IDE settings and skills                                                              | No                           |
+| `.claude/`, `.opencode/` (root) | Generated adapter copies for this repo's CI and smoke tests; templates live in `.qa-ai/adapters/` | No                           |
+| `plugin/`, `.claude-plugin/`    | Generated Claude Code plugin marketplace output                                                   | No                           |
+| `.github/`                      | CI, release and verification scripts                                                              | No                           |
+| `tasks/`, `examples/`           | Maintainer planning and compatibility fixtures                                                    | No                           |
+| `docs/` (public site)           | GitHub Pages and evergreen docs beyond packaged `docs/qa-ai/`                                     | Partial (`docs/qa-ai/` only) |
+
+Target repositories receive only what `npx qa-flowkit init` and optional adapter sync generate: `.qa-ai/`, `qa-ai.config.yaml`, selected adapter paths and configured workflow folders. See [Agent compatibility](agent-compatibility.md) for adapter and plugin parity.
+
 ## Init manifest
 
 The init manifest is generated in the target repository:
