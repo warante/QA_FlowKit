@@ -2,17 +2,47 @@
 
 QA FlowKit keeps CI check names, owners, timeouts and branch-protection expectations in
 [`required-checks.v1.json`](required-checks.v1.json). The manifest is verified by `npm run test:required-checks` and is
-included in `npm run validate:oss-extraction`.
+included in `npm run validate:oss-extraction` (full suite = `validate:core` + `validate:e2e`).
+
+## Validate suites
+
+| npm script                        | When to use                                                                    |
+| --------------------------------- | ------------------------------------------------------------------------------ |
+| `npm run validate:core`           | CI `Validate starter` / matrix `Validate` after scenario E2E jobs pass         |
+| `npm run validate:e2e`            | Local or release rehearsal of scenario E2E scripts (also run as named CI jobs) |
+| `npm run validate:oss-extraction` | Full maintainer gate before release (`core` + `e2e`)                           |
+| `npm run validate:timing`         | Benchmark `core` vs `e2e` durations locally                                    |
+
+Command lists live in [`.github/scripts/lib/validate-suite-commands.mjs`](../../.github/scripts/lib/validate-suite-commands.mjs).
+
+### Timing baseline (2026-06-29)
+
+Measured against GitHub Actions run `28377918309` (pre-split `main`) and local Windows Node 22:
+
+| Target                                            | Before (`validate:oss-extraction`) | After (`validate:core`)                         |
+| ------------------------------------------------- | ---------------------------------- | ----------------------------------------------- |
+| CI `Validate starter` (ubuntu, run `28377918309`) | 118s wall                          | core only; scenario E2E jobs are `needs:`       |
+| CI `Validate` matrix (windows, Node 22)           | 832s wall                          | core only on the same OS/Node matrix            |
+| Local Windows (`npm run validate:timing`)         | core+e2e ≈ 4m 18s                  | core 2m 10s · e2e 2m 8s (37+38 steps)           |
+| Estimated PR savings (4 validate jobs)            | four embedded full suites          | ~8m 33s less duplicated E2E per PR (local est.) |
+
+Per PR, the split removes **four** embedded E2E re-executions (`Validate starter` + three matrix `Validate` jobs) that duplicated scenario jobs already listed in `needs:`.
+
+Reproduce locally:
+
+```bash
+npm run validate:timing
+```
 
 ## Branch Protection
 
 Require these GitHub check contexts before merging release-bound branches:
 
-| Check context        | Owner                  | Why it gates release-bound branches                         |
-| -------------------- | ---------------------- | ----------------------------------------------------------- |
-| `Validate starter`   | release engineer       | Canonical package, docs, contracts, E2E and smoke gate.     |
-| `Coverage`           | QA automation engineer | Validator and harness coverage cannot silently regress.     |
-| `Analyze JavaScript` | security engineer      | CodeQL must remain green before release-bound changes land. |
+| Check context        | Owner                  | Why it gates release-bound branches                                        |
+| -------------------- | ---------------------- | -------------------------------------------------------------------------- |
+| `Validate starter`   | release engineer       | Canonical package, docs, contracts and smoke gate after scenario E2E jobs. |
+| `Coverage`           | QA automation engineer | Validator and harness coverage cannot silently regress.                    |
+| `Analyze JavaScript` | security engineer      | CodeQL must remain green before release-bound changes land.                |
 
 Matrix and scenario jobs remain separately named for diagnostics, but branch protection should use the stable aggregate
 contexts above unless repository rules require stricter per-scenario protection.
@@ -38,9 +68,9 @@ contexts above unless repository rules require stricter per-scenario protection.
 | `ci.yml`     | `release-dry-run`             | `Release dry-run (E2E-09)`                                              | release engineer              | 15m     | no       |
 | `ci.yml`     | `stable-config-rehearsal`     | `Stable config rehearsal (TASK-083)`                                    | release engineer              | 15m     | no       |
 | `ci.yml`     | `stable-release-pr-rehearsal` | `Stable Release PR rehearsal (TASK-084)`                                | release engineer              | 15m     | no       |
-| `ci.yml`     | `validate-starter`            | `Validate starter`                                                      | release engineer              | 25m     | yes      |
+| `ci.yml`     | `validate-starter`            | `Validate starter`                                                      | release engineer              | 20m     | yes      |
 | `ci.yml`     | `coverage`                    | `Coverage`                                                              | QA automation engineer        | 15m     | yes      |
-| `ci.yml`     | `validate`                    | `Validate (${{ matrix.os }}, Node ${{ matrix.node }})`                  | release engineer              | 25m     | no       |
+| `ci.yml`     | `validate`                    | `Validate (${{ matrix.os }}, Node ${{ matrix.node }})`                  | release engineer              | 20m     | no       |
 | `codeql.yml` | `analyze`                     | `Analyze JavaScript`                                                    | security engineer             | 15m     | yes      |
 
 ## Scheduled Checks
@@ -71,7 +101,7 @@ Stable post-publish (${{ inputs.version }})
 
 Owner: release engineer
 
-Timeout: 25m
+Timeout: 20m
 
 Workflow: `example-compatibility.yml`
 
@@ -103,7 +133,7 @@ Use the first failing named step or job as the routing signal:
 - `Claude plugin`: run `node .github/scripts/build-claude-plugin.mjs --check` locally and inspect generated plugin drift.
 - `golden target validate-target` or `karate target validate-target`: inspect target fixture validation output.
 - Example jobs: compare OS/runtime output first; the packed package install path is part of the scenario.
-- `Validate starter`: route by failing step name: docs, contracts, adapter support, E2E, validators, harness, hooks or smoke.
+- `Validate starter`: route by failing step name: docs, contracts, adapter support, validators, harness, hooks or smoke (`validate:core` only; E2E already ran in prerequisite jobs).
 - `Product demo (TASK-057)`: run `npm run test:product-demo`; replay with `npm run test:e2e-quick` if fixture drift is suspected.
 - `Coverage`: add focused tests for the changed validator/harness path or intentionally update the coverage policy.
 - `Analyze JavaScript`: inspect the CodeQL alert or action failure in GitHub Security.
