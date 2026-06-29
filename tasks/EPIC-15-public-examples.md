@@ -140,7 +140,7 @@ Acceptance:
 Subtasks:
 
 - Define which FlowKit versions each example tracks.
-- Add scheduled update validation against `@beta`, RC and later `latest`.
+- Add scheduled update validation against `@rc` and later `latest`.
 - Define dependency update ownership and failure triage.
 - Add a compatibility badge/table based on actual CI results.
 
@@ -177,4 +177,4 @@ Acceptance:
 - Scheduled and manually dispatched npm-channel matrix: `.github/workflows/example-compatibility.yml`.
 - Channel lifecycle and automation table: `examples/README.md`.
 - Remaining validation: hosted CI evidence for the new runtime jobs, actual Maestro emulator/device-host evidence
-  and the first scheduled `@beta` compatibility result.
+  and the first scheduled `@rc` compatibility result.

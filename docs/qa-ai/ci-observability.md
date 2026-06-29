@@ -80,7 +80,7 @@ Job: `validate-examples`
 Check name:
 
 ```text
-Examples (${{ matrix.os }}, Node ${{ matrix.node }}, ${{ inputs.channel || 'beta' }})
+Examples (${{ matrix.os }}, Node ${{ matrix.node }}, ${{ inputs.channel || 'rc' }})
 ```
 
 Owner: release engineer
@@ -90,7 +90,7 @@ Timeout: 15m
 Artifact:
 
 ```text
-example-compatibility-${{ matrix.os }}-node-${{ matrix.node }}-${{ inputs.channel || 'beta' }}
+example-compatibility-${{ matrix.os }}-node-${{ matrix.node }}-${{ inputs.channel || 'rc' }}
 ```
 
 ## Failure Triage

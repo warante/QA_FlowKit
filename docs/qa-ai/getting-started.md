@@ -30,7 +30,7 @@ After the agent creates or updates QA artifacts, run the target quality gate:
 npx qa-flowkit validate-target
 ```
 
-During Beta, pin reproducible setup or CI to `npx qa-flowkit@beta ...` when you need the beta channel explicitly.
+During the RC line, pin reproducible setup or CI to `npx qa-flowkit@rc ...` when you need the `rc` channel explicitly.
 
 ## Enterprise governance (after init)
 
@@ -73,7 +73,7 @@ Acceptance criteria:
 From a temporary **target** repository root:
 
 ```bash
-npx qa-flowkit@beta init --preset manual-only --qa-track quick
+npx qa-flowkit@rc init --preset manual-only --qa-track quick
 npx qa-flowkit doctor
 npx qa-flowkit run start --rf RF-101
 npx qa-flowkit run next
@@ -136,7 +136,7 @@ Presets: [config-schema.md](config-schema.md) · Stability: [stability-policy.md
 For teams using [Karate](https://docs.karatelabs.io/getting-started/why-karate) for API and UI automation:
 
 ```bash
-npx qa-flowkit@beta init --preset karate-full
+npx qa-flowkit@rc init --preset karate-full
 npx qa-flowkit validate-features
 npx qa-flowkit validate-karate-features
 ```

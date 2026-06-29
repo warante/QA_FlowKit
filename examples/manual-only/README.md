@@ -37,9 +37,9 @@ The same test runs in CI on Ubuntu and Windows with Node.js 20 and 22.
 From a copy of this directory:
 
 ```bash
-npx qa-flowkit@beta init --preset manual-only --no-adapters
-npx qa-flowkit@beta doctor --strict
-npx qa-flowkit@beta validate-target
+npx qa-flowkit@rc init --preset manual-only --no-adapters
+npx qa-flowkit@rc doctor --strict
+npx qa-flowkit@rc validate-target
 ```
 
 Package download time is the only network-dependent part. The workflow itself requires no Jira, TestRail or model

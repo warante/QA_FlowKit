@@ -34,9 +34,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: QA FlowKit Validation
-        uses: warante/QA_FlowKit/actions/validate@v0
+        uses: warante/QA_FlowKit/actions/validate@v1
         with:
-          version: 'beta'
+          version: 'rc'
 ```
 
 ### Action Reference
@@ -87,7 +87,7 @@ qa-flowkit-gate:
   image: node:20-alpine
   script:
     # 1. Run the target validation and output standard text to logs
-    - npx -y qa-flowkit@beta validate-target --strict-untrusted-content
+    - npx -y qa-flowkit@rc validate-target --strict-untrusted-content
   only:
     - merge_requests
 ```
@@ -102,7 +102,7 @@ qa-flowkit-gate:
   image: node:20-alpine
   script:
     # Run with permissive flags for early-stage QA branches
-    - npx -y qa-flowkit@beta validate-target --allow-empty --allow-missing --no-strict-doctor
+    - npx -y qa-flowkit@rc validate-target --allow-empty --allow-missing --no-strict-doctor
   only:
     - merge_requests
 ```

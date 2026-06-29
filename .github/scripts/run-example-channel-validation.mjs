@@ -26,7 +26,7 @@ function validatePackageSpec(value) {
   if (/^qa-flowkit@(?:beta|rc|latest)$/.test(value)) return value;
   if (/^qa-flowkit@\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(value)) return value;
   throw new Error(
-    `Unsupported package spec "${value}". Use local, qa-flowkit@beta, qa-flowkit@rc, qa-flowkit@latest or an exact version.`
+    `Unsupported package spec "${value}". Use local, qa-flowkit@rc, qa-flowkit@beta, qa-flowkit@latest or an exact version.`
   );
 }
 

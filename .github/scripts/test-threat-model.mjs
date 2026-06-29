@@ -17,7 +17,7 @@ const REQUIRED_SECTIONS = [
   '## Abuse Cases And Controls',
   '## Threat-To-Verification Mapping',
   '## Verification',
-  '## Accepted Beta Limitations'
+  '## Accepted RC Limitations'
 ];
 
 const REQUIRED_VERIFICATION_COMMANDS = [

@@ -1,6 +1,6 @@
 # QA FlowKit 1.0 Implementation Plan
 
-This directory is the executable delivery plan from the current beta line to stable `1.0.0`.
+This directory is the executable delivery plan from the current RC line to stable `1.0.0`.
 [`ROADMAP.md`](../ROADMAP.md) remains the strategic summary; these files define the work, owners, dependencies,
 validation evidence and release gates.
 
@@ -9,7 +9,7 @@ Lifecycle terms, support claims and version-reference rules are defined in the
 
 ## Relationship to Product Expansion
 
-Epics 13-20 remain the stabilization plan for the beta-to-`1.0.0` path. Product expansion work lives in
+Epics 13-20 remain the stabilization plan for the RC-to-`1.0.0` path. Product expansion work lives in
 the product expansion section of [`ROADMAP.md`](../ROADMAP.md) with its own `EPIC-P*` identifiers; do not mix those IDs
 with the historical task ranges in this directory.
 
@@ -60,7 +60,7 @@ Small teams may combine profiles, but the accountability must still be covered e
 
 | Epic | File                                                          | Primary outcome                                  | Depends on                   |
 | ---- | ------------------------------------------------------------- | ------------------------------------------------ | ---------------------------- |
-| 13   | [Product baseline](EPIC-13-product-baseline.md)               | Consistent, automatically checked product claims | Existing beta                |
+| 13   | [Product baseline](EPIC-13-product-baseline.md)               | Consistent, automatically checked product claims | Existing RC line             |
 | 14   | [First-use experience](EPIC-14-first-use-experience.md)       | Clear 30-second pitch and five-minute path       | Epic 13                      |
 | 15   | [Public examples](EPIC-15-public-examples.md)                 | Reproducible end-to-end reference repositories   | Epics 13-14                  |
 | 16   | [Pilots and metrics](EPIC-16-pilots-and-metrics.md)           | External evidence across three QA contexts       | Epics 14-15                  |

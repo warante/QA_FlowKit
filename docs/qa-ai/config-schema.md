@@ -206,12 +206,12 @@ When enabled, agents add an `AI component` column to the `## Proposed tests` tab
 | [playwright-full.yaml](../../.qa-ai/presets/playwright-full.yaml)                       | Default Playwright UI + API automation |
 | [maestro-karate-mobile.yaml](../../.qa-ai/presets/maestro-karate-mobile.yaml)           | Maestro mobile + Karate API            |
 | [karate-full.yaml](../../.qa-ai/presets/karate-full.yaml)                               | Karate API + UI                        |
-| [webdriverio-playwright-api.yaml](../../.qa-ai/presets/webdriverio-playwright-api.yaml) | Legacy beta compatibility              |
+| [webdriverio-playwright-api.yaml](../../.qa-ai/presets/webdriverio-playwright-api.yaml) | Legacy compatibility preset            |
 | [selenium-jest-browserstack.yaml](../../.qa-ai/presets/selenium-jest-browserstack.yaml) | Alternate stack template               |
 
 Export/import profiles: `npx qa-flowkit config --export` / `--import`.
 
-See [stability-policy.md](stability-policy.md) for what may change during the beta series.
+See [stability-policy.md](stability-policy.md) for what may change during the RC line.
 
 ## YAML Syntax Restrictions
 

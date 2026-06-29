@@ -1,6 +1,6 @@
 # Threat Model
 
-This document records the current QA FlowKit security boundary for the beta-to-`1.0.0` stabilization path. The initial
+This document records the current QA FlowKit security boundary for the RC-to-`1.0.0` stabilization path. The initial
 maintainer review for Epic 18 completed on 2026-06-25; remaining 1.0 work is tracked as adversarial testing, adapter
 support labeling and pre-RC security sign-off.
 
@@ -119,7 +119,7 @@ The pre-RC security and dependency review is summarized in [`security-readiness.
 stable `1.0.0`, maintainers must still verify repository settings that cannot be proven from local files, such as npm
 Trusted Publishing, branch protection and untriaged GitHub Security alerts.
 
-## Accepted Beta Limitations
+## Accepted RC Limitations
 
 - QA FlowKit is not a sandbox for a hostile agent or host shell.
 - Hook enforcement is host-specific; Claude hooks are stronger than hookless adapter guidance.

@@ -11,7 +11,7 @@ correction and a passing target gate — **without** external writes, credential
 ## Prerequisites
 
 - Node.js 20+ and a clean terminal at 1080p or higher.
-- QA FlowKit source checkout or packed CLI on the `beta` channel.
+- QA FlowKit source checkout or packed CLI on the `rc` channel.
 - Empty temporary directory for the target repository.
 - Hide shell prompts that expose usernames or local paths when possible.
 
@@ -28,7 +28,7 @@ correction and a passing target gate — **without** external writes, credential
 
 ```bash
 mkdir /tmp/rf101-demo && cd /tmp/rf101-demo
-npx qa-flowkit@beta init --preset manual-only --qa-track quick --adapters generic
+npx qa-flowkit@rc init --preset manual-only --qa-track quick --adapters generic
 npx qa-flowkit doctor
 ```
 

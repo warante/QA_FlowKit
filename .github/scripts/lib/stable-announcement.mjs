@@ -19,8 +19,8 @@ export const STABLE_PRIMARY_COMMANDS = ['npx qa-flowkit@latest', 'npx qa-flowkit
 
 export const STABLE_LIFECYCLE_EN = /\*\*Stable\*\*/i;
 export const STABLE_LIFECYCLE_ES = /\*\*Estable\*\*/i;
-export const BETA_LIFECYCLE_EN = /\*\*Beta\*\*/i;
-export const BETA_LIFECYCLE_ES = /\*\*Beta\*\*/i;
+export const RC_LIFECYCLE_EN = /\*\*Release Candidate\*\*/i;
+export const RC_LIFECYCLE_ES = /\*\*(?:Release Candidate|candidato a versión estable \(RC\))\*\*/i;
 
 export const UNSUPPORTED_CLAIM_PATTERNS = [
   /\b100%\s+(?:secure|safe|coverage)\b/i,

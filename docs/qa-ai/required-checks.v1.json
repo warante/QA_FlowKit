@@ -218,10 +218,10 @@
     {
       "workflow": ".github/workflows/example-compatibility.yml",
       "jobId": "validate-examples",
-      "name": "Examples (${{ matrix.os }}, Node ${{ matrix.node }}, ${{ inputs.channel || 'beta' }})",
+      "name": "Examples (${{ matrix.os }}, Node ${{ matrix.node }}, ${{ inputs.channel || 'rc' }})",
       "owner": "release engineer",
       "timeoutMinutes": 15,
-      "artifact": "example-compatibility-${{ matrix.os }}-node-${{ matrix.node }}-${{ inputs.channel || 'beta' }}",
+      "artifact": "example-compatibility-${{ matrix.os }}-node-${{ matrix.node }}-${{ inputs.channel || 'rc' }}",
       "triage": "Scheduled channel compatibility failed. Download compatibility-report.json and compare channel, OS and Node."
     }
   ]

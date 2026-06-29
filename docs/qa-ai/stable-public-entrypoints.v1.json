@@ -3,12 +3,12 @@
   "generatedAt": "2026-06-25",
   "qaFlowKitVersion": "1.0.0-rc.3",
   "task": "TASK-086",
-  "lifecycle": "beta",
+  "lifecycle": "rc",
   "flipToStable": [
     {
       "path": "README.md",
       "checks": [
-        "Badge status: Beta -> Stable",
+        "Badge status: RC -> Stable",
         "Lifecycle sentence references Stable",
         "Primary install uses npx qa-flowkit@latest",
         "Update section uses @latest"
@@ -17,7 +17,7 @@
     {
       "path": "README.es.md",
       "checks": [
-        "Badge estado: Beta -> Estable",
+        "Badge estado: RC -> Estable",
         "Frase de ciclo de vida en Estable",
         "Instalacion principal con npx qa-flowkit@latest",
         "Actualizacion con @latest"
@@ -26,13 +26,13 @@
     {
       "path": "SECURITY.md",
       "checks": [
-        "Lifecycle claim: Stable (not Beta)"
+        "Lifecycle claim: Stable (not Release Candidate)"
       ]
     },
     {
       "path": "docs/qa-ai/stability-policy.md",
       "checks": [
-        "Replace beta policy body with stability-policy-stable.md"
+        "Replace RC policy body with stability-policy-stable.md"
       ]
     },
     {

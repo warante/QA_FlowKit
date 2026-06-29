@@ -10,7 +10,7 @@ npm run test:doc-consistency
 `docs:check` verifies:
 
 - evergreen public docs do not copy an exact prerelease version;
-- README and SECURITY lifecycle claims use the current Beta terminology;
+- README and SECURITY lifecycle claims use the current Release Candidate terminology;
 - the npm audit threshold documented in `SECURITY.md` matches CI;
 - maintainer validation commands match the canonical package scripts;
 - local Markdown links in root docs, `docs/`, `tasks/`, `.github/` and canonical `.qa-ai` agent/rule/workflow sources
@@ -22,7 +22,7 @@ repository. Generated root adapter copies are checked separately by adapter pari
 ## Version references
 
 Exact current versions belong in `package.json`, `.release-please-manifest.json` and generated release history.
-Evergreen docs should use npm channels such as `@beta` or `@latest`.
+Evergreen docs should use npm channels such as `@rc` or `@latest`.
 
 Historical version references remain valid in `CHANGELOG.md` and explicit migration history. If a new historical file
 needs an exception, keep it outside the evergreen file list in
@@ -34,6 +34,6 @@ needs an exception, keep it outside the evergreen file list in
 - **Audit mismatch:** update the CI command and `SECURITY.md` together.
 - **Missing validation command:** update `AGENTS.md`, the release checklist and `package.json` consistently.
 - **Broken local link:** resolve it relative to the Markdown file containing the link.
-- **Lifecycle mismatch:** use Beta for the product and MVP only for a specifically scoped capability.
+- **Lifecycle mismatch:** use Release Candidate for the product and MVP only for a specifically scoped capability.
 
 The unit tests use isolated fixtures and must cover each rejected failure mode before the checker is expanded.

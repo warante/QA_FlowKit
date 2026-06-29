@@ -5,8 +5,8 @@ import { fileURLToPath } from 'node:url';
 import {
   ANNOUNCEMENT_REQUIRED_LINKS,
   ANNOUNCEMENT_REQUIRED_SECTIONS,
-  BETA_LIFECYCLE_EN,
-  BETA_LIFECYCLE_ES,
+  RC_LIFECYCLE_EN,
+  RC_LIFECYCLE_ES,
   STABLE_LIFECYCLE_EN,
   STABLE_LIFECYCLE_ES,
   STABLE_PRIMARY_COMMANDS,
@@ -69,11 +69,7 @@ export async function verifyStableAnnouncement({ root = repoRoot } = {}) {
     'stable-public-entrypoints version must match package.json',
     errors
   );
-  assert(
-    entrypoints.lifecycle === 'beta' || entrypoints.lifecycle === 'stable',
-    'invalid entrypoints lifecycle',
-    errors
-  );
+  assert(entrypoints.lifecycle === 'rc' || entrypoints.lifecycle === 'stable', 'invalid entrypoints lifecycle', errors);
 
   assert(
     await pathExists(root, record.feedbackTemplate),
@@ -99,9 +95,9 @@ export async function verifyStableAnnouncement({ root = repoRoot } = {}) {
   assert(postPublish.ok, `stable post-publish record must pass: ${postPublish.errors.join('; ')}`, errors);
 
   if (record.status === 'prepared') {
-    assert(entrypoints.lifecycle === 'beta', 'prepared announcement expects entrypoints lifecycle beta', errors);
-    assert(BETA_LIFECYCLE_EN.test(readme), 'prepared state expects README Beta lifecycle', errors);
-    assert(BETA_LIFECYCLE_ES.test(readmeEs), 'prepared state expects README.es Beta lifecycle', errors);
+    assert(entrypoints.lifecycle === 'rc', 'prepared announcement expects entrypoints lifecycle rc', errors);
+    assert(RC_LIFECYCLE_EN.test(readme), 'prepared state expects README Release Candidate lifecycle', errors);
+    assert(RC_LIFECYCLE_ES.test(readmeEs), 'prepared state expects README.es Release Candidate lifecycle', errors);
   }
 
   if (record.status === 'published') {

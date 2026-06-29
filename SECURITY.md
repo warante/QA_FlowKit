@@ -2,7 +2,7 @@
 
 ## Supported versions
 
-The project is currently in Beta. Security fixes target the latest published `beta` release and the latest version of
+The project is currently in Release Candidate (RC). Security fixes target the latest published `rc` release and the latest version of
 `main`. Older prereleases receive fixes only when maintainers determine that a backport is practical.
 
 ## Reporting a vulnerability

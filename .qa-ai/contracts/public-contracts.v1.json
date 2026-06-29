@@ -96,7 +96,7 @@
       "execution.resultsPaths",
       "execution.evalResultsPaths",
       "execution.quarantine",
-      "Additional optional keys introduced during beta with documented defaults."
+      "Additional optional keys introduced during RC with documented defaults."
     ],
     "deprecated": []
   },

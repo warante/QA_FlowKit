@@ -290,7 +290,7 @@ sequenceDiagram
 - `qa-next-steps.mjs` will read the shared contract but retain artifact inference when no run exists.
 - `qa-help` will prioritize an active run, then fall back to current stateless recommendations.
 - `validate-target` remains independent of run state so CI validates repository outputs, not orchestration metadata.
-- `update` already preserves `.qa-ai/state/`; run schemas must be backward compatible within the beta migration
+- `update` already preserves `.qa-ai/state/`; run schemas must be backward compatible within the RC migration
   policy.
 - Agent adapters will instruct agents to call `run next` and `run check`, but existing commands remain supported.
 

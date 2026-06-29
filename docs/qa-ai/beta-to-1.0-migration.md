@@ -18,14 +18,14 @@ templates and packaged adapters). Obsolete files that existed only inside `.qa-a
 
 ```bash
 # 1. Review the plan without changing files
-npx qa-flowkit@beta update --dry-run
-npx qa-flowkit@beta update --dry-run --json
+npx qa-flowkit@rc update --dry-run
+npx qa-flowkit@rc update --dry-run --json
 
 # 2. Back up user-owned data
 #    qa-ai.config.yaml, .qa-ai/state/, .qa-ai/config-profiles/, features/, qa-ai-output/
 
 # 3. Apply the update from the installed package
-npx qa-flowkit@beta update
+npx qa-flowkit@rc update
 
 # 4. Verify the target repository
 npx qa-flowkit doctor --strict
@@ -36,11 +36,11 @@ npx qa-flowkit run status --json
 
 Pin CI to the same channel you test locally:
 
-| Channel | Install / update                                                                                 |
-| ------- | ------------------------------------------------------------------------------------------------ |
-| `beta`  | `npx qa-flowkit@beta` (current default on `main`)                                                |
-| `rc`    | `npx qa-flowkit@rc` (after TASK-080 publish; see [beta-to-rc-release.md](beta-to-rc-release.md)) |
-| stable  | `npx qa-flowkit@latest` (Epic 20 / `1.0.0` only)                                                 |
+| Channel | Install / update                                                                                  |
+| ------- | ------------------------------------------------------------------------------------------------- |
+| `rc`    | `npx qa-flowkit@rc` (current default on `main`)                                                   |
+| `beta`  | `npx qa-flowkit@beta` (legacy `0.5.x-beta.y`; see [beta-to-rc-release.md](beta-to-rc-release.md)) |
+| stable  | `npx qa-flowkit@latest` (Epic 20 / `1.0.0` only)                                                  |
 
 Example for RC soak:
 

@@ -1,6 +1,6 @@
 # Security Readiness
 
-This pre-RC summary records the current security and dependency review for QA FlowKit `0.5.9-beta.0`. It avoids
+This RC summary records the current security and dependency review for QA FlowKit `1.0.0-rc.3`. It avoids
 exploit-level detail and points maintainers to the checks that must stay green before an RC or stable release.
 
 Review date: 2026-06-25
@@ -131,10 +131,10 @@ Before publishing an RC, a maintainer should confirm:
   no open high/critical Dependabot, CodeQL or advisory items requiring triage).
 - Dependabot PRs are reviewed or explicitly deferred.
 - npm Trusted Publishing is configured for `release-please.yml` (confirmed 2026-06-26: npmjs.com package `qa-flowkit` →
-  Trusted Publisher → `warante/QA_FlowKit` / `release-please.yml`; publish verified on `0.5.9-beta.0` via Release
+  Trusted Publisher → `warante/QA_FlowKit` / `release-please.yml`; publish verified on `1.0.0-rc.3` via Release
   Please workflow with provenance).
 - Release Please can open and update Release PRs on `main` (confirmed 2026-06-26: workflow permissions allow PR creation;
-  Release Please path verified on `0.5.9-beta.0`).
+  Release Please path verified on `1.0.0-rc.3`).
 - The Release PR validation is green on the candidate commit.
 
 ## Local Evidence Captured

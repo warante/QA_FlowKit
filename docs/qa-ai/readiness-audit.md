@@ -4,7 +4,7 @@ Machine-readable record: [`readiness-audit.v1.json`](readiness-audit.v1.json). O
 [`open-risk-register.v1.json`](open-risk-register.v1.json).
 
 **Audit date:** 2026-06-25  
-**Package line:** `0.5.9-beta.0`  
+**Package line:** `1.0.0-rc.3` (npm `rc`)  
 **Task:** TASK-078 (Epic 19)  
 **Decision:** `PASS_WITH_ACTIONS`
 

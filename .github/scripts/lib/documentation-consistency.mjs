@@ -109,14 +109,14 @@ export function validateLifecycleClaims(fileContents) {
   const spanishReadme = fileContents.get('README.es.md') ?? '';
   const security = fileContents.get('SECURITY.md') ?? '';
 
-  if (!/QA FlowKit[^.\n]*\*\*Beta\*\*/i.test(englishReadme)) {
-    errors.push('README.md must identify the current product lifecycle as Beta');
+  if (!/QA FlowKit[^.\n]*\*\*Release Candidate\*\*/i.test(englishReadme)) {
+    errors.push('README.md must identify the current product lifecycle as Release Candidate');
   }
-  if (!/QA FlowKit[^.\n]*\*\*Beta\*\*/i.test(spanishReadme)) {
-    errors.push('README.es.md must identify the current product lifecycle as Beta');
+  if (!/QA FlowKit[^.\n]*\*\*(?:Release Candidate|candidato a versión estable \(RC\))\*\*/i.test(spanishReadme)) {
+    errors.push('README.es.md must identify the current product lifecycle as Release Candidate');
   }
-  if (!security.includes('project is currently in Beta')) {
-    errors.push('SECURITY.md must identify the current product lifecycle as Beta');
+  if (!/project is currently in Release Candidate \(RC\)/i.test(security)) {
+    errors.push('SECURITY.md must identify the current product lifecycle as Release Candidate (RC)');
   }
   if (/project is currently in MVP stage/i.test(security)) {
     errors.push('SECURITY.md must not describe the current product lifecycle as MVP');

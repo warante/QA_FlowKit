@@ -2,7 +2,7 @@
 
 [![Licencia: MIT](https://img.shields.io/badge/licencia-MIT-green.svg)](LICENSE)
 [![Node.js 20+](https://img.shields.io/badge/node.js-20%2B-339933.svg)](package.json)
-[![Estado: Beta](https://img.shields.io/badge/estado-Beta-orange.svg)](docs/qa-ai/stability-policy.md)
+[![Estado: RC](https://img.shields.io/badge/estado-RC-yellow.svg)](docs/qa-ai/stability-policy.md)
 [![CI](https://github.com/warante/QA_FlowKit/actions/workflows/ci.yml/badge.svg)](https://github.com/warante/QA_FlowKit/actions/workflows/ci.yml)
 [![versión npm](https://img.shields.io/npm/v/qa-flowkit.svg)](https://www.npmjs.com/package/qa-flowkit)
 
@@ -17,7 +17,7 @@ requisito -> diseño de pruebas -> Gherkin -> trazabilidad -> automatización ->
 ```
 
 Está dirigido a equipos de QA y automatización que quieren artefactos generados con IA sin depender únicamente de la
-disciplina del prompt. QA FlowKit está actualmente en fase **Beta**; consulta la
+disciplina del prompt. QA FlowKit está actualmente en fase de **candidato a versión estable (RC)**; consulta la
 [política de estabilidad](docs/qa-ai/stability-policy.md).
 
 ## El Problema Que Resuelve
@@ -61,7 +61,7 @@ Abre el repositorio en tu CLI de IA y usa la superficie de comandos generada:
 commands de proyecto mediante adaptadores generados; para agentes sin soporte de slash commands, usa las instrucciones
 de adaptador generadas (`AGENTS.md`, `GEMINI.md`, `.codex/README.md`, etc.).
 
-Durante Beta, fija instalaciones reproducibles o CI a `npx qa-flowkit@beta ...` cuando necesites el canal beta
+Durante la línea RC, fija instalaciones reproducibles o CI a `npx qa-flowkit@rc ...` cuando necesites el canal `rc`
 explícitamente. Cuando el agente cree o actualice artefactos QA, ejecuta `npx qa-flowkit validate-target` como quality
 gate del repositorio.
 
@@ -118,19 +118,19 @@ El track controla la profundidad; los presets configuran frameworks y herramient
 
 ## Presets
 
-| Preset                       | Track habitual | Automatización               |
-| ---------------------------- | -------------- | ---------------------------- |
-| `manual-only`                | `quick`        | Ninguna                      |
-| `playwright-full`            | `standard`     | Playwright UI + API          |
-| `maestro-karate-mobile`      | `standard`     | Maestro mobile + Karate API  |
-| `karate-full`                | `standard`     | Karate API + UI              |
-| `webdriverio-playwright-api` | `standard`     | Compatibilidad beta heredada |
-| `selenium-jest-browserstack` | `standard`     | Selenium/Jest                |
+| Preset                       | Track habitual | Automatización                    |
+| ---------------------------- | -------------- | --------------------------------- |
+| `manual-only`                | `quick`        | Ninguna                           |
+| `playwright-full`            | `standard`     | Playwright UI + API               |
+| `maestro-karate-mobile`      | `standard`     | Maestro mobile + Karate API       |
+| `karate-full`                | `standard`     | Karate API + UI                   |
+| `webdriverio-playwright-api` | `standard`     | Preset de compatibilidad heredado |
+| `selenium-jest-browserstack` | `standard`     | Selenium/Jest                     |
 
 Ejemplo:
 
 ```bash
-npx qa-flowkit@beta init --preset karate-full --adapters generic,claude
+npx qa-flowkit@rc init --preset karate-full --adapters generic,claude
 ```
 
 Consulta el [esquema de configuración](docs/qa-ai/config-schema.md).
@@ -216,7 +216,7 @@ No aloja ni ejecuta un modelo de IA. Un agente con acceso libre al shell puede o
 ## Actualización
 
 ```bash
-npx qa-flowkit@beta update
+npx qa-flowkit@rc update
 npx qa-flowkit doctor --strict
 npx qa-flowkit validate-target
 ```
