@@ -1,14 +1,13 @@
 #!/usr/bin/env node
 import assert from 'node:assert/strict';
+import { repoRoot } from './lib/ci-helpers.mjs';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
-import { fileURLToPath } from 'node:url';
 import { collectLegacyConfigSignals } from '../../.qa-ai/scripts/lib/config-legacy.mjs';
 import { buildUpdatePlan, formatUpdatePlan, OLDEST_SUPPORTED_BETA } from '../../.qa-ai/scripts/lib/update-plan.mjs';
 
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 
 test('collectLegacyConfigSignals detects legacy requirement keys', () => {
   const keys = collectLegacyConfigSignals({

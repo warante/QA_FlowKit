@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import {
   RELEASE_NOTES_REQUIRED_LINKS,
   RELEASE_PR_REVIEW_PATHS,
@@ -11,26 +10,9 @@ import {
 } from './lib/stable-release-pr.mjs';
 import { resolveNpmDistTag } from './lib/npm-dist-tag.mjs';
 import { verifyStableReleaseConfig } from './verify-stable-release-config.mjs';
+import { isMain, assert, pathExists, readJson, repoRoot } from './lib/ci-helpers.mjs';
 
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const ALLOWED_STATUS = new Set(['awaiting_release_pr', 'in_review', 'merged']);
-
-function assert(condition, message, errors) {
-  if (!condition) errors.push(message);
-}
-
-async function readJson(filePath) {
-  return JSON.parse(await fs.readFile(filePath, 'utf8'));
-}
-
-async function pathExists(root, relativePath) {
-  try {
-    await fs.access(path.join(root, relativePath));
-    return true;
-  } catch {
-    return false;
-  }
-}
 
 export async function verifyStableReleasePr({ root = repoRoot } = {}) {
   const errors = [];
@@ -124,7 +106,7 @@ async function main() {
   console.log(`Stable release PR verification passed (status=${result.status}).`);
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (isMain(import.meta.url)) {
   main().catch((error) => {
     console.error(error);
     process.exit(1);

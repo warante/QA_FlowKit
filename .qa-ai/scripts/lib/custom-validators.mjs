@@ -1,16 +1,10 @@
-import { spawnSync } from 'node:child_process';
 import { loadWorkflowContract } from './harness-contract.mjs';
 import { VALIDATOR_ALLOWLIST } from './harness-validator-allowlist.mjs';
+import { redactValidatorDiagnostics } from './secret-patterns.mjs';
+import { runSubprocessScript } from './subprocess-script.mjs';
 import { pathExists, relativeTo, resolveRepoPath } from './utils.mjs';
 
 export const CUSTOM_VALIDATOR_ID_PATTERN = /^[a-z][a-z0-9-]{2,40}$/;
-
-function redact(text) {
-  return String(text || '')
-    .replace(/([A-Za-z0-9_]*TOKEN[A-Za-z0-9_]*=)[^\s]+/gi, '$1[REDACTED]')
-    .replace(/([A-Za-z0-9_]*KEY[A-Za-z0-9_]*=)[^\s]+/gi, '$1[REDACTED]')
-    .slice(0, 4000);
-}
 
 export function customValidatorsFromConfig(config = {}) {
   const custom = config?.validators?.custom;
@@ -91,16 +85,10 @@ export function customValidatorsForPhase(config = {}, phaseId) {
 }
 
 function runCustomValidatorProcess(cwd, scriptPath, args) {
-  const result = spawnSync(process.execPath, [scriptPath, ...args], {
-    cwd,
-    encoding: 'utf8',
-    shell: false,
-    env: {},
-    maxBuffer: 1024 * 1024
-  });
-  const stdout = result.stdout || '';
-  const stderr = result.stderr || '';
-  const exitCode = result.status ?? 1;
+  const result = runSubprocessScript(scriptPath, args, { cwd, env: {}, maxBuffer: 1024 * 1024 });
+  const stdout = result.stdout;
+  const stderr = result.stderr;
+  const exitCode = result.exitCode;
   let json = null;
   if (stdout.trim()) {
     try {
@@ -115,7 +103,7 @@ function runCustomValidatorProcess(cwd, scriptPath, args) {
     stdout,
     stderr,
     json,
-    diagnostics: redact([stdout, stderr].filter(Boolean).join('\n').trim())
+    diagnostics: redactValidatorDiagnostics([stdout, stderr].filter(Boolean).join('\n').trim())
   };
 }
 

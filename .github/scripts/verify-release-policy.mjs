@@ -1,10 +1,9 @@
 #!/usr/bin/env node
 import fs from 'node:fs/promises';
+import { isMain, repoRoot } from './lib/ci-helpers.mjs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { resolveNpmDistTag } from './lib/npm-dist-tag.mjs';
 
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 
 const ACTIVE_CONFIG = '.release-please-config.json';
 const RC_CONFIG = '.release-please-config.rc.json';
@@ -116,7 +115,7 @@ async function main() {
   console.log('Release policy verification passed (rc active, stable config prepared).');
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (isMain(import.meta.url)) {
   main().catch((error) => {
     console.error(error);
     process.exit(1);

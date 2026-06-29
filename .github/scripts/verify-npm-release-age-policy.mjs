@@ -1,11 +1,10 @@
 #!/usr/bin/env node
 import fs from 'node:fs/promises';
+import { isMain, repoRoot } from './lib/ci-helpers.mjs';
 import path from 'node:path';
 import { execSync } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
 import { REQUIRED_MIN_RELEASE_AGE_DAYS, verifyNpmReleaseAgePolicy } from './lib/npm-release-age-policy.mjs';
 
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 
 function readNpmVersion() {
   try {
@@ -39,7 +38,7 @@ async function main() {
   );
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (isMain(import.meta.url)) {
   main().catch((error) => {
     console.error(error);
     process.exit(1);

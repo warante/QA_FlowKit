@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { runHookMain } from './hook-main.mjs';
 import { loadWorkflowContract, getPhaseMap } from '../lib/harness-contract.mjs';
 import { getActiveRunId, readRunSnapshot } from '../lib/harness-run-store.mjs';
 import { interfaceLanguage } from '../lib/harness-messages.mjs';
@@ -111,4 +112,4 @@ async function main() {
   process.exit(0);
 }
 
-main().catch(() => process.exit(0));
+runHookMain(main, 'stop-gate.mjs');

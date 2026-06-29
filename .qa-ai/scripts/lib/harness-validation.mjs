@@ -1,8 +1,8 @@
 import path from 'node:path';
-import { spawnSync } from 'node:child_process';
 import { usesKarate } from './automation-framework.mjs';
 import { normalizeGateDecision } from './release-gate.mjs';
-import { redactSecretsInText, scanTextForSecrets } from './secret-patterns.mjs';
+import { redactValidatorDiagnostics, scanTextForSecrets } from './secret-patterns.mjs';
+import { runSubprocessScript } from './subprocess-script.mjs';
 import { hashFile, parseSimpleYaml, pathExists, readText, resolveRepoPath } from './utils.mjs';
 import { resolveContractPath, resolveOutputSpec } from './harness-contract.mjs';
 import {
@@ -19,9 +19,7 @@ export { VALIDATOR_ALLOWLIST, isValidatorAllowed };
 export const DEFAULT_MAX_VALIDATION_ATTEMPTS = 2;
 
 export function redactDiagnostics(text) {
-  const findings = scanTextForSecrets(text);
-  if (findings.length === 0) return String(text || '').slice(0, 4000);
-  return redactSecretsInText(text).slice(0, 4000);
+  return redactValidatorDiagnostics(text);
 }
 
 export function assertNoteHasNoSecrets(note) {
@@ -177,16 +175,11 @@ export function runValidator(cwd, validatorId, extraArgs = []) {
   }
 
   const scriptPath = path.join(cwd, entry.script);
-  const result = spawnSync(process.execPath, [scriptPath, ...extraArgs], {
-    cwd,
-    encoding: 'utf8',
-    shell: false,
-    maxBuffer: 1024 * 1024
-  });
+  const result = runSubprocessScript(scriptPath, extraArgs, { cwd, maxBuffer: 1024 * 1024 });
 
-  const stdout = result.stdout || '';
-  const stderr = result.stderr || '';
-  const exitCode = result.status ?? 1;
+  const stdout = result.stdout;
+  const stderr = result.stderr;
+  const exitCode = result.exitCode;
   const diagnostics = redactDiagnostics([stdout, stderr].filter(Boolean).join('\n').trim());
 
   return {

@@ -1,9 +1,8 @@
 #!/usr/bin/env node
 import fs from 'node:fs/promises';
+import { isMain, repoRoot } from './lib/ci-helpers.mjs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 
 const ALLOWED_DECISIONS = new Set(['PASS', 'PASS_WITH_ACTIONS', 'FAIL']);
 const ALLOWED_EPIC_STATUS = new Set(['done', 'blocked', 'deferred', 'in_validation', 'planned', 'in_progress']);
@@ -91,7 +90,7 @@ async function main() {
   console.log(`Readiness audit verification passed (decision=${result.decision}, open P1 risks=${result.openP1}).`);
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (isMain(import.meta.url)) {
   main().catch((error) => {
     console.error(error);
     process.exit(1);

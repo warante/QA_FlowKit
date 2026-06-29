@@ -1,12 +1,11 @@
 #!/usr/bin/env node
 import assert from 'node:assert/strict';
+import { repoRoot } from './lib/ci-helpers.mjs';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { test } from 'node:test';
-import { fileURLToPath } from 'node:url';
 import { stepLabel, VALIDATE_CORE_STEPS, VALIDATE_E2E_STEPS, VALIDATE_SUITES } from './lib/validate-suite-commands.mjs';
 
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const legacyCommand = JSON.parse(readFileSync(path.join(repoRoot, 'package.json'), 'utf8')).scripts[
   'validate:oss-extraction'
 ];

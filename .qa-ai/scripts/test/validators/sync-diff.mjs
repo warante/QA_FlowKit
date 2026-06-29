@@ -4,77 +4,18 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { validateWorkflowContract } from '../../lib/harness-contract.mjs';
-import { inspectQaWorkflow, normalizeQaTrack } from '../../lib/qa-next-steps.mjs';
-import { activeSpecialists, activeSpecialistsContent, specialistsForNfrAttributes } from '../../lib/project-config.mjs';
-import { validateReleaseGateData } from '../../lib/release-gate.mjs';
-import { loadConfigSchema, validateConfigData } from '../../lib/config-schema.mjs';
-import {
-  customValidatorsForPhase,
-  runCustomValidator,
-  validateCustomValidatorConfig
-} from '../../lib/custom-validators.mjs';
-import { validateTestDesignProposal, validateTestDesignSystem } from '../../lib/test-design.mjs';
-import { parseMarkdownTable } from '../../lib/markdown-table.mjs';
-import { validateTestManagementMapping } from '../../lib/test-management-mapping.mjs';
-import {
-  duplicateIdErrors,
-  idsFromText,
-  languageRules,
-  parseFeature,
-  validateFeatureContent
-} from '../../lib/gherkin-validate.mjs';
-import { parseFeatureTags, resolveFeatureSubfolder, validateFeatureFilePlacement } from '../../lib/feature-layout.mjs';
-import { parse as parseGherkin } from '../../lib/gherkin-parser.mjs';
-import { parseYaml } from '../../lib/yaml.mjs';
-import { karateDuplicateIdErrors, validateKarateFeatureContent } from '../../lib/karate-validate.mjs';
-import { validateMaestroFlowContent } from '../../lib/maestro-validate.mjs';
-import {
-  AI_TESTING_TECHNIQUES,
-  featureCoverageRecord,
-  normalizeCoverageMode,
-  techniqueIsKnown,
-  validateAiCoverage,
-  validateCoverage
-} from '../../lib/test-coverage.mjs';
-import {
-  NFR_ATTRIBUTES,
-  NFR_EVIDENCE_TYPES,
-  parseNormalizedSourceNfrs,
-  parseProposalNfrCoverage,
-  resolveNonFunctionalCoveragePolicy,
-  resolveSourceNfrCoverageMode,
-  validateSourceNfrCoverage,
-  validateNfrTraceability
-} from '../../lib/nfr-coverage.mjs';
-import { validateTraceabilityArtifacts, featureTraceabilityIds } from '../../lib/traceability-validate.mjs';
-import {
-  parseNormalizedCriteria,
-  validateProposalContract,
-  validateSemanticCoverage
-} from '../../lib/semantic-coverage.mjs';
-import { scanText } from '../../lib/injection-patterns.mjs';
-import { scanPathsForSecrets } from '../../lib/secret-patterns.mjs';
-import {
-  legacyInferredAcceptanceCriteria,
-  hashFile,
-  listFilesRecursive,
-  normalizeRequirementsConfig,
-  parseSimpleYaml
-} from '../../lib/utils.mjs';
-import { validateQualityReport } from '../../lib/quality-report.mjs';
-import { parseJUnitXml, parseCucumberJson, extractTestIds } from '../../lib/execution-results.mjs';
-import { parseEvalJson, parseGenericEvalJson, parsePromptfooJson } from '../../lib/eval-results.mjs';
-import { validateExecutionEvidence, resolveGlobs } from '../../validate-execution-evidence.mjs';
-import { validateReleaseGateFile } from '../../validate-release-gate.mjs';
-import { validateHealingLog } from '../../validate-healing-log.mjs';
-import { validateTestImpact } from '../../validate-test-impact.mjs';
-import { exportReport } from '../../export-report.mjs';
-import { assertIncludes, repoRoot, scriptsRoot } from './_shared.mjs';
+import { scanPathsForSecrets } from './_fixtures.mjs';
+import { assertIncludes, repoRoot, runValidatorScript, withTempWorkspace } from './_shared.mjs';
+
+function asSpawnResult(result) {
+  return { status: result.exitCode, stdout: result.stdout, stderr: result.stderr };
+}
+
+function runScript(scriptName, cwd, extraArgs = []) {
+  return asSpawnResult(runValidatorScript(scriptName, cwd, extraArgs));
+}
 
 // --- validate-sync-diff ---
-import { spawnSync } from 'node:child_process';
 
 test('validate-sync-diff: accepts valid diff and snapshot', async () => {
   const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-test-diff-'));
@@ -121,11 +62,7 @@ test('validate-sync-diff: accepts valid diff and snapshot', async () => {
     );
     await fs.writeFile(mappingFile, `{"TC-002": {"externalId": "12345"}}`, 'utf8');
 
-    const script = path.join(scriptsRoot, 'validate-sync-diff.mjs');
-    const res = spawnSync(
-      process.execPath,
-      [
-        script,
+    const res = runScript('validate-sync-diff.mjs', tmp, [
         '--diff-path',
         'diff.md',
         '--snapshot-path',
@@ -134,9 +71,7 @@ test('validate-sync-diff: accepts valid diff and snapshot', async () => {
         'plan.md',
         '--mapping-path',
         'mapping.json'
-      ],
-      { cwd: tmp, encoding: 'utf8' }
-    );
+      ]);
 
     assert.equal(res.status, 0, `Script failed: ${res.stdout}\n${res.stderr}`);
   } finally {
@@ -193,11 +128,7 @@ test('validate-sync-diff: rejects invalid actions and IDs', async () => {
       'utf8'
     );
 
-    const script = path.join(scriptsRoot, 'validate-sync-diff.mjs');
-    const res = spawnSync(
-      process.execPath,
-      [
-        script,
+    const res = runScript('validate-sync-diff.mjs', tmp, [
         '--diff-path',
         'diff.md',
         '--snapshot-path',
@@ -207,9 +138,7 @@ test('validate-sync-diff: rejects invalid actions and IDs', async () => {
         '--mapping-path',
         'mapping.json',
         '--json'
-      ],
-      { cwd: tmp, encoding: 'utf8' }
-    );
+      ]);
 
     assert.equal(res.status, 1);
     const parsed = JSON.parse(res.stdout);
@@ -272,11 +201,7 @@ test('validate-sync-diff: rejects required-column and idempotency violations', a
     );
     await fs.writeFile(mappingFile, `{}`, 'utf8');
 
-    const script = path.join(scriptsRoot, 'validate-sync-diff.mjs');
-    const res = spawnSync(
-      process.execPath,
-      [
-        script,
+    const res = runScript('validate-sync-diff.mjs', tmp, [
         '--diff-path',
         'diff.md',
         '--snapshot-path',
@@ -286,9 +211,7 @@ test('validate-sync-diff: rejects required-column and idempotency violations', a
         '--mapping-path',
         'mapping.json',
         '--json'
-      ],
-      { cwd: tmp, encoding: 'utf8' }
-    );
+      ]);
 
     assert.equal(res.status, 1);
     const parsed = JSON.parse(res.stdout);
@@ -355,11 +278,7 @@ test('validate-sync-diff: rejects stale snapshots after sync plan approval', asy
     );
     await fs.writeFile(mappingFile, `{"TC-001": {"externalId": "12345"}}`, 'utf8');
 
-    const script = path.join(scriptsRoot, 'validate-sync-diff.mjs');
-    const res = spawnSync(
-      process.execPath,
-      [
-        script,
+    const res = runScript('validate-sync-diff.mjs', tmp, [
         '--diff-path',
         'diff.md',
         '--snapshot-path',
@@ -369,9 +288,7 @@ test('validate-sync-diff: rejects stale snapshots after sync plan approval', asy
         '--mapping-path',
         'mapping.json',
         '--json'
-      ],
-      { cwd: tmp, encoding: 'utf8' }
-    );
+      ]);
 
     assert.equal(res.status, 1);
     const parsed = JSON.parse(res.stdout);
@@ -465,11 +382,7 @@ test('validate-sync-result: accepts valid diff and results', async () => {
       'utf8'
     );
 
-    const script = path.join(scriptsRoot, 'validate-sync-result.mjs');
-    const res = spawnSync(
-      process.execPath,
-      [
-        script,
+    const res = runScript('validate-sync-result.mjs', tmp, [
         '--diff-path',
         'diff.md',
         '--apply-log-path',
@@ -482,9 +395,7 @@ test('validate-sync-result: accepts valid diff and results', async () => {
         'rollback.md',
         '--mapping-path',
         'mapping.json'
-      ],
-      { cwd: tmp, encoding: 'utf8' }
-    );
+      ]);
 
     assert.equal(res.status, 0, `Script failed: ${res.stdout}\n${res.stderr}`);
   } finally {
@@ -579,11 +490,7 @@ test('validate-sync-result: rejects invalid result states', async () => {
       'utf8'
     );
 
-    const script = path.join(scriptsRoot, 'validate-sync-result.mjs');
-    const res = spawnSync(
-      process.execPath,
-      [
-        script,
+    const res = runScript('validate-sync-result.mjs', tmp, [
         '--diff-path',
         'diff.md',
         '--apply-log-path',
@@ -597,9 +504,7 @@ test('validate-sync-result: rejects invalid result states', async () => {
         '--mapping-path',
         'mapping.json',
         '--json'
-      ],
-      { cwd: tmp, encoding: 'utf8' }
-    );
+      ]);
 
     assert.equal(res.status, 1);
     const parsed = JSON.parse(res.stdout);
@@ -665,15 +570,9 @@ test('secret scan detects fake token in governed apply log artifact', async () =
   }
 });
 
-import { spawnSync as _spawnSyncIntake } from 'node:child_process';
-
-const intakeScript = path.join(scriptsRoot, 'validate-external-intake.mjs');
-
 function runIntake(tmp, extraArgs = []) {
-  return _spawnSyncIntake(
-    process.execPath,
-    [
-      intakeScript,
+  return asSpawnResult(
+    runValidatorScript('validate-external-intake.mjs', tmp, [
       '--requirements-path',
       'imported-requirements.md',
       '--cases-path',
@@ -681,8 +580,7 @@ function runIntake(tmp, extraArgs = []) {
       '--rf-pattern',
       'RF-\\d+',
       ...extraArgs
-    ],
-    { cwd: tmp, encoding: 'utf8' }
+    ])
   );
 }
 

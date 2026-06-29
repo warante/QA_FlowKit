@@ -1,15 +1,14 @@
 #!/usr/bin/env node
 import assert from 'node:assert/strict';
+import { repoRoot } from './lib/ci-helpers.mjs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { test } from 'node:test';
-import { fileURLToPath } from 'node:url';
 import { parsePureJsonStdout } from '../../.qa-ai/scripts/lib/cli-contract.mjs';
 import { collectLegacyConfigSignals } from '../../.qa-ai/scripts/lib/config-legacy.mjs';
 import { parseSimpleYaml } from '../../.qa-ai/scripts/lib/utils.mjs';
 import { verifyCliContracts } from './verify-cli-contracts.mjs';
 
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 
 test('parsePureJsonStdout rejects human-readable prefixes', () => {
   assert.throws(() => parsePureJsonStdout('QA FlowKit config validator\n{"ok":true}', 'test'), /not pure JSON/);

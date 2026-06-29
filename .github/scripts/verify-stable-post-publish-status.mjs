@@ -1,9 +1,8 @@
 #!/usr/bin/env node
 import fs from 'node:fs/promises';
+import { isMain, repoRoot } from './lib/ci-helpers.mjs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const ALLOWED_STATUS = new Set(['awaiting_publish', 'in_progress', 'completed']);
 const ALLOWED_CHECK_STATUS = new Set(['pending', 'passed', 'failed', 'skipped']);
 
@@ -72,7 +71,7 @@ async function main() {
   console.log(`Stable post-publish status verification passed (status=${result.status}).`);
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (isMain(import.meta.url)) {
   main().catch((error) => {
     console.error(error);
     process.exit(1);

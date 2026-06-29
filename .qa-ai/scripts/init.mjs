@@ -13,6 +13,7 @@ import { FEATURE_SUBFOLDERS } from './lib/feature-layout.mjs';
 import { defaultInitAdapters } from './lib/detect-adapters.mjs';
 import { validateConfigContent } from './lib/config-schema.mjs';
 import {
+  ARTIFACT_PATHS,
   commaList,
   ensureDir,
   getConfigValue,
@@ -459,37 +460,37 @@ async function maybePrintClaudePluginHint() {
 
 function generatedDocs(config) {
   const docs = [
-    ['templates/requirement-analysis.template.md', 'qa-ai-output/requirement-analysis.md'],
-    ['templates/source-analysis.template.md', 'qa-ai-output/source-analysis.md'],
-    ['templates/test-management-coverage-analysis.template.md', 'qa-ai-output/test-management-coverage-analysis.md'],
-    ['templates/test-design-system.template.md', 'qa-ai-output/test-design-system.md'],
-    ['templates/test-design-proposal.template.md', 'qa-ai-output/test-design-proposal.md'],
-    ['templates/automation-feasibility-report.template.md', 'qa-ai-output/automation-feasibility-report.md'],
-    ['templates/automation-implementation-plan.template.md', 'qa-ai-output/automation-implementation-plan.md'],
-    ['templates/traceability-matrix.template.md', 'qa-ai-output/traceability-matrix.md'],
-    ['templates/test-management-sync-plan.template.md', 'qa-ai-output/test-management-sync-plan.md'],
-    ['templates/jira-automation-task.template.md', 'qa-ai-output/jira-automation-task.md'],
-    ['templates/pr-template.md', 'qa-ai-output/pr-summary.md'],
-    ['templates/release-gate.template.yaml', 'qa-ai-output/release-gate.yaml'],
+    ['templates/requirement-analysis.template.md', ARTIFACT_PATHS.requirementAnalysis],
+    ['templates/source-analysis.template.md', ARTIFACT_PATHS.sourceAnalysis],
+    ['templates/test-management-coverage-analysis.template.md', ARTIFACT_PATHS.testManagementCoverage],
+    ['templates/test-design-system.template.md', ARTIFACT_PATHS.testDesignSystem],
+    ['templates/test-design-proposal.template.md', ARTIFACT_PATHS.testDesignProposal],
+    ['templates/automation-feasibility-report.template.md', ARTIFACT_PATHS.automationFeasibility],
+    ['templates/automation-implementation-plan.template.md', ARTIFACT_PATHS.automationImplementation],
+    ['templates/traceability-matrix.template.md', ARTIFACT_PATHS.traceabilityMatrix],
+    ['templates/test-management-sync-plan.template.md', ARTIFACT_PATHS.testManagementSyncPlan],
+    ['templates/jira-automation-task.template.md', ARTIFACT_PATHS.jiraAutomationTask],
+    ['templates/pr-template.md', ARTIFACT_PATHS.prSummary],
+    ['templates/release-gate.template.yaml', ARTIFACT_PATHS.releaseGate],
     ['templates/qa-custom/validate-naming.example.mjs', 'qa-custom/validate-naming.example.mjs']
   ];
 
   if (getConfigValue(config, 'testManagementSync.mode', 'proposal-only') === 'governed') {
-    const diffPath = getConfigValue(config, 'testManagementSync.diffPath', 'qa-ai-output/test-management-sync-diff.md');
+    const diffPath = getConfigValue(config, 'testManagementSync.diffPath', ARTIFACT_PATHS.testManagementSyncDiff);
     const snapshotPath = getConfigValue(
       config,
       'testManagementSync.remoteSnapshotPath',
-      'qa-ai-output/test-management-remote-snapshot.md'
+      ARTIFACT_PATHS.testManagementRemoteSnapshot
     );
     const rollbackPath = getConfigValue(
       config,
       'testManagementSync.rollbackPath',
-      'qa-ai-output/test-management-rollback-plan.md'
+      ARTIFACT_PATHS.testManagementRollback
     );
     const applyLogPath = getConfigValue(
       config,
       'testManagementSync.applyLogPath',
-      'qa-ai-output/test-management-apply-log.md'
+      ARTIFACT_PATHS.testManagementApplyLog
     );
     docs.push(
       ['templates/test-management-sync-diff.template.md', diffPath],
@@ -503,12 +504,12 @@ function generatedDocs(config) {
     const reqImportPath = getConfigValue(
       config,
       'sources.external.requirementsImportPath',
-      'qa-ai-output/imported-requirements.md'
+      ARTIFACT_PATHS.importedRequirements
     );
     const casesImportPath = getConfigValue(
       config,
       'sources.external.casesImportPath',
-      'qa-ai-output/imported-cases.md'
+      ARTIFACT_PATHS.importedCases
     );
     docs.push(
       ['templates/imported-requirements.template.md', reqImportPath],

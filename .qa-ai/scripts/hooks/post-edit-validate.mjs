@@ -1,9 +1,10 @@
 #!/usr/bin/env node
-import { spawnSync } from 'node:child_process';
 import path from 'node:path';
+import { runHookMain } from './hook-main.mjs';
 import { karateFeatureRoots, usesKarate } from '../lib/automation-framework.mjs';
 import { usesMaestro, maestroFlowsPath } from '../lib/mobile-automation.mjs';
-import { getConfigValue, loadQaAiConfig, resolveRepoPath, resolveTestManagementSyncPlanPath } from '../lib/utils.mjs';
+import { runSubprocessScript } from '../lib/subprocess-script.mjs';
+import { ARTIFACT_PATHS, getConfigValue, loadQaAiConfig, resolveRepoPath, resolveTestManagementSyncPlanPath } from '../lib/utils.mjs';
 
 const cwd = process.cwd();
 
@@ -88,7 +89,7 @@ async function main() {
 
   const matrixPath = resolveRepoPath(
     cwd,
-    getConfigValue(config, 'traceability.matrixPath', 'qa-ai-output/traceability-matrix.md'),
+    getConfigValue(config, 'traceability.matrixPath', ARTIFACT_PATHS.traceabilityMatrix),
     { label: 'matrix' }
   );
   const resolvedSyncPlan = await resolveTestManagementSyncPlanPath(cwd, config, { preferExisting: false });
@@ -96,15 +97,15 @@ async function main() {
   const legacySyncPlanPath = resolvedSyncPlan.legacyAbsPath;
   const systemPath = resolveRepoPath(
     cwd,
-    getConfigValue(config, 'testDesign.systemPath', 'qa-ai-output/test-design-system.md'),
+    getConfigValue(config, 'testDesign.systemPath', ARTIFACT_PATHS.testDesignSystem),
     { label: 'system path' }
   );
   const proposalPath = resolveRepoPath(
     cwd,
-    getConfigValue(config, 'testDesign.proposalPath', 'qa-ai-output/test-design-proposal.md'),
+    getConfigValue(config, 'testDesign.proposalPath', ARTIFACT_PATHS.testDesignProposal),
     { label: 'proposal path' }
   );
-  const gatePath = resolveRepoPath(cwd, getConfigValue(config, 'release.gatePath', 'qa-ai-output/release-gate.yaml'), {
+  const gatePath = resolveRepoPath(cwd, getConfigValue(config, 'release.gatePath', ARTIFACT_PATHS.releaseGate), {
     label: 'gate path'
   });
 
@@ -145,13 +146,9 @@ async function main() {
     }
 
     if (script) {
-      const result = spawnSync(process.execPath, [script, ...args], {
-        cwd,
-        encoding: 'utf8',
-        timeout: 10000
-      });
+      const result = runSubprocessScript(script, args, { cwd, timeout: 10000 });
 
-      if (result.status !== 0) {
+      if (!result.ok) {
         if (result.stdout) process.stderr.write(result.stdout);
         if (result.stderr) process.stderr.write(result.stderr);
         process.exit(2);
@@ -162,4 +159,4 @@ async function main() {
   process.exit(0);
 }
 
-main().catch(() => process.exit(0));
+runHookMain(main, 'post-edit-validate.mjs');

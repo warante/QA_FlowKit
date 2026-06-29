@@ -1,11 +1,10 @@
 #!/usr/bin/env node
 import assert from 'node:assert/strict';
+import { repoRoot } from './lib/ci-helpers.mjs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { test } from 'node:test';
-import { fileURLToPath } from 'node:url';
 
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 
 const ADVERSARIAL_SCENARIOS = [
   'assertPathTraversalRejected',

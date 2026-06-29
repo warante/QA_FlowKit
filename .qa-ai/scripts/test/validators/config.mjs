@@ -4,74 +4,8 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { validateWorkflowContract } from '../../lib/harness-contract.mjs';
-import { inspectQaWorkflow, normalizeQaTrack } from '../../lib/qa-next-steps.mjs';
-import { activeSpecialists, activeSpecialistsContent, specialistsForNfrAttributes } from '../../lib/project-config.mjs';
-import { validateReleaseGateData } from '../../lib/release-gate.mjs';
-import { loadConfigSchema, validateConfigData } from '../../lib/config-schema.mjs';
-import {
-  customValidatorsForPhase,
-  runCustomValidator,
-  validateCustomValidatorConfig
-} from '../../lib/custom-validators.mjs';
-import { validateTestDesignProposal, validateTestDesignSystem } from '../../lib/test-design.mjs';
-import { parseMarkdownTable } from '../../lib/markdown-table.mjs';
-import { validateTestManagementMapping } from '../../lib/test-management-mapping.mjs';
-import {
-  duplicateIdErrors,
-  idsFromText,
-  languageRules,
-  parseFeature,
-  validateFeatureContent
-} from '../../lib/gherkin-validate.mjs';
-import { parseFeatureTags, resolveFeatureSubfolder, validateFeatureFilePlacement } from '../../lib/feature-layout.mjs';
-import { parse as parseGherkin } from '../../lib/gherkin-parser.mjs';
-import { parseYaml } from '../../lib/yaml.mjs';
-import { karateDuplicateIdErrors, validateKarateFeatureContent } from '../../lib/karate-validate.mjs';
-import { validateMaestroFlowContent } from '../../lib/maestro-validate.mjs';
-import {
-  AI_TESTING_TECHNIQUES,
-  featureCoverageRecord,
-  normalizeCoverageMode,
-  techniqueIsKnown,
-  validateAiCoverage,
-  validateCoverage
-} from '../../lib/test-coverage.mjs';
-import {
-  NFR_ATTRIBUTES,
-  NFR_EVIDENCE_TYPES,
-  parseNormalizedSourceNfrs,
-  parseProposalNfrCoverage,
-  resolveNonFunctionalCoveragePolicy,
-  resolveSourceNfrCoverageMode,
-  validateSourceNfrCoverage,
-  validateNfrTraceability
-} from '../../lib/nfr-coverage.mjs';
-import { validateTraceabilityArtifacts, featureTraceabilityIds } from '../../lib/traceability-validate.mjs';
-import {
-  parseNormalizedCriteria,
-  validateProposalContract,
-  validateSemanticCoverage
-} from '../../lib/semantic-coverage.mjs';
-import { scanText } from '../../lib/injection-patterns.mjs';
-import { scanPathsForSecrets } from '../../lib/secret-patterns.mjs';
-import {
-  legacyInferredAcceptanceCriteria,
-  hashFile,
-  listFilesRecursive,
-  normalizeRequirementsConfig,
-  parseSimpleYaml
-} from '../../lib/utils.mjs';
-import { validateQualityReport } from '../../lib/quality-report.mjs';
-import { parseJUnitXml, parseCucumberJson, extractTestIds } from '../../lib/execution-results.mjs';
-import { parseEvalJson, parseGenericEvalJson, parsePromptfooJson } from '../../lib/eval-results.mjs';
-import { validateExecutionEvidence, resolveGlobs } from '../../validate-execution-evidence.mjs';
-import { validateReleaseGateFile } from '../../validate-release-gate.mjs';
-import { validateHealingLog } from '../../validate-healing-log.mjs';
-import { validateTestImpact } from '../../validate-test-impact.mjs';
-import { exportReport } from '../../export-report.mjs';
-import { assertIncludes, repoRoot } from './_shared.mjs';
+import { validateWorkflowContract, normalizeQaTrack, activeSpecialists, activeSpecialistsContent, specialistsForNfrAttributes, loadConfigSchema, validateConfigData, customValidatorsForPhase, runCustomValidator, validateCustomValidatorConfig, NFR_ATTRIBUTES, NFR_EVIDENCE_TYPES, resolveNonFunctionalCoveragePolicy, resolveSourceNfrCoverageMode, legacyInferredAcceptanceCriteria, hashFile, normalizeRequirementsConfig, parseSimpleYaml, validateQualityReport } from './_fixtures.mjs';
+import { assertIncludes, repoRoot, runValidatorScript, withTempWorkspace } from './_shared.mjs';
 import { writeCustomValidatorFixture } from './yaml.mjs';
 
 test('custom validators: accepts repo-local config and maps phase validators', async () => {

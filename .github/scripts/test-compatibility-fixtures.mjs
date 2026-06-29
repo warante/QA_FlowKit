@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 import assert from 'node:assert/strict';
+import { repoRoot } from './lib/ci-helpers.mjs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { test } from 'node:test';
-import { fileURLToPath } from 'node:url';
 import {
   assertSupportedVersion,
   loadSchemaRegistry,
@@ -15,7 +15,6 @@ import {
 } from '../../.qa-ai/scripts/lib/contract-schemas.mjs';
 import { verifyCompatibilityFixtures } from './verify-compatibility-fixtures.mjs';
 
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 
 test('schema registry lists versioned contract surfaces', async () => {
   const registry = await loadSchemaRegistry(repoRoot);

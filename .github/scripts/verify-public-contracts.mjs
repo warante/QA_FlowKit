@@ -1,10 +1,9 @@
 #!/usr/bin/env node
 import fs from 'node:fs/promises';
+import { repoRoot } from './lib/ci-helpers.mjs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { cliValidatorCommandMap } from '../../.qa-ai/scripts/lib/validator-registry.mjs';
 
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const inventoryPath = path.join(repoRoot, '.qa-ai', 'contracts', 'public-contracts.v1.json');
 
 function valuesByClassification(group) {

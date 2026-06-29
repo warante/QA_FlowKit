@@ -9,9 +9,8 @@ import crypto from 'node:crypto';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { repoRoot } from './lib/ci-helpers.mjs';
 
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const adapterRoot = path.join(repoRoot, '.qa-ai', 'adapters', 'claude');
 const pluginRoot = path.join(repoRoot, 'plugin');
 const marketplaceRoot = path.join(repoRoot, '.claude-plugin');

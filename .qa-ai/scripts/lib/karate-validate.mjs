@@ -2,7 +2,7 @@
  * Karate executable .feature validation (dependency-free).
  * For QA design Gherkin under gherkin.featurePath, use gherkin-validate.mjs instead.
  */
-import { hasRequiredTag, normalizeId } from './gherkin-validate.mjs';
+import { duplicateCaseIdErrors, hasRequiredTag, normalizeId } from './gherkin-validate.mjs';
 
 const featurePattern = /^Feature:/i;
 const scenarioPattern = /^(?:Scenario|Scenario Outline):/i;
@@ -184,22 +184,10 @@ export function validateKarateFeatureContent(content, filePath, options = {}) {
 }
 
 export function karateDuplicateIdErrors(results) {
-  const byId = new Map();
-  for (const result of results) {
-    for (const id of result.caseIds || []) {
-      const current = byId.get(id) || [];
-      current.push(result.file);
-      byId.set(id, current);
-    }
-  }
-  const errors = [];
-  for (const [id, files] of byId.entries()) {
-    const unique = [...new Set(files)];
-    if (unique.length > 1) {
-      errors.push(`Duplicate @id ${id} in Karate features: ${unique.join(', ')}`);
-    }
-  }
-  return errors;
+  return duplicateCaseIdErrors(
+    results,
+    (id, files) => `Duplicate @id ${id} in Karate features: ${files.join(', ')}`
+  );
 }
 
 export function isQaDesignFeatureContent(content) {
