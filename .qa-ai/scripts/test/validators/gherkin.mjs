@@ -437,4 +437,3 @@ test('validateFeatureFilePlacement: warns on feature root file', () => {
   assert.equal(expectedSubfolder, 'functional');
   assert.ok(warnings.some((w) => w.includes('functional')));
 });
-

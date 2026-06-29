@@ -177,4 +177,3 @@ test('validateTestManagementMapping: rejects malformed lastAppliedAt', () => {
   );
   assertIncludes(errors, 'field "lastAppliedAt" must be a valid ISO 8601 date string');
 });
-

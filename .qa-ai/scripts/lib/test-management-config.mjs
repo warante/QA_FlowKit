@@ -17,7 +17,9 @@ export function getTestManagementSyncPlanPath(config) {
 }
 
 export function isTestManagementEnabled(config) {
-  const tool = String(getConfigValue(config, 'project.tools.testManagement', '')).trim().toLowerCase();
+  const tool = String(getConfigValue(config, 'project.tools.testManagement', ''))
+    .trim()
+    .toLowerCase();
   if (tool && tool !== 'none') return true;
   return Boolean(getConfigValue(config, 'testManagement.enabled', getConfigValue(config, 'testrail.enabled', false)));
 }

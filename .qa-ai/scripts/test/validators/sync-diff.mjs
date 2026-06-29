@@ -876,4 +876,3 @@ test('validate-external-intake: duplicate External ID in cases fails', async () 
     await fs.rm(tmp, { recursive: true, force: true });
   }
 });
-

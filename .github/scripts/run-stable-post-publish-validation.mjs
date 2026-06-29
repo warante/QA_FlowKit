@@ -15,15 +15,7 @@ import { fileURLToPath } from 'node:url';
 import { parsePackOutput, validatePackFileList } from '../../.qa-ai/scripts/lib/npm-pack-allowlist.mjs';
 import { resolveNpmDistTag, simulateRegistryVisibilityCheck } from './lib/npm-dist-tag.mjs';
 import { assertStableVersion, parseDistTagsJson } from './lib/stable-version.mjs';
-import {
-  node,
-  npmCommand,
-  npmExecPath,
-  parseJsonStdout,
-  repoRoot,
-  runCli,
-  runNpm
-} from './lib/ci-helpers.mjs';
+import { node, npmCommand, npmExecPath, parseJsonStdout, repoRoot, runCli, runNpm } from './lib/ci-helpers.mjs';
 import { overlayOldestSupportedFixture } from './lib/migration-fixture.mjs';
 
 function parseArgs(argv) {

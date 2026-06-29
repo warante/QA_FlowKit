@@ -231,4 +231,3 @@ test('parseMarkdownTable: empty row is an error', () => {
   });
   assertIncludes(result.errors, 'row is empty');
 });
-

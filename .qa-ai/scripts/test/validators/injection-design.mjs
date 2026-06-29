@@ -721,4 +721,3 @@ test('normalizeCoverageMode: unknown values use the safe fallback', () => {
   assert.equal(normalizeCoverageMode('strict'), 'strict');
   assert.equal(normalizeCoverageMode('unknown'), 'off');
 });
-

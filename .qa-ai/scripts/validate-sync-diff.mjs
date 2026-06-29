@@ -71,8 +71,7 @@ async function main() {
         absPath: resolveRepoPath(cwd, args['plan-path'], { label: 'sync plan' })
       }
     : await resolveTestManagementSyncPlanPath(cwd, config);
-  const mappingPath =
-    args['mapping-path'] || getTestManagementMappingFile(config);
+  const mappingPath = args['mapping-path'] || getTestManagementMappingFile(config);
 
   const absDiff = resolveRepoPath(cwd, diffPath, { label: 'sync diff' });
   const absSnapshot = resolveRepoPath(cwd, snapshotPath, { label: 'remote snapshot' });

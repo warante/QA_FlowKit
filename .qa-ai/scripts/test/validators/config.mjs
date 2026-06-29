@@ -535,4 +535,3 @@ test('normalizeRequirementsConfig: materializes legacy inferred acceptance polic
   });
   assert.equal(config.requirements.inferredAcceptanceCriteria, 'allow');
 });
-

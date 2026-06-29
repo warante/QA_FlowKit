@@ -2,11 +2,7 @@ import path from 'node:path';
 import { normalizeColumn, parseMarkdownTable } from './markdown-table.mjs';
 import { validateNfrTraceability } from './nfr-coverage.mjs';
 import { parseProposedTestRows } from './semantic-coverage.mjs';
-import {
-  caseIdsFromText,
-  idsFromText,
-  normalizeId
-} from './gherkin-validate.mjs';
+import { caseIdsFromText, idsFromText, normalizeId } from './gherkin-validate.mjs';
 
 export { caseIdsFromText, idsFromText, normalizeId };
 

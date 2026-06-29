@@ -950,4 +950,3 @@ Ready
   const result = validateTestDesignProposal(content, {});
   assert.equal(result.errors.length, 0, `Expected no errors, got: ${result.errors.join(', ')}`);
 });
-

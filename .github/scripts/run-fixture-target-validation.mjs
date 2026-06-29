@@ -8,7 +8,8 @@ import os from 'node:os';
 import path from 'node:path';
 import { node, repoRoot, run } from './lib/ci-helpers.mjs';
 
-const fixtureArg = process.argv.find((arg) => arg.startsWith('--fixture='))?.slice('--fixture='.length) || process.argv[2];
+const fixtureArg =
+  process.argv.find((arg) => arg.startsWith('--fixture='))?.slice('--fixture='.length) || process.argv[2];
 if (!fixtureArg) {
   console.error('Usage: run-fixture-target-validation.mjs --fixture=<name>');
   process.exit(1);

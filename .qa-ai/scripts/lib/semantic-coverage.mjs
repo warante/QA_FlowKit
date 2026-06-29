@@ -295,9 +295,7 @@ export function validateSemanticCoverage({
       assignments.get(criterionId).push(row);
     }
 
-    const criterionStatuses = row.criterionIds
-      .map((id) => criteriaById.get(id)?.status)
-      .filter(Boolean);
+    const criterionStatuses = row.criterionIds.map((id) => criteriaById.get(id)?.status).filter(Boolean);
     if (criterionStatuses.includes('pending-decision') && row.action === 'create') {
       addFinding(findings, severity, {
         rf: row.rf,

@@ -224,9 +224,7 @@ async function main() {
     ...(usesMaestro(configInfo.data)
       ? [validatorCommand('Maestro flow validation', 'validate-maestro-flows', featureArgs)]
       : []),
-    ...(track !== 'quick'
-      ? [validatorCommand('sync plan validation', 'validate-sync-plan', artifactArgs)]
-      : []),
+    ...(track !== 'quick' ? [validatorCommand('sync plan validation', 'validate-sync-plan', artifactArgs)] : []),
     ...(track !== 'quick' && syncMode === 'governed'
       ? [
           validatorCommand('sync diff validation', 'validate-sync-diff', artifactArgs),
@@ -240,12 +238,8 @@ async function main() {
     getConfigValue(configInfo.data, 'execution.evalResultsPaths', []).length > 0
       ? [validatorCommand('execution evidence validation', 'validate-execution-evidence', artifactArgs)]
       : []),
-    ...(hasHealingLog
-      ? [validatorCommand('governed healing validation', 'validate-healing-log', artifactArgs)]
-      : []),
-    ...(hasImpactAnalysis
-      ? [validatorCommand('test impact validation', 'validate-test-impact', artifactArgs)]
-      : []),
+    ...(hasHealingLog ? [validatorCommand('governed healing validation', 'validate-healing-log', artifactArgs)] : []),
+    ...(hasImpactAnalysis ? [validatorCommand('test impact validation', 'validate-test-impact', artifactArgs)] : []),
     validatorCommand('traceability validation', 'validate-traceability', artifactArgs),
     validatorCommand('untrusted content scan', 'validate-untrusted-content', [
       '--allow-missing',

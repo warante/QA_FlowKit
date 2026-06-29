@@ -254,8 +254,7 @@ export async function validateExecutionEvidence(cwd, options = {}) {
 
   const matrixPath =
     options.matrixPath || getConfigValue(config, 'traceability.matrixPath', 'qa-ai-output/traceability-matrix.md');
-  const mappingFile =
-    options.mappingFile || getTestManagementMappingFile(config);
+  const mappingFile = options.mappingFile || getTestManagementMappingFile(config);
   const resultsPaths = options.resultsPaths || getConfigValue(config, 'execution.resultsPaths', []);
   const evalResultsPaths = options.evalResultsPaths || getConfigValue(config, 'execution.evalResultsPaths', []);
   const aiTestingEnabled = Boolean(getConfigValue(config, 'aiTesting.enabled', false));

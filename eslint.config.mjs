@@ -33,6 +33,12 @@ export default [
     }
   },
   {
-    ignores: ['node_modules/**', '.qa-flowkit-npm-*/**', '.qa-flowkit-update-migration-*/**', 'pack-artifact/**', 'coverage/**']
+    ignores: [
+      'node_modules/**',
+      '.qa-flowkit-npm-*/**',
+      '.qa-flowkit-update-migration-*/**',
+      'pack-artifact/**',
+      'coverage/**'
+    ]
   }
 ];

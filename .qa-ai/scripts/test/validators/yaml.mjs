@@ -309,4 +309,3 @@ export async function writeCustomValidatorFixture({ exitCode = 0, ok = true } = 
   );
   return cwd;
 }
-

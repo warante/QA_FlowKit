@@ -62,8 +62,7 @@ async function main() {
   const rollbackPath =
     args['rollback-path'] ||
     getConfigValue(config, 'testManagementSync.rollbackPath', 'qa-ai-output/test-management-rollback-plan.md');
-  const mappingPath =
-    args['mapping-path'] || getTestManagementMappingFile(config);
+  const mappingPath = args['mapping-path'] || getTestManagementMappingFile(config);
 
   const configSnapshotPath = getConfigValue(
     config,

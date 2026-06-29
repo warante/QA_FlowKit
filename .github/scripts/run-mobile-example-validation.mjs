@@ -2,14 +2,7 @@
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import {
-  cliPath,
-  installPackTarball,
-  node,
-  repoRoot,
-  resolvePackTarball,
-  run
-} from './lib/ci-helpers.mjs';
+import { cliPath, installPackTarball, node, repoRoot, resolvePackTarball, run } from './lib/ci-helpers.mjs';
 import { executeKarate } from './lib/karate-runtime.mjs';
 
 const exampleRoot = path.join(repoRoot, 'examples', 'maestro-karate-mobile');

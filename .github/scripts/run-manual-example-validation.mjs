@@ -6,14 +6,7 @@ import { createHash } from 'node:crypto';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import {
-  cliPath,
-  installPackTarball,
-  node,
-  repoRoot,
-  resolvePackTarball,
-  run
-} from './lib/ci-helpers.mjs';
+import { cliPath, installPackTarball, node, repoRoot, resolvePackTarball, run } from './lib/ci-helpers.mjs';
 
 const exampleRoot = path.join(repoRoot, 'examples', 'manual-only');
 
