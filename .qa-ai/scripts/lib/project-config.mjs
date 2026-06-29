@@ -7,6 +7,7 @@ import {
   defaultKarateUiSpecsPath,
   isKarateFramework
 } from './automation-framework.mjs';
+import { getTestManagementMappingFile } from './test-management-config.mjs';
 import { getConfigValue } from './utils.mjs';
 
 export function slug(value) {
@@ -36,7 +37,7 @@ export function addCommonDirs(dirs, config) {
   const matrixPath = getConfigValue(config, 'traceability.matrixPath', 'qa-ai-output/traceability-matrix.md');
   if (matrixPath) dirs.add(path.dirname(matrixPath));
 
-  const mappingFile = getConfigValue(config, 'testrail.mappingFile', 'qa-ai-output/test-management-mapping.json');
+  const mappingFile = getTestManagementMappingFile(config);
   if (mappingFile) dirs.add(path.dirname(mappingFile));
 
   const knowledgeSummaryPath = getConfigValue(config, 'knowledge.summaryPath', 'qa-ai-output/qa-knowledge-summary.md');

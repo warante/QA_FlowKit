@@ -15,6 +15,7 @@ import {
   toPosixPath,
   listFilesRecursive
 } from './lib/utils.mjs';
+import { getTestManagementMappingFile } from './lib/test-management-config.mjs';
 import { normalizeId } from './lib/gherkin-validate.mjs';
 
 const args = parseArgs(process.argv);
@@ -254,7 +255,7 @@ export async function validateExecutionEvidence(cwd, options = {}) {
   const matrixPath =
     options.matrixPath || getConfigValue(config, 'traceability.matrixPath', 'qa-ai-output/traceability-matrix.md');
   const mappingFile =
-    options.mappingFile || getConfigValue(config, 'testrail.mappingFile', 'qa-ai-output/test-management-mapping.json');
+    options.mappingFile || getTestManagementMappingFile(config);
   const resultsPaths = options.resultsPaths || getConfigValue(config, 'execution.resultsPaths', []);
   const evalResultsPaths = options.evalResultsPaths || getConfigValue(config, 'execution.evalResultsPaths', []);
   const aiTestingEnabled = Boolean(getConfigValue(config, 'aiTesting.enabled', false));

@@ -3,7 +3,9 @@ import { rfPattern } from './gherkin-validate.mjs';
 import { parse as parseGherkin } from './gherkin-parser.mjs';
 import { normalizeColumn, splitMarkdownRow, isSeparatorRow, rowValues } from './markdown-table.mjs';
 
-export const COVERAGE_MODES = ['off', 'advisory', 'strict'];
+import { normalizeAdvisoryMode, ADVISORY_MODES } from './mode-normalize.mjs';
+
+export const COVERAGE_MODES = ADVISORY_MODES;
 
 export const TEST_DESIGN_TECHNIQUES = [
   'equivalence-partitioning',
@@ -40,10 +42,7 @@ const SECTION_ALIASES = {
 };
 
 export function normalizeCoverageMode(value, fallback = 'off') {
-  const mode = String(value || fallback)
-    .trim()
-    .toLowerCase();
-  return COVERAGE_MODES.includes(mode) ? mode : fallback;
+  return normalizeAdvisoryMode(value, fallback);
 }
 
 export function normalizeTechnique(value) {

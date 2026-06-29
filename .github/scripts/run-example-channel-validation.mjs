@@ -1,17 +1,15 @@
 #!/usr/bin/env node
 import fs from 'node:fs/promises';
-import { existsSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { spawnSync } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
-
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
-const npmExecPath = process.env.npm_execpath || '';
-const node = process.execPath;
-const bundledNpmCli = path.join(path.dirname(node), 'node_modules', 'npm', 'bin', 'npm-cli.js');
-const npmScriptPath = npmExecPath || (process.platform === 'win32' && existsSync(bundledNpmCli) ? bundledNpmCli : '');
+import {
+  cliPath,
+  installPackTarball,
+  node,
+  repoRoot,
+  resolvePackTarball,
+  run
+} from './lib/ci-helpers.mjs';
 
 function argument(name, fallback = '') {
   const index = process.argv.indexOf(name);
@@ -28,38 +26,6 @@ function validatePackageSpec(value) {
   throw new Error(
     `Unsupported package spec "${value}". Use local, qa-flowkit@rc, qa-flowkit@beta, qa-flowkit@latest or an exact version.`
   );
-}
-
-function run(command, args, { cwd, env = {}, shell = false } = {}) {
-  const result = spawnSync(command, args, {
-    cwd,
-    encoding: 'utf8',
-    shell,
-    env: {
-      ...process.env,
-      npm_config_audit: 'false',
-      npm_config_fund: 'false',
-      npm_config_update_notifier: 'false',
-      ...env
-    }
-  });
-  if (result.status !== 0) {
-    throw new Error(
-      [`Command failed: ${command} ${args.join(' ')}`, result.error?.message, result.stdout, result.stderr]
-        .filter(Boolean)
-        .join('\n')
-    );
-  }
-  return result;
-}
-
-function runNpm(args, options) {
-  if (npmScriptPath) return run(node, [npmScriptPath, ...args], options);
-  return run(npmCommand, args, { ...options, shell: process.platform === 'win32' });
-}
-
-function cliPath(cliRoot) {
-  return path.join(cliRoot, 'node_modules', 'qa-flowkit', 'bin', 'qa-flowkit.mjs');
 }
 
 function extraInitArgsForExample(example) {
@@ -155,13 +121,8 @@ async function packageToInstall(packageSpec, tempRoot, npmCache) {
   if (packageSpec !== 'local') return packageSpec;
 
   const packDir = path.join(tempRoot, 'pack');
-  await fs.mkdir(packDir, { recursive: true });
-  const pack = runNpm(['pack', '--pack-destination', packDir, '--json'], {
-    cwd: repoRoot,
-    env: { npm_config_cache: npmCache }
-  });
-  const packInfo = JSON.parse(pack.stdout)[0];
-  return path.join(packDir, packInfo.filename);
+  const { tarball } = await resolvePackTarball({ packDir, npmCache });
+  return tarball;
 }
 
 async function writeReport(report) {
@@ -184,10 +145,8 @@ async function main() {
   try {
     await fs.mkdir(npmCache, { recursive: true });
     const installSpec = await packageToInstall(packageSpec, tempRoot, npmCache);
-    runNpm(['install', '--prefix', cliRoot, '--ignore-scripts', '--package-lock=false', '--no-save', installSpec], {
-      cwd: repoRoot,
-      env: { npm_config_cache: npmCache }
-    });
+    await fs.mkdir(cliRoot, { recursive: true });
+    installPackTarball(cliRoot, installSpec, { npmCache });
 
     const cli = cliPath(cliRoot);
     const installedVersion = run(node, [cli, 'version'], { cwd: repoRoot }).stdout.trim();

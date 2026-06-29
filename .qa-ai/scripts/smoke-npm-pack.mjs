@@ -1,70 +1,15 @@
 #!/usr/bin/env node
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { spawnSync } from 'node:child_process';
-import { parsePackOutput, validatePackFileList } from './lib/npm-pack-allowlist.mjs';
-
-const sourceRoot = process.cwd();
-const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
-const node = process.execPath;
-const npmExecPath = process.env.npm_execpath || '';
-
-function run(command, args, { cwd, env = {}, expectFailure = false, shell = false } = {}) {
-  const childEnv = {
-    ...process.env,
-    npm_config_update_notifier: 'false',
-    npm_config_fund: 'false',
-    npm_config_audit: 'false'
-  };
-  if (env.npm_config_cache) childEnv.npm_config_cache = env.npm_config_cache;
-
-  const result = spawnSync(command, args, {
-    cwd,
-    encoding: 'utf8',
-    shell,
-    env: childEnv
-  });
-  const failed = result.status !== 0;
-  if (expectFailure ? !failed : failed) {
-    throw new Error(
-      [
-        `Command ${expectFailure ? 'succeeded unexpectedly' : 'failed'} (${result.status}): ${command} ${args.join(' ')}`,
-        result.error?.message,
-        result.stdout,
-        result.stderr
-      ]
-        .filter(Boolean)
-        .join('\n')
-    );
-  }
-  return result;
-}
-
-function runNpm(args, options = {}) {
-  if (npmExecPath) return run(node, [npmExecPath, ...args], options);
-  return run(npmCommand, args, {
-    ...options,
-    shell: process.platform === 'win32'
-  });
-}
-
-async function assertExists(filePath, label = filePath) {
-  try {
-    await fs.access(filePath);
-  } catch {
-    throw new Error(`Expected ${label} to exist.`);
-  }
-}
-
-async function assertMissing(filePath, label = filePath) {
-  try {
-    await fs.access(filePath);
-  } catch (error) {
-    if (error.code === 'ENOENT') return;
-    throw error;
-  }
-  throw new Error(`Expected ${label} to be absent.`);
-}
+import { validatePackFileList } from './lib/npm-pack-allowlist.mjs';
+import {
+  assertExists,
+  assertMissing,
+  installPackTarball,
+  repoRoot,
+  resolvePackTarball,
+  runCli
+} from '../../.github/scripts/lib/ci-helpers.mjs';
 
 async function assertIncludes(filePath, expected, label = filePath) {
   const content = await fs.readFile(filePath, 'utf8');
@@ -132,57 +77,25 @@ async function validateCommandInteractionContract(packageRoot) {
   );
 }
 
-function parsePackOutputLocal(stdout) {
-  return parsePackOutput(stdout);
-}
-
-function validatePackFileListLocal(files) {
-  return validatePackFileList(files);
-}
-
-function cliPath(targetRoot) {
-  return path.join(targetRoot, 'node_modules', 'qa-flowkit', 'bin', 'qa-flowkit.mjs');
-}
-
-function runCli(targetRoot, args, options = {}) {
-  return run(node, [cliPath(targetRoot), ...args], {
-    cwd: targetRoot,
-    env: options.env,
-    expectFailure: options.expectFailure
-  });
-}
-
-async function installPackedCli(targetRoot, tarball, npmCache) {
-  runNpm(['install', '--prefix', targetRoot, '--ignore-scripts', '--package-lock=false', '--no-save', tarball], {
-    cwd: sourceRoot,
-    env: { npm_config_cache: npmCache }
-  });
-}
-
 async function main() {
-  const tempRoot = await fs.mkdtemp(path.join(sourceRoot, '.qa-flowkit-npm-smoke-'));
+  const tempRoot = await fs.mkdtemp(path.join(repoRoot, '.qa-flowkit-npm-smoke-'));
   const packDir = path.join(tempRoot, 'pack');
   const npmCache = path.join(tempRoot, 'npm-cache');
   let initTarget;
   let updateTarget;
 
   try {
-    await validateCommandInteractionContract(sourceRoot);
-    await fs.mkdir(packDir, { recursive: true });
+    await validateCommandInteractionContract(repoRoot);
     await fs.mkdir(npmCache, { recursive: true });
 
-    const packResult = runNpm(['pack', '--pack-destination', packDir, '--json'], {
-      cwd: sourceRoot,
-      env: { npm_config_cache: npmCache }
-    });
-    const packInfo = parsePackOutputLocal(packResult.stdout);
-    validatePackFileListLocal(packInfo.files);
-    const tarball = path.join(packDir, packInfo.filename);
-    await assertExists(tarball, 'packed tarball');
+    const { tarball, fromArtifact, packInfo } = await resolvePackTarball({ packDir, npmCache });
+    if (!fromArtifact && packInfo) {
+      validatePackFileList(packInfo.files);
+    }
 
     initTarget = path.join(tempRoot, 'init-target');
     await fs.mkdir(initTarget, { recursive: true });
-    await installPackedCli(initTarget, tarball, npmCache);
+    installPackTarball(initTarget, tarball, { npmCache });
     await validateCommandInteractionContract(path.join(initTarget, 'node_modules', 'qa-flowkit'));
     runCli(initTarget, ['init', '--skip-doctor']);
     await assertExists(path.join(initTarget, '.qa-ai', 'scripts', 'init.mjs'), '.qa-ai framework');
@@ -226,7 +139,7 @@ async function main() {
 
     updateTarget = path.join(tempRoot, 'update-target');
     await fs.mkdir(updateTarget, { recursive: true });
-    await installPackedCli(updateTarget, tarball, npmCache);
+    installPackTarball(updateTarget, tarball, { npmCache });
     runCli(updateTarget, ['init', '--skip-doctor']);
     await fs.mkdir(path.join(updateTarget, '.qa-ai', 'state'), { recursive: true });
     await fs.mkdir(path.join(updateTarget, '.qa-ai', 'config-profiles'), { recursive: true });

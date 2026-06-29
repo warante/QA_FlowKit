@@ -1,17 +1,14 @@
 #!/usr/bin/env node
-import { spawnSync } from 'node:child_process';
 import { performance } from 'node:perf_hooks';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { VALIDATE_CORE_STEPS, VALIDATE_E2E_STEPS } from './lib/validate-suite-commands.mjs';
+import { repoRoot, runNodeScript } from './lib/ci-helpers.mjs';
 
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const node = process.execPath;
 const runner = path.join(repoRoot, '.github/scripts/run-validate-suite.mjs');
 
 function runSuite(name) {
   const startedAt = performance.now();
-  const result = spawnSync(node, [runner, name], { cwd: repoRoot, stdio: 'inherit' });
+  const result = runNodeScript(runner, [name]);
   const durationMs = Math.round(performance.now() - startedAt);
   return { name, durationMs, ok: result.status === 0, status: result.status ?? 1 };
 }

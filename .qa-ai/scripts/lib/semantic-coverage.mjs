@@ -279,6 +279,7 @@ export function validateSemanticCoverage({
 
   const proposal = parseProposedTestRows(proposalContent);
   const { byId, byPath } = featureIndex(features);
+  const criteriaById = new Map(criteria.map((item) => [item.criterionId, item]));
   const assignments = new Map(criteria.map((criterion) => [criterion.criterionId, []]));
 
   for (const row of proposal.rows) {
@@ -295,7 +296,7 @@ export function validateSemanticCoverage({
     }
 
     const criterionStatuses = row.criterionIds
-      .map((id) => criteria.find((item) => item.criterionId === id)?.status)
+      .map((id) => criteriaById.get(id)?.status)
       .filter(Boolean);
     if (criterionStatuses.includes('pending-decision') && row.action === 'create') {
       addFinding(findings, severity, {

@@ -3,42 +3,9 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { spawnSync } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
+import { jsonOutput, repoRoot, runSourceCli } from './lib/ci-helpers.mjs';
 
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const cli = path.join(repoRoot, 'bin', 'qa-flowkit.mjs');
 const fixtureRoot = path.join(repoRoot, 'test', 'fixtures', 'quick-path');
-const node = process.execPath;
-
-function runCli(cwd, args, { expectFailure = false } = {}) {
-  const result = spawnSync(node, [cli, ...args], {
-    cwd,
-    encoding: 'utf8',
-    shell: false
-  });
-  const failed = result.status !== 0;
-  if (expectFailure ? !failed : failed) {
-    throw new Error(
-      [
-        `qa-flowkit ${args.join(' ')} ${expectFailure ? 'succeeded unexpectedly' : 'failed'}`,
-        result.stdout,
-        result.stderr
-      ]
-        .filter(Boolean)
-        .join('\n')
-    );
-  }
-  return result;
-}
-
-function jsonOutput(result, label) {
-  try {
-    return JSON.parse(result.stdout);
-  } catch {
-    throw new Error(`${label} did not return JSON:\n${result.stdout}\n${result.stderr}`);
-  }
-}
 
 async function copyFixture(relativeSource, targetRoot, relativeTarget = relativeSource) {
   const source = path.join(fixtureRoot, relativeSource);
@@ -56,7 +23,7 @@ async function main() {
   const target = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-flowkit-quick-path-'));
 
   try {
-    runCli(target, [
+    runSourceCli(target, [
       'init',
       '--preset',
       'manual-only',
@@ -66,31 +33,31 @@ async function main() {
       'generic',
       '--skip-doctor'
     ]);
-    runCli(target, ['doctor']);
+    runSourceCli(target, ['doctor']);
     await copyFixture('requirements/RF-101-login.md', target);
     console.log('[PASS] clean quick-track target initialized');
 
-    const started = jsonOutput(runCli(target, ['run', 'start', '--rf', 'RF-101', '--json']), 'run start');
+    const started = jsonOutput(runSourceCli(target, ['run', 'start', '--rf', 'RF-101', '--json']), 'run start');
     assert.equal(started.track, 'quick');
 
-    assertPhase(jsonOutput(runCli(target, ['run', 'next', '--json']), 'intake next'), 'intake');
+    assertPhase(jsonOutput(runSourceCli(target, ['run', 'next', '--json']), 'intake next'), 'intake');
     await copyFixture('expected/qa-ai-output/requirement-analysis.md', target, 'qa-ai-output/requirement-analysis.md');
-    assert.equal(jsonOutput(runCli(target, ['run', 'check', '--json']), 'intake check').ok, true);
+    assert.equal(jsonOutput(runSourceCli(target, ['run', 'check', '--json']), 'intake check').ok, true);
 
-    assertPhase(jsonOutput(runCli(target, ['run', 'next', '--json']), 'normalize next'), 'normalize');
+    assertPhase(jsonOutput(runSourceCli(target, ['run', 'next', '--json']), 'normalize next'), 'normalize');
     await copyFixture(
       'expected/qa-ai-output/normalized-requirements.md',
       target,
       'qa-ai-output/normalized-requirements.md'
     );
-    assert.equal(jsonOutput(runCli(target, ['run', 'check', '--json']), 'normalize check').ok, true);
+    assert.equal(jsonOutput(runSourceCli(target, ['run', 'check', '--json']), 'normalize check').ok, true);
 
-    runCli(target, ['run', 'approve', 'test-design', '--note', 'RF-101 quick-path design approved', '--json']);
-    assertPhase(jsonOutput(runCli(target, ['run', 'next', '--json']), 'gherkin next'), 'gherkin');
+    runSourceCli(target, ['run', 'approve', 'test-design', '--note', 'RF-101 quick-path design approved', '--json']);
+    assertPhase(jsonOutput(runSourceCli(target, ['run', 'next', '--json']), 'gherkin next'), 'gherkin');
     await copyFixture('invalid/RF-101-TC-001-login.feature', target, 'features/functional/RF-101-TC-001-login.feature');
 
     const failedGherkin = jsonOutput(
-      runCli(target, ['run', 'check', '--json'], { expectFailure: true }),
+      runSourceCli(target, ['run', 'check', '--json'], { expectFailure: true }),
       'intentional Gherkin failure'
     );
     assert.equal(failedGherkin.ok, false);
@@ -103,24 +70,24 @@ async function main() {
       target,
       'features/functional/RF-101-TC-001-login.feature'
     );
-    assert.equal(jsonOutput(runCli(target, ['run', 'check', '--json']), 'corrected Gherkin check').ok, true);
+    assert.equal(jsonOutput(runSourceCli(target, ['run', 'check', '--json']), 'corrected Gherkin check').ok, true);
     console.log('[PASS] corrected Gherkin passed');
 
-    assertPhase(jsonOutput(runCli(target, ['run', 'next', '--json']), 'traceability next'), 'traceability');
+    assertPhase(jsonOutput(runSourceCli(target, ['run', 'next', '--json']), 'traceability next'), 'traceability');
     await copyFixture('expected/qa-ai-output/traceability-matrix.md', target, 'qa-ai-output/traceability-matrix.md');
-    assert.equal(jsonOutput(runCli(target, ['run', 'check', '--json']), 'traceability check').ok, true);
+    assert.equal(jsonOutput(runSourceCli(target, ['run', 'check', '--json']), 'traceability check').ok, true);
 
-    assertPhase(jsonOutput(runCli(target, ['run', 'next', '--json']), 'PR next'), 'pr');
+    assertPhase(jsonOutput(runSourceCli(target, ['run', 'next', '--json']), 'PR next'), 'pr');
     await copyFixture('expected/qa-ai-output/pr-summary.md', target, 'qa-ai-output/pr-summary.md');
-    const finalCheck = jsonOutput(runCli(target, ['run', 'check', '--json']), 'PR check');
+    const finalCheck = jsonOutput(runSourceCli(target, ['run', 'check', '--json']), 'PR check');
     assert.equal(finalCheck.ok, true);
     assert.equal(finalCheck.status, 'completed');
 
-    const status = jsonOutput(runCli(target, ['run', 'status', '--json']), 'final status');
+    const status = jsonOutput(runSourceCli(target, ['run', 'status', '--json']), 'final status');
     assert.equal(status.status, 'completed');
     assert.ok(status.phases.every((phase) => ['completed', 'skipped'].includes(phase.status)));
 
-    runCli(target, ['validate-target']);
+    runSourceCli(target, ['validate-target']);
     assert.ok(Date.now() - startedAt < 300_000, 'Quick path exceeded five minutes');
     console.log('[PASS] completed run and strict target validation');
     console.log(`Quick path E2E passed in ${Date.now() - startedAt}ms.`);

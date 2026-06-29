@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { normalizeAdvisoryMode, isBlockingAdvisoryMode } from './mode-normalize.mjs';
 import { getActiveRunId, readRunSnapshot } from './harness-run-store.mjs';
 import { normalizeColumn, parseMarkdownTable } from './markdown-table.mjs';
 import {
@@ -127,7 +128,7 @@ async function featureRecords(cwd, featureRoot, rf) {
 export async function validateQualityReport(cwd, options = {}) {
   const configInfo = await loadQaAiConfig(cwd);
   const config = configInfo.data || {};
-  const mode = String(options.mode || getConfigValue(config, 'testDesign.quality.mode', 'off')).toLowerCase();
+  const mode = normalizeAdvisoryMode(options.mode || getConfigValue(config, 'testDesign.quality.mode', 'off'));
   const minDimensionsPassed = Number(
     options.minDimensionsPassed ?? getConfigValue(config, 'testDesign.quality.minDimensionsPassed', 7)
   );
@@ -341,7 +342,7 @@ export async function validateQualityReport(cwd, options = {}) {
     if (actualCount < minDimensionsPassed) {
       addFinding(
         findings,
-        mode === 'gate' ? 'error' : 'warning',
+        isBlockingAdvisoryMode(mode) ? 'error' : 'warning',
         `${feature.relative} passes ${actualCount}/${dimensions.length} quality dimensions; threshold is ${minDimensionsPassed}.`,
         { file: feature.relative, failedDimensions }
       );

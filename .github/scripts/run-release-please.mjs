@@ -5,7 +5,7 @@
  */
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
-import { fileURLToPath } from 'node:url';
+import { isMain } from './lib/ci-helpers.mjs';
 
 export const FIRST_RC_VERSION = '1.0.0-rc.1';
 
@@ -154,7 +154,7 @@ async function main() {
   );
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (isMain(import.meta.url)) {
   main().catch((error) => {
     console.error(error);
     process.exit(1);

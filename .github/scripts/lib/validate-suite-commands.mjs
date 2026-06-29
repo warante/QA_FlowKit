@@ -1,3 +1,5 @@
+import { starterCoreValidatorSteps } from '../../../.qa-ai/scripts/lib/validator-registry.mjs';
+
 /** @typedef {{ type: 'npm', script: string, args?: string[] }} NpmStep */
 /** @typedef {{ type: 'node', file: string, args?: string[] }} NodeStep */
 /** @typedef {NpmStep | NodeStep} ValidateStep */
@@ -60,35 +62,7 @@ export const VALIDATE_CORE_STEPS = [
   { type: 'npm', script: 'test:cli-contracts:unit' },
   { type: 'npm', script: 'test:example-compatibility' },
   { type: 'node', file: '.qa-ai/scripts/doctor.mjs' },
-  { type: 'node', file: '.qa-ai/scripts/validate-config.mjs', args: ['--allow-missing'] },
-  { type: 'node', file: '.qa-ai/scripts/validate-untrusted-content.mjs', args: ['--allow-missing'] },
-  { type: 'node', file: '.qa-ai/scripts/validate-external-intake.mjs', args: ['--allow-missing'] },
-  { type: 'node', file: '.qa-ai/scripts/validate-workflow-contract.mjs' },
-  { type: 'node', file: '.qa-ai/scripts/validate-features.mjs', args: ['--allow-empty'] },
-  {
-    type: 'node',
-    file: '.qa-ai/scripts/validate-test-coverage.mjs',
-    args: ['--allow-empty', '--allow-missing']
-  },
-  {
-    type: 'node',
-    file: '.qa-ai/scripts/validate-quality-report.mjs',
-    args: ['--allow-empty', '--allow-missing']
-  },
-  { type: 'node', file: '.qa-ai/scripts/validate-karate-features.mjs', args: ['--allow-empty'] },
-  { type: 'node', file: '.qa-ai/scripts/validate-maestro-flows.mjs', args: ['--allow-empty'] },
-  {
-    type: 'node',
-    file: '.qa-ai/scripts/validate-traceability.mjs',
-    args: ['--allow-empty', '--allow-missing']
-  },
-  { type: 'node', file: '.qa-ai/scripts/validate-sync-plan.mjs', args: ['--allow-empty', '--allow-missing'] },
-  { type: 'node', file: '.qa-ai/scripts/validate-sync-diff.mjs', args: ['--allow-missing'] },
-  { type: 'node', file: '.qa-ai/scripts/validate-sync-result.mjs', args: ['--allow-missing'] },
-  { type: 'node', file: '.qa-ai/scripts/validate-active-specialists.mjs', args: ['--allow-missing'] },
-  { type: 'node', file: '.qa-ai/scripts/validate-execution-evidence.mjs', args: ['--allow-missing'] },
-  { type: 'node', file: '.qa-ai/scripts/validate-healing-log.mjs', args: ['--allow-missing'] },
-  { type: 'node', file: '.qa-ai/scripts/validate-test-impact.mjs', args: ['--allow-missing'] },
+  ...starterCoreValidatorSteps(),
   { type: 'node', file: '.qa-ai/scripts/test-validators.mjs' },
   { type: 'node', file: '.qa-ai/scripts/test-harness.mjs' },
   { type: 'node', file: '.qa-ai/scripts/test-cli-integration.mjs' },

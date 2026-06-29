@@ -6,124 +6,19 @@ import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { spawnSync } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
-
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const fixtureRoot = path.join(repoRoot, 'test', 'fixtures', 'migration', 'oldest-supported-beta');
-const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
-const node = process.execPath;
-const npmExecPath = process.env.npm_execpath || '';
-const MARKER = 'QA_FLOWKIT_MIGRATION_FIXTURE_MARKER';
-
-function run(command, args, { cwd, env = {}, expectFailure = false } = {}) {
-  const result = spawnSync(command, args, {
-    cwd,
-    encoding: 'utf8',
-    shell: false,
-    env: {
-      ...process.env,
-      npm_config_audit: 'false',
-      npm_config_fund: 'false',
-      npm_config_update_notifier: 'false',
-      ...env
-    }
-  });
-  const failed = result.status !== 0;
-  if (expectFailure ? !failed : failed) {
-    throw new Error(
-      [
-        `Command ${expectFailure ? 'succeeded unexpectedly' : 'failed'}: ${command} ${args.join(' ')}`,
-        result.stdout,
-        result.stderr
-      ]
-        .filter(Boolean)
-        .join('\n')
-    );
-  }
-  return result;
-}
-
-function runNpm(args, options = {}) {
-  if (npmExecPath) return run(node, [npmExecPath, ...args], options);
-  return run(npmCommand, args, { ...options, shell: process.platform === 'win32' });
-}
-
-function parsePackOutput(stdout) {
-  const start = stdout.indexOf('[');
-  const payload = JSON.parse(stdout.slice(start));
-  return Array.isArray(payload) ? payload[0] : payload;
-}
-
-function cliPath(targetRoot) {
-  return path.join(targetRoot, 'node_modules', 'qa-flowkit', 'bin', 'qa-flowkit.mjs');
-}
-
-function runCli(targetRoot, args, options = {}) {
-  return run(node, [cliPath(targetRoot), ...args], { cwd: targetRoot, ...options });
-}
+import {
+  assertMissing,
+  installPackTarball,
+  parseJsonStdout,
+  repoRoot,
+  resolvePackTarball,
+  runCli
+} from './lib/ci-helpers.mjs';
+import { overlayOldestSupportedFixture } from './lib/migration-fixture.mjs';
 
 async function sha256File(filePath) {
   const content = await fs.readFile(filePath);
   return createHash('sha256').update(content).digest('hex');
-}
-
-async function assertExists(filePath, label = filePath) {
-  try {
-    await fs.access(filePath);
-  } catch {
-    throw new Error(`Expected ${label} to exist.`);
-  }
-}
-
-async function assertMissing(filePath, label = filePath) {
-  try {
-    await fs.access(filePath);
-    throw new Error(`Expected ${label} to be absent.`);
-  } catch (error) {
-    if (error.code === 'ENOENT') return;
-    throw error;
-  }
-}
-
-async function copyFixtureTree(relativePath, targetRoot) {
-  const source = path.join(fixtureRoot, relativePath);
-  const target = path.join(targetRoot, relativePath);
-  await fs.mkdir(path.dirname(target), { recursive: true });
-  const stat = await fs.stat(source);
-  if (stat.isDirectory()) {
-    await fs.cp(source, target, { recursive: true, force: true });
-  } else {
-    await fs.copyFile(source, target);
-  }
-}
-
-function parseJsonStdout(result, label) {
-  try {
-    return JSON.parse(result.stdout);
-  } catch {
-    throw new Error(`${label} did not return JSON:\n${result.stdout}\n${result.stderr}`);
-  }
-}
-
-async function overlayOldestSupportedFixture(targetRoot) {
-  const manifest = JSON.parse(await fs.readFile(path.join(fixtureRoot, 'manifest.v1.json'), 'utf8'));
-  for (const relativePath of manifest.paths) {
-    await copyFixtureTree(relativePath, targetRoot);
-  }
-
-  const agentsPath = path.join(targetRoot, 'AGENTS.md');
-  try {
-    await fs.access(agentsPath);
-    const agents = await fs.readFile(agentsPath, 'utf8');
-    if (!agents.includes(MARKER)) {
-      await fs.writeFile(agentsPath, `${agents.trimEnd()}\n\n<!-- ${MARKER} -->\n`, 'utf8');
-    }
-  } catch (error) {
-    if (error.code !== 'ENOENT') throw error;
-  }
-
-  await fs.writeFile(path.join(targetRoot, '.qa-ai', 'obsolete-framework-marker.txt'), 'remove-on-update\n', 'utf8');
 }
 
 async function main() {
@@ -133,22 +28,11 @@ async function main() {
   const targetRoot = path.join(tempRoot, 'target');
 
   try {
-    await fs.mkdir(packDir, { recursive: true });
     await fs.mkdir(npmCache, { recursive: true });
     await fs.mkdir(targetRoot, { recursive: true });
 
-    const packResult = runNpm(['pack', '--pack-destination', packDir, '--json'], {
-      cwd: repoRoot,
-      env: { npm_config_cache: npmCache }
-    });
-    const packInfo = parsePackOutput(packResult.stdout);
-    const tarball = path.join(packDir, packInfo.filename);
-    await assertExists(tarball, 'packed tarball');
-
-    runNpm(['install', '--prefix', targetRoot, '--ignore-scripts', '--package-lock=false', '--no-save', tarball], {
-      cwd: repoRoot,
-      env: { npm_config_cache: npmCache }
-    });
+    const { tarball } = await resolvePackTarball({ packDir, npmCache });
+    installPackTarball(targetRoot, tarball, { npmCache });
 
     runCli(targetRoot, ['init', '--preset', 'manual-only', '--adapters', 'generic', '--skip-doctor']);
     await overlayOldestSupportedFixture(targetRoot);

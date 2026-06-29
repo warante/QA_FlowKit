@@ -3,55 +3,19 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { spawnSync } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
+import {
+  cliPath,
+  installPackTarball,
+  jsonOutput,
+  node,
+  repoRoot,
+  resolvePackTarball,
+  run,
+  runNpm
+} from './lib/ci-helpers.mjs';
 
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const exampleRoot = path.join(repoRoot, 'examples', 'playwright-full');
-const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
-const npmExecPath = process.env.npm_execpath || '';
-const node = process.execPath;
 const runRuntime = process.argv.includes('--runtime');
-
-function run(command, args, { cwd, env = {} } = {}) {
-  const result = spawnSync(command, args, {
-    cwd,
-    encoding: 'utf8',
-    shell: false,
-    env: {
-      ...process.env,
-      npm_config_audit: 'false',
-      npm_config_fund: 'false',
-      npm_config_update_notifier: 'false',
-      ...env
-    }
-  });
-  if (result.status !== 0) {
-    throw new Error(
-      [`Command failed: ${command} ${args.join(' ')}`, result.error?.message, result.stdout, result.stderr]
-        .filter(Boolean)
-        .join('\n')
-    );
-  }
-  return result;
-}
-
-function runNpm(args, options) {
-  if (npmExecPath) return run(node, [npmExecPath, ...args], options);
-  return run(npmCommand, args, options);
-}
-
-function cliPath(targetRoot) {
-  return path.join(targetRoot, 'node_modules', 'qa-flowkit', 'bin', 'qa-flowkit.mjs');
-}
-
-function jsonOutput(result, label) {
-  try {
-    return JSON.parse(result.stdout);
-  } catch {
-    throw new Error(`${label} did not return JSON:\n${result.stdout}\n${result.stderr}`);
-  }
-}
 
 function verifyResumableStandardRun(cli, targetRoot) {
   const started = jsonOutput(
@@ -106,21 +70,12 @@ async function main() {
   const cliRoot = path.join(tempRoot, 'cli');
 
   try {
-    await fs.mkdir(packDir, { recursive: true });
     await fs.mkdir(npmCache, { recursive: true });
     await fs.cp(exampleRoot, targetRoot, { recursive: true });
 
-    const pack = runNpm(['pack', '--pack-destination', packDir, '--json'], {
-      cwd: repoRoot,
-      env: { npm_config_cache: npmCache }
-    });
-    const packInfo = JSON.parse(pack.stdout)[0];
-    const tarball = path.join(packDir, packInfo.filename);
-
-    runNpm(['install', '--prefix', cliRoot, '--ignore-scripts', '--package-lock=false', '--no-save', tarball], {
-      cwd: repoRoot,
-      env: { npm_config_cache: npmCache }
-    });
+    const { tarball } = await resolvePackTarball({ packDir, npmCache });
+    await fs.mkdir(cliRoot, { recursive: true });
+    installPackTarball(cliRoot, tarball, { npmCache });
 
     const cli = cliPath(cliRoot);
     run(node, [cli, 'init', '--preset', 'playwright-full', '--no-adapters', '--skip-doctor'], { cwd: targetRoot });

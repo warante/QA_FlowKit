@@ -3,9 +3,11 @@ import fs from 'node:fs/promises';
 import { isKarateUiFeaturePath, karateFeatureRoots, usesKarate } from './lib/automation-framework.mjs';
 import { karateDuplicateIdErrors, validateKarateFeatureContent } from './lib/karate-validate.mjs';
 import { listFilesRecursive, loadQaAiConfig, logHeader, parseArgs, relativeTo, resolveRepoPath } from './lib/utils.mjs';
+import { emitJson, isJsonMode } from './lib/validator-cli.mjs';
 
 const cwd = process.cwd();
 const args = parseArgs(process.argv);
+const jsonMode = isJsonMode(args);
 
 function printHelp() {
   console.log(`Usage: node .qa-ai/scripts/validate-karate-features.mjs [options]
@@ -22,14 +24,6 @@ Options:
   --json           Print machine-readable JSON only
   --help           Show this help
 `);
-}
-
-const jsonMode = Boolean(args.json);
-
-function emitJson(ok, errors = [], warnings = []) {
-  console.log(
-    JSON.stringify({ ok, errors, warnings, findings: errors.map((message) => ({ severity: 'error', message })) })
-  );
 }
 
 async function main() {

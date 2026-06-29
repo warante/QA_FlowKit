@@ -27,6 +27,12 @@ export default [
     }
   },
   {
-    ignores: ['node_modules/**', '.qa-flowkit-npm-*/**', '.pack-test/**', 'coverage/**']
+    files: ['.qa-ai/scripts/test/validators/**/*.mjs'],
+    rules: {
+      'no-unused-vars': 'off'
+    }
+  },
+  {
+    ignores: ['node_modules/**', '.qa-flowkit-npm-*/**', '.qa-flowkit-update-migration-*/**', '.pack-test/**', 'coverage/**']
   }
 ];

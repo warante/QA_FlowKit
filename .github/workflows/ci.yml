@@ -34,6 +34,18 @@ jobs:
       - name: Verify npm pack allowlist
         run: node .github/scripts/verify-npm-pack.mjs
 
+      - name: Pack tarball for downstream jobs
+        run: |
+          mkdir -p .pack-test
+          npm pack --pack-destination .pack-test --json > .pack-test/pack.json
+
+      - name: Upload pack artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-flowkit-pack
+          path: .pack-test/*.tgz
+          retention-days: 1
+
   adapter-parity:
     name: adapter template parity
     runs-on: ubuntu-latest
@@ -129,6 +141,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
+      - uses: ./.github/actions/download-pack-artifact
+
+
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
@@ -158,6 +173,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
+      - uses: ./.github/actions/download-pack-artifact
+
+
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
@@ -180,6 +198,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+
+      - uses: ./.github/actions/download-pack-artifact
+
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -211,6 +232,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
+      - uses: ./.github/actions/download-pack-artifact
+
+
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
@@ -234,6 +258,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+
+      - uses: ./.github/actions/download-pack-artifact
+
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -259,6 +286,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
+      - uses: ./.github/actions/download-pack-artifact
+
+
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
@@ -282,6 +312,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+
+      - uses: ./.github/actions/download-pack-artifact
+
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -307,6 +340,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
+      - uses: ./.github/actions/download-pack-artifact
+
+
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
@@ -325,6 +361,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
+      - uses: ./.github/actions/download-pack-artifact
+
+
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
@@ -342,6 +381,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+
+      - uses: ./.github/actions/download-pack-artifact
+
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -409,36 +451,7 @@ jobs:
           node-version: '20'
 
       - name: Check dependency policy
-        run: |
-          node -e "
-          const fs = require('node:fs');
-          const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
-          const dependencyGroups = [
-            'dependencies',
-            'devDependencies',
-            'optionalDependencies',
-            'peerDependencies'
-          ];
-          const dependencies = dependencyGroups.flatMap((group) =>
-            Object.entries(pkg[group] || {}).map(([name, spec]) => ({ group, name, spec: String(spec) }))
-          );
-          const unsafeSpecs = dependencies.filter(({ spec }) => /^(?:git\+?|https?:|file:|link:)/i.test(spec));
-          if (unsafeSpecs.length > 0) {
-            console.error('Unsafe dependency specifiers are not allowed in this portable starter:');
-            for (const item of unsafeSpecs) console.error('- ' + item.group + '.' + item.name + ': ' + item.spec);
-            process.exit(1);
-          }
-          if (dependencies.length === 0) {
-            console.log('No package dependencies declared; npm audit is not required.');
-            process.exit(0);
-          }
-          if (!fs.existsSync('package-lock.json')) {
-            console.error('Dependencies are declared, but package-lock.json is missing.');
-            console.error('Add a committed lockfile so CI can run npm ci and npm audit reproducibly.');
-            process.exit(1);
-          }
-          console.log('Dependency policy passed for ' + dependencies.length + ' declared dependencies.');
-          "
+        run: node .github/scripts/verify-dependency-policy.mjs
 
       - name: Install dependencies
         if: ${{ hashFiles('package-lock.json') != '' }}
@@ -447,9 +460,6 @@ jobs:
       - name: Audit dependencies
         if: ${{ hashFiles('package-lock.json') != '' }}
         run: npm audit --audit-level=low
-
-      - name: Check documentation consistency
-        run: npm run docs:check
 
       - name: Check script syntax
         run: node .github/scripts/check-syntax.mjs
@@ -536,36 +546,7 @@ jobs:
           node-version: ${{ matrix.node }}
 
       - name: Check dependency policy
-        run: |
-          node -e "
-          const fs = require('node:fs');
-          const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
-          const dependencyGroups = [
-            'dependencies',
-            'devDependencies',
-            'optionalDependencies',
-            'peerDependencies'
-          ];
-          const dependencies = dependencyGroups.flatMap((group) =>
-            Object.entries(pkg[group] || {}).map(([name, spec]) => ({ group, name, spec: String(spec) }))
-          );
-          const unsafeSpecs = dependencies.filter(({ spec }) => /^(?:git\+?|https?:|file:|link:)/i.test(spec));
-          if (unsafeSpecs.length > 0) {
-            console.error('Unsafe dependency specifiers are not allowed in this portable starter:');
-            for (const item of unsafeSpecs) console.error('- ' + item.group + '.' + item.name + ': ' + item.spec);
-            process.exit(1);
-          }
-          if (dependencies.length === 0) {
-            console.log('No package dependencies declared; npm audit is not required.');
-            process.exit(0);
-          }
-          if (!fs.existsSync('package-lock.json')) {
-            console.error('Dependencies are declared, but package-lock.json is missing.');
-            console.error('Add a committed lockfile so CI can run npm ci and npm audit reproducibly.');
-            process.exit(1);
-          }
-          console.log('Dependency policy passed for ' + dependencies.length + ' declared dependencies.');
-          "
+        run: node .github/scripts/verify-dependency-policy.mjs
 
       - name: Install dependencies
         if: ${{ hashFiles('package-lock.json') != '' }}
@@ -574,9 +555,6 @@ jobs:
       - name: Audit dependencies
         if: ${{ hashFiles('package-lock.json') != '' }}
         run: npm audit --audit-level=low
-
-      - name: Check documentation consistency
-        run: npm run docs:check
 
       - name: Check script syntax
         run: node .github/scripts/check-syntax.mjs

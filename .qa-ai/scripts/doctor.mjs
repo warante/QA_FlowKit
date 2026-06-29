@@ -20,6 +20,7 @@ import {
   logHeader
 } from './lib/utils.mjs';
 import { collectLegacyConfigSignals, LEGACY_CONFIG_MIGRATION_DOC } from './lib/config-legacy.mjs';
+import { getTestManagementMappingFile } from './lib/test-management-config.mjs';
 
 const cwd = process.cwd();
 const args = parseArgs(process.argv);
@@ -367,7 +368,7 @@ function addWorkflowArtifactChecks(checks, config) {
 function addConfiguredChecks(checks, config) {
   const featurePath = getConfigValue(config, 'gherkin.featurePath', 'features');
   const matrixPath = getConfigValue(config, 'traceability.matrixPath', 'qa-ai-output/traceability-matrix.md');
-  const mappingFile = getConfigValue(config, 'testrail.mappingFile', '');
+  const mappingFile = getTestManagementMappingFile(config);
   const uiFramework = String(getConfigValue(config, 'automation.ui.framework', 'none')).toLowerCase();
   const uiSpecsPath = getConfigValue(config, 'automation.ui.specsPath', '');
   const uiPageObjectsPath = getConfigValue(config, 'automation.ui.pageObjectsPath', '');
