@@ -130,12 +130,23 @@ export function parseJsonStdout(result, label) {
 
 export const jsonOutput = parseJsonStdout;
 
+/** Git Bash on Windows runners emits /d/a/... paths that Node fs APIs cannot open. */
+export function normalizeEnvPath(filePath) {
+  if (!filePath || process.platform !== 'win32') return filePath;
+  const normalized = filePath.replace(/\\/g, '/');
+  const msys = normalized.match(/^\/([a-zA-Z])\/(.*)$/);
+  if (msys) {
+    return `${msys[1].toUpperCase()}:\\${msys[2].replace(/\//g, '\\')}`;
+  }
+  return filePath;
+}
+
 /**
  * Resolve a packed tarball path: reuse CI artifact/env when set, otherwise run npm pack.
  * @returns {Promise<{ tarball: string, packDir: string, fromArtifact: boolean, packInfo?: object }>}
  */
 export async function resolvePackTarball({ cwd = repoRoot, packDir, npmCache = process.env.npm_config_cache } = {}) {
-  const artifactPath = process.env.QA_FLOWKIT_PACK_TARBALL;
+  const artifactPath = normalizeEnvPath(process.env.QA_FLOWKIT_PACK_TARBALL);
   if (artifactPath) {
     await assertExists(artifactPath, 'QA_FLOWKIT_PACK_TARBALL');
     return { tarball: artifactPath, packDir: path.dirname(artifactPath), fromArtifact: true };

@@ -10,14 +10,12 @@ runs:
         path: pack-artifact
 
     - name: Set QA_FLOWKIT_PACK_TARBALL
-      shell: bash
+      shell: pwsh
       run: |
-        shopt -s nullglob
-        files=(pack-artifact/*.tgz)
-        if [ ${#files[@]} -eq 0 ]; then
-          echo "No .tgz found in pack-artifact" >&2
-          ls -la pack-artifact/ || true
+        $tgz = Get-ChildItem -Path pack-artifact -Filter *.tgz -File | Select-Object -First 1
+        if (-not $tgz) {
+          Write-Error "No .tgz found in pack-artifact"
+          Get-ChildItem pack-artifact -ErrorAction SilentlyContinue
           exit 1
-        fi
-        tarball="$(cd "$(dirname "${files[0]}")" && pwd)/$(basename "${files[0]}")"
-        echo "QA_FLOWKIT_PACK_TARBALL=${tarball}" >> "$GITHUB_ENV"
+        }
+        Add-Content -Path $env:GITHUB_ENV -Value "QA_FLOWKIT_PACK_TARBALL=$($tgz.FullName)"
