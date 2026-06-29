@@ -38,12 +38,18 @@ jobs:
         run: |
           mkdir -p .pack-test
           npm pack --pack-destination .pack-test --json > .pack-test/pack.json
+          ls -la .pack-test/
+          test -n "$(find .pack-test -maxdepth 1 -name '*.tgz' -print -quit)" || {
+            echo "No .tgz tarball found in .pack-test after npm pack"
+            exit 1
+          }
 
       - name: Upload pack artifact
         uses: actions/upload-artifact@v4
         with:
           name: qa-flowkit-pack
-          path: .pack-test/*.tgz
+          path: .pack-test/
+          if-no-files-found: error
           retention-days: 1
 
   adapter-parity:
