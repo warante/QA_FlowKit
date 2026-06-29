@@ -15,7 +15,7 @@ pnpm-debug.log*
 .npm-cache/
 .qa-flowkit-npm-*/
 .qa-flowkit-update-migration-*/
-.pack-test/
+pack-artifact/
 
 # OS
 .DS_Store

@@ -7,17 +7,17 @@ runs:
       uses: actions/download-artifact@v4
       with:
         name: qa-flowkit-pack
-        path: .pack-test
+        path: pack-artifact
 
     - name: Set QA_FLOWKIT_PACK_TARBALL
       shell: node
       run: |
         const fs = require('node:fs');
         const path = require('node:path');
-        const files = fs.readdirSync('.pack-test').filter((name) => name.endsWith('.tgz'));
+        const files = fs.readdirSync('pack-artifact').filter((name) => name.endsWith('.tgz'));
         if (files.length === 0) {
-          console.error('No .tgz found in .pack-test');
+          console.error('No .tgz found in pack-artifact');
           process.exit(1);
         }
-        const tarball = path.resolve('.pack-test', files[0]);
+        const tarball = path.resolve('pack-artifact', files[0]);
         fs.appendFileSync(process.env.GITHUB_ENV, `QA_FLOWKIT_PACK_TARBALL=${tarball}${process.platform === 'win32' ? '\r\n' : '\n'}`);
