@@ -184,10 +184,7 @@ export function validateKarateFeatureContent(content, filePath, options = {}) {
 }
 
 export function karateDuplicateIdErrors(results) {
-  return duplicateCaseIdErrors(
-    results,
-    (id, files) => `Duplicate @id ${id} in Karate features: ${files.join(', ')}`
-  );
+  return duplicateCaseIdErrors(results, (id, files) => `Duplicate @id ${id} in Karate features: ${files.join(', ')}`);
 }
 
 export function isQaDesignFeatureContent(content) {

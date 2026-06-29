@@ -8,7 +8,6 @@ import { test } from 'node:test';
 import { collectLegacyConfigSignals } from '../../.qa-ai/scripts/lib/config-legacy.mjs';
 import { buildUpdatePlan, formatUpdatePlan, OLDEST_SUPPORTED_BETA } from '../../.qa-ai/scripts/lib/update-plan.mjs';
 
-
 test('collectLegacyConfigSignals detects legacy requirement keys', () => {
   const keys = collectLegacyConfigSignals({
     requirements: {

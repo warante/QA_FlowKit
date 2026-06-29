@@ -3,7 +3,6 @@ import fs from 'node:fs/promises';
 import { isMain, repoRoot } from './lib/ci-helpers.mjs';
 import path from 'node:path';
 
-
 const ALLOWED_DECISIONS = new Set(['PASS', 'PASS_WITH_ACTIONS', 'FAIL']);
 const ALLOWED_EPIC_STATUS = new Set(['done', 'blocked', 'deferred', 'in_validation', 'planned', 'in_progress']);
 const ALLOWED_E2E_STATUS = new Set(['automated', 'partial', 'planned', 'manual']);

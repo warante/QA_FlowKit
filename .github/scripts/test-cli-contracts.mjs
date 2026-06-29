@@ -9,7 +9,6 @@ import { collectLegacyConfigSignals } from '../../.qa-ai/scripts/lib/config-lega
 import { parseSimpleYaml } from '../../.qa-ai/scripts/lib/utils.mjs';
 import { verifyCliContracts } from './verify-cli-contracts.mjs';
 
-
 test('parsePureJsonStdout rejects human-readable prefixes', () => {
   assert.throws(() => parsePureJsonStdout('QA FlowKit config validator\n{"ok":true}', 'test'), /not pure JSON/);
   assert.deepEqual(parsePureJsonStdout('{"ok":true}\n', 'test'), { ok: true });

@@ -15,8 +15,7 @@ async function main() {
     tempPrefix: 'qa-flowkit-karate-example-',
     exampleRoot,
     structuralMessage: 'Karate public example passed packed install and strict structural validation.',
-    runtimeMessage:
-      'Karate public example passed packed install, strict validation and runtime execution.',
+    runtimeMessage: 'Karate public example passed packed install, strict validation and runtime execution.',
     validate: async ({ cli, targetRoot, tempRoot }) => {
       runPackedInit(cli, targetRoot, 'karate-full');
       runPackedValidateTarget(cli, targetRoot);

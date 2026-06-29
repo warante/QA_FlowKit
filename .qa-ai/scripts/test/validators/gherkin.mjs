@@ -4,7 +4,20 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { duplicateIdErrors, idsFromText, languageRules, parseFeature, validateFeatureContent, parseFeatureTags, resolveFeatureSubfolder, validateFeatureFilePlacement, parseGherkin, karateDuplicateIdErrors, validateKarateFeatureContent, validateMaestroFlowContent } from './_fixtures.mjs';
+import {
+  duplicateIdErrors,
+  idsFromText,
+  languageRules,
+  parseFeature,
+  validateFeatureContent,
+  parseFeatureTags,
+  resolveFeatureSubfolder,
+  validateFeatureFilePlacement,
+  parseGherkin,
+  karateDuplicateIdErrors,
+  validateKarateFeatureContent,
+  validateMaestroFlowContent
+} from './_fixtures.mjs';
 import { assertIncludes, repoRoot, runValidatorScript, withTempWorkspace } from './_shared.mjs';
 
 // --- gherkin-validate ---

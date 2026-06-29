@@ -23,13 +23,7 @@ import { modificationApprovalGateId } from '../../lib/harness-modification.mjs';
 import { assertConfigPathsSafe } from '../../lib/harness-validation.mjs';
 import { writeRunSnapshot } from '../../lib/harness-run-store.mjs';
 import { parseSimpleYaml } from '../../lib/utils.mjs';
-import {
-  advanceToPhase,
-  node,
-  prepareRepo,
-  runCli,
-  writeValidGherkinFeature
-} from './_shared.mjs';
+import { advanceToPhase, node, prepareRepo, runCli, writeValidGherkinFeature } from './_shared.mjs';
 
 test('run start, next idempotency and resume', async () => {
   const cwd = await prepareRepo('quick');

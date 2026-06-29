@@ -80,7 +80,9 @@ test('validate-sync-plan: --json fails when a feature identifier is missing from
 
 test('validate-active-specialists: --json --allow-missing succeeds without config', async () => {
   await withTempWorkspace('qa-active-spec-', async (tmp) => {
-    const res = asSpawnResult(runValidatorScript('validate-active-specialists.mjs', tmp, ['--json', '--allow-missing']));
+    const res = asSpawnResult(
+      runValidatorScript('validate-active-specialists.mjs', tmp, ['--json', '--allow-missing'])
+    );
     assert.equal(res.status, 0, `Script failed: ${res.stdout}\n${res.stderr}`);
     assert.equal(JSON.parse(res.stdout).ok, true);
   });

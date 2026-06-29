@@ -4,7 +4,6 @@ import { isMain, repoRoot } from './lib/ci-helpers.mjs';
 import path from 'node:path';
 import { resolveNpmDistTag } from './lib/npm-dist-tag.mjs';
 
-
 const ACTIVE_CONFIG = '.release-please-config.json';
 const RC_CONFIG = '.release-please-config.rc.json';
 const STABLE_CONFIG = '.release-please-config.stable.json';

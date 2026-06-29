@@ -506,11 +506,7 @@ function generatedDocs(config) {
       'sources.external.requirementsImportPath',
       ARTIFACT_PATHS.importedRequirements
     );
-    const casesImportPath = getConfigValue(
-      config,
-      'sources.external.casesImportPath',
-      ARTIFACT_PATHS.importedCases
-    );
+    const casesImportPath = getConfigValue(config, 'sources.external.casesImportPath', ARTIFACT_PATHS.importedCases);
     docs.push(
       ['templates/imported-requirements.template.md', reqImportPath],
       ['templates/imported-cases.template.md', casesImportPath]

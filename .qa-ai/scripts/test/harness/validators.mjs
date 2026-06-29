@@ -10,19 +10,8 @@ import {
   redactDiagnostics,
   runPhaseValidators
 } from '../../lib/harness-validation.mjs';
-import {
-  approveGate,
-  checkPhase,
-  setRfId,
-  startRun
-} from '../../lib/harness-controller.mjs';
-import {
-  advanceToPhase,
-  node,
-  prepareRepo,
-  writeCustomValidator,
-  writeValidGherkinFeature
-} from './_shared.mjs';
+import { approveGate, checkPhase, setRfId, startRun } from '../../lib/harness-controller.mjs';
+import { advanceToPhase, node, prepareRepo, writeCustomValidator, writeValidGherkinFeature } from './_shared.mjs';
 
 test('approval note with secrets is rejected', () => {
   assert.throws(() => assertNoteHasNoSecrets('token: ghp_abcdefghijklmnopqrstuvwxyz1234567890abcd'), /secret/i);

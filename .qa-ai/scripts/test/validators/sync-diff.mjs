@@ -63,15 +63,15 @@ test('validate-sync-diff: accepts valid diff and snapshot', async () => {
     await fs.writeFile(mappingFile, `{"TC-002": {"externalId": "12345"}}`, 'utf8');
 
     const res = runScript('validate-sync-diff.mjs', tmp, [
-        '--diff-path',
-        'diff.md',
-        '--snapshot-path',
-        'snapshot.md',
-        '--plan-path',
-        'plan.md',
-        '--mapping-path',
-        'mapping.json'
-      ]);
+      '--diff-path',
+      'diff.md',
+      '--snapshot-path',
+      'snapshot.md',
+      '--plan-path',
+      'plan.md',
+      '--mapping-path',
+      'mapping.json'
+    ]);
 
     assert.equal(res.status, 0, `Script failed: ${res.stdout}\n${res.stderr}`);
   } finally {
@@ -129,16 +129,16 @@ test('validate-sync-diff: rejects invalid actions and IDs', async () => {
     );
 
     const res = runScript('validate-sync-diff.mjs', tmp, [
-        '--diff-path',
-        'diff.md',
-        '--snapshot-path',
-        'snapshot.md',
-        '--plan-path',
-        'plan.md',
-        '--mapping-path',
-        'mapping.json',
-        '--json'
-      ]);
+      '--diff-path',
+      'diff.md',
+      '--snapshot-path',
+      'snapshot.md',
+      '--plan-path',
+      'plan.md',
+      '--mapping-path',
+      'mapping.json',
+      '--json'
+    ]);
 
     assert.equal(res.status, 1);
     const parsed = JSON.parse(res.stdout);
@@ -202,16 +202,16 @@ test('validate-sync-diff: rejects required-column and idempotency violations', a
     await fs.writeFile(mappingFile, `{}`, 'utf8');
 
     const res = runScript('validate-sync-diff.mjs', tmp, [
-        '--diff-path',
-        'diff.md',
-        '--snapshot-path',
-        'snapshot.md',
-        '--plan-path',
-        'plan.md',
-        '--mapping-path',
-        'mapping.json',
-        '--json'
-      ]);
+      '--diff-path',
+      'diff.md',
+      '--snapshot-path',
+      'snapshot.md',
+      '--plan-path',
+      'plan.md',
+      '--mapping-path',
+      'mapping.json',
+      '--json'
+    ]);
 
     assert.equal(res.status, 1);
     const parsed = JSON.parse(res.stdout);
@@ -279,16 +279,16 @@ test('validate-sync-diff: rejects stale snapshots after sync plan approval', asy
     await fs.writeFile(mappingFile, `{"TC-001": {"externalId": "12345"}}`, 'utf8');
 
     const res = runScript('validate-sync-diff.mjs', tmp, [
-        '--diff-path',
-        'diff.md',
-        '--snapshot-path',
-        'snapshot.md',
-        '--plan-path',
-        'plan.md',
-        '--mapping-path',
-        'mapping.json',
-        '--json'
-      ]);
+      '--diff-path',
+      'diff.md',
+      '--snapshot-path',
+      'snapshot.md',
+      '--plan-path',
+      'plan.md',
+      '--mapping-path',
+      'mapping.json',
+      '--json'
+    ]);
 
     assert.equal(res.status, 1);
     const parsed = JSON.parse(res.stdout);
@@ -383,19 +383,19 @@ test('validate-sync-result: accepts valid diff and results', async () => {
     );
 
     const res = runScript('validate-sync-result.mjs', tmp, [
-        '--diff-path',
-        'diff.md',
-        '--apply-log-path',
-        'apply-log.md',
-        '--pre-snapshot-path',
-        'snapshot.pre.md',
-        '--post-snapshot-path',
-        'snapshot.post.md',
-        '--rollback-path',
-        'rollback.md',
-        '--mapping-path',
-        'mapping.json'
-      ]);
+      '--diff-path',
+      'diff.md',
+      '--apply-log-path',
+      'apply-log.md',
+      '--pre-snapshot-path',
+      'snapshot.pre.md',
+      '--post-snapshot-path',
+      'snapshot.post.md',
+      '--rollback-path',
+      'rollback.md',
+      '--mapping-path',
+      'mapping.json'
+    ]);
 
     assert.equal(res.status, 0, `Script failed: ${res.stdout}\n${res.stderr}`);
   } finally {
@@ -491,20 +491,20 @@ test('validate-sync-result: rejects invalid result states', async () => {
     );
 
     const res = runScript('validate-sync-result.mjs', tmp, [
-        '--diff-path',
-        'diff.md',
-        '--apply-log-path',
-        'apply-log.md',
-        '--pre-snapshot-path',
-        'snapshot.pre.md',
-        '--post-snapshot-path',
-        'snapshot.post.md',
-        '--rollback-path',
-        'rollback.md',
-        '--mapping-path',
-        'mapping.json',
-        '--json'
-      ]);
+      '--diff-path',
+      'diff.md',
+      '--apply-log-path',
+      'apply-log.md',
+      '--pre-snapshot-path',
+      'snapshot.pre.md',
+      '--post-snapshot-path',
+      'snapshot.post.md',
+      '--rollback-path',
+      'rollback.md',
+      '--mapping-path',
+      'mapping.json',
+      '--json'
+    ]);
 
     assert.equal(res.status, 1);
     const parsed = JSON.parse(res.stdout);

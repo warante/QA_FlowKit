@@ -4,10 +4,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import {
-  validateWorkflowContract,
-  validateWorkflowContractData
-} from '../../lib/harness-contract.mjs';
+import { validateWorkflowContract, validateWorkflowContractData } from '../../lib/harness-contract.mjs';
 import { BLOCKER_TYPES, renderBlocker } from '../../lib/harness-messages.mjs';
 import { sourceRoot } from './_shared.mjs';
 

@@ -5,7 +5,6 @@ import path from 'node:path';
 import { execSync } from 'node:child_process';
 import { REQUIRED_MIN_RELEASE_AGE_DAYS, verifyNpmReleaseAgePolicy } from './lib/npm-release-age-policy.mjs';
 
-
 function readNpmVersion() {
   try {
     return execSync('npm --version', { encoding: 'utf8' }).trim();

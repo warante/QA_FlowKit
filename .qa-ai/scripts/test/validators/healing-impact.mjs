@@ -4,7 +4,16 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { validateTestDesignProposal, validateFeatureContent, AI_TESTING_TECHNIQUES, featureCoverageRecord, techniqueIsKnown, validateAiCoverage, validateHealingLog, validateTestImpact } from './_fixtures.mjs';
+import {
+  validateTestDesignProposal,
+  validateFeatureContent,
+  AI_TESTING_TECHNIQUES,
+  featureCoverageRecord,
+  techniqueIsKnown,
+  validateAiCoverage,
+  validateHealingLog,
+  validateTestImpact
+} from './_fixtures.mjs';
 import { assertIncludes, repoRoot, runValidatorScript, withTempWorkspace } from './_shared.mjs';
 
 // --- validateHealingLog ---

@@ -4,7 +4,19 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { validateTestManagementMapping, parseJUnitXml, parseCucumberJson, extractTestIds, parseEvalJson, parseGenericEvalJson, parsePromptfooJson, validateExecutionEvidence, resolveGlobs, validateReleaseGateFile, exportReport } from './_fixtures.mjs';
+import {
+  validateTestManagementMapping,
+  parseJUnitXml,
+  parseCucumberJson,
+  extractTestIds,
+  parseEvalJson,
+  parseGenericEvalJson,
+  parsePromptfooJson,
+  validateExecutionEvidence,
+  resolveGlobs,
+  validateReleaseGateFile,
+  exportReport
+} from './_fixtures.mjs';
 import { assertIncludes, repoRoot, runValidatorScript, withTempWorkspace } from './_shared.mjs';
 
 // --- P3-T-004 Execution Results Parser Unit Tests ---

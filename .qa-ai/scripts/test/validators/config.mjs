@@ -4,7 +4,27 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { validateWorkflowContract, normalizeQaTrack, activeSpecialists, activeSpecialistsContent, specialistsForNfrAttributes, loadConfigSchema, validateConfigData, customValidatorsForPhase, runCustomValidator, validateCustomValidatorConfig, NFR_ATTRIBUTES, NFR_EVIDENCE_TYPES, resolveNonFunctionalCoveragePolicy, resolveSourceNfrCoverageMode, legacyInferredAcceptanceCriteria, hashFile, normalizeRequirementsConfig, parseSimpleYaml, validateQualityReport } from './_fixtures.mjs';
+import {
+  validateWorkflowContract,
+  normalizeQaTrack,
+  activeSpecialists,
+  activeSpecialistsContent,
+  specialistsForNfrAttributes,
+  loadConfigSchema,
+  validateConfigData,
+  customValidatorsForPhase,
+  runCustomValidator,
+  validateCustomValidatorConfig,
+  NFR_ATTRIBUTES,
+  NFR_EVIDENCE_TYPES,
+  resolveNonFunctionalCoveragePolicy,
+  resolveSourceNfrCoverageMode,
+  legacyInferredAcceptanceCriteria,
+  hashFile,
+  normalizeRequirementsConfig,
+  parseSimpleYaml,
+  validateQualityReport
+} from './_fixtures.mjs';
 import { assertIncludes, repoRoot, runValidatorScript, withTempWorkspace } from './_shared.mjs';
 import { writeCustomValidatorFixture } from './yaml.mjs';
 

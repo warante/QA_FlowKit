@@ -4,7 +4,13 @@ import { runHookMain } from './hook-main.mjs';
 import { karateFeatureRoots, usesKarate } from '../lib/automation-framework.mjs';
 import { usesMaestro, maestroFlowsPath } from '../lib/mobile-automation.mjs';
 import { runSubprocessScript } from '../lib/subprocess-script.mjs';
-import { ARTIFACT_PATHS, getConfigValue, loadQaAiConfig, resolveRepoPath, resolveTestManagementSyncPlanPath } from '../lib/utils.mjs';
+import {
+  ARTIFACT_PATHS,
+  getConfigValue,
+  loadQaAiConfig,
+  resolveRepoPath,
+  resolveTestManagementSyncPlanPath
+} from '../lib/utils.mjs';
 
 const cwd = process.cwd();
 

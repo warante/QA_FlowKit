@@ -15,7 +15,6 @@ import {
 } from '../../.qa-ai/scripts/lib/contract-schemas.mjs';
 import { verifyCompatibilityFixtures } from './verify-compatibility-fixtures.mjs';
 
-
 test('schema registry lists versioned contract surfaces', async () => {
   const registry = await loadSchemaRegistry(repoRoot);
   assert.equal(registry.schemaVersion, 1);

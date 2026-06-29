@@ -4,7 +4,6 @@ import { repoRoot } from './lib/ci-helpers.mjs';
 import path from 'node:path';
 import { summarizePilotRecord, validatePilotRecord } from './lib/pilot-metrics.mjs';
 
-
 function argument(name, fallback) {
   const index = process.argv.indexOf(name);
   return index >= 0 ? process.argv[index + 1] || fallback : fallback;

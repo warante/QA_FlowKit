@@ -10,7 +10,6 @@ import {
   validateWorkflowContractSchema
 } from '../../.qa-ai/scripts/lib/contract-schemas.mjs';
 
-
 function resolveFixturePath(root, fixture) {
   const localFixturesRoot = path.join(root, 'test', 'fixtures', 'compatibility');
   if (fixture.scope === 'repository') {

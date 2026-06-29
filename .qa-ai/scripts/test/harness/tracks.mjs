@@ -3,23 +3,11 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import {
-  getPhaseSkipReason,
-  getTrackPhaseOrder,
-  loadWorkflowContract
-} from '../../lib/harness-contract.mjs';
-import {
-  checkPhase,
-  getActiveRunSnapshot,
-  getRunStatus,
-  startRun
-} from '../../lib/harness-controller.mjs';
+import { getPhaseSkipReason, getTrackPhaseOrder, loadWorkflowContract } from '../../lib/harness-contract.mjs';
+import { checkPhase, getActiveRunSnapshot, getRunStatus, startRun } from '../../lib/harness-controller.mjs';
 import { writeRunSnapshot } from '../../lib/harness-run-store.mjs';
 import { parseSimpleYaml } from '../../lib/utils.mjs';
-import {
-  prepareRepo,
-  writeValidQualityReport
-} from './_shared.mjs';
+import { prepareRepo, writeValidQualityReport } from './_shared.mjs';
 
 test('quick track skips test-management and automation phases', async () => {
   const cwd = await prepareRepo('quick');

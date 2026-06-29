@@ -7,15 +7,7 @@ const DEFAULT_MAX_BUFFER = 1024 * 1024;
  * scriptPath may be absolute or relative to cwd.
  */
 export function runSubprocessScript(scriptPath, args = [], options = {}) {
-  const {
-    cwd,
-    encoding = 'utf8',
-    shell = false,
-    env,
-    maxBuffer = DEFAULT_MAX_BUFFER,
-    timeout,
-    stdio
-  } = options;
+  const { cwd, encoding = 'utf8', shell = false, env, maxBuffer = DEFAULT_MAX_BUFFER, timeout, stdio } = options;
 
   const spawnOptions = {
     cwd,

@@ -4,7 +4,28 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { specialistsForNfrAttributes, validateTestDesignProposal, validateTestDesignSystem, featureCoverageRecord, normalizeCoverageMode, validateCoverage, NFR_ATTRIBUTES, NFR_EVIDENCE_TYPES, parseNormalizedSourceNfrs, parseProposalNfrCoverage, resolveNonFunctionalCoveragePolicy, validateSourceNfrCoverage, validateNfrTraceability, validateTraceabilityArtifacts, featureTraceabilityIds, parseNormalizedCriteria, validateProposalContract, validateSemanticCoverage, scanText, listFilesRecursive } from './_fixtures.mjs';
+import {
+  specialistsForNfrAttributes,
+  validateTestDesignProposal,
+  validateTestDesignSystem,
+  featureCoverageRecord,
+  normalizeCoverageMode,
+  validateCoverage,
+  NFR_ATTRIBUTES,
+  NFR_EVIDENCE_TYPES,
+  parseNormalizedSourceNfrs,
+  parseProposalNfrCoverage,
+  resolveNonFunctionalCoveragePolicy,
+  validateSourceNfrCoverage,
+  validateNfrTraceability,
+  validateTraceabilityArtifacts,
+  featureTraceabilityIds,
+  parseNormalizedCriteria,
+  validateProposalContract,
+  validateSemanticCoverage,
+  scanText,
+  listFilesRecursive
+} from './_fixtures.mjs';
 import { assertIncludes, repoRoot, runValidatorScript, withTempWorkspace } from './_shared.mjs';
 
 // --- injection-patterns ---

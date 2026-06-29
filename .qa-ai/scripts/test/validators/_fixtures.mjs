@@ -64,4 +64,3 @@ export { validateReleaseGateFile } from '../../validate-release-gate.mjs';
 export { validateHealingLog } from '../../validate-healing-log.mjs';
 export { validateTestImpact } from '../../validate-test-impact.mjs';
 export { exportReport } from '../../export-report.mjs';
-

@@ -3,10 +3,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import {
-  getTrackPhaseOrder,
-  loadWorkflowContract
-} from '../../lib/harness-contract.mjs';
+import { getTrackPhaseOrder, loadWorkflowContract } from '../../lib/harness-contract.mjs';
 import {
   approveGate,
   checkPhase,
@@ -17,10 +14,7 @@ import {
   startRun
 } from '../../lib/harness-controller.mjs';
 import { writeRunSnapshot } from '../../lib/harness-run-store.mjs';
-import {
-  prepareRepo,
-  writeValidGherkinFeature
-} from './_shared.mjs';
+import { prepareRepo, writeValidGherkinFeature } from './_shared.mjs';
 
 test('governed sync plan approval and invalidation on modification', async () => {
   const cwd = await prepareRepo('enterprise', {

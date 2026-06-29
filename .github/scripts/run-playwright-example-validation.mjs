@@ -1,11 +1,6 @@
 #!/usr/bin/env node
 import assert from 'node:assert/strict';
-import {
-  jsonOutput,
-  node,
-  run,
-  runNpm
-} from './lib/ci-helpers.mjs';
+import { jsonOutput, node, run, runNpm } from './lib/ci-helpers.mjs';
 import {
   exampleRootFromRepo,
   runPackedExampleValidation,
@@ -66,8 +61,7 @@ async function main() {
     tempPrefix: 'qa-flowkit-playwright-example-',
     exampleRoot,
     cliInstall: 'separate',
-    structuralMessage:
-      'Playwright public example passed packed install, resumable standard run and strict validation.',
+    structuralMessage: 'Playwright public example passed packed install, resumable standard run and strict validation.',
     runtimeMessage:
       'Playwright public example passed packed install, resumable standard run, strict validation and UI/API execution.',
     validate: async ({ cli, targetRoot, npmCache }) => {
