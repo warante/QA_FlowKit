@@ -1,9 +1,8 @@
 #!/usr/bin/env node
 import fs from 'node:fs/promises';
+import { repoRoot } from './lib/ci-helpers.mjs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const manifestPath = path.join(repoRoot, 'docs', 'qa-ai', 'required-checks.v1.json');
 const packagePath = path.join(repoRoot, 'package.json');
 const ciDocsPath = path.join(repoRoot, 'docs', 'qa-ai', 'ci-observability.md');

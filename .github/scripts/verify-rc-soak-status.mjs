@@ -1,9 +1,8 @@
 #!/usr/bin/env node
 import fs from 'node:fs/promises';
+import { isMain, repoRoot } from './lib/ci-helpers.mjs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const ALLOWED_STATUS = new Set(['planned', 'in_progress', 'completed']);
 const ALLOWED_STEP_STATUS = new Set(['pending', 'passed', 'failed']);
 
@@ -112,7 +111,7 @@ async function main() {
   console.log(`RC soak status verification passed (status=${result.status}).`);
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (isMain(import.meta.url)) {
   main().catch((error) => {
     console.error(error);
     process.exit(1);

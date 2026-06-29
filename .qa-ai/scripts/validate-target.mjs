@@ -1,23 +1,21 @@
 #!/usr/bin/env node
-import fs from 'node:fs/promises';
 import { spawnSync } from 'node:child_process';
-import { karateSecretScanRoots, usesKarate } from './lib/automation-framework.mjs';
+import { usesKarate } from './lib/automation-framework.mjs';
 import { usesMaestro } from './lib/mobile-automation.mjs';
 import { normalizeQaTrack } from './lib/qa-next-steps.mjs';
-import { scanPathsForSecrets } from './lib/secret-patterns.mjs';
+import { formatSecretScanFindingsForJson, scanTargetSecrets } from './lib/target-secret-scan.mjs';
 import {
   customValidatorsFromConfig,
   runCustomValidator,
   validateCustomValidatorConfig
 } from './lib/custom-validators.mjs';
 import {
+  ARTIFACT_PATHS,
   getConfigValue,
-  listFilesRecursive,
   loadQaAiConfig,
   logHeader,
   parseArgs,
   pathExists,
-  relativeTo,
   resolveRepoPath
 } from './lib/utils.mjs';
 import { validatorScriptPath } from './lib/validator-registry.mjs';
@@ -183,13 +181,13 @@ async function main() {
   const syncMode = getConfigValue(configInfo.data, 'testManagementSync.mode', 'proposal-only');
   const externalIntakeEnabled = Boolean(getConfigValue(configInfo.data, 'sources.external.enabled', false));
   const hasHealingLog = await pathExists(
-    resolveRepoPath(process.cwd(), 'qa-ai-output/healing-log.md', {
+    resolveRepoPath(process.cwd(), ARTIFACT_PATHS.healingLog, {
       label: 'healing log check',
       allowRoot: true
     })
   );
   const hasImpactAnalysis = await pathExists(
-    resolveRepoPath(process.cwd(), 'qa-ai-output/test-impact-analysis.md', {
+    resolveRepoPath(process.cwd(), ARTIFACT_PATHS.testImpactAnalysis, {
       label: 'test impact analysis check',
       allowRoot: true
     })
@@ -349,45 +347,14 @@ async function main() {
     }
 
     if (scanSecrets) {
-      const dirs = [
-        'qa-ai-output',
-        getConfigValue(configInfo.data, 'gherkin.featurePath', 'features'),
-        getConfigValue(configInfo.data, 'automation.mobile.flowsPath', ''),
-        ...(usesKarate(configInfo.data) ? karateSecretScanRoots(configInfo.data) : [])
-      ].filter(Boolean);
-      const files = [];
-      for (const dir of dirs) {
-        try {
-          const dirPath = resolveRepoPath(process.cwd(), dir, { label: dir });
-          if (await pathExists(dirPath)) {
-            const listed = await listFilesRecursive(dirPath, (filePath) => {
-              const lower = filePath.toLowerCase();
-              return !lower.endsWith('.png') && !lower.endsWith('.jpg');
-            });
-            files.push(...listed);
-          }
-        } catch {
-          // optional paths
-        }
-      }
-      const findings = await scanPathsForSecrets(fs.readFile, files, process.cwd(), relativeTo);
-      let secretScanPassed = true;
-      let secretScanFindings = [];
-      if (findings.length > 0) {
-        secretScanPassed = false;
-        allOk = false;
-        secretScanFindings = findings.map((f) => ({
-          file: f.label || '',
-          line: f.line,
-          message: `Potential secret (${f.pattern}): ${f.excerpt}`,
-          severity: 'error'
-        }));
-      }
+      const findings = await scanTargetSecrets(process.cwd(), configInfo.data);
+      const secretScanPassed = findings.length === 0;
+      if (!secretScanPassed) allOk = false;
 
       validatorsResult.push({
         name: 'secret scan',
         status: secretScanPassed ? 'passed' : 'failed',
-        findings: secretScanFindings
+        findings: secretScanPassed ? [] : formatSecretScanFindingsForJson(findings)
       });
     }
 
@@ -443,28 +410,7 @@ async function main() {
 
     if (scanSecrets) {
       console.log('\n--- secret scan ---');
-      const dirs = [
-        'qa-ai-output',
-        getConfigValue(configInfo.data, 'gherkin.featurePath', 'features'),
-        getConfigValue(configInfo.data, 'automation.mobile.flowsPath', ''),
-        ...(usesKarate(configInfo.data) ? karateSecretScanRoots(configInfo.data) : [])
-      ].filter(Boolean);
-      const files = [];
-      for (const dir of dirs) {
-        try {
-          const dirPath = resolveRepoPath(process.cwd(), dir, { label: dir });
-          if (await pathExists(dirPath)) {
-            const listed = await listFilesRecursive(dirPath, (filePath) => {
-              const lower = filePath.toLowerCase();
-              return !lower.endsWith('.png') && !lower.endsWith('.jpg');
-            });
-            files.push(...listed);
-          }
-        } catch {
-          // optional paths
-        }
-      }
-      const findings = await scanPathsForSecrets(fs.readFile, files, process.cwd(), relativeTo);
+      const findings = await scanTargetSecrets(process.cwd(), configInfo.data);
       if (findings.length > 0) {
         for (const finding of findings) {
           console.log(`[FAIL] ${finding.label}:${finding.line} (${finding.pattern}) ${finding.excerpt}`);

@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import {
   ANNOUNCEMENT_REQUIRED_LINKS,
   ANNOUNCEMENT_REQUIRED_SECTIONS,
@@ -13,26 +12,9 @@ import {
   UNSUPPORTED_CLAIM_PATTERNS
 } from './lib/stable-announcement.mjs';
 import { verifyStablePostPublishStatus } from './verify-stable-post-publish-status.mjs';
+import { isMain, assert, pathExists, readJson, repoRoot } from './lib/ci-helpers.mjs';
 
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const ALLOWED_STATUS = new Set(['prepared', 'published']);
-
-function assert(condition, message, errors) {
-  if (!condition) errors.push(message);
-}
-
-async function readJson(filePath) {
-  return JSON.parse(await fs.readFile(filePath, 'utf8'));
-}
-
-async function pathExists(root, relativePath) {
-  try {
-    await fs.access(path.join(root, relativePath));
-    return true;
-  } catch {
-    return false;
-  }
-}
 
 function assertNoUnsupportedClaims(content, label, errors) {
   for (const pattern of UNSUPPORTED_CLAIM_PATTERNS) {
@@ -136,7 +118,7 @@ async function main() {
   console.log(`Stable announcement verification passed (status=${result.status}).`);
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (isMain(import.meta.url)) {
   main().catch((error) => {
     console.error(error);
     process.exit(1);

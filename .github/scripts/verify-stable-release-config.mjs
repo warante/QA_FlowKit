@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import fs from 'node:fs/promises';
+import { isMain, repoRoot } from './lib/ci-helpers.mjs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import {
   ACTIVE_CONFIG,
   STABLE_CONFIG,
@@ -14,7 +14,6 @@ import { resolveNpmDistTag } from './lib/npm-dist-tag.mjs';
 import { verifyReleasePolicy } from './verify-release-policy.mjs';
 import { verifyStableReleaseApproval } from './verify-stable-release-approval.mjs';
 
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const ALLOWED_STATUS = new Set(['prepared', 'merged', 'verified']);
 
 function assert(condition, message, errors) {
@@ -114,7 +113,7 @@ async function main() {
   );
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (isMain(import.meta.url)) {
   main().catch((error) => {
     console.error(error);
     process.exit(1);

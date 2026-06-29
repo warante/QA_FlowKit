@@ -1,21 +1,15 @@
 #!/usr/bin/env node
 import assert from 'node:assert/strict';
-import fs from 'node:fs/promises';
-import os from 'node:os';
-import path from 'node:path';
+import { jsonOutput, node, run, runNpm } from './lib/ci-helpers.mjs';
 import {
-  cliPath,
-  installPackTarball,
-  jsonOutput,
-  node,
-  repoRoot,
-  resolvePackTarball,
-  run,
-  runNpm
-} from './lib/ci-helpers.mjs';
+  exampleRootFromRepo,
+  runPackedExampleValidation,
+  runPackedInit,
+  runPackedValidateTarget,
+  wantsPackedExampleRuntime
+} from './lib/packed-example-validation.mjs';
 
-const exampleRoot = path.join(repoRoot, 'examples', 'playwright-full');
-const runRuntime = process.argv.includes('--runtime');
+const exampleRoot = exampleRootFromRepo('examples', 'playwright-full');
 
 function verifyResumableStandardRun(cli, targetRoot) {
   const started = jsonOutput(
@@ -63,44 +57,31 @@ function verifyResumableStandardRun(cli, targetRoot) {
 }
 
 async function main() {
-  const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-flowkit-playwright-example-'));
-  const packDir = path.join(tempRoot, 'pack');
-  const npmCache = path.join(tempRoot, 'npm-cache');
-  const targetRoot = path.join(tempRoot, 'target');
-  const cliRoot = path.join(tempRoot, 'cli');
+  await runPackedExampleValidation({
+    tempPrefix: 'qa-flowkit-playwright-example-',
+    exampleRoot,
+    cliInstall: 'separate',
+    structuralMessage: 'Playwright public example passed packed install, resumable standard run and strict validation.',
+    runtimeMessage:
+      'Playwright public example passed packed install, resumable standard run, strict validation and UI/API execution.',
+    validate: async ({ cli, targetRoot, npmCache }) => {
+      runPackedInit(cli, targetRoot, 'playwright-full');
+      runPackedValidateTarget(cli, targetRoot);
+      verifyResumableStandardRun(cli, targetRoot);
 
-  try {
-    await fs.mkdir(npmCache, { recursive: true });
-    await fs.cp(exampleRoot, targetRoot, { recursive: true });
-
-    const { tarball } = await resolvePackTarball({ packDir, npmCache });
-    await fs.mkdir(cliRoot, { recursive: true });
-    installPackTarball(cliRoot, tarball, { npmCache });
-
-    const cli = cliPath(cliRoot);
-    run(node, [cli, 'init', '--preset', 'playwright-full', '--no-adapters', '--skip-doctor'], { cwd: targetRoot });
-    run(node, [cli, 'validate-target'], { cwd: targetRoot });
-    verifyResumableStandardRun(cli, targetRoot);
-
-    if (runRuntime) {
-      runNpm(['ci', '--ignore-scripts'], {
-        cwd: targetRoot,
-        env: { npm_config_cache: npmCache }
-      });
-      runNpm(['exec', '--', 'playwright', 'install', '--with-deps', 'chromium'], {
-        cwd: targetRoot,
-        env: { npm_config_cache: npmCache }
-      });
-      runNpm(['test'], { cwd: targetRoot, env: { npm_config_cache: npmCache } });
-      console.log(
-        'Playwright public example passed packed install, resumable standard run, strict validation and UI/API execution.'
-      );
-    } else {
-      console.log('Playwright public example passed packed install, resumable standard run and strict validation.');
+      if (wantsPackedExampleRuntime()) {
+        runNpm(['ci', '--ignore-scripts'], {
+          cwd: targetRoot,
+          env: { npm_config_cache: npmCache }
+        });
+        runNpm(['exec', '--', 'playwright', 'install', '--with-deps', 'chromium'], {
+          cwd: targetRoot,
+          env: { npm_config_cache: npmCache }
+        });
+        runNpm(['test'], { cwd: targetRoot, env: { npm_config_cache: npmCache } });
+      }
     }
-  } finally {
-    await fs.rm(tempRoot, { recursive: true, force: true });
-  }
+  });
 }
 
 main().catch((error) => {

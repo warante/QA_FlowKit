@@ -1,9 +1,8 @@
 #!/usr/bin/env node
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { assert, pathExists, readJson, repoRoot } from './lib/ci-helpers.mjs';
 
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const manifestPath = path.join(repoRoot, 'docs', 'qa-ai', 'adapter-support.v1.json');
 const docsPath = path.join(repoRoot, 'docs', 'qa-ai', 'agent-compatibility.md');
 const packagePath = path.join(repoRoot, 'package.json');
@@ -12,20 +11,6 @@ const adapterRoot = path.join(repoRoot, '.qa-ai', 'adapters');
 const allowedLevels = new Set(['template-verified', 'cli-smoke-verified', 'host-e2e-verified']);
 const expectedAdapters = ['generic', 'claude', 'codex', 'opencode', 'cline', 'continue', 'aider', 'goose', 'gemini'];
 const sharedGuidancePattern = /\.qa-ai\/workflows\/command-interaction\.md|command-interaction\.md/;
-
-async function readJson(filePath) {
-  return JSON.parse(await fs.readFile(filePath, 'utf8'));
-}
-
-async function pathExists(relativePath) {
-  try {
-    await fs.stat(path.join(repoRoot, relativePath));
-    return true;
-  } catch (error) {
-    if (error.code === 'ENOENT') return false;
-    throw error;
-  }
-}
 
 async function filesUnder(directory) {
   const files = [];
@@ -40,10 +25,6 @@ async function filesUnder(directory) {
 
   await visit(directory);
   return files;
-}
-
-function assert(condition, message, errors) {
-  if (!condition) errors.push(message);
 }
 
 async function main() {
@@ -108,7 +89,7 @@ async function main() {
     );
 
     for (const evidence of adapter.evidence || []) {
-      assert(await pathExists(evidence), `${adapter.id}: evidence path does not exist: ${evidence}`, errors);
+      assert(await pathExists(repoRoot, evidence), `${adapter.id}: evidence path does not exist: ${evidence}`, errors);
     }
 
     const templatePath = path.join(adapterRoot, adapter.id);

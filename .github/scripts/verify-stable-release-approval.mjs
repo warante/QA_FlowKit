@@ -1,10 +1,9 @@
 #!/usr/bin/env node
 import fs from 'node:fs/promises';
+import { isMain, repoRoot } from './lib/ci-helpers.mjs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { verifyReleasePolicy } from './verify-release-policy.mjs';
 
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const ALLOWED_STATUS = new Set(['pending', 'in_review', 'approved', 'blocked']);
 const ALLOWED_DECISIONS = new Set(['GO', 'GO_WITH_ACCEPTED_RISKS', 'NO_GO']);
 const ALLOWED_SIGN_OFF = new Set(['pending', 'approved', 'rejected']);
@@ -170,7 +169,7 @@ async function main() {
   );
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (isMain(import.meta.url)) {
   main().catch((error) => {
     console.error(error);
     process.exit(1);

@@ -3,17 +3,16 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { parseYaml, stripInlineComment } from './yaml.mjs';
+import {
+  ARTIFACT_PATHS,
+  DEFAULT_TEST_MANAGEMENT_SYNC_PLAN_PATH,
+  LEGACY_ARTIFACT_ALIASES,
+  QA_OUTPUT_DIR
+} from './artifact-paths.mjs';
+
+export { ARTIFACT_PATHS, DEFAULT_TEST_MANAGEMENT_SYNC_PLAN_PATH, LEGACY_ARTIFACT_ALIASES, QA_OUTPUT_DIR };
 
 export const manifestRelativePath = '.qa-ai/state/init-manifest.json';
-
-/** Backward-compatible artifact path aliases (old testrail-* names → new test-management-* names).
- *  Validators accept the legacy paths with a deprecation warning instead of a hard error. */
-export const LEGACY_ARTIFACT_ALIASES = new Map([
-  ['qa-ai-output/testrail-sync-plan.md', 'qa-ai-output/test-management-sync-plan.md'],
-  ['qa-ai-output/testrail-coverage-analysis.md', 'qa-ai-output/test-management-coverage-analysis.md']
-]);
-
-export const DEFAULT_TEST_MANAGEMENT_SYNC_PLAN_PATH = 'qa-ai-output/test-management-sync-plan.md';
 
 export async function pathExists(filePath) {
   try {

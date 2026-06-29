@@ -8,6 +8,7 @@ import { loadWorkflowContract, validateWorkflowContract } from './lib/harness-co
 import { inspectQaWorkflow, normalizeQaTrack } from './lib/qa-next-steps.mjs';
 import { customValidatorsFromConfig, validateCustomValidatorConfig } from './lib/custom-validators.mjs';
 import {
+  ARTIFACT_PATHS,
   findChangeMeKeys,
   getConfigValue,
   inferredAcceptanceCriteriaConflicts,
@@ -378,8 +379,8 @@ function addConfiguredChecks(checks, config) {
   const mobileFlowsPath = getConfigValue(config, 'automation.mobile.flowsPath', '');
   const knowledgeEnabled = isEnabled(getConfigValue(config, 'knowledge.enabled', false));
   const knowledgeSourcePath = getConfigValue(config, 'knowledge.sourcePath', '');
-  const knowledgeSummaryPath = getConfigValue(config, 'knowledge.summaryPath', 'qa-ai-output/qa-knowledge-summary.md');
-  const knowledgeDecisionsPath = getConfigValue(config, 'knowledge.decisionsPath', 'qa-ai-output/qa-init-decisions.md');
+  const knowledgeSummaryPath = getConfigValue(config, 'knowledge.summaryPath', ARTIFACT_PATHS.qaKnowledgeSummary);
+  const knowledgeDecisionsPath = getConfigValue(config, 'knowledge.decisionsPath', ARTIFACT_PATHS.qaInitDecisions);
   const track = normalizeQaTrack(getConfigValue(config, 'project.qaTrack', 'standard'));
 
   checks.push(pathCheck('required', 'configured feature root', featurePath));

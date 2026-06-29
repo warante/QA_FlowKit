@@ -36,6 +36,12 @@ export function redactSecretsInText(text) {
   return redacted;
 }
 
+export function redactValidatorDiagnostics(text, { maxLength = 4000 } = {}) {
+  const raw = String(text || '');
+  if (scanTextForSecrets(raw).length === 0) return raw.slice(0, maxLength);
+  return redactSecretsInText(raw).slice(0, maxLength);
+}
+
 export function scanTextForSecrets(text, label = 'content') {
   const findings = [];
   const lines = String(text || '').split(/\r?\n/);

@@ -417,10 +417,10 @@ export function validateFeatureContent(content, file, requiredTags, language, op
   };
 }
 
-export function duplicateIdErrors(results) {
+export function duplicateCaseIdErrors(results, formatDuplicateMessage) {
   const byId = new Map();
   for (const result of results) {
-    for (const id of result.caseIds) {
+    for (const id of result.caseIds || []) {
       const current = byId.get(id) || [];
       current.push(result.file);
       byId.set(id, current);
@@ -431,8 +431,15 @@ export function duplicateIdErrors(results) {
   for (const [id, files] of byId.entries()) {
     const uniqueFiles = [...new Set(files)];
     if (uniqueFiles.length > 1) {
-      errors.push(`Duplicate test case identifier ${id} appears in: ${uniqueFiles.join(', ')}`);
+      errors.push(formatDuplicateMessage(id, uniqueFiles));
     }
   }
   return errors;
+}
+
+export function duplicateIdErrors(results) {
+  return duplicateCaseIdErrors(
+    results,
+    (id, files) => `Duplicate test case identifier ${id} appears in: ${files.join(', ')}`
+  );
 }

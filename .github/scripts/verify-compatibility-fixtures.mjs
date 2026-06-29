@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import fs from 'node:fs/promises';
+import { repoRoot } from './lib/ci-helpers.mjs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import {
   validateConfigContractContent,
   validateInitManifestContract,
@@ -9,8 +9,6 @@ import {
   validateRunStateContract,
   validateWorkflowContractSchema
 } from '../../.qa-ai/scripts/lib/contract-schemas.mjs';
-
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 
 function resolveFixturePath(root, fixture) {
   const localFixturesRoot = path.join(root, 'test', 'fixtures', 'compatibility');

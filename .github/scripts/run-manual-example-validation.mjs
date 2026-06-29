@@ -4,11 +4,16 @@
  */
 import { createHash } from 'node:crypto';
 import fs from 'node:fs/promises';
-import os from 'node:os';
 import path from 'node:path';
-import { cliPath, installPackTarball, node, repoRoot, resolvePackTarball, run } from './lib/ci-helpers.mjs';
+import { node, run } from './lib/ci-helpers.mjs';
+import {
+  exampleRootFromRepo,
+  runPackedExampleValidation,
+  runPackedInit,
+  runPackedValidateTarget
+} from './lib/packed-example-validation.mjs';
 
-const exampleRoot = path.join(repoRoot, 'examples', 'manual-only');
+const exampleRoot = exampleRootFromRepo('examples', 'manual-only');
 
 async function digestTree(root) {
   const entries = [];
@@ -33,34 +38,24 @@ async function digestTree(root) {
 }
 
 async function main() {
-  const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-flowkit-manual-example-'));
-  const packDir = path.join(tempRoot, 'pack');
-  const npmCache = path.join(tempRoot, 'npm-cache');
-  const targetRoot = path.join(tempRoot, 'target');
+  await runPackedExampleValidation({
+    tempPrefix: 'qa-flowkit-manual-example-',
+    exampleRoot,
+    structuralMessage: 'Manual-only public example passed packed install and strict validation.',
+    validate: async ({ cli, targetRoot }) => {
+      const originalDigest = await digestTree(targetRoot);
 
-  try {
-    await fs.mkdir(npmCache, { recursive: true });
-    await fs.cp(exampleRoot, targetRoot, { recursive: true });
-    const originalDigest = await digestTree(targetRoot);
+      runPackedInit(cli, targetRoot, 'manual-only');
 
-    const { tarball } = await resolvePackTarball({ packDir, npmCache });
-    installPackTarball(targetRoot, tarball, { npmCache });
+      const afterInitDigest = await digestTree(targetRoot);
+      if (afterInitDigest !== originalDigest) {
+        throw new Error('Packed init modified canonical example artifacts.');
+      }
 
-    const cli = cliPath(targetRoot);
-    run(node, [cli, 'init', '--preset', 'manual-only', '--no-adapters', '--skip-doctor'], { cwd: targetRoot });
-
-    const afterInitDigest = await digestTree(targetRoot);
-    if (afterInitDigest !== originalDigest) {
-      throw new Error('Packed init modified canonical example artifacts.');
+      run(node, [cli, 'doctor', '--strict'], { cwd: targetRoot });
+      runPackedValidateTarget(cli, targetRoot);
     }
-
-    run(node, [cli, 'doctor', '--strict'], { cwd: targetRoot });
-    run(node, [cli, 'validate-target'], { cwd: targetRoot });
-
-    console.log('Manual-only public example passed packed install and strict validation.');
-  } finally {
-    await fs.rm(tempRoot, { recursive: true, force: true });
-  }
+  });
 }
 
 main().catch((error) => {

@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import {
   DEMO_FORBIDDEN_CLAIM_PATTERNS,
   DEMO_PUBLIC_PATHS,
@@ -11,26 +10,9 @@ import {
   DEMO_TRANSCRIPT_SECTIONS,
   DEMO_WORKFLOW_PHASES
 } from './lib/product-demo.mjs';
+import { isMain, assert, pathExists, readJson, repoRoot } from './lib/ci-helpers.mjs';
 
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const ALLOWED_STATUS = new Set(['static_ready', 'recorded']);
-
-function assert(condition, message, errors) {
-  if (!condition) errors.push(message);
-}
-
-async function readJson(filePath) {
-  return JSON.parse(await fs.readFile(filePath, 'utf8'));
-}
-
-async function pathExists(root, relativePath) {
-  try {
-    await fs.access(path.join(root, relativePath));
-    return true;
-  } catch {
-    return false;
-  }
-}
 
 function assertNoForbiddenClaims(content, label, errors) {
   for (const pattern of DEMO_FORBIDDEN_CLAIM_PATTERNS) {
@@ -132,7 +114,7 @@ async function main() {
   console.log(`Product demo verification passed (status=${result.status}).`);
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (isMain(import.meta.url)) {
   main().catch((error) => {
     console.error(error);
     process.exit(1);
