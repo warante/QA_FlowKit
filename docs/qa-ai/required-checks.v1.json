@@ -167,8 +167,8 @@
       "name": "Validate starter",
       "owner": "release engineer",
       "required": true,
-      "timeoutMinutes": 25,
-      "triage": "Canonical starter gate failed. Use the failing named step to route docs, contracts, lint, E2E or smoke issues."
+      "timeoutMinutes": 20,
+      "triage": "Validate starter failed. Scenario E2E jobs are prerequisites; this job runs validate:core (docs, contracts, validators, smoke) without re-running E2E."
     },
     {
       "workflow": ".github/workflows/ci.yml",
@@ -185,8 +185,8 @@
       "name": "Validate (${{ matrix.os }}, Node ${{ matrix.node }})",
       "owner": "release engineer",
       "required": false,
-      "timeoutMinutes": 25,
-      "triage": "Matrix validation failed. Compare OS/Node differences and the failing named validation step."
+      "timeoutMinutes": 20,
+      "triage": "Matrix validation failed. Compare OS/Node differences; this job runs validate:core only."
     },
     {
       "workflow": ".github/workflows/codeql.yml",

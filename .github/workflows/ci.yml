@@ -393,7 +393,7 @@ jobs:
         stable-release-pr-rehearsal
       ]
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 20
 
     defaults:
       run:
@@ -463,7 +463,7 @@ jobs:
         run: npm run format:check
 
       - name: Run starter validation and smoke tests
-        run: npm run validate:oss-extraction
+        run: npm run validate:core
 
   coverage:
     name: Coverage
@@ -509,7 +509,7 @@ jobs:
         stable-release-pr-rehearsal
       ]
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 25
+    timeout-minutes: 20
 
     strategy:
       fail-fast: false
@@ -590,4 +590,4 @@ jobs:
         run: npm run format:check
 
       - name: Run starter validation and smoke tests
-        run: npm run validate:oss-extraction
+        run: npm run validate:core

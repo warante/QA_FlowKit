@@ -497,9 +497,9 @@ npm run validate:oss-extraction
 node .github/scripts/verify-npm-pack.mjs
 ```
 
-`validate:oss-extraction` alone runs:
+CI job `Validate starter` runs `npm run validate:core` only because scenario E2E jobs are already `needs:` prerequisites. Locally, `validate:oss-extraction` still runs the full gate (`core` + `e2e`). Measure split timings with `npm run validate:timing`.
 
-It runs in order:
+`validate:oss-extraction` (full) runs in order:
 
 1. `doctor.mjs` — validates the framework folder itself
 2. `validate-features.mjs --allow-empty` — allows no feature files in the source repo
