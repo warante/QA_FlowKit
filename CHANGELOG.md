@@ -48,6 +48,13 @@ this feature PR is merged.
 - Cross-platform smoke and npm-pack checks now account for generated adapters and framework-specific example paths.
 - Documentation drift and missing packaged contract files now fail validation before release.
 
+## [1.0.0-rc.3](https://github.com/warante/QA_FlowKit/compare/v1.0.0-rc.2...v1.0.0-rc.3) (2026-06-29)
+
+
+### Fixed
+
+* corregir invocación de npm en Windows en validación de canales de ejemplo ([#62](https://github.com/warante/QA_FlowKit/issues/62)) ([fe3434c](https://github.com/warante/QA_FlowKit/commit/fe3434cbb5e598e80037140c4086fff03c55b6e6))
+
 ## [1.0.0-rc.2](https://github.com/warante/QA_FlowKit/compare/v1.0.0-rc.1...v1.0.0-rc.2) (2026-06-28)
 
 
