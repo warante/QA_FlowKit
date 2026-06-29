@@ -4,6 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { cliValidatorCommandMap } from '../.qa-ai/scripts/lib/validator-registry.mjs';
 
 const packageRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const packagedFramework = path.join(packageRoot, '.qa-ai');
@@ -14,22 +15,7 @@ const commandMap = {
   config: 'config.mjs',
   bootstrap: 'bootstrap-agent-adapters.mjs',
   doctor: 'doctor.mjs',
-  'validate-config': 'validate-config.mjs',
-  'validate-untrusted-content': 'validate-untrusted-content.mjs',
-  'validate-external-intake': 'validate-external-intake.mjs',
-  'validate-target': 'validate-target.mjs',
-  'validate-features': 'validate-features.mjs',
-  'validate-karate-features': 'validate-karate-features.mjs',
-  'validate-maestro-flows': 'validate-maestro-flows.mjs',
-  'validate-traceability': 'validate-traceability.mjs',
-  'validate-sync-plan': 'validate-sync-plan.mjs',
-  'validate-sync-diff': 'validate-sync-diff.mjs',
-  'validate-sync-result': 'validate-sync-result.mjs',
-  'validate-active-specialists': 'validate-active-specialists.mjs',
-  'validate-release-gate': 'validate-release-gate.mjs',
-  'validate-test-design': 'validate-test-design.mjs',
-  'validate-test-coverage': 'validate-test-coverage.mjs',
-  'validate-quality-report': 'validate-quality-report.mjs',
+  ...cliValidatorCommandMap(),
   'sync-adapters': 'sync-agent-adapters.mjs',
   'export-report': 'export-report.mjs',
   metrics: 'qa-metrics.mjs',

@@ -30,7 +30,14 @@
         "version",
         "run"
       ],
-      "experimental": ["validate-test-coverage", "validate-quality-report", "metrics"],
+      "experimental": [
+        "validate-test-coverage",
+        "validate-quality-report",
+        "validate-execution-evidence",
+        "validate-healing-log",
+        "validate-test-impact",
+        "metrics"
+      ],
       "deprecated": []
     },
     "runSubcommands": {

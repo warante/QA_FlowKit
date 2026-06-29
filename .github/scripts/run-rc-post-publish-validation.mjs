@@ -15,13 +15,8 @@ import { fileURLToPath } from 'node:url';
 import { parsePackOutput, validatePackFileList } from '../../.qa-ai/scripts/lib/npm-pack-allowlist.mjs';
 import { resolveNpmDistTag, simulateRegistryVisibilityCheck } from './lib/npm-dist-tag.mjs';
 import { assertRcVersion, parseDistTagsJson } from './lib/rc-version.mjs';
-
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const fixtureRoot = path.join(repoRoot, 'test', 'fixtures', 'migration', 'oldest-supported-beta');
-const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
-const node = process.execPath;
-const npmExecPath = process.env.npm_execpath || '';
-const MARKER = 'QA_FLOWKIT_MIGRATION_FIXTURE_MARKER';
+import { node, npmCommand, npmExecPath, parseJsonStdout, repoRoot, runCli, runNpm } from './lib/ci-helpers.mjs';
+import { overlayOldestSupportedFixture } from './lib/migration-fixture.mjs';
 
 function parseArgs(argv) {
   const args = { localSimulation: false, version: process.env.QA_FLOWKIT_RC_VERSION || '' };
@@ -32,83 +27,6 @@ function parseArgs(argv) {
     }
   }
   return args;
-}
-
-function run(command, args, { cwd, env = {}, expectFailure = false, shell = false } = {}) {
-  const result = spawnSync(command, args, {
-    cwd,
-    encoding: 'utf8',
-    shell,
-    env: {
-      ...process.env,
-      npm_config_audit: 'false',
-      npm_config_fund: 'false',
-      npm_config_update_notifier: 'false',
-      ...env
-    }
-  });
-  const failed = result.status !== 0;
-  if (expectFailure ? !failed : failed) {
-    throw new Error(
-      [
-        `Command ${expectFailure ? 'succeeded unexpectedly' : 'failed'}: ${command} ${args.join(' ')}`,
-        result.stdout,
-        result.stderr
-      ]
-        .filter(Boolean)
-        .join('\n')
-    );
-  }
-  return result;
-}
-
-function runNpm(args, options = {}) {
-  if (npmExecPath) return run(node, [npmExecPath, ...args], options);
-  return run(npmCommand, args, { ...options, shell: process.platform === 'win32' });
-}
-
-function cliPath(targetRoot) {
-  return path.join(targetRoot, 'node_modules', 'qa-flowkit', 'bin', 'qa-flowkit.mjs');
-}
-
-function runCli(targetRoot, args, options = {}) {
-  return run(node, [cliPath(targetRoot), ...args], { cwd: targetRoot, ...options });
-}
-
-function parseJsonStdout(result, label) {
-  try {
-    return JSON.parse(result.stdout);
-  } catch {
-    throw new Error(`${label} did not return JSON:\n${result.stdout}\n${result.stderr}`);
-  }
-}
-
-async function copyFixtureTree(relativePath, targetRoot) {
-  const source = path.join(fixtureRoot, relativePath);
-  const target = path.join(targetRoot, relativePath);
-  await fs.mkdir(path.dirname(target), { recursive: true });
-  const stat = await fs.stat(source);
-  if (stat.isDirectory()) {
-    await fs.cp(source, target, { recursive: true, force: true });
-  } else {
-    await fs.copyFile(source, target);
-  }
-}
-
-async function overlayOldestSupportedFixture(targetRoot) {
-  const manifest = JSON.parse(await fs.readFile(path.join(fixtureRoot, 'manifest.v1.json'), 'utf8'));
-  for (const relativePath of manifest.paths) {
-    await copyFixtureTree(relativePath, targetRoot);
-  }
-  const agentsPath = path.join(targetRoot, 'AGENTS.md');
-  try {
-    const agents = await fs.readFile(agentsPath, 'utf8');
-    if (!agents.includes(MARKER)) {
-      await fs.writeFile(agentsPath, `${agents.trimEnd()}\n\n<!-- ${MARKER} -->\n`, 'utf8');
-    }
-  } catch (error) {
-    if (error.code !== 'ENOENT') throw error;
-  }
 }
 
 async function verifyRegistryMetadata(version, npmCache) {

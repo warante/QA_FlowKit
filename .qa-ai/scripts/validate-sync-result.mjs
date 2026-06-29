@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { normalizeColumn, parseMarkdownTable } from './lib/markdown-table.mjs';
 import { normalizeMappingEntries } from './lib/test-management-mapping.mjs';
+import { getTestManagementMappingFile } from './lib/test-management-config.mjs';
 import { getActiveRunId } from './lib/harness-run-store.mjs';
 import {
   getConfigValue,
@@ -61,8 +62,7 @@ async function main() {
   const rollbackPath =
     args['rollback-path'] ||
     getConfigValue(config, 'testManagementSync.rollbackPath', 'qa-ai-output/test-management-rollback-plan.md');
-  const mappingPath =
-    args['mapping-path'] || getConfigValue(config, 'testrail.mappingFile', 'qa-ai-output/test-management-mapping.json');
+  const mappingPath = args['mapping-path'] || getTestManagementMappingFile(config);
 
   const configSnapshotPath = getConfigValue(
     config,

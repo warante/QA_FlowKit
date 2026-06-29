@@ -2,6 +2,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { cliValidatorCommandMap } from '../../.qa-ai/scripts/lib/validator-registry.mjs';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const inventoryPath = path.join(repoRoot, '.qa-ai', 'contracts', 'public-contracts.v1.json');
@@ -32,7 +33,9 @@ function extractCliCommands(source) {
   const mapped = [...source.matchAll(/^\s{2}(?:'([^']+)'|([a-z][a-z-]*)):\s*'[^']+\.mjs',?$/gm)].map(
     (match) => match[1] || match[2]
   );
-  return [...new Set([...mapped, 'init', 'update', 'run', 'help', 'version'])].sort();
+  return [
+    ...new Set([...mapped, ...Object.keys(cliValidatorCommandMap()), 'init', 'update', 'run', 'help', 'version'])
+  ].sort();
 }
 
 function extractRunSubcommands(source) {

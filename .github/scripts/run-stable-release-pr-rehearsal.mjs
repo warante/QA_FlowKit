@@ -3,10 +3,10 @@
  * TASK-084 rehearsal: validate Release PR review assets and publish workflow readiness.
  */
 import assert from 'node:assert/strict';
-import { fileURLToPath } from 'node:url';
 import { STABLE_TARGET_VERSION, expectedReleasePrTitle } from './lib/stable-release-pr.mjs';
 import { resolveNpmDistTag } from './lib/npm-dist-tag.mjs';
 import { verifyStableReleasePr } from './verify-stable-release-pr.mjs';
+import { isMain } from './lib/ci-helpers.mjs';
 
 export async function runStableReleasePrRehearsal() {
   const pr = await verifyStableReleasePr();
@@ -21,7 +21,7 @@ async function main() {
   console.log(`Stable release PR rehearsal passed (status=${result.status}, target=${result.targetVersion}).`);
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (isMain(import.meta.url)) {
   main().catch((error) => {
     console.error(error);
     process.exit(1);

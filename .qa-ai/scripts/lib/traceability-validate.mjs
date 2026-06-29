@@ -2,9 +2,10 @@ import path from 'node:path';
 import { normalizeColumn, parseMarkdownTable } from './markdown-table.mjs';
 import { validateNfrTraceability } from './nfr-coverage.mjs';
 import { parseProposedTestRows } from './semantic-coverage.mjs';
+import { caseIdsFromText, idsFromText, normalizeId } from './gherkin-validate.mjs';
 
-const idPattern = /\b(?:RF|TC|TEST|QA)(?:[-_][A-Z0-9]+| \d[A-Z0-9]*|\d+)\b/gi;
-const caseIdPattern = /\b(?:TC|TEST|QA)(?:[-_][A-Z0-9]+| \d[A-Z0-9]*|\d+)\b/gi;
+export { caseIdsFromText, idsFromText, normalizeId };
+
 const requiredColumns = [
   'Requirement Source',
   'RF',
@@ -14,20 +15,6 @@ const requiredColumns = [
   'Priority',
   'Automation Status'
 ];
-
-function normalizeId(value) {
-  return String(value || '')
-    .replace(/\s+/g, '-')
-    .toUpperCase();
-}
-
-function idsFromText(value) {
-  return [...String(value || '').matchAll(idPattern)].map((match) => normalizeId(match[0]));
-}
-
-function caseIdsFromText(value) {
-  return [...String(value || '').matchAll(caseIdPattern)].map((match) => normalizeId(match[0]));
-}
 
 function functionalMatrixContent(content) {
   const lines = String(content || '')

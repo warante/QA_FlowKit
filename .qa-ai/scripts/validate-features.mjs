@@ -11,9 +11,11 @@ import {
   relativeTo,
   resolveRepoPath
 } from './lib/utils.mjs';
+import { emitJson, isJsonMode } from './lib/validator-cli.mjs';
 
 const cwd = process.cwd();
 const args = parseArgs(process.argv);
+const jsonMode = isJsonMode(args);
 
 function printHelp() {
   console.log(`Usage: node .qa-ai/scripts/validate-features.mjs [options]
@@ -32,14 +34,6 @@ Options:
 Validates QA design .feature files under gherkin.featurePath only.
 For executable Karate features, use validate-karate-features.mjs.
 `);
-}
-
-const jsonMode = Boolean(args.json);
-
-function emitJson(ok, errors = [], warnings = []) {
-  console.log(
-    JSON.stringify({ ok, errors, warnings, findings: errors.map((message) => ({ severity: 'error', message })) })
-  );
 }
 
 async function main() {

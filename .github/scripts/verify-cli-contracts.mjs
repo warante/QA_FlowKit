@@ -2,55 +2,17 @@
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { spawnSync } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
 import { assertRequiredKeys, assertStderrEmpty, parsePureJsonStdout } from '../../.qa-ai/scripts/lib/cli-contract.mjs';
+import { node, repoRoot, run, runSourceCli } from './lib/ci-helpers.mjs';
 
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const cli = path.join(repoRoot, 'bin', 'qa-flowkit.mjs');
 const fixtureRoot = path.join(repoRoot, 'test', 'fixtures', 'golden-target');
-const node = process.execPath;
 
 function runCli(cwd, args, { expectFailure = false } = {}) {
-  const result = spawnSync(node, [cli, ...args], {
-    cwd,
-    encoding: 'utf8',
-    shell: false
-  });
-  const failed = result.status !== 0;
-  if (expectFailure ? !failed : failed) {
-    throw new Error(
-      [
-        `qa-flowkit ${args.join(' ')} ${expectFailure ? 'succeeded unexpectedly' : 'failed'} (exit ${result.status})`,
-        result.stdout,
-        result.stderr
-      ]
-        .filter(Boolean)
-        .join('\n')
-    );
-  }
-  return result;
+  return runSourceCli(cwd, args, { expectFailure });
 }
 
 function runScript(cwd, scriptRelative, args, { expectFailure = false } = {}) {
-  const result = spawnSync(node, [path.join(cwd, scriptRelative), ...args], {
-    cwd,
-    encoding: 'utf8',
-    shell: false
-  });
-  const failed = result.status !== 0;
-  if (expectFailure ? !failed : failed) {
-    throw new Error(
-      [
-        `node ${scriptRelative} ${args.join(' ')} ${expectFailure ? 'succeeded unexpectedly' : 'failed'} (exit ${result.status})`,
-        result.stdout,
-        result.stderr
-      ]
-        .filter(Boolean)
-        .join('\n')
-    );
-  }
-  return result;
+  return run(node, [path.join(cwd, scriptRelative), ...args], { cwd, expectFailure });
 }
 
 async function prepareWorkspace(setup) {

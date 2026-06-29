@@ -8,6 +8,7 @@ import {
   isKarateFramework
 } from './lib/automation-framework.mjs';
 import { activeSpecialistsContent, configuredDirs, isConfiguredFramework, slug } from './lib/project-config.mjs';
+import { getTestManagementMappingFile } from './lib/test-management-config.mjs';
 import { FEATURE_SUBFOLDERS } from './lib/feature-layout.mjs';
 import { defaultInitAdapters } from './lib/detect-adapters.mjs';
 import { validateConfigContent } from './lib/config-schema.mjs';
@@ -295,8 +296,12 @@ function configOverrides(currentConfig = {}, projectName) {
   }
   if (testManagementTool) {
     const isTestrail = String(testManagementTool).trim().toLowerCase() === 'testrail';
+    overrides.push(['testManagement.enabled', isTestrail ? 'true' : 'false']);
     overrides.push(['testrail.enabled', isTestrail ? 'true' : 'false']);
-    if (!isTestrail) overrides.push(['testrail.mappingFile', '']);
+    if (!isTestrail) {
+      overrides.push(['testManagement.mappingFile', '']);
+      overrides.push(['testrail.mappingFile', '']);
+    }
   }
 
   const effectiveTestManagementTool = testManagementTool || getConfigValue(currentConfig, 'tools.testManagement', '');
@@ -740,7 +745,7 @@ async function main() {
     );
   }
 
-  const mappingFile = getConfigValue(config, 'testrail.mappingFile', 'qa-ai-output/test-management-mapping.json');
+  const mappingFile = getTestManagementMappingFile(config);
   if (mappingFile && withTestManagementMapping) {
     const result = await writeFileSafe(
       resolveRepoPath(cwd, mappingFile, { label: 'test management mapping file' }),

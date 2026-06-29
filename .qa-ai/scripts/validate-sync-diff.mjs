@@ -3,6 +3,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { normalizeColumn, parseMarkdownTable } from './lib/markdown-table.mjs';
 import { normalizeMappingEntries } from './lib/test-management-mapping.mjs';
+import { getTestManagementMappingFile } from './lib/test-management-config.mjs';
 import { getActiveRunId } from './lib/harness-run-store.mjs';
 import {
   getConfigValue,
@@ -70,8 +71,7 @@ async function main() {
         absPath: resolveRepoPath(cwd, args['plan-path'], { label: 'sync plan' })
       }
     : await resolveTestManagementSyncPlanPath(cwd, config);
-  const mappingPath =
-    args['mapping-path'] || getConfigValue(config, 'testrail.mappingFile', 'qa-ai-output/test-management-mapping.json');
+  const mappingPath = args['mapping-path'] || getTestManagementMappingFile(config);
 
   const absDiff = resolveRepoPath(cwd, diffPath, { label: 'sync diff' });
   const absSnapshot = resolveRepoPath(cwd, snapshotPath, { label: 'remote snapshot' });

@@ -3,6 +3,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { normalizeColumn, parseMarkdownTable } from './lib/markdown-table.mjs';
 import { validateTestManagementMapping } from './lib/test-management-mapping.mjs';
+import { getTestManagementMappingFile } from './lib/test-management-config.mjs';
 import {
   getConfigValue,
   listFilesRecursive,
@@ -15,9 +16,11 @@ import {
   resolveRepoPath,
   resolveTestManagementSyncPlanPath
 } from './lib/utils.mjs';
+import { emitJson, isJsonMode } from './lib/validator-cli.mjs';
 
 const cwd = process.cwd();
 const args = parseArgs(process.argv);
+const jsonMode = isJsonMode(args);
 const idPattern = /\b(?:RF|TC|TEST|QA)(?:[-_][A-Z0-9]+| \d[A-Z0-9]*|\d+)\b/gi;
 const writeClaimPattern =
   /\b(?:created|updated|deleted|synced|archived|creado|actualizado|eliminado|sincronizado|archivado)\s+(?:in|to|from|en|a|de)\s+(?:testrail|zephyr|xray|jira)\b/i;
@@ -40,12 +43,6 @@ Options:
 
 Validates proposal-first language, feature identifier coverage, sync-plan table shape and duplicate plan IDs.
 `);
-}
-
-const jsonMode = Boolean(args.json);
-
-function emitJson(ok, errors = []) {
-  console.log(JSON.stringify({ ok, errors, findings: errors.map((message) => ({ severity: 'error', message })) }));
 }
 
 function normalizeId(value) {
@@ -122,7 +119,7 @@ async function collectFeatureIds(featureRootPath) {
 }
 
 async function validateMappingFile(config, errors) {
-  const mappingFile = getConfigValue(config, 'testrail.mappingFile', '');
+  const mappingFile = getTestManagementMappingFile(config);
   if (!mappingFile) return;
   const mappingPath = resolveRepoPath(cwd, mappingFile, { label: 'test management mapping file' });
   if (!(await pathExists(mappingPath))) return;

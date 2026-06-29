@@ -1,0 +1,21 @@
+name: Download QA FlowKit pack artifact
+description: Reuse npm pack tarball from the npm-pack CI job
+runs:
+  using: composite
+  steps:
+    - name: Download pack artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: qa-flowkit-pack
+        path: pack-artifact
+
+    - name: Set QA_FLOWKIT_PACK_TARBALL
+      shell: pwsh
+      run: |
+        $tgz = Get-ChildItem -Path pack-artifact -Filter *.tgz -File | Select-Object -First 1
+        if (-not $tgz) {
+          Write-Error "No .tgz found in pack-artifact"
+          Get-ChildItem pack-artifact -ErrorAction SilentlyContinue
+          exit 1
+        }
+        Add-Content -Path $env:GITHUB_ENV -Value "QA_FLOWKIT_PACK_TARBALL=$($tgz.FullName)"

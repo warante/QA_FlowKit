@@ -7,87 +7,33 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { spawnSync } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
-import { parsePackOutput, validatePackFileList } from '../../.qa-ai/scripts/lib/npm-pack-allowlist.mjs';
+import { validatePackFileList } from '../../.qa-ai/scripts/lib/npm-pack-allowlist.mjs';
+import {
+  assertExists,
+  installPackTarball,
+  isMain,
+  node,
+  repoRoot,
+  resolvePackTarball,
+  run,
+  runCli
+} from './lib/ci-helpers.mjs';
 
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
-const node = process.execPath;
-const npmExecPath = process.env.npm_execpath || '';
-
-function run(command, args, { cwd, env = {}, expectFailure = false, shell = false } = {}) {
-  const result = spawnSync(command, args, {
-    cwd,
-    encoding: 'utf8',
-    shell,
-    env: {
-      ...process.env,
-      npm_config_audit: 'false',
-      npm_config_fund: 'false',
-      npm_config_update_notifier: 'false',
-      ...env
-    }
-  });
-  const failed = result.status !== 0;
-  if (expectFailure ? !failed : failed) {
-    throw new Error(
-      [
-        `Command ${expectFailure ? 'succeeded unexpectedly' : 'failed'}: ${command} ${args.join(' ')}`,
-        result.stdout,
-        result.stderr
-      ]
-        .filter(Boolean)
-        .join('\n')
-    );
+async function packTarball(packDir, npmCache) {
+  const { tarball, fromArtifact, packInfo } = await resolvePackTarball({ packDir, npmCache });
+  if (!fromArtifact && packInfo) {
+    validatePackFileList(packInfo.files);
   }
-  return result;
-}
-
-function runNpm(args, options = {}) {
-  if (npmExecPath) return run(node, [npmExecPath, ...args], options);
-  return run(npmCommand, args, { ...options, shell: process.platform === 'win32' });
-}
-
-function cliPath(targetRoot) {
-  return path.join(targetRoot, 'node_modules', 'qa-flowkit', 'bin', 'qa-flowkit.mjs');
-}
-
-function runCli(targetRoot, args, options = {}) {
-  return run(node, [cliPath(targetRoot), ...args], { cwd: targetRoot, ...options });
+  return tarball;
 }
 
 function runScript(targetRoot, scriptRelative, args = [], options = {}) {
   return run(node, [path.join(targetRoot, scriptRelative), ...args], { cwd: targetRoot, ...options });
 }
 
-async function assertExists(filePath, label = filePath) {
-  try {
-    await fs.access(filePath);
-  } catch {
-    throw new Error(`Expected ${label} to exist.`);
-  }
-}
-
-async function packTarball(packDir, npmCache) {
-  await fs.mkdir(packDir, { recursive: true });
-  const packResult = runNpm(['pack', '--pack-destination', packDir, '--json'], {
-    cwd: repoRoot,
-    env: { npm_config_cache: npmCache }
-  });
-  const packInfo = parsePackOutput(packResult.stdout);
-  validatePackFileList(packInfo.files);
-  const tarball = path.join(packDir, packInfo.filename);
-  await assertExists(tarball, 'packed tarball');
-  return { tarball, packInfo };
-}
-
 async function installPackedCli(targetRoot, tarball, npmCache) {
   await fs.mkdir(targetRoot, { recursive: true });
-  runNpm(['install', '--prefix', targetRoot, '--ignore-scripts', '--package-lock=false', '--no-save', tarball], {
-    cwd: repoRoot,
-    env: { npm_config_cache: npmCache }
-  });
+  installPackTarball(targetRoot, tarball, { npmCache });
 }
 
 async function extractTarball(tarball, extractDir) {
@@ -202,7 +148,7 @@ export async function runCleanInstallValidation({ root = repoRoot } = {}) {
   const folderCopyRoot = path.join(tempRoot, 'Copia carpeta', 'sin npm');
 
   try {
-    const { tarball } = await packTarball(packDir, npmCache);
+    const tarball = await packTarball(packDir, npmCache);
     const packageDir = await extractTarball(tarball, path.join(tempRoot, 'extracted'));
 
     await installPackedCli(installRoot, tarball, npmCache);
@@ -220,7 +166,7 @@ async function main() {
   console.log('E2E-06 clean install validation passed.');
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (isMain(import.meta.url)) {
   main().catch((error) => {
     console.error(error);
     process.exit(1);

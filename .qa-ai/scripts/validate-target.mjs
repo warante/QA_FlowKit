@@ -20,6 +20,7 @@ import {
   relativeTo,
   resolveRepoPath
 } from './lib/utils.mjs';
+import { validatorScriptPath } from './lib/validator-registry.mjs';
 
 const args = parseArgs(process.argv);
 
@@ -52,6 +53,10 @@ Runs the target-repository validation pipeline:
   validate-quality-report (when testDesign.quality.mode is not off)
   validate-untrusted-content (warn mode by default)
 `);
+}
+
+function validatorCommand(label, id, extraArgs = []) {
+  return command(label, validatorScriptPath(id), extraArgs);
 }
 
 function command(label, script, extraArgs = []) {
@@ -196,10 +201,10 @@ async function main() {
 
   const commands = [
     command('doctor', '.qa-ai/scripts/doctor.mjs', strictDoctor ? ['--strict'] : []),
-    command('feature validation', '.qa-ai/scripts/validate-features.mjs', featureArgs),
+    validatorCommand('feature validation', 'validate-features', featureArgs),
     ...(coverageMode !== 'off' && !args['skip-test-coverage']
       ? [
-          command('test coverage validation', '.qa-ai/scripts/validate-test-coverage.mjs', [
+          validatorCommand('test coverage validation', 'validate-test-coverage', [
             ...featureArgs,
             ...(allowMissing ? ['--allow-missing'] : [])
           ])
@@ -207,46 +212,40 @@ async function main() {
       : []),
     ...(track !== 'quick' && qualityMode !== 'off' && !args['skip-quality-report']
       ? [
-          command('Gherkin quality report validation', '.qa-ai/scripts/validate-quality-report.mjs', [
+          validatorCommand('Gherkin quality report validation', 'validate-quality-report', [
             ...featureArgs,
             ...(allowMissing ? ['--allow-missing'] : [])
           ])
         ]
       : []),
     ...(usesKarate(configInfo.data)
-      ? [command('karate feature validation', '.qa-ai/scripts/validate-karate-features.mjs', featureArgs)]
+      ? [validatorCommand('karate feature validation', 'validate-karate-features', featureArgs)]
       : []),
     ...(usesMaestro(configInfo.data)
-      ? [command('Maestro flow validation', '.qa-ai/scripts/validate-maestro-flows.mjs', featureArgs)]
+      ? [validatorCommand('Maestro flow validation', 'validate-maestro-flows', featureArgs)]
       : []),
-    ...(track !== 'quick'
-      ? [command('sync plan validation', '.qa-ai/scripts/validate-sync-plan.mjs', artifactArgs)]
-      : []),
+    ...(track !== 'quick' ? [validatorCommand('sync plan validation', 'validate-sync-plan', artifactArgs)] : []),
     ...(track !== 'quick' && syncMode === 'governed'
       ? [
-          command('sync diff validation', '.qa-ai/scripts/validate-sync-diff.mjs', artifactArgs),
-          command('sync result validation', '.qa-ai/scripts/validate-sync-result.mjs', artifactArgs)
+          validatorCommand('sync diff validation', 'validate-sync-diff', artifactArgs),
+          validatorCommand('sync result validation', 'validate-sync-result', artifactArgs)
         ]
       : []),
     ...(externalIntakeEnabled
-      ? [command('external intake validation', '.qa-ai/scripts/validate-external-intake.mjs', artifactArgs)]
+      ? [validatorCommand('external intake validation', 'validate-external-intake', artifactArgs)]
       : []),
     ...(getConfigValue(configInfo.data, 'execution.resultsPaths', []).length > 0 ||
     getConfigValue(configInfo.data, 'execution.evalResultsPaths', []).length > 0
-      ? [command('execution evidence validation', '.qa-ai/scripts/validate-execution-evidence.mjs', artifactArgs)]
+      ? [validatorCommand('execution evidence validation', 'validate-execution-evidence', artifactArgs)]
       : []),
-    ...(hasHealingLog
-      ? [command('governed healing validation', '.qa-ai/scripts/validate-healing-log.mjs', artifactArgs)]
-      : []),
-    ...(hasImpactAnalysis
-      ? [command('test impact validation', '.qa-ai/scripts/validate-test-impact.mjs', artifactArgs)]
-      : []),
-    command('traceability validation', '.qa-ai/scripts/validate-traceability.mjs', artifactArgs),
-    command('untrusted content scan', '.qa-ai/scripts/validate-untrusted-content.mjs', [
+    ...(hasHealingLog ? [validatorCommand('governed healing validation', 'validate-healing-log', artifactArgs)] : []),
+    ...(hasImpactAnalysis ? [validatorCommand('test impact validation', 'validate-test-impact', artifactArgs)] : []),
+    validatorCommand('traceability validation', 'validate-traceability', artifactArgs),
+    validatorCommand('untrusted content scan', 'validate-untrusted-content', [
       '--allow-missing',
       ...(args['strict-untrusted-content'] ? ['--strict'] : [])
     ]),
-    command('active specialist validation', '.qa-ai/scripts/validate-active-specialists.mjs', activeSpecialistArgs)
+    validatorCommand('active specialist validation', 'validate-active-specialists', activeSpecialistArgs)
   ];
 
   if (track === 'enterprise' && !args['skip-release-gate']) {
@@ -254,12 +253,12 @@ async function main() {
       ...(allowMissing ? ['--allow-missing'] : []),
       ...(args['allow-pending'] ? ['--allow-pending'] : [])
     ];
-    commands.push(command('release gate validation', '.qa-ai/scripts/validate-release-gate.mjs', gateArgs));
+    commands.push(validatorCommand('release gate validation', 'validate-release-gate', gateArgs));
   }
 
   if (['standard', 'enterprise'].includes(track) && !args['skip-test-design']) {
     const designArgs = allowMissing ? ['--allow-missing'] : [];
-    commands.push(command('test design validation', '.qa-ai/scripts/validate-test-design.mjs', designArgs));
+    commands.push(validatorCommand('test design validation', 'validate-test-design', designArgs));
   }
 
   const customCommands = customValidatorCommandSpecs(configInfo.data);

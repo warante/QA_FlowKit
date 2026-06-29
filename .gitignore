@@ -14,7 +14,8 @@ yarn-error.log*
 pnpm-debug.log*
 .npm-cache/
 .qa-flowkit-npm-*/
-.pack-test/
+.qa-flowkit-update-migration-*/
+pack-artifact/
 
 # OS
 .DS_Store

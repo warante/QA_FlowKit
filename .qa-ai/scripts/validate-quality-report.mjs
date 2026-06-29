@@ -11,7 +11,7 @@ function printHelp() {
 Options:
   --path <file>       Override testDesign.quality.reportPath
   --features <dir>    Override configured feature root
-  --mode <off|advisory|gate> Override testDesign.quality.mode
+  --mode <off|advisory|strict> Override testDesign.quality.mode (legacy alias: gate)
   --min <n>           Override testDesign.quality.minDimensionsPassed
   --rf <RF-ID>        Validate only feature files traced to one RF
   --allow-empty       Return success when no matching feature files exist

@@ -272,13 +272,28 @@ export function inferredAcceptanceCriteriaConflicts(config) {
   ];
 }
 
-export async function loadQaAiConfig(cwd) {
+export async function loadQaAiConfig(cwd, { useCache = true } = {}) {
+  const cacheKey = path.resolve(cwd);
+  if (useCache && loadQaAiConfig.cache.has(cacheKey)) {
+    return loadQaAiConfig.cache.get(cacheKey);
+  }
   const filePath = path.join(cwd, 'qa-ai.config.yaml');
   if (!(await pathExists(filePath))) {
-    return { exists: false, path: filePath, content: '', data: {} };
+    const result = { exists: false, path: filePath, content: '', data: {} };
+    if (useCache) loadQaAiConfig.cache.set(cacheKey, result);
+    return result;
   }
   const content = await readText(filePath);
-  return { exists: true, path: filePath, content, data: normalizeRequirementsConfig(parseSimpleYaml(content)) };
+  const result = { exists: true, path: filePath, content, data: normalizeRequirementsConfig(parseSimpleYaml(content)) };
+  if (useCache) loadQaAiConfig.cache.set(cacheKey, result);
+  return result;
+}
+
+loadQaAiConfig.cache = new Map();
+
+export function clearQaAiConfigCache(cwd) {
+  if (cwd) loadQaAiConfig.cache.delete(path.resolve(cwd));
+  else loadQaAiConfig.cache.clear();
 }
 
 export function findChangeMeKeys(content) {

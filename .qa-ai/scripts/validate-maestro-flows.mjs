@@ -12,9 +12,11 @@ import {
   relativeTo,
   resolveRepoPath
 } from './lib/utils.mjs';
+import { emitJson, isJsonMode } from './lib/validator-cli.mjs';
 
 const cwd = process.cwd();
 const args = parseArgs(process.argv);
+const jsonMode = isJsonMode(args);
 
 function printHelp() {
   console.log(`Usage: node .qa-ai/scripts/validate-maestro-flows.mjs [options]
@@ -28,14 +30,6 @@ Options:
 
 Validates Maestro flow front matter, sequence commands and repository-local runFlow references.
 `);
-}
-
-const jsonMode = Boolean(args.json);
-
-function emitJson(ok, errors = [], warnings = []) {
-  console.log(
-    JSON.stringify({ ok, errors, warnings, findings: errors.map((message) => ({ severity: 'error', message })) })
-  );
 }
 
 async function main() {
