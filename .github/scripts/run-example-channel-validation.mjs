@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import fs from 'node:fs/promises';
+import { existsSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -9,6 +10,8 @@ const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../
 const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 const npmExecPath = process.env.npm_execpath || '';
 const node = process.execPath;
+const bundledNpmCli = path.join(path.dirname(node), 'node_modules', 'npm', 'bin', 'npm-cli.js');
+const npmScriptPath = npmExecPath || (process.platform === 'win32' && existsSync(bundledNpmCli) ? bundledNpmCli : '');
 
 function argument(name, fallback = '') {
   const index = process.argv.indexOf(name);
@@ -27,11 +30,11 @@ function validatePackageSpec(value) {
   );
 }
 
-function run(command, args, { cwd, env = {} } = {}) {
+function run(command, args, { cwd, env = {}, shell = false } = {}) {
   const result = spawnSync(command, args, {
     cwd,
     encoding: 'utf8',
-    shell: false,
+    shell,
     env: {
       ...process.env,
       npm_config_audit: 'false',
@@ -51,8 +54,8 @@ function run(command, args, { cwd, env = {} } = {}) {
 }
 
 function runNpm(args, options) {
-  if (npmExecPath) return run(node, [npmExecPath, ...args], options);
-  return run(npmCommand, args, options);
+  if (npmScriptPath) return run(node, [npmScriptPath, ...args], options);
+  return run(npmCommand, args, { ...options, shell: process.platform === 'win32' });
 }
 
 function cliPath(cliRoot) {
