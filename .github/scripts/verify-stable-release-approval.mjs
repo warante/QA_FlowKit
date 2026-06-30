@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import fs from 'node:fs/promises';
-import { isMain, repoRoot } from './lib/ci-helpers.mjs';
+import { assert, isMain, repoRoot } from './lib/ci-helpers.mjs';
 import path from 'node:path';
 import { verifyReleasePolicy } from './verify-release-policy.mjs';
 
@@ -17,10 +17,6 @@ function isApprovedSignOff(value) {
   return value === 'approved' || APPROVED_SIGN_OFF_PATTERN.test(value);
 }
 const ALLOWED_HUMAN_SETTING = new Set(['pending', 'confirmed', 'not_applicable']);
-
-function assert(condition, message, errors) {
-  if (!condition) errors.push(message);
-}
 
 async function readJson(filePath) {
   return JSON.parse(await fs.readFile(filePath, 'utf8'));

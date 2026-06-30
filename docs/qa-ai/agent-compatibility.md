@@ -19,6 +19,55 @@ node .qa-ai/scripts/sync-agent-adapters.mjs --adapter cline --adapter continue
 
 Existing adapter files are skipped unless `--force` is passed.
 
+## Adapter and plugin parity workflow
+
+Adapter templates under `.qa-ai/adapters/` are the single source of truth. Root copies, the Claude Code plugin and CI checks must stay aligned with those templates.
+
+```text
+.qa-ai/adapters/<tool>/          edit templates here only
+        |
+        +--> sync-agent-adapters.mjs  -->  .claude/, .opencode/, AGENTS.md, ...
+        |
+        +--> build-claude-plugin.mjs  -->  plugin/, .claude-plugin/
+        |
+        +--> CI verification
+               verify-adapter-parity.mjs      (root copies == templates)
+               build-claude-plugin.mjs --check (plugin == adapter)
+               verify-adapter-support.mjs     (manifest, docs, description parity warnings)
+```
+
+Maintainer workflow after changing Claude or OpenCode commands:
+
+1. Edit only `.qa-ai/adapters/claude/` and/or `.qa-ai/adapters/opencode/`.
+2. Regenerate root adapter copies:
+
+   ```bash
+   node .qa-ai/scripts/sync-agent-adapters.mjs --adapters claude,opencode --force
+   ```
+
+3. Regenerate the Claude Code plugin when Claude adapter files changed:
+
+   ```bash
+   node .github/scripts/build-claude-plugin.mjs
+   ```
+
+4. Run local checks before opening a PR:
+
+   ```bash
+   node .github/scripts/verify-adapter-parity.mjs
+   node .github/scripts/build-claude-plugin.mjs --check
+   npm run test:adapter-support
+   ```
+
+Parity rules:
+
+- **Root copies** (`.claude/`, `.opencode/`): byte-identical to `.qa-ai/adapters/<tool>/` except documented exclusions (for example `.claude/settings.json`). Enforced by `verify-adapter-parity.mjs` in CI.
+- **Claude plugin** (`plugin/`, `.claude-plugin/`): generated from the Claude adapter; skill bodies come from `.qa-ai/adapters/claude/commands/`. Enforced by `build-claude-plugin.mjs --check` in CI.
+- **Cross-adapter command metadata**: for each shared slash-command filename, the `description` frontmatter in Claude and OpenCode templates should stay identical (bilingual `English / Spanish`). `verify-adapter-support.mjs` emits a **warning** when description hashes diverge; fix by syncing the `description` field across both adapters.
+- **Support manifest**: `docs/qa-ai/adapter-support.v1.json` and the support table in this document must match adapter template directories and evidence paths. Enforced by `npm run test:adapter-support`.
+
+See also [Claude Code Plugin](claude-plugin.md) and [CONTRIBUTING.md](../../CONTRIBUTING.md) § Agent adapters.
+
 ## Agent-first initialization
 
 Claude Code and OpenCode discover project slash commands from tool-specific folders in the repository root:

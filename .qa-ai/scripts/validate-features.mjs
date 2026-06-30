@@ -11,7 +11,12 @@ import {
   relativeTo,
   resolveRepoPath
 } from './lib/utils.mjs';
-import { emitJson, isJsonMode } from './lib/validator-cli.mjs';
+import {
+  exitSingleFileFailure,
+  handleEmptyCollection,
+  resolveSingleCollectionFile
+} from './lib/collection-validator.mjs';
+import { finishValidatorRun, isJsonMode, isValidatorMain } from './lib/validator-cli.mjs';
 
 const cwd = process.cwd();
 const args = parseArgs(process.argv);
@@ -65,41 +70,33 @@ async function main() {
 
   let files;
   if (args.file) {
-    const resolvedFile = resolveRepoPath(cwd, args.file, { label: 'single feature file' });
-    if (!resolvedFile.startsWith(featureRootPath)) {
-      if (jsonMode) emitJson(false, [`file "${args.file}" is not under feature root "${featureRoot}".`]);
-      else console.log(`FAILED - file "${args.file}" is not under feature root "${featureRoot}".`);
-      process.exit(1);
-    }
-    try {
-      const stat = await fs.stat(resolvedFile);
-      if (!stat.isFile()) {
-        if (jsonMode) emitJson(false, [`file "${args.file}" is not a file.`]);
-        else console.log(`FAILED - file "${args.file}" is not a file.`);
-        process.exit(1);
-      }
-    } catch {
-      if (jsonMode) emitJson(false, [`file "${args.file}" does not exist.`]);
-      else console.log(`FAILED - file "${args.file}" does not exist.`);
-      process.exit(1);
-    }
-    files = [resolvedFile];
+    const single = await resolveSingleCollectionFile({
+      cwd,
+      fileArg: args.file,
+      isUnderRoot: (resolved) => resolved.startsWith(featureRootPath),
+      notUnderRootError: `file "${args.file}" is not under feature root "${featureRoot}".`,
+      fileLabel: 'single feature file'
+    });
+    if (!single.ok) exitSingleFileFailure(single, jsonMode);
+    files = [single.file];
     args['no-duplicates'] = true;
   } else {
     files = await listFilesRecursive(featureRootPath, (filePath) => filePath.endsWith('.feature'));
   }
 
-  if (files.length === 0) {
-    if (!args['allow-empty']) {
-      if (jsonMode) emitJson(false, [`No .feature files found under ${featureRoot}.`]);
-      else {
-        console.log(`No .feature files found under ${featureRoot}.`);
-        console.log('\nFAILED - no feature files found. Pass --allow-empty when this is expected.');
-      }
-      process.exit(1);
-    }
-    if (jsonMode) emitJson(true);
-    else console.log(`No .feature files found under ${featureRoot}.`);
+  if (
+    handleEmptyCollection({
+      fileCount: files.length,
+      allowEmpty: Boolean(args['allow-empty']),
+      jsonMode,
+      failureErrors: [`No .feature files found under ${featureRoot}.`],
+      failureTextLines: [
+        `No .feature files found under ${featureRoot}.`,
+        '\nFAILED - no feature files found. Pass --allow-empty when this is expected.'
+      ],
+      successText: `No .feature files found under ${featureRoot}.`
+    })
+  ) {
     return;
   }
 
@@ -163,16 +160,19 @@ async function main() {
     }
   }
 
-  if (totalErrors > 0) {
-    if (jsonMode) emitJson(false, aggErrors, aggWarnings);
-    else console.log(`\nFAILED - ${totalErrors} validation errors.`);
-    process.exit(1);
-  }
-  if (jsonMode) emitJson(true, [], aggWarnings);
-  else console.log('\nVALID - all feature files passed.');
+  finishValidatorRun({
+    ok: totalErrors === 0,
+    errors: aggErrors,
+    warnings: aggWarnings,
+    jsonMode,
+    successMessage: '\nVALID - all feature files passed.',
+    failureMessage: `\nFAILED - ${totalErrors} validation errors.`
+  });
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+if (isValidatorMain(import.meta.url)) {
+  main().catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
+}

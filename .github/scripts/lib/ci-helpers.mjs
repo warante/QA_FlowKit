@@ -4,6 +4,7 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { parsePackOutput, validatePackFileList } from '../../../.qa-ai/scripts/lib/npm-pack-allowlist.mjs';
+import { pathExists as pathExistsAbsolute } from '../../../.qa-ai/scripts/lib/utils.mjs';
 
 export const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
 export const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
@@ -55,12 +56,7 @@ export async function assertMissing(filePath, label = filePath) {
 }
 
 export async function pathExists(root, relativePath) {
-  try {
-    await fs.access(path.join(root, relativePath));
-    return true;
-  } catch {
-    return false;
-  }
+  return pathExistsAbsolute(path.join(root, relativePath));
 }
 
 export function run(command, args, { cwd, env = {}, expectFailure = false, shell = false, stdio = 'pipe' } = {}) {

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import crypto from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { assert, pathExists, readJson, repoRoot } from './lib/ci-helpers.mjs';
@@ -11,6 +12,75 @@ const adapterRoot = path.join(repoRoot, '.qa-ai', 'adapters');
 const allowedLevels = new Set(['template-verified', 'cli-smoke-verified', 'host-e2e-verified']);
 const expectedAdapters = ['generic', 'claude', 'codex', 'opencode', 'cline', 'continue', 'aider', 'goose', 'gemini'];
 const sharedGuidancePattern = /\.qa-ai\/workflows\/command-interaction\.md|command-interaction\.md/;
+const claudeCommandsDir = path.join(adapterRoot, 'claude', 'commands');
+const opencodeCommandsDir = path.join(adapterRoot, 'opencode', 'commands');
+
+function hashText(value) {
+  return crypto.createHash('sha256').update(value).digest('hex');
+}
+
+function parseFrontmatterDescription(content) {
+  const lines = content.split(/\r?\n/);
+  if (lines[0] !== '---') return null;
+
+  for (let i = 1; i < lines.length; i++) {
+    if (lines[i] === '---') break;
+    const colonIndex = lines[i].indexOf(':');
+    if (colonIndex <= 0) continue;
+    const key = lines[i].slice(0, colonIndex).trim();
+    if (key === 'description') return lines[i].slice(colonIndex + 1).trim();
+  }
+
+  return null;
+}
+
+async function listCommandFilenames(directory) {
+  try {
+    return (await fs.readdir(directory)).filter((name) => name.endsWith('.md')).sort();
+  } catch (error) {
+    if (error.code === 'ENOENT') return [];
+    throw error;
+  }
+}
+
+async function checkCommandDescriptionParity(warnings) {
+  const claudeFiles = await listCommandFilenames(claudeCommandsDir);
+  const opencodeFiles = await listCommandFilenames(opencodeCommandsDir);
+  const opencodeSet = new Set(opencodeFiles);
+
+  for (const filename of claudeFiles) {
+    if (!opencodeSet.has(filename)) {
+      warnings.push(`command description parity: OpenCode adapter is missing ${filename}`);
+      continue;
+    }
+
+    const claudeContent = await fs.readFile(path.join(claudeCommandsDir, filename), 'utf8');
+    const opencodeContent = await fs.readFile(path.join(opencodeCommandsDir, filename), 'utf8');
+    const claudeDescription = parseFrontmatterDescription(claudeContent);
+    const opencodeDescription = parseFrontmatterDescription(opencodeContent);
+
+    if (!claudeDescription) {
+      warnings.push(`command description parity: Claude command ${filename} is missing description frontmatter`);
+      continue;
+    }
+    if (!opencodeDescription) {
+      warnings.push(`command description parity: OpenCode command ${filename} is missing description frontmatter`);
+      continue;
+    }
+
+    const claudeHash = hashText(claudeDescription);
+    const opencodeHash = hashText(opencodeDescription);
+    if (claudeHash !== opencodeHash) {
+      warnings.push(`command description parity: ${filename} description differs between Claude and OpenCode adapters`);
+    }
+  }
+
+  for (const filename of opencodeFiles) {
+    if (!claudeFiles.includes(filename)) {
+      warnings.push(`command description parity: Claude adapter is missing ${filename}`);
+    }
+  }
+}
 
 async function filesUnder(directory) {
   const files = [];
@@ -29,6 +99,7 @@ async function filesUnder(directory) {
 
 async function main() {
   const errors = [];
+  const warnings = [];
   const manifest = await readJson(manifestPath);
   const packageJson = await readJson(packagePath);
   const docs = await fs.readFile(docsPath, 'utf8');
@@ -112,6 +183,14 @@ async function main() {
     }
   }
 
+  await checkCommandDescriptionParity(warnings);
+
+  if (warnings.length > 0) {
+    console.warn('Adapter support verification warnings:\n');
+    for (const warning of warnings) console.warn(`  - ${warning}`);
+    console.warn('');
+  }
+
   if (errors.length > 0) {
     console.error('Adapter support verification failed:\n');
     for (const error of errors) console.error(`  - ${error}`);
@@ -121,7 +200,7 @@ async function main() {
   console.log(
     `Adapter support verification passed (${adapters.length} adapters: ${adapters
       .map((adapter) => `${adapter.id}=${adapter.level}`)
-      .join(', ')}).`
+      .join(', ')}${warnings.length > 0 ? `; ${warnings.length} warning(s)` : ''}).`
   );
 }
 

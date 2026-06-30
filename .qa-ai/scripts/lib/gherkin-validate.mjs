@@ -40,7 +40,19 @@ export function normalizeLanguage(value) {
     .trim()
     .toLowerCase();
   if (['es', 'esp', 'spa', 'spanish', 'espanol', 'espa\u00f1ol'].includes(normalized)) return 'es';
+  if (['en', 'eng', 'english', 'ingles', 'ingl\u00e9s'].includes(normalized)) return 'en';
   return 'en';
+}
+
+/** Like normalizeLanguage but exits the process when the value is not a supported language code. */
+export function normalizeLanguageStrict(value, label = 'language') {
+  const normalized = String(value || '')
+    .trim()
+    .toLowerCase();
+  if (['es', 'esp', 'spa', 'spanish', 'espanol', 'espa\u00f1ol'].includes(normalized)) return 'es';
+  if (['en', 'eng', 'english', 'ingles', 'ingl\u00e9s'].includes(normalized)) return 'en';
+  console.error(`Unsupported ${label}: ${value}. Use "en" or "es".`);
+  process.exit(1);
 }
 
 export function languageRules(language) {

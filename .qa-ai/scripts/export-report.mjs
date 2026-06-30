@@ -2,7 +2,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import crypto from 'node:crypto';
-import { resolveGlobs } from './validate-execution-evidence.mjs';
+import { resolveGlobs } from './lib/glob.mjs';
 import { parseJUnitXml, parseCucumberJson, extractTestIds } from './lib/execution-results.mjs';
 import { parseMarkdownTable, normalizeColumn } from './lib/markdown-table.mjs';
 import {

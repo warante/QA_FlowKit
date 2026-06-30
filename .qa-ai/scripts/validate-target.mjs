@@ -1,7 +1,5 @@
 #!/usr/bin/env node
 import { spawnSync } from 'node:child_process';
-import { usesKarate } from './lib/automation-framework.mjs';
-import { usesMaestro } from './lib/mobile-automation.mjs';
 import { normalizeQaTrack } from './lib/qa-next-steps.mjs';
 import { formatSecretScanFindingsForJson, scanTargetSecrets } from './lib/target-secret-scan.mjs';
 import {
@@ -9,16 +7,8 @@ import {
   runCustomValidator,
   validateCustomValidatorConfig
 } from './lib/custom-validators.mjs';
-import {
-  ARTIFACT_PATHS,
-  getConfigValue,
-  loadQaAiConfig,
-  logHeader,
-  parseArgs,
-  pathExists,
-  resolveRepoPath
-} from './lib/utils.mjs';
-import { validatorScriptPath } from './lib/validator-registry.mjs';
+import { getConfigValue, loadQaAiConfig, logHeader, parseArgs } from './lib/utils.mjs';
+import { buildTargetValidatorSteps, runInProcessStep, runSubprocessStep } from './lib/validate-target-runner.mjs';
 
 const args = parseArgs(process.argv);
 
@@ -53,39 +43,6 @@ Runs the target-repository validation pipeline:
 `);
 }
 
-function validatorCommand(label, id, extraArgs = []) {
-  return command(label, validatorScriptPath(id), extraArgs);
-}
-
-function command(label, script, extraArgs = []) {
-  return { label, args: [script, ...extraArgs] };
-}
-
-function run(commandSpec) {
-  console.log(`\n--- ${commandSpec.label} ---`);
-  const result = spawnSync(process.execPath, commandSpec.args, {
-    cwd: process.cwd(),
-    encoding: 'utf8',
-    stdio: 'inherit',
-    shell: false
-  });
-  return result.status ?? 1;
-}
-
-function runQuiet(commandSpec) {
-  const result = spawnSync(process.execPath, commandSpec.args, {
-    cwd: process.cwd(),
-    encoding: 'utf8',
-    stdio: 'pipe',
-    shell: false
-  });
-  return {
-    status: result.status ?? 1,
-    stdout: result.stdout || '',
-    stderr: result.stderr || ''
-  };
-}
-
 function customValidatorCommandSpecs(config) {
   return customValidatorsFromConfig(config).map((raw) => ({
     label: `custom validator ${raw.id}`,
@@ -102,7 +59,6 @@ function parseTextFindings(label, output) {
     const trimmed = line.trim();
     if (!trimmed) continue;
 
-    // Check for feature validation failure header or general file header
     const featMatch = line.match(/^\[FAIL\]\s+(.*?\.(?:feature|spec|flow|js|ts|mjs|cjs|yaml|yml|json|md))$/);
     if (featMatch) {
       currentFile = featMatch[1];
@@ -110,28 +66,18 @@ function parseTextFindings(label, output) {
     }
 
     if (line.startsWith('  - ') && currentFile) {
-      findings.push({
-        file: currentFile,
-        message: line.slice(4).trim(),
-        severity: 'error'
-      });
+      findings.push({ file: currentFile, message: line.slice(4).trim(), severity: 'error' });
       continue;
     }
 
     if (line.startsWith('  [WARN] ') && currentFile) {
-      findings.push({
-        file: currentFile,
-        message: line.slice(9).trim(),
-        severity: 'warning'
-      });
+      findings.push({ file: currentFile, message: line.slice(9).trim(), severity: 'warning' });
       continue;
     }
 
     if (line.startsWith('[FAIL]') || line.startsWith('[WARN]')) {
       const severity = line.startsWith('[FAIL]') ? 'error' : 'warning';
       const content = line.slice(6).trim();
-
-      // Match patterns like "file.md:12: message" or "file.md:12 message"
       const fileLineMatch = content.match(/^([^:\s]+):(\d+)(?::)?\s*(.*)$/);
       if (fileLineMatch && (fileLineMatch[1].includes('/') || fileLineMatch[1].includes('.'))) {
         findings.push({
@@ -141,23 +87,90 @@ function parseTextFindings(label, output) {
           severity
         });
       } else {
-        findings.push({
-          message: content,
-          severity
-        });
+        findings.push({ message: content, severity });
       }
       continue;
     }
 
     if (line.startsWith('FAILED -') || line.startsWith('FAILED:')) {
-      findings.push({
-        message: line.trim(),
-        severity: 'error'
-      });
+      findings.push({ message: line.trim(), severity: 'error' });
     }
   }
 
   return findings;
+}
+
+function printInProcessTextResult(step, runResult) {
+  const { result } = runResult;
+  if (result.skipped) {
+    console.log(`[SKIP] ${step.label}`);
+    return;
+  }
+  if (runResult.ok) {
+    console.log(`[PASS] ${step.label}`);
+    for (const warning of result.warnings || []) {
+      console.log(`  [WARN] ${warning}`);
+    }
+    return;
+  }
+  console.log(`[FAIL] ${step.label}`);
+  for (const error of result.errors || []) {
+    console.log(`  - ${error}`);
+  }
+}
+
+async function runStepText(cwd, step) {
+  console.log(`\n--- ${step.label} ---`);
+  if (step.kind === 'subprocess') {
+    const result = runSubprocessStep(cwd, step);
+    if (!result.ok) return false;
+    return true;
+  }
+  const runResult = await runInProcessStep(cwd, step);
+  printInProcessTextResult(step, runResult);
+  return runResult.ok;
+}
+
+async function runStepJson(cwd, step) {
+  if (step.kind === 'subprocess') {
+    const subprocessArgs = step.args.includes('--json') ? step.args : [...step.args, '--json'];
+    const result = spawnSync(process.execPath, subprocessArgs, {
+      cwd,
+      encoding: 'utf8',
+      stdio: 'pipe',
+      shell: false
+    });
+    const passed = (result.status ?? 1) === 0;
+    let findings;
+    try {
+      const parsed = JSON.parse(result.stdout);
+      if (parsed && Array.isArray(parsed.findings)) {
+        findings = parsed.findings.map((f) => ({
+          file: f.file || f.path || '',
+          line: typeof f.line === 'number' ? f.line : undefined,
+          message: f.message || '',
+          severity: f.severity || (passed ? 'warning' : 'error')
+        }));
+      } else if (parsed && Array.isArray(parsed.errors)) {
+        findings = parsed.errors.map((err) => ({
+          message: typeof err === 'string' ? err : JSON.stringify(err),
+          severity: 'error'
+        }));
+      } else {
+        findings = parseTextFindings(step.label, `${result.stdout}\n${result.stderr}`);
+      }
+    } catch {
+      findings = parseTextFindings(step.label, `${result.stdout}\n${result.stderr}`);
+    }
+    return { name: step.label, status: passed ? 'passed' : 'failed', findings };
+  }
+
+  const runResult = await runInProcessStep(cwd, step);
+  return {
+    name: step.label,
+    status: runResult.ok ? 'passed' : 'failed',
+    findings: runResult.findings
+  };
 }
 
 async function main() {
@@ -167,160 +180,43 @@ async function main() {
   }
 
   const jsonMode = Boolean(args.json);
-  if (!jsonMode) {
-    logHeader('QA AI target repository validator');
-  }
+  const cwd = process.cwd();
+  if (!jsonMode) logHeader('QA AI target repository validator');
 
-  const allowEmpty = Boolean(args['allow-empty']);
-  const allowMissing = Boolean(args['allow-missing']);
   const strictDoctor = !args['no-strict-doctor'];
-  const configInfo = await loadQaAiConfig(process.cwd());
+  const configInfo = await loadQaAiConfig(cwd);
   const track = normalizeQaTrack(getConfigValue(configInfo.data, 'project.qaTrack', 'standard'));
   const coverageMode = String(getConfigValue(configInfo.data, 'testDesign.coverage.mode', 'off')).toLowerCase();
   const qualityMode = String(getConfigValue(configInfo.data, 'testDesign.quality.mode', 'off')).toLowerCase();
   const syncMode = getConfigValue(configInfo.data, 'testManagementSync.mode', 'proposal-only');
   const externalIntakeEnabled = Boolean(getConfigValue(configInfo.data, 'sources.external.enabled', false));
-  const hasHealingLog = await pathExists(
-    resolveRepoPath(process.cwd(), ARTIFACT_PATHS.healingLog, {
-      label: 'healing log check',
-      allowRoot: true
-    })
-  );
-  const hasImpactAnalysis = await pathExists(
-    resolveRepoPath(process.cwd(), ARTIFACT_PATHS.testImpactAnalysis, {
-      label: 'test impact analysis check',
-      allowRoot: true
-    })
-  );
 
-  const featureArgs = allowEmpty ? ['--allow-empty'] : [];
-  const artifactArgs = [...(allowEmpty ? ['--allow-empty'] : []), ...(allowMissing ? ['--allow-missing'] : [])];
-  const activeSpecialistArgs = allowMissing ? ['--allow-missing'] : [];
-
-  const commands = [
-    command('doctor', '.qa-ai/scripts/doctor.mjs', strictDoctor ? ['--strict'] : []),
-    validatorCommand('feature validation', 'validate-features', featureArgs),
-    ...(coverageMode !== 'off' && !args['skip-test-coverage']
-      ? [
-          validatorCommand('test coverage validation', 'validate-test-coverage', [
-            ...featureArgs,
-            ...(allowMissing ? ['--allow-missing'] : [])
-          ])
-        ]
-      : []),
-    ...(track !== 'quick' && qualityMode !== 'off' && !args['skip-quality-report']
-      ? [
-          validatorCommand('Gherkin quality report validation', 'validate-quality-report', [
-            ...featureArgs,
-            ...(allowMissing ? ['--allow-missing'] : [])
-          ])
-        ]
-      : []),
-    ...(usesKarate(configInfo.data)
-      ? [validatorCommand('karate feature validation', 'validate-karate-features', featureArgs)]
-      : []),
-    ...(usesMaestro(configInfo.data)
-      ? [validatorCommand('Maestro flow validation', 'validate-maestro-flows', featureArgs)]
-      : []),
-    ...(track !== 'quick' ? [validatorCommand('sync plan validation', 'validate-sync-plan', artifactArgs)] : []),
-    ...(track !== 'quick' && syncMode === 'governed'
-      ? [
-          validatorCommand('sync diff validation', 'validate-sync-diff', artifactArgs),
-          validatorCommand('sync result validation', 'validate-sync-result', artifactArgs)
-        ]
-      : []),
-    ...(externalIntakeEnabled
-      ? [validatorCommand('external intake validation', 'validate-external-intake', artifactArgs)]
-      : []),
-    ...(getConfigValue(configInfo.data, 'execution.resultsPaths', []).length > 0 ||
-    getConfigValue(configInfo.data, 'execution.evalResultsPaths', []).length > 0
-      ? [validatorCommand('execution evidence validation', 'validate-execution-evidence', artifactArgs)]
-      : []),
-    ...(hasHealingLog ? [validatorCommand('governed healing validation', 'validate-healing-log', artifactArgs)] : []),
-    ...(hasImpactAnalysis ? [validatorCommand('test impact validation', 'validate-test-impact', artifactArgs)] : []),
-    validatorCommand('traceability validation', 'validate-traceability', artifactArgs),
-    validatorCommand('untrusted content scan', 'validate-untrusted-content', [
-      '--allow-missing',
-      ...(args['strict-untrusted-content'] ? ['--strict'] : [])
-    ]),
-    validatorCommand('active specialist validation', 'validate-active-specialists', activeSpecialistArgs)
-  ];
-
-  if (track === 'enterprise' && !args['skip-release-gate']) {
-    const gateArgs = [
-      ...(allowMissing ? ['--allow-missing'] : []),
-      ...(args['allow-pending'] ? ['--allow-pending'] : [])
-    ];
-    commands.push(validatorCommand('release gate validation', 'validate-release-gate', gateArgs));
-  }
-
-  if (['standard', 'enterprise'].includes(track) && !args['skip-test-design']) {
-    const designArgs = allowMissing ? ['--allow-missing'] : [];
-    commands.push(validatorCommand('test design validation', 'validate-test-design', designArgs));
-  }
+  const steps = await buildTargetValidatorSteps({
+    cwd,
+    config: configInfo.data,
+    args,
+    track,
+    coverageMode,
+    qualityMode,
+    syncMode,
+    externalIntakeEnabled
+  });
 
   const customCommands = customValidatorCommandSpecs(configInfo.data);
-
-  if (jsonMode) {
-    for (const cmd of commands) {
-      if (
-        cmd.label === 'untrusted content scan' ||
-        cmd.label === 'test coverage validation' ||
-        cmd.label === 'Gherkin quality report validation' ||
-        cmd.label === 'sync diff validation' ||
-        cmd.label === 'sync result validation' ||
-        cmd.label === 'external intake validation' ||
-        cmd.label === 'execution evidence validation' ||
-        cmd.label === 'governed healing validation' ||
-        cmd.label === 'test impact validation'
-      ) {
-        cmd.args.push('--json');
-      }
-    }
-  }
-
   const scanSecrets = args['no-scan-secrets'] ? false : Boolean(args['scan-secrets'] || strictDoctor);
 
   if (jsonMode) {
     const validatorsResult = [];
     let allOk = true;
 
-    for (const commandSpec of commands) {
-      const result = runQuiet(commandSpec);
-      const passed = result.status === 0;
-      if (!passed) allOk = false;
-
-      let findings;
-      try {
-        const parsed = JSON.parse(result.stdout);
-        if (parsed && Array.isArray(parsed.findings)) {
-          findings = parsed.findings.map((f) => ({
-            file: f.file || f.path || '',
-            line: typeof f.line === 'number' ? f.line : undefined,
-            message: f.message || '',
-            severity: f.severity || (result.status === 0 ? 'warning' : 'error')
-          }));
-        } else if (parsed && Array.isArray(parsed.errors)) {
-          findings = parsed.errors.map((err) => ({
-            message: typeof err === 'string' ? err : JSON.stringify(err),
-            severity: 'error'
-          }));
-        } else {
-          findings = parseTextFindings(commandSpec.label, `${result.stdout}\n${result.stderr}`);
-        }
-      } catch {
-        findings = parseTextFindings(commandSpec.label, `${result.stdout}\n${result.stderr}`);
-      }
-
-      validatorsResult.push({
-        name: commandSpec.label,
-        status: passed ? 'passed' : 'failed',
-        findings
-      });
+    for (const step of steps) {
+      const entry = await runStepJson(cwd, step);
+      if (entry.status !== 'passed') allOk = false;
+      validatorsResult.push(entry);
     }
 
     if (customCommands.length > 0) {
-      const customConfigResult = await validateCustomValidatorConfig(process.cwd(), configInfo.data);
+      const customConfigResult = await validateCustomValidatorConfig(cwd, configInfo.data);
       if (!customConfigResult.ok) {
         allOk = false;
         validatorsResult.push({
@@ -330,7 +226,7 @@ async function main() {
         });
       } else {
         for (const commandSpec of customCommands) {
-          const result = runCustomValidator(process.cwd(), {
+          const result = runCustomValidator(cwd, {
             ...commandSpec.validator,
             blocking: commandSpec.validator.blocking === undefined ? true : commandSpec.validator.blocking === true
           });
@@ -347,10 +243,9 @@ async function main() {
     }
 
     if (scanSecrets) {
-      const findings = await scanTargetSecrets(process.cwd(), configInfo.data);
+      const findings = await scanTargetSecrets(cwd, configInfo.data);
       const secretScanPassed = findings.length === 0;
       if (!secretScanPassed) allOk = false;
-
       validatorsResult.push({
         name: 'secret scan',
         status: secretScanPassed ? 'passed' : 'failed',
@@ -358,71 +253,62 @@ async function main() {
       });
     }
 
-    console.log(
-      JSON.stringify(
-        {
-          ok: allOk,
-          validators: validatorsResult
-        },
-        null,
-        2
-      )
-    );
+    console.log(JSON.stringify({ ok: allOk, validators: validatorsResult }, null, 2));
     process.exit(allOk ? 0 : 1);
-  } else {
-    for (const commandSpec of commands) {
-      const exitCode = run(commandSpec);
-      if (exitCode !== 0) {
-        console.log(`\nFAILED - ${commandSpec.label} failed.`);
-        process.exit(exitCode);
-      }
-    }
-
-    if (customCommands.length > 0) {
-      console.log('\n--- custom validators ---');
-      const customConfigResult = await validateCustomValidatorConfig(process.cwd(), configInfo.data);
-      if (!customConfigResult.ok) {
-        for (const error of customConfigResult.errors) console.log(`[FAIL] ${error}`);
-        console.log('\nFAILED - custom validator config failed.');
-        process.exit(1);
-      }
-      for (const commandSpec of customCommands) {
-        const result = runCustomValidator(process.cwd(), {
-          ...commandSpec.validator,
-          blocking: commandSpec.validator.blocking === undefined ? true : commandSpec.validator.blocking === true
-        });
-        if (result.ok) {
-          console.log(`[PASS] ${commandSpec.label}`);
-          continue;
-        }
-        const marker = result.blocking ? 'FAIL' : 'WARN';
-        console.log(`[${marker}] ${commandSpec.label}`);
-        for (const finding of result.findings) {
-          const location = finding.file ? `${finding.file}${finding.line ? `:${finding.line}` : ''}: ` : '';
-          console.log(`  - ${location}${finding.message}`);
-        }
-        if (result.blocking) {
-          console.log(`\nFAILED - ${commandSpec.label} failed.`);
-          process.exit(result.exitCode || 1);
-        }
-      }
-    }
-
-    if (scanSecrets) {
-      console.log('\n--- secret scan ---');
-      const findings = await scanTargetSecrets(process.cwd(), configInfo.data);
-      if (findings.length > 0) {
-        for (const finding of findings) {
-          console.log(`[FAIL] ${finding.label}:${finding.line} (${finding.pattern}) ${finding.excerpt}`);
-        }
-        console.log(`\nFAILED - ${findings.length} potential secret(s) in QA artifacts.`);
-        process.exit(1);
-      }
-      console.log('[PASS] No secret-like values detected in qa-ai-output or features.');
-    }
-
-    console.log('\nVALID - target repository validation passed.');
   }
+
+  for (const step of steps) {
+    const passed = await runStepText(cwd, step);
+    if (!passed) {
+      console.log(`\nFAILED - ${step.label} failed.`);
+      process.exit(1);
+    }
+  }
+
+  if (customCommands.length > 0) {
+    console.log('\n--- custom validators ---');
+    const customConfigResult = await validateCustomValidatorConfig(cwd, configInfo.data);
+    if (!customConfigResult.ok) {
+      for (const error of customConfigResult.errors) console.log(`[FAIL] ${error}`);
+      console.log('\nFAILED - custom validator config failed.');
+      process.exit(1);
+    }
+    for (const commandSpec of customCommands) {
+      const result = runCustomValidator(cwd, {
+        ...commandSpec.validator,
+        blocking: commandSpec.validator.blocking === undefined ? true : commandSpec.validator.blocking === true
+      });
+      if (result.ok) {
+        console.log(`[PASS] ${commandSpec.label}`);
+        continue;
+      }
+      const marker = result.blocking ? 'FAIL' : 'WARN';
+      console.log(`[${marker}] ${commandSpec.label}`);
+      for (const finding of result.findings) {
+        const location = finding.file ? `${finding.file}${finding.line ? `:${finding.line}` : ''}: ` : '';
+        console.log(`  - ${location}${finding.message}`);
+      }
+      if (result.blocking) {
+        console.log(`\nFAILED - ${commandSpec.label} failed.`);
+        process.exit(result.exitCode || 1);
+      }
+    }
+  }
+
+  if (scanSecrets) {
+    console.log('\n--- secret scan ---');
+    const findings = await scanTargetSecrets(cwd, configInfo.data);
+    if (findings.length > 0) {
+      for (const finding of findings) {
+        console.log(`[FAIL] ${finding.label}:${finding.line} (${finding.pattern}) ${finding.excerpt}`);
+      }
+      console.log(`\nFAILED - ${findings.length} potential secret(s) in QA artifacts.`);
+      process.exit(1);
+    }
+    console.log('[PASS] No secret-like values detected in qa-ai-output or features.');
+  }
+
+  console.log('\nVALID - target repository validation passed.');
 }
 
 main().catch((error) => {

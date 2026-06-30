@@ -1,11 +1,15 @@
 #!/usr/bin/env node
-import { parseMarkdownTable, normalizeColumn } from './lib/markdown-table.mjs';
+import {
+  loadTraceabilityMatrix,
+  normalizeColumn,
+  parseMarkdownTable,
+  resolveArtifactOrMissing
+} from './lib/markdown-artifact-validator.mjs';
 import {
   getConfigValue,
   loadQaAiConfig,
   logHeader,
   parseArgs,
-  pathExists,
   readText,
   resolveRepoPath,
   toPosixPath
@@ -35,62 +39,25 @@ export async function validateTestImpact(cwd, options = {}) {
 
   const reportAbsPath = resolveRepoPath(cwd, reportPath, { label: 'test impact analysis report' });
 
-  if (!(await pathExists(reportAbsPath))) {
-    if (allowMissing) {
-      return { ok: true, errors: [], warnings: [] };
-    }
-    return {
-      ok: false,
-      errors: [`Test impact analysis report file not found at: ${reportPath}`],
-      warnings: []
-    };
+  const artifactCheck = await resolveArtifactOrMissing({
+    absPath: reportAbsPath,
+    relPath: reportPath,
+    allowMissing,
+    notFoundMessage: `Test impact analysis report file not found at: ${reportPath}`
+  });
+  if (!artifactCheck.ok) return artifactCheck;
+  if (artifactCheck.missing) {
+    return { ok: true, errors: [], warnings: [] };
   }
 
-  // Load and parse traceability matrix to verify Test IDs and RFs
-  const matrixAbsPath = resolveRepoPath(cwd, matrixPath, { label: 'traceability matrix' });
-  if (!(await pathExists(matrixAbsPath))) {
-    return {
-      ok: false,
-      errors: [`Traceability matrix file not found at: ${matrixPath}`],
-      warnings: []
-    };
-  }
-
-  const matrixContent = await readText(matrixAbsPath);
-  const matrixTable = parseMarkdownTable(matrixContent, {
-    label: 'Traceability matrix',
+  const matrix = await loadTraceabilityMatrix(cwd, matrixPath, {
     requiredColumns: ['RF', 'Test Management Case ID']
   });
+  if (!matrix.ok) return matrix;
 
-  if (matrixTable.errors.length > 0) {
-    return {
-      ok: false,
-      errors: matrixTable.errors.map((e) => `Traceability matrix error: ${e}`),
-      warnings: []
-    };
-  }
-
-  const validTestIds = new Set();
-  const validRfs = new Set();
-  const rfToCases = new Map();
-
-  for (const row of matrixTable.rows) {
-    const rawId = String(row.values[normalizeColumn('Test Management Case ID')] || '').trim();
-    const rawRf = String(row.values[normalizeColumn('RF')] || '').trim();
-
-    if (rawId) {
-      const normId = normalizeId(rawId);
-      validTestIds.add(normId);
-      if (rawRf) {
-        const normRf = normalizeId(rawRf);
-        validRfs.add(normRf);
-        if (!rfToCases.has(normRf)) {
-          rfToCases.set(normRf, new Set());
-        }
-        rfToCases.get(normRf).add(normId);
-      }
-    }
-  }
+  const validTestIds = matrix.validTestIds;
+  const validRfs = matrix.validRfs;
+  const rfToCases = matrix.rfToCases;
 
   // Parse test impact report file
   const reportContent = await readText(reportAbsPath);

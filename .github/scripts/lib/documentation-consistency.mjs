@@ -163,7 +163,7 @@ export function validateRequiredCommands(fileContents, packageJson) {
     }
   }
 
-  for (const script of ['docs:check', 'test:doc-consistency', 'validate:oss-extraction']) {
+  for (const script of ['docs:build', 'docs:check', 'test:doc-consistency', 'validate:oss-extraction']) {
     if (!packageJson.scripts?.[script]) {
       errors.push(`package.json is missing required script: ${script}`);
     }
@@ -205,7 +205,16 @@ export async function findBrokenLocalMarkdownLinks(repoRoot, markdownFiles) {
   return errors;
 }
 
-export async function validateDocumentationConsistency(repoRoot) {
+export async function validateDocsSiteOutputs(repoRoot, { renderDocsSiteLocale, verifyDocsSiteOutputs }) {
+  const siteRoot = path.join(repoRoot, 'docs', 'site');
+  const generated = new Map();
+  for (const locale of ['en', 'es']) {
+    generated.set(locale, await renderDocsSiteLocale(siteRoot, locale));
+  }
+  return verifyDocsSiteOutputs(repoRoot, generated);
+}
+
+export async function validateDocumentationConsistency(repoRoot, docsSiteDeps) {
   const errors = [];
   const evergreenContents = await readFiles(repoRoot, evergreenVersionFiles);
   const commandContents = await readFiles(repoRoot, ['AGENTS.md', 'docs/qa-ai/release-checklist.md']);
@@ -219,6 +228,10 @@ export async function validateDocumentationConsistency(repoRoot) {
   errors.push(...validateAuditDocumentation(ciContent, securityContent));
   errors.push(...validateRequiredCommands(commandContents, packageJson));
   errors.push(...(await findBrokenLocalMarkdownLinks(repoRoot, markdownFiles)));
+
+  if (docsSiteDeps) {
+    errors.push(...(await validateDocsSiteOutputs(repoRoot, docsSiteDeps)));
+  }
 
   return {
     ok: errors.length === 0,

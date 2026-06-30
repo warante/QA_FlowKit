@@ -24,6 +24,17 @@ node .qa-ai/scripts/sync-agent-adapters.mjs --adapters claude,opencode --force
 
 CI runs [`.github/scripts/verify-adapter-parity.mjs`](.github/scripts/verify-adapter-parity.mjs) so drift between `.qa-ai/adapters/` and root adapter folders fails the PR.
 
+## Cursor skills (non-core)
+
+The `.cursor/skills/` folder is **repository-only** and is not part of the published npm package.
+
+- Skills there are optional, third-party or maintainer-local Cursor Agent Skills (for example community skill packs copied into this repo for dogfooding).
+- They are **not** shipped by `npx qa-flowkit init`, not validated by framework CI, and not required for target-repository QA workflows.
+- Do not treat `.cursor/skills/` as a source of truth for QA FlowKit behavior; canonical rules live under `.qa-ai/rules/`, phase agents under `.qa-ai/agents/`, and adapter templates under `.qa-ai/adapters/`.
+- Changes under `.cursor/skills/` do not require adapter sync, npm pack checks, or documentation updates unless you are explicitly documenting this maintainer-only folder.
+
+The entire `.cursor/` directory is gitignored by default except [`.cursor/README.md`](.cursor/README.md), which explains the local-only scope.
+
 ## Development workflow
 
 1. Create an issue describing the problem or improvement.

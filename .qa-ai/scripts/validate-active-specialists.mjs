@@ -9,7 +9,7 @@ import {
   relativeTo,
   resolveRepoPath
 } from './lib/utils.mjs';
-import { emitJson, isJsonMode } from './lib/validator-cli.mjs';
+import { emitJson, isJsonMode, isValidatorMain } from './lib/validator-cli.mjs';
 
 const cwd = process.cwd();
 const args = parseArgs(process.argv);
@@ -120,7 +120,9 @@ async function main() {
   else console.log(`[PASS] ${relativeTo(cwd, activePath)} matches qa-ai.config.yaml.`);
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+if (isValidatorMain(import.meta.url)) {
+  main().catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
+}

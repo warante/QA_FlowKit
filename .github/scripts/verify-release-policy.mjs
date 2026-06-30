@@ -1,16 +1,12 @@
 #!/usr/bin/env node
 import fs from 'node:fs/promises';
-import { isMain, repoRoot } from './lib/ci-helpers.mjs';
+import { assert, isMain, repoRoot } from './lib/ci-helpers.mjs';
 import path from 'node:path';
 import { resolveNpmDistTag } from './lib/npm-dist-tag.mjs';
 
 const ACTIVE_CONFIG = '.release-please-config.json';
 const RC_CONFIG = '.release-please-config.rc.json';
 const STABLE_CONFIG = '.release-please-config.stable.json';
-
-function assert(condition, message, errors) {
-  if (!condition) errors.push(message);
-}
 
 function packageKeys(config) {
   return Object.keys(config.packages || {})

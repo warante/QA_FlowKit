@@ -12,7 +12,8 @@ import {
   relativeTo,
   resolveRepoPath
 } from './lib/utils.mjs';
-import { emitJson, isJsonMode } from './lib/validator-cli.mjs';
+import { exitSingleFileFailure, resolveSingleCollectionFile } from './lib/collection-validator.mjs';
+import { emitJson, finishValidatorRun, isJsonMode, isValidatorMain } from './lib/validator-cli.mjs';
 
 const cwd = process.cwd();
 const args = parseArgs(process.argv);
@@ -61,25 +62,15 @@ async function main() {
 
   let files;
   if (args.file) {
-    const resolvedFile = resolveRepoPath(cwd, args.file, { label: 'single Maestro flow file' });
-    if (!resolvedFile.startsWith(flowsRootPath)) {
-      if (jsonMode) emitJson(false, [`file "${args.file}" is not under Maestro flows root "${flowsRoot}".`]);
-      else console.log(`FAILED - file "${args.file}" is not under Maestro flows root "${flowsRoot}".`);
-      process.exit(1);
-    }
-    try {
-      const stat = await fs.stat(resolvedFile);
-      if (!stat.isFile()) {
-        if (jsonMode) emitJson(false, [`file "${args.file}" is not a file.`]);
-        else console.log(`FAILED - file "${args.file}" is not a file.`);
-        process.exit(1);
-      }
-    } catch {
-      if (jsonMode) emitJson(false, [`file "${args.file}" does not exist.`]);
-      else console.log(`FAILED - file "${args.file}" does not exist.`);
-      process.exit(1);
-    }
-    files = [resolvedFile];
+    const single = await resolveSingleCollectionFile({
+      cwd,
+      fileArg: args.file,
+      isUnderRoot: (resolved) => resolved.startsWith(flowsRootPath),
+      notUnderRootError: `file "${args.file}" is not under Maestro flows root "${flowsRoot}".`,
+      fileLabel: 'single Maestro flow file'
+    });
+    if (!single.ok) exitSingleFileFailure(single, jsonMode);
+    files = [single.file];
   } else {
     files = await listFilesRecursive(flowsRootPath, (filePath) => /\.ya?ml$/i.test(filePath));
   }
@@ -115,21 +106,23 @@ async function main() {
     if (result.ok && !jsonMode) console.log(`[PASS] ${relativePath}`);
   }
 
-  if (errors.length > 0) {
-    if (jsonMode) {
-      emitJson(false, errors, warnings);
-    } else {
-      for (const error of errors) console.log(`[FAIL] ${error}`);
-      console.log(`\nFAILED - ${errors.length} Maestro validation issue(s).`);
-    }
-    process.exit(1);
+  if (errors.length > 0 && !jsonMode) {
+    for (const error of errors) console.log(`[FAIL] ${error}`);
   }
 
-  if (jsonMode) emitJson(true, [], warnings);
-  else console.log('\nVALID - all Maestro flows passed.');
+  finishValidatorRun({
+    ok: errors.length === 0,
+    errors,
+    warnings,
+    jsonMode,
+    successMessage: '\nVALID - all Maestro flows passed.',
+    failureMessage: `\nFAILED - ${errors.length} Maestro validation issue(s).`
+  });
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+if (isValidatorMain(import.meta.url)) {
+  main().catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
+}
