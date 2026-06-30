@@ -47,7 +47,7 @@ export const VALIDATOR_REGISTRY = {
     harnessDefaultArgs: ['--allow-missing'],
     starterCoreArgs: ['--allow-missing'],
     targetLabel: 'external intake validation',
-    targetKind: 'subprocess',
+    targetKind: 'inProcess',
     targetWhen: { externalIntake: true }
   },
   'validate-workflow-contract': {
@@ -98,7 +98,7 @@ export const VALIDATOR_REGISTRY = {
     harness: true,
     starterCoreArgs: ['--allow-empty', '--allow-missing'],
     targetLabel: 'sync plan validation',
-    targetKind: 'subprocess',
+    targetKind: 'inProcess',
     targetWhen: { tracksExclude: ['quick'] }
   },
   'validate-sync-diff': {
@@ -107,7 +107,7 @@ export const VALIDATOR_REGISTRY = {
     harness: true,
     starterCoreArgs: ['--allow-missing'],
     targetLabel: 'sync diff validation',
-    targetKind: 'subprocess',
+    targetKind: 'inProcess',
     targetWhen: { tracksExclude: ['quick'], syncMode: 'governed' }
   },
   'validate-sync-result': {

@@ -38,7 +38,12 @@ export async function writeFileSafe(filePath, content, { force = false } = {}) {
 }
 
 export async function readText(filePath) {
-  return fs.readFile(filePath, 'utf8');
+  return normalizeLineEndings(await fs.readFile(filePath, 'utf8'));
+}
+
+/** Normalize CRLF/CR line endings to LF-only text processing. */
+export function normalizeLineEndings(text) {
+  return String(text || '').replace(/\r/g, '');
 }
 
 export async function readTextIfExists(filePath) {
@@ -342,7 +347,16 @@ export async function loadInitManifest(cwd) {
   }
 
   const content = await readText(filePath);
-  const data = JSON.parse(content);
+  let data;
+  try {
+    data = JSON.parse(content);
+  } catch (error) {
+    const rel = relativeTo(cwd, filePath);
+    throw new Error(
+      `Invalid init manifest at ${rel}: ${error.message}. Delete the file or restore valid JSON before running init or clean.`,
+      { cause: error }
+    );
+  }
   return {
     exists: true,
     path: filePath,

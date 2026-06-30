@@ -19,19 +19,14 @@ import {
   validateMaestroFlowContent
 } from './_fixtures.mjs';
 import { assertIncludes, repoRoot, runValidatorScript, withTempWorkspace } from './_shared.mjs';
+import { MINIMAL_ENGLISH_FEATURE } from '../fixtures/gherkin-samples.mjs';
 
 // --- gherkin-validate ---
 
-const validEnFeature = [
-  '@priority:high @type:functional @manual:true @rf:RF-101 @id:TC-001',
-  'Feature: Login',
-  '  Acceptance Criteria:',
-  '    - User can log in',
-  '  Scenario: RF-101 TC-001 Successful login',
-  '    Given a user',
-  '    When they log in',
-  '    Then they see home'
-].join('\n');
+const validEnFeature = MINIMAL_ENGLISH_FEATURE.replace('Successful login', 'RF-101 TC-001 Successful login').replace(
+  'Then they see the dashboard',
+  'Then they see home'
+);
 
 test('validateFeatureContent: rejects unsupported @type:compatibility', () => {
   const content = [

@@ -1,9 +1,8 @@
-import fs from 'node:fs/promises';
 import path from 'node:path';
 import { validateMaestroFlowContent } from './maestro-validate.mjs';
 import { maestroFlowsPath, usesMaestro } from './mobile-automation.mjs';
-import { listFilesRecursive, loadQaAiConfig, pathExists, relativeTo, resolveRepoPath } from './utils.mjs';
-import { resolveSingleCollectionFile } from './collection-validator.mjs';
+import { loadQaAiConfig, pathExists, relativeTo, resolveRepoPath } from './utils.mjs';
+import { listCollectionFiles, validateCollection } from './collection-validator.mjs';
 
 /**
  * @returns {Promise<{ ok: boolean, errors: string[], warnings: string[], skipped?: boolean }>}
@@ -25,46 +24,33 @@ export async function validateMaestroFlowsCollection(cwd, options = {}) {
     };
   }
 
-  let files;
-  if (options.file) {
-    const single = await resolveSingleCollectionFile({
-      cwd,
-      fileArg: options.file,
-      isUnderRoot: (resolved) => resolved.startsWith(flowsRootPath),
-      notUnderRootError: `file "${options.file}" is not under Maestro flows root "${flowsRoot}".`,
-      fileLabel: 'single Maestro flow file'
-    });
-    if (!single.ok) return { ok: false, errors: [single.error], warnings: [] };
-    files = [single.file];
-  } else {
-    files = await listFilesRecursive(flowsRootPath, (filePath) => /\.ya?ml$/i.test(filePath));
-  }
+  const listed = await listCollectionFiles(cwd, {
+    fileArg: options.file,
+    rootPaths: [flowsRootPath],
+    notUnderRootError: `file "${options.file}" is not under Maestro flows root "${flowsRoot}".`,
+    fileLabel: 'single Maestro flow file',
+    fileFilter: (filePath) => /\.ya?ml$/i.test(filePath)
+  });
+  if (!listed.ok) return { ok: false, errors: listed.errors, warnings: [] };
 
-  if (files.length === 0) {
-    if (options.allowEmpty) return { ok: true, errors: [], warnings: [] };
-    return {
-      ok: false,
-      errors: [`No Maestro YAML flows found under ${flowsRoot}.`],
-      warnings: []
-    };
-  }
+  return validateCollection({
+    files: listed.files,
+    allowEmpty: Boolean(options.allowEmpty),
+    emptyErrors: [`No Maestro YAML flows found under ${flowsRoot}.`],
+    validateFile: async (file, content) => {
+      const relativePath = relativeTo(cwd, file);
+      const result = validateMaestroFlowContent(content, relativePath);
+      const errors = result.errors.map((error) => `${relativePath}: ${error}`);
+      const warnings = result.warnings.map((warning) => `${relativePath}: ${warning}`);
 
-  const errors = [];
-  const warnings = [];
-  for (const file of files) {
-    const relativePath = relativeTo(cwd, file);
-    const content = await fs.readFile(file, 'utf8');
-    const result = validateMaestroFlowContent(content, relativePath);
-    for (const warning of result.warnings) warnings.push(`${relativePath}: ${warning}`);
-    for (const error of result.errors) errors.push(`${relativePath}: ${error}`);
-
-    for (const referencedFlow of result.referencedFlows) {
-      const target = resolveRepoPath(path.dirname(file), referencedFlow, { label: 'Maestro runFlow target' });
-      if (!(await pathExists(target))) {
-        errors.push(`${relativePath}: runFlow target does not exist: ${referencedFlow}`);
+      for (const referencedFlow of result.referencedFlows) {
+        const target = resolveRepoPath(path.dirname(file), referencedFlow, { label: 'Maestro runFlow target' });
+        if (!(await pathExists(target))) {
+          errors.push(`${relativePath}: runFlow target does not exist: ${referencedFlow}`);
+        }
       }
-    }
-  }
 
-  return { ok: errors.length === 0, errors, warnings };
+      return { errors, warnings };
+    }
+  });
 }

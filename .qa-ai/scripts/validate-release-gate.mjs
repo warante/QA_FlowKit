@@ -3,7 +3,7 @@ export { validateReleaseGateFile } from './lib/release-gate-validate.mjs';
 import { validateReleaseGateFile } from './lib/release-gate-validate.mjs';
 import { ARTIFACT_PATHS } from './lib/artifact-paths.mjs';
 import { getConfigValue, loadQaAiConfig, logHeader, parseArgs } from './lib/utils.mjs';
-import { runValidatorMain } from './lib/validator-cli.mjs';
+import { finishValidatorRun, isJsonMode, runValidatorMain } from './lib/validator-cli.mjs';
 
 function printHelp() {
   console.log(`Usage: node .qa-ai/scripts/validate-release-gate.mjs [options]
@@ -26,7 +26,7 @@ async function main() {
     return;
   }
 
-  const jsonMode = Boolean(args.json);
+  const jsonMode = isJsonMode(args);
   if (!jsonMode) logHeader('QA AI release gate validator');
   const configInfo = await loadQaAiConfig(process.cwd());
   const gatePath = args.path || getConfigValue(configInfo.data, 'release.gatePath', ARTIFACT_PATHS.releaseGate);
@@ -37,29 +37,20 @@ async function main() {
   });
 
   if (result.skipped) {
-    if (jsonMode) console.log(JSON.stringify({ ok: true, skipped: true, errors: [] }));
+    if (jsonMode) finishValidatorRun({ ok: true, jsonMode: true, extraJson: { skipped: true } });
     else console.log(`Release gate not found at ${gatePath}.`);
     return;
   }
 
-  if (!result.ok) {
-    if (jsonMode) {
-      console.log(
-        JSON.stringify({
-          ok: false,
-          errors: result.errors,
-          findings: result.errors.map((message) => ({ severity: 'error', message }))
-        })
-      );
-    } else {
-      for (const error of result.errors) console.log(`[FAIL] ${error}`);
-      console.log(`\nFAILED - ${result.errors.length} release gate validation error(s).`);
-    }
-    process.exit(1);
-  }
-
-  if (jsonMode) console.log(JSON.stringify({ ok: true, decision: result.decision, errors: [] }));
-  else console.log(`[PASS] ${gatePath} decision=${result.decision}`);
+  finishValidatorRun({
+    ok: result.ok,
+    errors: result.errors,
+    warnings: [],
+    jsonMode,
+    successMessage: `[PASS] ${gatePath} decision=${result.decision}`,
+    failureMessage: `\nFAILED - ${result.errors.length} release gate validation error(s).`,
+    extraJson: jsonMode && result.ok ? { decision: result.decision } : {}
+  });
 }
 
 runValidatorMain(import.meta.url, main);

@@ -2,7 +2,7 @@
 export { validateTestCoverage } from './lib/test-coverage-validate.mjs';
 import { validateTestCoverage } from './lib/test-coverage-validate.mjs';
 import { logHeader, parseArgs } from './lib/utils.mjs';
-import { runValidatorMain } from './lib/validator-cli.mjs';
+import { isJsonMode, runValidatorMain } from './lib/validator-cli.mjs';
 
 function printHelp() {
   console.log(`Usage: node .qa-ai/scripts/validate-test-coverage.mjs [options]
@@ -26,6 +26,7 @@ async function main() {
     return;
   }
 
+  const jsonMode = isJsonMode(args);
   const result = await validateTestCoverage(process.cwd(), {
     path: args.path,
     proposalPath: args['proposal-path'],
@@ -35,25 +36,26 @@ async function main() {
     allowMissing: Boolean(args['allow-missing'])
   });
 
-  if (args.json) {
+  if (jsonMode) {
     console.log(JSON.stringify(result, null, 2));
-  } else {
-    logHeader('QA AI test coverage validator');
-    if (result.skipped) console.log(`SKIP - coverage mode is ${result.mode}.`);
-    if (result.message) console.log(result.message);
-    for (const finding of result.findings || []) {
-      console.log(`[${finding.severity.toUpperCase()}] ${finding.rf ? `${finding.rf}: ` : ''}${finding.message}`);
-    }
-    if (result.ok) {
-      console.log(
-        `\nVALID - coverage policy completed with ${(result.warnings || []).length} warning(s) in ${result.mode} mode.`
-      );
-    } else {
-      console.log(`\nFAILED - ${(result.errors || []).length} coverage error(s).`);
-    }
+    if (!result.ok) process.exit(1);
+    return;
   }
 
-  if (!result.ok) process.exit(1);
+  logHeader('QA AI test coverage validator');
+  if (result.skipped) console.log(`SKIP - coverage mode is ${result.mode}.`);
+  if (result.message) console.log(result.message);
+  for (const finding of result.findings || []) {
+    console.log(`[${finding.severity.toUpperCase()}] ${finding.rf ? `${finding.rf}: ` : ''}${finding.message}`);
+  }
+
+  if (!result.ok) {
+    console.log(`\nFAILED - ${(result.errors || []).length} coverage error(s).`);
+    process.exit(1);
+  }
+  console.log(
+    `\nVALID - coverage policy completed with ${(result.warnings || []).length} warning(s) in ${result.mode} mode.`
+  );
 }
 
 runValidatorMain(import.meta.url, main);

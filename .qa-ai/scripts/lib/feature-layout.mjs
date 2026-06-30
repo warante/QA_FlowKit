@@ -1,30 +1,12 @@
 /**
  * QA design feature folder layout under gherkin.featurePath.
- * Init creates these subfolders so first-use validation does not teach the layout by failing.
  */
 import path from 'node:path';
 import { parse as parseGherkin } from './gherkin-parser.mjs';
+import { FEATURE_SUBFOLDERS, TYPE_TO_FOLDER } from './gherkin-constants.mjs';
 
 /** Subfolders allowed directly under gherkin.featurePath */
-export const FEATURE_SUBFOLDERS = ['functional', 'integration', 'e2e', 'api', 'accessibility', 'security', 'manual'];
-
-const TYPE_TO_FOLDER = {
-  functional: 'functional',
-  regression: 'functional',
-  smoke: 'functional',
-  negative: 'functional',
-  'edge-case': 'functional',
-  edge_case: 'functional',
-  performance: 'functional',
-  load: 'functional',
-  stress: 'functional',
-  integration: 'integration',
-  e2e: 'e2e',
-  api: 'api',
-  accessibility: 'accessibility',
-  a11y: 'accessibility',
-  security: 'security'
-};
+export { FEATURE_SUBFOLDERS };
 
 /**
  * @param {string} content

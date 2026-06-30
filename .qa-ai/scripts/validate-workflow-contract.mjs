@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-import { validateWorkflowContract } from './lib/harness-contract.mjs';
+export { validateWorkflowContractFile as validateWorkflowContract } from './lib/workflow-contract-validate.mjs';
+import { validateWorkflowContractFile as validateWorkflowContract } from './lib/workflow-contract-validate.mjs';
 import { logHeader, parseArgs } from './lib/utils.mjs';
-
-const args = parseArgs(process.argv);
+import { finishValidatorRun, isJsonMode, runValidatorMain } from './lib/validator-cli.mjs';
 
 function printHelp() {
   console.log(`Usage: node .qa-ai/scripts/validate-workflow-contract.mjs [options]
@@ -16,33 +16,25 @@ Validates .qa-ai/contracts/workflow.v1.json for schema, safe paths and allowlist
 }
 
 async function main() {
+  const args = parseArgs(process.argv);
   if (args.help) {
     printHelp();
     return;
   }
 
+  const jsonMode = isJsonMode(args);
   const result = await validateWorkflowContract(process.cwd());
 
-  if (args.json) {
-    console.log(JSON.stringify(result, null, 2));
-  } else {
-    logHeader('Workflow contract validator');
-  }
+  if (!jsonMode) logHeader('Workflow contract validator');
 
-  if (!args.json) {
-    if (result.ok) {
-      console.log('[PASS] Workflow contract is valid.');
-    } else {
-      for (const error of result.errors) {
-        console.log(`[FAIL] ${error}`);
-      }
-    }
-  }
-
-  if (!result.ok) process.exit(1);
+  finishValidatorRun({
+    ok: result.ok,
+    errors: result.errors,
+    warnings: result.warnings || [],
+    jsonMode,
+    successMessage: '[PASS] Workflow contract is valid.',
+    failureMessage: `\nFAILED - ${result.errors.length} workflow contract validation error(s).`
+  });
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+runValidatorMain(import.meta.url, main);

@@ -56,7 +56,7 @@ async function main() {
   finishValidatorRun({
     ok: result.ok,
     errors: result.errors,
-    warnings: [],
+    warnings: result.warnings || [],
     jsonMode: false,
     successMessage: `\n[PASS] ${result.matrixPath} traceability validation completed.`,
     failureMessage: `\nFAILED - ${(result.errors || []).length} traceability validation error(s).`
