@@ -23,7 +23,8 @@ import { modificationApprovalGateId } from '../../lib/harness-modification.mjs';
 import { assertConfigPathsSafe } from '../../lib/harness-validation.mjs';
 import { writeRunSnapshot } from '../../lib/harness-run-store.mjs';
 import { parseSimpleYaml } from '../../lib/utils.mjs';
-import { advanceToPhase, node, prepareRepo, runCli, writeValidGherkinFeature } from './_shared.mjs';
+import { advanceToPhase, configRelPath, node, prepareRepo, runCli, writeValidGherkinFeature } from './_shared.mjs';
+import { DEFAULT_FEATURE_PATH } from '../../lib/artifact-paths.mjs';
 
 test('run start, next idempotency and resume', async () => {
   const cwd = await prepareRepo('quick');
@@ -119,7 +120,7 @@ test('validation block recovers via retry and completes phase', async () => {
     assert.equal(retried.ok, true);
     assert.equal(retried.attempts, 0);
 
-    await fs.writeFile(path.join(cwd, 'qa-ai-output', 'requirement-analysis.md'), '# intake\n', 'utf8');
+    await fs.writeFile(path.join(cwd, '.qa-ai/output', 'requirement-analysis.md'), '# intake\n', 'utf8');
     const passed = await checkPhase(cwd);
     assert.equal(passed.ok, true);
     assert.equal(passed.phaseId, 'intake');
@@ -142,7 +143,7 @@ test('CLI retry flow after validation block', async () => {
     const retryResult = runCli(cwd, ['run', 'retry', '--json']);
     JSON.parse(retryResult.stdout);
 
-    await fs.writeFile(path.join(cwd, 'qa-ai-output', 'requirement-analysis.md'), '# intake\n', 'utf8');
+    await fs.writeFile(path.join(cwd, '.qa-ai/output', 'requirement-analysis.md'), '# intake\n', 'utf8');
     runCli(cwd, ['run', 'check']);
   } finally {
     await fs.rm(cwd, { recursive: true, force: true });
@@ -152,7 +153,7 @@ test('CLI retry flow after validation block', async () => {
 test('unsafe config paths are rejected at run start', async () => {
   const cwd = await prepareRepo('quick', { gherkin: { featurePath: '../outside' } });
   try {
-    const config = parseSimpleYaml(await fs.readFile(path.join(cwd, 'qa-ai.config.yaml'), 'utf8'));
+    const config = parseSimpleYaml(await fs.readFile(path.join(cwd, configRelPath), 'utf8'));
     const contract = await loadWorkflowContract(cwd);
     assert.throws(() => assertConfigPathsSafe(cwd, config, contract), /inside the repository|must stay/i);
     await assert.rejects(() => startRun(cwd), /inside the repository|must stay/i);
@@ -164,8 +165,8 @@ test('unsafe config paths are rejected at run start', async () => {
 test('resolveHarnessRelativePath rejects absolute and escaping paths', async () => {
   const cwd = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-harness-paths-'));
   try {
-    const safe = resolveHarnessRelativePath(cwd, 'qa-ai-output/x.md');
-    assert.ok(safe.absolute?.includes('qa-ai-output'));
+    const safe = resolveHarnessRelativePath(cwd, '.qa-ai/output/x.md');
+    assert.ok(safe.absolute?.replaceAll('\\', '/').includes('.qa-ai/output'));
 
     assert.throws(() => resolveHarnessRelativePath(cwd, '../outside'), /inside the repository|must stay/i);
     assert.throws(
@@ -205,9 +206,9 @@ test('resolveHarnessRelativePath rejects symlink or junction escapes', async (t)
 test('unsafe $config feature root is rejected for hashing', async () => {
   const cwd = await prepareRepo('quick', { gherkin: { featurePath: '../outside' } });
   try {
-    const config = parseSimpleYaml(await fs.readFile(path.join(cwd, 'qa-ai.config.yaml'), 'utf8'));
+    const config = parseSimpleYaml(await fs.readFile(path.join(cwd, configRelPath), 'utf8'));
     assert.throws(
-      () => resolveConfigHarnessPath(cwd, config, '$config.gherkin.featurePath', 'features', 'feature root'),
+      () => resolveConfigHarnessPath(cwd, config, '$config.gherkin.featurePath', DEFAULT_FEATURE_PATH, 'feature root'),
       /inside the repository|must stay/i
     );
   } finally {
@@ -220,7 +221,7 @@ test('modification approval for new output is not required', async () => {
   try {
     await startRun(cwd);
     await nextPhase(cwd);
-    await fs.writeFile(path.join(cwd, 'qa-ai-output', 'requirement-analysis.md'), '# new\n', 'utf8');
+    await fs.writeFile(path.join(cwd, '.qa-ai/output', 'requirement-analysis.md'), '# new\n', 'utf8');
     const result = await checkPhase(cwd);
     assert.equal(result.ok, true);
   } finally {
@@ -231,7 +232,7 @@ test('modification approval for new output is not required', async () => {
 test('unchanged pre-existing output does not require modification approval', async () => {
   const cwd = await prepareRepo('quick');
   try {
-    const outputPath = path.join(cwd, 'qa-ai-output', 'requirement-analysis.md');
+    const outputPath = path.join(cwd, '.qa-ai/output', 'requirement-analysis.md');
     await fs.writeFile(outputPath, '# unchanged\n', 'utf8');
     await startRun(cwd);
     await nextPhase(cwd);
@@ -244,15 +245,15 @@ test('unchanged pre-existing output does not require modification approval', asy
 
 test('entry-blocked gherkin captures baseline and enforces modification after unblock', async () => {
   const cwd = await prepareRepo('quick');
-  const featureRel = 'features/RF-42-TC-001-existing.feature';
+  const featureRel = `${DEFAULT_FEATURE_PATH}/RF-42-TC-001-existing.feature`;
   try {
     await writeValidGherkinFeature(cwd, featureRel);
     await startRun(cwd);
     await nextPhase(cwd);
-    await fs.writeFile(path.join(cwd, 'qa-ai-output', 'requirement-analysis.md'), '# intake\n', 'utf8');
+    await fs.writeFile(path.join(cwd, '.qa-ai/output', 'requirement-analysis.md'), '# intake\n', 'utf8');
     await checkPhase(cwd);
     await nextPhase(cwd);
-    await fs.writeFile(path.join(cwd, 'qa-ai-output', 'normalized-requirements.md'), '# normalize\n', 'utf8');
+    await fs.writeFile(path.join(cwd, '.qa-ai/output', 'normalized-requirements.md'), '# normalize\n', 'utf8');
     await checkPhase(cwd);
 
     const blocked = await nextPhase(cwd);
@@ -286,7 +287,7 @@ test('entry-blocked gherkin captures baseline and enforces modification after un
 test('repeated next and resume stay idempotent for unchanged pre-existing outputs', async () => {
   const cwd = await prepareRepo('quick');
   try {
-    const outputPath = path.join(cwd, 'qa-ai-output', 'requirement-analysis.md');
+    const outputPath = path.join(cwd, '.qa-ai/output', 'requirement-analysis.md');
     await fs.writeFile(outputPath, '# unchanged\n', 'utf8');
     const snapshot = await startRun(cwd);
     const first = await nextPhase(cwd);
@@ -306,7 +307,7 @@ test('repeated next and resume stay idempotent for unchanged pre-existing output
 test('resume persists the selected phase baseline before later edits', async () => {
   const cwd = await prepareRepo('quick');
   try {
-    const outputPath = path.join(cwd, 'qa-ai-output', 'requirement-analysis.md');
+    const outputPath = path.join(cwd, '.qa-ai/output', 'requirement-analysis.md');
     await fs.writeFile(outputPath, '# before resume\n', 'utf8');
     const snapshot = await startRun(cwd);
     const resumed = await resumeRun(cwd, snapshot.runId);
@@ -332,7 +333,7 @@ test('resume persists the selected phase baseline before later edits', async () 
 test('status reports current modification blockers without changing the baseline', async () => {
   const cwd = await prepareRepo('quick');
   try {
-    const outputPath = path.join(cwd, 'qa-ai-output', 'requirement-analysis.md');
+    const outputPath = path.join(cwd, '.qa-ai/output', 'requirement-analysis.md');
     await fs.writeFile(outputPath, '# v1\n', 'utf8');
     await startRun(cwd);
     await nextPhase(cwd);
@@ -353,7 +354,7 @@ test('status reports current modification blockers without changing the baseline
 test('repeated next reports modification blocker when pre-existing output changed', async () => {
   const cwd = await prepareRepo('quick');
   try {
-    const outputPath = path.join(cwd, 'qa-ai-output', 'requirement-analysis.md');
+    const outputPath = path.join(cwd, '.qa-ai/output', 'requirement-analysis.md');
     await fs.writeFile(outputPath, '# v1\n', 'utf8');
     await startRun(cwd);
     await nextPhase(cwd);
@@ -442,7 +443,7 @@ test('concurrent starts use independent atomic temporary files', async () => {
 test('modified pre-existing output requires scoped modification approval', async () => {
   const cwd = await prepareRepo('quick');
   try {
-    const outputPath = path.join(cwd, 'qa-ai-output', 'requirement-analysis.md');
+    const outputPath = path.join(cwd, '.qa-ai/output', 'requirement-analysis.md');
     await fs.writeFile(outputPath, '# v1\n', 'utf8');
     await startRun(cwd);
     const packet = await nextPhase(cwd);
@@ -474,13 +475,13 @@ test('gherkin recovery after validator failures uses retry', async () => {
     await approveGate(cwd, 'test-design');
     await advanceToPhase(cwd, 'gherkin');
 
-    await fs.writeFile(path.join(cwd, 'features', 'bad.feature'), 'Feature: invalid\n', 'utf8');
+    await fs.writeFile(path.join(cwd, DEFAULT_FEATURE_PATH, 'bad.feature'), 'Feature: invalid\n', 'utf8');
     await checkPhase(cwd, { maxAttempts: 2 });
     assert.equal((await checkPhase(cwd)).blocked, true);
 
     await retryPhase(cwd);
     await writeValidGherkinFeature(cwd);
-    await fs.rm(path.join(cwd, 'features', 'bad.feature'), { force: true });
+    await fs.rm(path.join(cwd, DEFAULT_FEATURE_PATH, 'bad.feature'), { force: true });
     const passed = await checkPhase(cwd);
     assert.equal(passed.ok, true);
   } finally {

@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import './test/validators/yaml.mjs';
+import './test/validators/compact-layout.mjs';
 import './test/validators/config.mjs';
 import './test/validators/injection-design.mjs';
 import './test/validators/injection-design-nfr.mjs';

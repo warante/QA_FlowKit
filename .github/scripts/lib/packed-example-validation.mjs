@@ -53,7 +53,7 @@ export function runPackedInit(cli, targetRoot, preset, extraInitArgs = []) {
 }
 
 export function runPackedValidateTarget(cli, targetRoot) {
-  run(node, [cli, 'validate-target'], { cwd: targetRoot });
+  run(node, [cli, 'validate-target', '--allow-empty', '--allow-missing', '--no-strict-doctor'], { cwd: targetRoot });
 }
 
 /**

@@ -2,6 +2,8 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { collectLegacyConfigSignals } from './config-legacy.mjs';
+import { detectLegacyLayout } from './project-paths.mjs';
+import { formatLegacyLayoutRecommendation } from './doctor/layout-checks.mjs';
 import { inferredAcceptanceCriteriaConflicts, loadQaAiConfig, parseSimpleYaml, pathExists } from './utils.mjs';
 
 export { collectLegacyConfigSignals } from './config-legacy.mjs';
@@ -10,9 +12,13 @@ export const OLDEST_SUPPORTED_BETA = '0.5.0-beta.0';
 
 export const USER_OWNED_PATHS = [
   'qa-ai.config.yaml',
+  '.qa-ai/qa-ai.config.yaml',
   'qa-ai-output/',
+  '.qa-ai/output/',
   'features/',
+  '.qa-ai/features/',
   'tests/',
+  '.qa-ai/tests/',
   'AGENTS.md',
   '.claude/',
   '.codex/',
@@ -37,9 +43,12 @@ export async function buildUpdatePlan({ cwd = process.cwd(), packageRoot }) {
   const packageJson = JSON.parse(await fs.readFile(path.join(packageRoot, 'package.json'), 'utf8'));
   const configInfo = await loadQaAiConfig(cwd);
   const adaptersToSync = await loadDetectAdapters(cwd);
-  const rawConfig = configInfo.exists ? parseSimpleYaml(configInfo.content, configInfo.path) : {};
+  const rawConfig = configInfo.exists ? parseSimpleYaml(configInfo.content, configInfo.relPath) : {};
   const legacyConfigKeys = configInfo.exists ? collectLegacyConfigSignals(rawConfig) : [];
   const configConflicts = configInfo.exists ? inferredAcceptanceCriteriaConflicts(configInfo.data) : [];
+  const legacyLayoutDetected = configInfo.exists ? await detectLegacyLayout(cwd, configInfo) : false;
+  const dualConfigDetected = Boolean(configInfo.dualConfig);
+  const legacyLayoutRecommendations = configInfo.exists ? formatLegacyLayoutRecommendation(cwd, configInfo) : [];
 
   return {
     schemaVersion: 1,
@@ -53,13 +62,16 @@ export async function buildUpdatePlan({ cwd = process.cwd(), packageRoot }) {
     userOwnedPaths: [...USER_OWNED_PATHS],
     adaptersToSync,
     legacyConfigKeys,
+    legacyLayoutDetected,
+    dualConfigDetected,
+    legacyLayoutRecommendations,
     configConflicts,
     destructiveChanges: [
       'Deletes obsolete files that lived only inside .qa-ai/ before the update.',
-      'Does not rewrite qa-ai.config.yaml, features/, qa-ai-output/ or root adapter files unless init is run with --force.'
+      'Does not rewrite qa-ai.config.yaml, .qa-ai/qa-ai.config.yaml, features/, qa-ai-output/ or root adapter files unless init is run with --force.'
     ],
     rollbackGuidance: [
-      'Back up qa-ai.config.yaml, .qa-ai/state/, .qa-ai/config-profiles/, features/ and qa-ai-output/ before updating.',
+      'Back up qa-ai.config.yaml (or .qa-ai/qa-ai.config.yaml), .qa-ai/state/, .qa-ai/config-profiles/, features/ and qa-ai-output/ before updating.',
       'If update fails after the framework folder is removed, restore .qa-ai/state/ and .qa-ai/config-profiles/ from backup, reinstall the previous package version, and rerun update.',
       'Review the plan first with: npx qa-flowkit update --dry-run --json'
     ]
@@ -83,6 +95,13 @@ export function formatUpdatePlan(plan) {
     '',
     `Adapters to refresh without overwrite: ${plan.adaptersToSync.length > 0 ? plan.adaptersToSync.join(', ') : '(none detected)'}`
   ];
+
+  if (plan.legacyLayoutDetected || plan.dualConfigDetected) {
+    lines.push('', 'Legacy layout recommendations:');
+    for (const item of plan.legacyLayoutRecommendations) {
+      lines.push(`  - ${item}`);
+    }
+  }
 
   if (plan.legacyConfigKeys.length > 0) {
     lines.push('', 'Legacy configuration keys detected:', ...plan.legacyConfigKeys.map((item) => `  - ${item}`));

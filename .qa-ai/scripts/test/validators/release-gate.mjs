@@ -59,10 +59,9 @@ test('inspectQaWorkflow: uninitialized repo recommends init', async () => {
 test('inspectQaWorkflow: quick track next phase is gherkin after requirements', async () => {
   const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-ai-help-'));
   try {
-    await fs.mkdir(path.join(tempDir, '.qa-ai'), { recursive: true });
-    await fs.mkdir(path.join(tempDir, 'qa-ai-output'), { recursive: true });
+    await fs.mkdir(path.join(tempDir, '.qa-ai', 'output'), { recursive: true });
     await fs.writeFile(
-      path.join(tempDir, 'qa-ai.config.yaml'),
+      path.join(tempDir, '.qa-ai', 'qa-ai.config.yaml'),
       [
         'project:',
         '  qaTrack: quick',
@@ -77,20 +76,20 @@ test('inspectQaWorkflow: quick track next phase is gherkin after requirements', 
         '  api:',
         '    framework: none',
         'gherkin:',
-        '  featurePath: features',
+        '  featurePath: .qa-ai/features',
         'traceability:',
-        '  matrixPath: qa-ai-output/traceability-matrix.md',
+        '  matrixPath: .qa-ai/output/traceability-matrix.md',
         ''
       ].join('\n'),
       'utf8'
     );
     await fs.writeFile(
-      path.join(tempDir, 'qa-ai-output', 'requirement-analysis.md'),
+      path.join(tempDir, '.qa-ai', 'output', 'requirement-analysis.md'),
       '# Requirement Analysis\n',
       'utf8'
     );
     await fs.writeFile(
-      path.join(tempDir, 'qa-ai-output', 'normalized-requirements.md'),
+      path.join(tempDir, '.qa-ai', 'output', 'normalized-requirements.md'),
       '# Normalized Requirements\n',
       'utf8'
     );

@@ -91,12 +91,14 @@ npm run test:e2e-manual-example
 ## What Gets Installed
 
 ```text
-.qa-ai/               framework, rules, agents, workflows and validators
-qa-ai.config.yaml      target-repository configuration
-qa-ai-output/          generated analysis, plans and traceability
-features/              manual and automated QA design in Gherkin
-AGENTS.md              generic agent instructions when no host-specific override is selected
+.qa-ai/                    framework, rules, agents, workflows and validators
+.qa-ai/qa-ai.config.yaml   target-repository configuration (compact default)
+.qa-ai/output/             generated analysis, plans and traceability
+.qa-ai/features/           manual and automated QA design in Gherkin
+AGENTS.md                  generic agent instructions when no host-specific override is selected
 ```
+
+Legacy repositories may still use root-level `qa-ai.config.yaml`, `qa-ai-output/`, `features/` and `tests/`. QA FlowKit continues to read those paths when configured or when the root config file exists.
 
 Automation folders are generated only when the selected preset requires them. In an interactive terminal, `init`
 shows an AI CLI adapter selector; in non-interactive environments it detects existing agent host folders and syncs

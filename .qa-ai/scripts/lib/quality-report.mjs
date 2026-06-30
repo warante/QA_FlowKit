@@ -14,7 +14,7 @@ import {
   relativeTo,
   resolveRepoPath
 } from './utils.mjs';
-import { ARTIFACT_PATHS } from './artifact-paths.mjs';
+import { ARTIFACT_PATHS, DEFAULT_FEATURE_PATH } from './artifact-paths.mjs';
 
 const DEFAULT_REPORT_PATH = ARTIFACT_PATHS.gherkinQualityReport;
 const DEFAULT_RUBRIC_PATH = '.qa-ai/rules/gherkin-quality.rubric.md';
@@ -125,7 +125,7 @@ export async function validateQualityReport(cwd, options = {}) {
     options.minDimensionsPassed ?? getConfigValue(config, 'testDesign.quality.minDimensionsPassed', 7)
   );
   const reportPath = options.reportPath || getConfigValue(config, 'testDesign.quality.reportPath', DEFAULT_REPORT_PATH);
-  const featureRoot = options.featureRoot || getConfigValue(config, 'gherkin.featurePath', 'features');
+  const featureRoot = options.featureRoot || getConfigValue(config, 'gherkin.featurePath', DEFAULT_FEATURE_PATH);
   const rf = String(options.rf ?? (await activeRunRf(cwd)) ?? '').trim();
   const rubricPath = options.rubricPath || DEFAULT_RUBRIC_PATH;
   const findings = [];

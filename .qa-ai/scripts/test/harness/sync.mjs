@@ -15,16 +15,17 @@ import {
 } from '../../lib/harness-controller.mjs';
 import { writeRunSnapshot } from '../../lib/harness-run-store.mjs';
 import { prepareRepo, writeValidGherkinFeature } from './_shared.mjs';
+import { ARTIFACT_PATHS, DEFAULT_FEATURE_PATH } from '../../lib/artifact-paths.mjs';
 
 test('governed sync plan approval and invalidation on modification', async () => {
   const cwd = await prepareRepo('enterprise', {
     tools: { testManagement: 'testrail' },
     testManagementSync: {
       mode: 'governed',
-      diffPath: 'qa-ai-output/test-management-sync-diff.md',
-      applyLogPath: 'qa-ai-output/test-management-apply-log.md',
-      rollbackPath: 'qa-ai-output/test-management-rollback-plan.md',
-      remoteSnapshotPath: 'qa-ai-output/test-management-remote-snapshot.md'
+      diffPath: ARTIFACT_PATHS.testManagementSyncDiff,
+      applyLogPath: ARTIFACT_PATHS.testManagementApplyLog,
+      rollbackPath: ARTIFACT_PATHS.testManagementRollback,
+      remoteSnapshotPath: ARTIFACT_PATHS.testManagementRemoteSnapshot
     }
   });
   try {
@@ -37,25 +38,29 @@ test('governed sync plan approval and invalidation on modification', async () =>
 
     // Helper to write outputs and complete phases up to sync-apply
     const phasesToComplete = [
-      { id: 'intake', file: 'qa-ai-output/requirement-analysis.md', content: '# analysis' },
-      { id: 'normalize', file: 'qa-ai-output/normalized-requirements.md', content: '# normalized' },
+      { id: 'intake', file: '.qa-ai/output/requirement-analysis.md', content: '# analysis' },
+      { id: 'normalize', file: '.qa-ai/output/normalized-requirements.md', content: '# normalized' },
       {
         id: 'test-design-system',
-        file: 'qa-ai-output/test-design-system.md',
+        file: '.qa-ai/output/test-design-system.md',
         content:
           '# System Test Design\n## Scope\n## Architecture alignment\n## Testability risks\n## Cross-RF coverage strategy\n## Shared fixtures and data\n## Non-functional focus\n## Strategy routing overview\n## Open questions'
       },
       {
         id: 'test-design-rf',
-        file: 'qa-ai-output/test-design-proposal.md',
+        file: '.qa-ai/output/test-design-proposal.md',
         content:
           '# Test Design Proposal\n## Official RF ID\nRF-GOV\n## Scope\n## Proposed tests\n## Existing tests to reuse\n## Existing tests requiring modification\n## New tests to create\n## Ambiguities requiring user decision\n## Approval request'
       },
-      { id: 'gherkin', file: 'features/functional/RF-GOV-TC-001.feature', content: '@rf:RF-GOV\nFeature: Test\n' },
-      { id: 'tm-coverage', file: 'qa-ai-output/test-management-coverage-analysis.md', content: '# coverage' },
+      {
+        id: 'gherkin',
+        file: `${DEFAULT_FEATURE_PATH}/functional/RF-GOV-TC-001.feature`,
+        content: '@rf:RF-GOV\nFeature: Test\n'
+      },
+      { id: 'tm-coverage', file: '.qa-ai/output/test-management-coverage-analysis.md', content: '# coverage' },
       {
         id: 'tm-sync',
-        file: 'qa-ai-output/test-management-sync-plan.md',
+        file: '.qa-ai/output/test-management-sync-plan.md',
         content:
           '# Sync Plan\nRequires approval before execution.\n\n| ID | Proposed action | Approval status |\n| --- | --- | --- |\n| RF-GOV | Plan to sync | Pending approval |\n| RF-9 | Plan to sync | Pending approval |\n| TC-001 | Plan to sync | Pending approval |\n'
       }
@@ -86,12 +91,12 @@ test('governed sync plan approval and invalidation on modification', async () =>
     const diffPacket = await nextPhase(cwd);
     assert.equal(diffPacket.phase.id, 'sync-diff');
     await fs.writeFile(
-      path.join(cwd, 'qa-ai-output/test-management-remote-snapshot.md'),
+      path.join(cwd, '.qa-ai/output/test-management-remote-snapshot.md'),
       '# Remote Snapshot\n- Tool: testrail\n- Project: Harness\n- Capture Timestamp: 2026-06-18T13:00:00Z\n- Run ID: RUN-001\n\n| External ID | Title | Section/Suite | Status | Hash |\n| ----------- | ----- | ------------- | ------ | ---- |\n| 12345 | TC1 | Suite1 | Active | h1 |\n',
       'utf8'
     );
     await fs.writeFile(
-      path.join(cwd, 'qa-ai-output/test-management-sync-diff.md'),
+      path.join(cwd, '.qa-ai/output/test-management-sync-diff.md'),
       '# Sync Diff\n- Generated at: 2026-06-18T13:00:00Z\n- Sync Mode: governed\n\n| ID | Action | External ID | Field changes | Idempotency key |\n| --- | ------ | ----------- | ------------- | --------------- |\n| RF-GOV | create | | Title: TC1 | idemp-1 |\n| RF-9 | skip | | | |\n| TC-001 | skip | | | |\n',
       'utf8'
     );
@@ -104,7 +109,7 @@ test('governed sync plan approval and invalidation on modification', async () =>
     assert.equal(applyPacket.phase.status, 'blocked');
     assert.ok(applyPacket.blockers.some((b) => b.gate === 'external-write:test-management'));
 
-    // Approve the gate: records the planHash of qa-ai-output/test-management-sync-plan.md (# sync plan v1)
+    // Approve the gate: records the planHash of .qa-ai/output/test-management-sync-plan.md (# sync plan v1)
     const approveRes = await approveGate(cwd, 'external-write:test-management');
     const approval = approveRes.approvals.find((a) => a.gate === 'external-write:test-management');
     assert.ok(approval.planHash, 'Approval must record planHash');
@@ -114,13 +119,13 @@ test('governed sync plan approval and invalidation on modification', async () =>
     assert.equal(applyStillBlocked.phase.status, 'blocked');
     assert.ok(
       applyStillBlocked.blockers.some(
-        (b) => b.type === 'missing-inputs' && b.missing.includes('qa-ai-output/test-management-rollback-plan.md')
+        (b) => b.type === 'missing-inputs' && b.missing.includes('.qa-ai/output/test-management-rollback-plan.md')
       ),
       'sync-apply must remain blocked until rollback plan exists'
     );
 
     await fs.writeFile(
-      path.join(cwd, 'qa-ai-output/test-management-rollback-plan.md'),
+      path.join(cwd, '.qa-ai/output/test-management-rollback-plan.md'),
       '# Rollback\n| ID | Action | External ID | Rollback action | Rollback details | Status |\n| --- | ------ | ----------- | --------------- | ---------------- | ------ |\n| RF-GOV | create | | deactivate | Deactivate by idempotency key idemp-1 | pending |\n| RF-9 | skip | | none | No change | pending |\n| TC-001 | skip | | none | No change | pending |\n',
       'utf8'
     );
@@ -131,7 +136,7 @@ test('governed sync plan approval and invalidation on modification', async () =>
 
     // Modify the sync plan file!
     await fs.writeFile(
-      path.join(cwd, 'qa-ai-output/test-management-sync-plan.md'),
+      path.join(cwd, '.qa-ai/output/test-management-sync-plan.md'),
       '# Sync Plan\nRequires approval before execution.\n\n| ID | Proposed action | Approval status |\n| --- | --- | --- |\n| RF-GOV | Plan to sync - modified | Pending approval |\n| RF-9 | Plan to sync - modified | Pending approval |\n| TC-001 | Plan to sync - modified | Pending approval |\n',
       'utf8'
     );
@@ -165,10 +170,10 @@ test('governed sync apply and verify emit ordered audit events', async () => {
     tools: { testManagement: 'testrail' },
     testManagementSync: {
       mode: 'governed',
-      diffPath: 'qa-ai-output/test-management-sync-diff.md',
-      applyLogPath: 'qa-ai-output/test-management-apply-log.md',
-      rollbackPath: 'qa-ai-output/test-management-rollback-plan.md',
-      remoteSnapshotPath: 'qa-ai-output/test-management-remote-snapshot.md'
+      diffPath: ARTIFACT_PATHS.testManagementSyncDiff,
+      applyLogPath: ARTIFACT_PATHS.testManagementApplyLog,
+      rollbackPath: ARTIFACT_PATHS.testManagementRollback,
+      remoteSnapshotPath: ARTIFACT_PATHS.testManagementRemoteSnapshot
     }
   });
   try {
@@ -184,24 +189,24 @@ test('governed sync apply and verify emit ordered audit events', async () => {
     snapshot.status = 'active';
     await writeRunSnapshot(cwd, snapshot);
 
-    await fs.mkdir(path.join(cwd, 'qa-ai-output'), { recursive: true });
+    await fs.mkdir(path.join(cwd, '.qa-ai/output'), { recursive: true });
     await fs.writeFile(
-      path.join(cwd, 'qa-ai-output/test-management-sync-plan.md'),
+      path.join(cwd, '.qa-ai/output/test-management-sync-plan.md'),
       '# Sync Plan\n| ID | Proposed action | Approval status |\n| --- | --- | --- |\n| TC-001 | Plan to create | Approved |\n',
       'utf8'
     );
     await fs.writeFile(
-      path.join(cwd, 'qa-ai-output/test-management-sync-diff.md'),
+      path.join(cwd, '.qa-ai/output/test-management-sync-diff.md'),
       '# Sync Diff\n| ID | Action | External ID | Field changes | Idempotency key |\n| --- | ------ | ----------- | ------------- | --------------- |\n| TC-001 | create | | Title: Created | idemp-1 |\n',
       'utf8'
     );
     await fs.writeFile(
-      path.join(cwd, 'qa-ai-output/test-management-remote-snapshot.md'),
+      path.join(cwd, '.qa-ai/output/test-management-remote-snapshot.md'),
       '# Pre Snapshot\n- Capture Timestamp: 2026-06-18T12:00:00Z\n| External ID | Title | Section/Suite | Status | Hash |\n| ----------- | ----- | ------------- | ------ | ---- |\n',
       'utf8'
     );
     await fs.writeFile(
-      path.join(cwd, 'qa-ai-output/test-management-rollback-plan.md'),
+      path.join(cwd, '.qa-ai/output/test-management-rollback-plan.md'),
       '# Rollback\n| ID | Action | External ID | Rollback action | Rollback details | Status |\n| --- | ------ | ----------- | --------------- | ---------------- | ------ |\n| TC-001 | create | | deactivate | Deactivate by idempotency key idemp-1 | pending |\n',
       'utf8'
     );
@@ -212,12 +217,12 @@ test('governed sync apply and verify emit ordered audit events', async () => {
     assert.equal(applyPacket.phase.status, 'active');
 
     await fs.writeFile(
-      path.join(cwd, 'qa-ai-output/test-management-apply-log.md'),
+      path.join(cwd, '.qa-ai/output/test-management-apply-log.md'),
       '# Apply Log\n| ID | Action | External ID | Result | Timestamp |\n| --- | ------ | ----------- | ------ | --------- |\n| TC-001 | create | C124 | applied | 2026-06-18T12:05:00Z |\n',
       'utf8'
     );
     await fs.writeFile(
-      path.join(cwd, 'qa-ai-output/test-management-mapping.json'),
+      path.join(cwd, '.qa-ai/output/test-management-mapping.json'),
       `{"TC-001":{"externalId":"C124","idempotencyKey":"idemp-1","lastAppliedAt":"2026-06-18T12:05:00Z","lastAppliedRunId":"${snapshot.runId}"}}\n`,
       'utf8'
     );
@@ -229,7 +234,7 @@ test('governed sync apply and verify emit ordered audit events', async () => {
     assert.equal(verifyPacket.phase.id, 'sync-verify');
     assert.equal(verifyPacket.phase.status, 'active');
     await fs.writeFile(
-      path.join(cwd, 'qa-ai-output/test-management-remote-snapshot.post.md'),
+      path.join(cwd, '.qa-ai/output/test-management-remote-snapshot.post.md'),
       '# Post Snapshot\n- Capture Timestamp: 2026-06-18T13:00:00Z\n| External ID | Title | Section/Suite | Status | Hash |\n| ----------- | ----- | ------------- | ------ | ---- |\n| C124 | Created | Suite | Active | hash-created |\n',
       'utf8'
     );

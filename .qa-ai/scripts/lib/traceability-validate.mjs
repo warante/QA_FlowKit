@@ -1,3 +1,4 @@
+import { DEFAULT_FEATURE_PATH } from './artifact-paths.mjs';
 import path from 'node:path';
 import { normalizeColumn, parseMarkdownTable } from './markdown-table.mjs';
 import { functionalMatrixContent } from './markdown-section.mjs';
@@ -65,7 +66,11 @@ function isProposalOnlyRow(row) {
   return status === 'proposal-only' || status === 'proposed';
 }
 
-export function validateMatrixFeaturePaths({ matrixContent = '', features = [], featureRoot = 'features' } = {}) {
+export function validateMatrixFeaturePaths({
+  matrixContent = '',
+  features = [],
+  featureRoot = DEFAULT_FEATURE_PATH
+} = {}) {
   const matrix = parseFunctionalTraceabilityMatrix(matrixContent);
   const errors = [];
   const featurePaths = new Set(
@@ -164,7 +169,11 @@ export function validateMatrixCriterionLinks({ matrixContent = '', proposalConte
   return { errors };
 }
 
-export function validateFunctionalTraceability({ matrixContent = '', features = [], featureRoot = 'features' } = {}) {
+export function validateFunctionalTraceability({
+  matrixContent = '',
+  features = [],
+  featureRoot = DEFAULT_FEATURE_PATH
+} = {}) {
   const matrix = parseFunctionalTraceabilityMatrix(matrixContent);
   const errors = [...matrix.errors, ...duplicateFunctionalTraceabilityErrors(matrix.rows)];
   const matrixContentNormalized = normalizeId(functionalMatrixContent(matrixContent));
@@ -195,7 +204,7 @@ export function validateTraceabilityArtifacts({
   normalizedContent = '',
   proposalContent = '',
   features = [],
-  featureRoot = 'features'
+  featureRoot = DEFAULT_FEATURE_PATH
 } = {}) {
   const functional = validateFunctionalTraceability({ matrixContent, features, featureRoot });
   const nfr = validateNfrTraceability({ normalizedContent, matrixContent });

@@ -5,6 +5,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { parseFeatureTags, resolveFeatureSubfolder } from './lib/feature-layout.mjs';
+import { DEFAULT_FEATURE_PATH } from './lib/artifact-paths.mjs';
 import { getConfigValue, loadQaAiConfig, logHeader, parseArgs, relativeTo, resolveRepoPath } from './lib/utils.mjs';
 
 const cwd = process.cwd();
@@ -42,7 +43,7 @@ async function main() {
 
   logHeader('QA AI organize features');
   const configInfo = await loadQaAiConfig(cwd);
-  const featureRoot = args.path || getConfigValue(configInfo.data, 'gherkin.featurePath', 'features');
+  const featureRoot = args.path || getConfigValue(configInfo.data, 'gherkin.featurePath', DEFAULT_FEATURE_PATH);
   const featureRootPath = resolveRepoPath(cwd, featureRoot, { label: 'feature root' });
   const dryRun = Boolean(args['dry-run']);
   const files = await listRootFeatures(featureRootPath);

@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { parseSimpleYaml, readText } from '../lib/utils.mjs';
-import { ARTIFACT_PATHS, QA_OUTPUT_DIR } from '../lib/artifact-paths.mjs';
+import { ARTIFACT_PATHS, DEFAULT_FEATURE_PATH, QA_OUTPUT_DIR } from '../lib/artifact-paths.mjs';
 
 async function assertFileContains(root, relPath, expected) {
   const content = await fs.readFile(path.join(root, relPath), 'utf8');
@@ -46,12 +46,12 @@ export async function runSmokeScenarios({ copyFramework, run }) {
       'generic'
     ]);
 
-    const config = parseSimpleYaml(await readText(path.join(tempRoot, 'qa-ai.config.yaml')));
-    if (config.automation.ui.specsPath !== 'tests/playwright/ui') {
-      throw new Error(`Expected preset UI path tests/playwright/ui, got ${config.automation.ui.specsPath}`);
+    const config = parseSimpleYaml(await readText(path.join(tempRoot, '.qa-ai/qa-ai.config.yaml')));
+    if (config.automation.ui.specsPath !== '.qa-ai/tests/playwright/ui') {
+      throw new Error(`Expected preset UI path .qa-ai/tests/playwright/ui, got ${config.automation.ui.specsPath}`);
     }
-    if (config.automation.api.specsPath !== 'tests/playwright/api') {
-      throw new Error(`Expected preset API path tests/playwright/api, got ${config.automation.api.specsPath}`);
+    if (config.automation.api.specsPath !== '.qa-ai/tests/playwright/api') {
+      throw new Error(`Expected preset API path .qa-ai/tests/playwright/api, got ${config.automation.api.specsPath}`);
     }
 
     run(tempRoot, ['.qa-ai/scripts/config.mjs', '--export', '.qa-ai/config-profiles/team.yaml']);
@@ -63,16 +63,16 @@ export async function runSmokeScenarios({ copyFramework, run }) {
       path.join(importProfileTarget, '.qa-ai/config-profiles/team.yaml')
     );
     run(importProfileTarget, ['.qa-ai/scripts/config.mjs', '--import', '.qa-ai/config-profiles/team.yaml']);
-    const importedConfig = parseSimpleYaml(await readText(path.join(importProfileTarget, 'qa-ai.config.yaml')));
-    if (importedConfig.automation.ui.specsPath !== 'tests/playwright/ui') {
+    const importedConfig = parseSimpleYaml(await readText(path.join(importProfileTarget, '.qa-ai/qa-ai.config.yaml')));
+    if (importedConfig.automation.ui.specsPath !== '.qa-ai/tests/playwright/ui') {
       throw new Error(`Imported config did not preserve UI specs path, got ${importedConfig.automation.ui.specsPath}`);
     }
     const expectedImportPaths = [
       '.qa-ai/agents/specialists/active.md',
-      'features',
-      'qa-ai-output',
-      'tests/playwright/ui',
-      'tests/playwright/api'
+      '.qa-ai/features',
+      QA_OUTPUT_DIR,
+      '.qa-ai/tests/playwright/ui',
+      '.qa-ai/tests/playwright/api'
     ];
     for (const relPath of expectedImportPaths) {
       try {
@@ -85,12 +85,21 @@ export async function runSmokeScenarios({ copyFramework, run }) {
     defaultTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-flowkit-default-'));
     await copyFramework(defaultTarget);
     run(defaultTarget, ['.qa-ai/scripts/init.mjs']);
-    const expectedDefaultPaths = ['AGENTS.md', 'qa-ai.config.yaml', QA_OUTPUT_DIR, 'features'];
+    const expectedDefaultPaths = ['AGENTS.md', '.qa-ai/qa-ai.config.yaml', QA_OUTPUT_DIR, '.qa-ai/features'];
     for (const relPath of expectedDefaultPaths) {
       try {
         await fs.access(path.join(defaultTarget, relPath));
       } catch {
         throw new Error(`Default init did not create expected path: ${relPath}`);
+      }
+    }
+    const forbiddenRootPaths = ['qa-ai.config.yaml', 'features', 'qa-ai-output', 'tests'];
+    for (const relPath of forbiddenRootPaths) {
+      try {
+        await fs.access(path.join(defaultTarget, relPath));
+        throw new Error(`Default init created forbidden root path: ${relPath}`);
+      } catch (error) {
+        if (error.code !== 'ENOENT') throw error;
       }
     }
     const unexpectedDefaultPaths = [
@@ -181,8 +190,8 @@ export async function runSmokeScenarios({ copyFramework, run }) {
       '--skip-doctor'
     ]);
     const expectedMobilePaths = [
-      'tests/karate/features/api',
-      'tests/maestro/flows',
+      '.qa-ai/tests/karate/features/api',
+      '.qa-ai/tests/maestro/flows',
       '.qa-ai/agents/specialists/active.md'
     ];
     for (const relPath of expectedMobilePaths) {
@@ -242,7 +251,7 @@ export async function runSmokeScenarios({ copyFramework, run }) {
       'utf8'
     );
     run(qaContextTarget, ['.qa-ai/scripts/init.mjs', '--qa-context', 'qa-ai-knowledge', '--no-adapters']);
-    const qaContextConfig = parseSimpleYaml(await readText(path.join(qaContextTarget, 'qa-ai.config.yaml')));
+    const qaContextConfig = parseSimpleYaml(await readText(path.join(qaContextTarget, '.qa-ai/qa-ai.config.yaml')));
     if (qaContextConfig.knowledge.enabled !== true) {
       throw new Error('QA context init did not enable knowledge config.');
     }
@@ -287,24 +296,24 @@ export async function runSmokeScenarios({ copyFramework, run }) {
     ]);
     await fs.writeFile(path.join(strictTarget, 'playwright.config.js'), 'export default {};\n', 'utf8');
     run(strictTarget, ['.qa-ai/scripts/doctor.mjs', '--strict']);
-    await fs.rm(path.join(strictTarget, 'qa-ai-output', 'traceability-matrix.md'), { force: true });
+    await fs.rm(path.join(strictTarget, QA_OUTPUT_DIR, 'traceability-matrix.md'), { force: true });
     run(strictTarget, ['.qa-ai/scripts/doctor.mjs', '--strict'], { expectFailure: true });
 
     quickStrictTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-flowkit-quick-strict-'));
     await copyFramework(quickStrictTarget);
     run(quickStrictTarget, ['.qa-ai/scripts/init.mjs', '--preset', 'manual-only', '--no-adapters']);
     await fs.writeFile(
-      path.join(quickStrictTarget, 'qa-ai-output', 'requirement-analysis.md'),
+      path.join(quickStrictTarget, QA_OUTPUT_DIR, 'requirement-analysis.md'),
       '# Requirement Analysis\n\nRF-101 login.\n',
       'utf8'
     );
     await fs.writeFile(
-      path.join(quickStrictTarget, 'qa-ai-output', 'traceability-matrix.md'),
+      path.join(quickStrictTarget, QA_OUTPUT_DIR, 'traceability-matrix.md'),
       '# Traceability Matrix\n\n| Requirement Source | RF | CA | Feature File | Test Management Case ID | Type | Priority | Automation Status | Automation File |\n|---|---|---|---|---|---|---|---|---|\n',
       'utf8'
     );
     await fs.writeFile(
-      path.join(quickStrictTarget, 'qa-ai-output', 'pr-summary.md'),
+      path.join(quickStrictTarget, QA_OUTPUT_DIR, 'pr-summary.md'),
       '# PR Summary\n\nQuick track summary.\n',
       'utf8'
     );
@@ -313,9 +322,9 @@ export async function runSmokeScenarios({ copyFramework, run }) {
     validatorTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-flowkit-validators-'));
     await copyFramework(validatorTarget);
     run(validatorTarget, ['.qa-ai/scripts/init.mjs', '--preset', 'manual-only', '--no-adapters']);
-    await fs.mkdir(path.join(validatorTarget, 'features', 'functional'), { recursive: true });
+    await fs.mkdir(path.join(validatorTarget, DEFAULT_FEATURE_PATH, 'functional'), { recursive: true });
     await fs.writeFile(
-      path.join(validatorTarget, 'features', 'functional', 'RF-101-TC-001-login.feature'),
+      path.join(validatorTarget, DEFAULT_FEATURE_PATH, 'functional', 'RF-101-TC-001-login.feature'),
       [
         '@priority:high @type:functional @manual:false @id:TC-001',
         'Feature: RF-101 Login',
@@ -332,24 +341,24 @@ export async function runSmokeScenarios({ copyFramework, run }) {
       'utf8'
     );
     await fs.writeFile(
-      path.join(validatorTarget, 'qa-ai-output', 'traceability-matrix.md'),
+      path.join(validatorTarget, QA_OUTPUT_DIR, 'traceability-matrix.md'),
       [
         '# Traceability Matrix',
         '',
         '| Requirement Source | RF | CA | Feature File | Test Management Case ID | Type | Priority | Automation Status | Automation File |',
         '|---|---|---|---|---|---|---|---|---|',
-        '| Jira | RF-101 | User can sign in with valid credentials. | features/functional/RF-101-TC-001-login.feature | TC-001 | functional | high | automated | tests/login.spec.js |',
+        '| Jira | RF-101 | User can sign in with valid credentials. | .qa-ai/features/functional/RF-101-TC-001-login.feature | TC-001 | functional | high | automated | .qa-ai/tests/login.spec.js |',
         ''
       ].join('\n'),
       'utf8'
     );
     await fs.writeFile(
-      path.join(validatorTarget, 'qa-ai-output', 'requirement-analysis.md'),
+      path.join(validatorTarget, QA_OUTPUT_DIR, 'requirement-analysis.md'),
       '# Requirement Analysis\n\nRF-101 login.\n',
       'utf8'
     );
     await fs.writeFile(
-      path.join(validatorTarget, 'qa-ai-output', 'test-design-proposal.md'),
+      path.join(validatorTarget, QA_OUTPUT_DIR, 'test-design-proposal.md'),
       [
         '# Test Design Proposal (per RF / epic)',
         '',
@@ -383,17 +392,17 @@ export async function runSmokeScenarios({ copyFramework, run }) {
       'utf8'
     );
     await fs.writeFile(
-      path.join(validatorTarget, 'qa-ai-output', 'test-management-coverage-analysis.md'),
+      path.join(validatorTarget, QA_OUTPUT_DIR, 'test-management-coverage-analysis.md'),
       '# Test Management Coverage Analysis\n\nRF-101 coverage.\n',
       'utf8'
     );
     await fs.writeFile(
-      path.join(validatorTarget, 'qa-ai-output', 'pr-summary.md'),
+      path.join(validatorTarget, QA_OUTPUT_DIR, 'pr-summary.md'),
       '# PR Summary\n\nValidation pending.\n',
       'utf8'
     );
     await fs.writeFile(
-      path.join(validatorTarget, 'qa-ai-output', 'test-management-sync-plan.md'),
+      path.join(validatorTarget, QA_OUTPUT_DIR, 'test-management-sync-plan.md'),
       [
         '# Test Management Sync Plan',
         '',
@@ -408,7 +417,7 @@ export async function runSmokeScenarios({ copyFramework, run }) {
       'utf8'
     );
     await fs.writeFile(
-      path.join(validatorTarget, 'qa-ai-output', 'test-management-mapping.json'),
+      path.join(validatorTarget, QA_OUTPUT_DIR, 'test-management-mapping.json'),
       `${JSON.stringify(
         {
           'TC-001': {
@@ -428,29 +437,29 @@ export async function runSmokeScenarios({ copyFramework, run }) {
     run(validatorTarget, ['.qa-ai/scripts/validate-features.mjs']);
     run(validatorTarget, ['.qa-ai/scripts/validate-traceability.mjs']);
     run(validatorTarget, ['.qa-ai/scripts/validate-target.mjs']);
-    await fs.rm(path.join(validatorTarget, 'qa-ai-output', 'traceability-matrix.md'), { force: true });
+    await fs.rm(path.join(validatorTarget, QA_OUTPUT_DIR, 'traceability-matrix.md'), { force: true });
     run(validatorTarget, ['.qa-ai/scripts/validate-target.mjs'], { expectFailure: true });
     await fs.writeFile(
-      path.join(validatorTarget, 'qa-ai-output', 'traceability-matrix.md'),
+      path.join(validatorTarget, QA_OUTPUT_DIR, 'traceability-matrix.md'),
       [
         '# Traceability Matrix',
         '',
         '| Requirement Source | RF | CA | Feature File | Test Management Case ID | Type | Priority | Automation Status | Automation File |',
         '|---|---|---|---|---|---|---|---|---|',
-        '| Jira | RF-101 | User can sign in with valid credentials. | features/functional/RF-101-TC-001-login.feature | TC-001 | functional | high | automated | tests/login.spec.js |',
+        '| Jira | RF-101 | User can sign in with valid credentials. | .qa-ai/features/functional/RF-101-TC-001-login.feature | TC-001 | functional | high | automated | .qa-ai/tests/login.spec.js |',
         ''
       ].join('\n'),
       'utf8'
     );
     await fs.writeFile(
-      path.join(validatorTarget, 'qa-ai-output', 'traceability-matrix.md'),
+      path.join(validatorTarget, QA_OUTPUT_DIR, 'traceability-matrix.md'),
       [
         '# Traceability Matrix',
         '',
         '| Requirement Source | RF | CA | Feature File | Test Management Case ID | Type | Priority | Automation Status | Automation File |',
         '|---|---|---|---|---|---|---|---|---|',
-        '| Jira | RF-101 | User can sign in with valid credentials. | features/functional/RF-101-TC-001-login.feature | TC-001 | functional | high | automated | tests/login.spec.js |',
-        '| Jira | RF-101 | User can sign in with valid credentials. | features/functional/RF-101-TC-001-login.feature | TC-001 | functional | high | automated | tests/login.spec.js |',
+        '| Jira | RF-101 | User can sign in with valid credentials. | .qa-ai/features/functional/RF-101-TC-001-login.feature | TC-001 | functional | high | automated | .qa-ai/tests/login.spec.js |',
+        '| Jira | RF-101 | User can sign in with valid credentials. | .qa-ai/features/functional/RF-101-TC-001-login.feature | TC-001 | functional | high | automated | .qa-ai/tests/login.spec.js |',
         ''
       ].join('\n'),
       'utf8'
@@ -458,7 +467,7 @@ export async function runSmokeScenarios({ copyFramework, run }) {
     run(validatorTarget, ['.qa-ai/scripts/validate-traceability.mjs'], { expectFailure: true });
     run(validatorTarget, ['.qa-ai/scripts/validate-sync-plan.mjs']);
     await fs.writeFile(
-      path.join(validatorTarget, 'qa-ai-output', 'test-management-sync-plan.md'),
+      path.join(validatorTarget, QA_OUTPUT_DIR, 'test-management-sync-plan.md'),
       [
         '# Test Management Sync Plan',
         '',
@@ -474,7 +483,7 @@ export async function runSmokeScenarios({ copyFramework, run }) {
     );
     run(validatorTarget, ['.qa-ai/scripts/validate-sync-plan.mjs'], { expectFailure: true });
     await fs.writeFile(
-      path.join(validatorTarget, 'qa-ai-output', 'test-management-sync-plan.md'),
+      path.join(validatorTarget, QA_OUTPUT_DIR, 'test-management-sync-plan.md'),
       [
         '# Test Management Sync Plan',
         '',
@@ -489,7 +498,7 @@ export async function runSmokeScenarios({ copyFramework, run }) {
       'utf8'
     );
     await fs.writeFile(
-      path.join(validatorTarget, 'qa-ai-output', 'test-management-mapping.json'),
+      path.join(validatorTarget, QA_OUTPUT_DIR, 'test-management-mapping.json'),
       `${JSON.stringify(
         {
           'TC-001': { externalId: 'C123' },
@@ -503,7 +512,7 @@ export async function runSmokeScenarios({ copyFramework, run }) {
     run(validatorTarget, ['.qa-ai/scripts/validate-sync-plan.mjs'], { expectFailure: true });
     run(validatorTarget, ['.qa-ai/scripts/validate-active-specialists.mjs']);
 
-    const preservedPath = path.join(tempRoot, 'qa-ai-output', 'requirement-analysis.md');
+    const preservedPath = path.join(tempRoot, QA_OUTPUT_DIR, 'requirement-analysis.md');
     await fs.mkdir(path.dirname(preservedPath), { recursive: true });
     await fs.writeFile(preservedPath, 'USER EDIT\n', 'utf8');
     run(tempRoot, [

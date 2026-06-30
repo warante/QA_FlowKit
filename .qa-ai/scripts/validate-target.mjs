@@ -30,7 +30,7 @@ Options:
   --skip-quality-report Skip configured semantic Gherkin quality validation
   --strict-untrusted-content Fail on prompt-injection-like requirement/context content
   --allow-pending     Pass --allow-pending to release gate validator
-  --scan-secrets      Scan qa-ai-output and features for secret-like values
+  --scan-secrets      Scan configured QA output and feature paths for secret-like values
   --no-scan-secrets   Skip secret scan (overrides default on --strict doctor)
   --help              Show this help
 

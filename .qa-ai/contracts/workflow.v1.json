@@ -60,7 +60,7 @@
       "outputs": [
         {
           "path": "$config.knowledge.summaryPath",
-          "fallback": "qa-ai-output/qa-knowledge-summary.md"
+          "fallback": ".qa-ai/output/qa-knowledge-summary.md"
         }
       ],
       "entryApprovals": [],
@@ -79,7 +79,7 @@
       "slashCommand": "/qa-full-flow",
       "guidance": [".qa-ai/agents/requirements-intake-agent.md", ".qa-ai/workflows/intake.md"],
       "inputs": [],
-      "outputs": [{ "path": "qa-ai-output/requirement-analysis.md" }],
+      "outputs": [{ "path": ".qa-ai/output/requirement-analysis.md" }],
       "entryApprovals": [],
       "validators": [],
       "skipConditions": [],
@@ -96,7 +96,7 @@
       "slashCommand": "/qa-full-flow",
       "guidance": [".qa-ai/agents/requirements-normalization-agent.md"],
       "inputs": [],
-      "outputs": [{ "path": "qa-ai-output/normalized-requirements.md" }],
+      "outputs": [{ "path": ".qa-ai/output/normalized-requirements.md" }],
       "entryApprovals": [],
       "validators": [],
       "skipConditions": [],
@@ -113,7 +113,7 @@
       "slashCommand": "/qa-full-flow",
       "guidance": [".qa-ai/agents/test-design-system-agent.md", ".qa-ai/workflows/test-design-system.md"],
       "inputs": [],
-      "outputs": [{ "path": "$config.testDesign.systemPath", "fallback": "qa-ai-output/test-design-system.md" }],
+      "outputs": [{ "path": "$config.testDesign.systemPath", "fallback": ".qa-ai/output/test-design-system.md" }],
       "entryApprovals": [],
       "validators": ["validate-test-design"],
       "skipConditions": [{ "field": "project.qaTrack", "equals": "quick" }],
@@ -130,7 +130,7 @@
       "slashCommand": "/qa-full-flow",
       "guidance": [".qa-ai/agents/gherkin-test-design-agent.md", ".qa-ai/workflows/test-design.md"],
       "inputs": [],
-      "outputs": [{ "path": "$config.testDesign.proposalPath", "fallback": "qa-ai-output/test-design-proposal.md" }],
+      "outputs": [{ "path": "$config.testDesign.proposalPath", "fallback": ".qa-ai/output/test-design-proposal.md" }],
       "entryApprovals": [],
       "validators": ["validate-test-design"],
       "skipConditions": [{ "field": "project.qaTrack", "equals": "quick" }],
@@ -149,7 +149,7 @@
       "inputs": [
         {
           "path": "$config.testDesign.proposalPath",
-          "fallback": "qa-ai-output/test-design-proposal.md",
+          "fallback": ".qa-ai/output/test-design-proposal.md",
           "required": false
         }
       ],
@@ -174,11 +174,11 @@
       "outputs": [
         {
           "path": "$config.sources.external.requirementsImportPath",
-          "fallback": "qa-ai-output/imported-requirements.md"
+          "fallback": ".qa-ai/output/imported-requirements.md"
         },
         {
           "path": "$config.sources.external.casesImportPath",
-          "fallback": "qa-ai-output/imported-cases.md"
+          "fallback": ".qa-ai/output/imported-cases.md"
         }
       ],
       "entryApprovals": [],
@@ -203,7 +203,7 @@
       "outputs": [
         {
           "path": "$config.testDesign.quality.reportPath",
-          "fallback": "qa-ai-output/gherkin-quality-report.md"
+          "fallback": ".qa-ai/output/gherkin-quality-report.md"
         }
       ],
       "entryApprovals": [],
@@ -225,7 +225,7 @@
       "slashCommand": "/qa-coverage",
       "guidance": [".qa-ai/agents/test-management-coverage-agent.md"],
       "inputs": [],
-      "outputs": [{ "path": "qa-ai-output/test-management-coverage-analysis.md" }],
+      "outputs": [{ "path": ".qa-ai/output/test-management-coverage-analysis.md" }],
       "entryApprovals": [],
       "validators": [],
       "skipConditions": [
@@ -245,7 +245,7 @@
       "slashCommand": "/qa-full-flow",
       "guidance": [".qa-ai/agents/test-management-sync-agent.md", ".qa-ai/workflows/test-management-sync.md"],
       "inputs": [],
-      "outputs": [{ "path": "qa-ai-output/test-management-sync-plan.md" }],
+      "outputs": [{ "path": ".qa-ai/output/test-management-sync-plan.md" }],
       "entryApprovals": [],
       "validators": ["validate-sync-plan"],
       "skipConditions": [
@@ -264,12 +264,12 @@
       "name": "Test management sync diff",
       "slashCommand": "/qa-full-flow",
       "guidance": [".qa-ai/agents/test-management-diff-agent.md"],
-      "inputs": [{ "path": "qa-ai-output/test-management-sync-plan.md" }],
+      "inputs": [{ "path": ".qa-ai/output/test-management-sync-plan.md" }],
       "outputs": [
-        { "path": "$config.testManagementSync.diffPath", "fallback": "qa-ai-output/test-management-sync-diff.md" },
+        { "path": "$config.testManagementSync.diffPath", "fallback": ".qa-ai/output/test-management-sync-diff.md" },
         {
           "path": "$config.testManagementSync.remoteSnapshotPath",
-          "fallback": "qa-ai-output/test-management-remote-snapshot.md"
+          "fallback": ".qa-ai/output/test-management-remote-snapshot.md"
         }
       ],
       "entryApprovals": [],
@@ -294,17 +294,17 @@
       "inputs": [
         {
           "path": "$config.testManagementSync.diffPath",
-          "fallback": "qa-ai-output/test-management-sync-diff.md",
+          "fallback": ".qa-ai/output/test-management-sync-diff.md",
           "required": true
         },
         {
           "path": "$config.testManagementSync.rollbackPath",
-          "fallback": "qa-ai-output/test-management-rollback-plan.md",
+          "fallback": ".qa-ai/output/test-management-rollback-plan.md",
           "required": true
         }
       ],
       "outputs": [
-        { "path": "$config.testManagementSync.applyLogPath", "fallback": "qa-ai-output/test-management-apply-log.md" }
+        { "path": "$config.testManagementSync.applyLogPath", "fallback": ".qa-ai/output/test-management-apply-log.md" }
       ],
       "entryApprovals": ["external-write:test-management"],
       "validators": [],
@@ -328,7 +328,7 @@
       "inputs": [
         {
           "path": "$config.testManagementSync.applyLogPath",
-          "fallback": "qa-ai-output/test-management-apply-log.md",
+          "fallback": ".qa-ai/output/test-management-apply-log.md",
           "required": true
         }
       ],
@@ -356,7 +356,7 @@
       "outputs": [
         {
           "path": "$config.traceability.matrixPath",
-          "fallback": "qa-ai-output/traceability-matrix.md"
+          "fallback": ".qa-ai/output/traceability-matrix.md"
         }
       ],
       "entryApprovals": [],
@@ -375,7 +375,7 @@
       "slashCommand": "/qa-automation-plan",
       "guidance": [".qa-ai/agents/automation-feasibility-agent.md", ".qa-ai/workflows/automation-analysis.md"],
       "inputs": [],
-      "outputs": [{ "path": "qa-ai-output/automation-feasibility-report.md" }],
+      "outputs": [{ "path": ".qa-ai/output/automation-feasibility-report.md" }],
       "entryApprovals": [],
       "validators": [],
       "skipConditions": [{ "field": "project.qaTrack", "equals": "quick" }],
@@ -392,7 +392,7 @@
       "slashCommand": "/qa-full-flow",
       "guidance": [".qa-ai/agents/ui-implementation-agent.md", ".qa-ai/workflows/implementation.md"],
       "inputs": [],
-      "outputs": [{ "path": "qa-ai-output/automation-implementation-plan.md" }],
+      "outputs": [{ "path": ".qa-ai/output/automation-implementation-plan.md" }],
       "entryApprovals": [],
       "validators": [],
       "skipConditions": [
@@ -416,7 +416,7 @@
         ".qa-ai/rules/mobile-automation.rules.md"
       ],
       "inputs": [],
-      "outputs": [{ "path": "qa-ai-output/automation-implementation-plan.md" }],
+      "outputs": [{ "path": ".qa-ai/output/automation-implementation-plan.md" }],
       "entryApprovals": [],
       "validators": [],
       "skipConditions": [
@@ -436,7 +436,7 @@
       "slashCommand": "/qa-full-flow",
       "guidance": [".qa-ai/agents/api-testing-agent.md", ".qa-ai/workflows/implementation.md"],
       "inputs": [],
-      "outputs": [{ "path": "qa-ai-output/automation-implementation-plan.md" }],
+      "outputs": [{ "path": ".qa-ai/output/automation-implementation-plan.md" }],
       "entryApprovals": [],
       "validators": [],
       "skipConditions": [
@@ -456,7 +456,7 @@
       "slashCommand": "/qa-full-flow",
       "guidance": [".qa-ai/agents/jira-task-agent.md"],
       "inputs": [],
-      "outputs": [{ "path": "qa-ai-output/jira-automation-task.md" }],
+      "outputs": [{ "path": ".qa-ai/output/jira-automation-task.md" }],
       "entryApprovals": [],
       "validators": [],
       "skipConditions": [
@@ -476,7 +476,7 @@
       "slashCommand": "/qa-full-flow",
       "guidance": [".qa-ai/agents/pr-agent.md", ".qa-ai/workflows/pr.md"],
       "inputs": [],
-      "outputs": [{ "path": "qa-ai-output/pr-summary.md" }],
+      "outputs": [{ "path": ".qa-ai/output/pr-summary.md" }],
       "entryApprovals": [],
       "validators": [],
       "skipConditions": [],
@@ -496,7 +496,7 @@
       "outputs": [
         {
           "path": "$config.release.gatePath",
-          "fallback": "qa-ai-output/release-gate.yaml",
+          "fallback": ".qa-ai/output/release-gate.yaml",
           "kind": "releaseGate"
         }
       ],
@@ -516,7 +516,7 @@
       "slashCommand": "/qa-full-flow",
       "guidance": [".qa-ai/agents/test-healing-agent.md", ".qa-ai/workflows/healing.md"],
       "inputs": [],
-      "outputs": [{ "path": "qa-ai-output/healing-log.md" }],
+      "outputs": [{ "path": ".qa-ai/output/healing-log.md" }],
       "entryApprovals": [],
       "validators": ["validate-healing-log"],
       "skipConditions": [{ "field": "automation.healing.enabled", "equals": false }],

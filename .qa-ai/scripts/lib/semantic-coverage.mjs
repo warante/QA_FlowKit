@@ -1,3 +1,4 @@
+import { DEFAULT_FEATURE_PATH } from './artifact-paths.mjs';
 import path from 'node:path';
 import { normalizeColumn, parseMarkdownTable } from './markdown-table.mjs';
 import { NFR_EVIDENCE_TYPES } from './nfr-coverage.mjs';
@@ -242,7 +243,7 @@ function featureIndex(features) {
   return { byId, byPath };
 }
 
-function expectedFeaturePath(row, featureRoot = 'features') {
+function expectedFeaturePath(row, featureRoot = DEFAULT_FEATURE_PATH) {
   if (row.artifactPath) return row.artifactPath.replaceAll('\\', '/');
   if (!row.testId) return '';
   const rf = row.rf || 'RF-000';
@@ -253,7 +254,7 @@ export function validateSemanticCoverage({
   normalizedContent = '',
   proposalContent = '',
   features = [],
-  featureRoot = 'features',
+  featureRoot = DEFAULT_FEATURE_PATH,
   mode = 'off',
   policy = {},
   options = {}

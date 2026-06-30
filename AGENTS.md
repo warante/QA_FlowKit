@@ -20,7 +20,7 @@ Implement and maintain a reusable repo-first workflow that helps QA teams move f
 ## Mandatory behavior
 
 - Read this file before making changes.
-- Read `qa-ai.config.yaml` when present (usually only in target repos or local smoke fixtures—not committed in this starter root by default).
+- Read `qa-ai.config.yaml` (root) or `.qa-ai/qa-ai.config.yaml` (compact default) when present.
 - When `knowledge.enabled` is true, read the configured QA knowledge summary and init decisions artifacts before QA workflow work.
 - When changing **framework** validators or agents in this repo, read `.qa-ai/rules/README.md` and the relevant `.qa-ai/rules/*.rules.md` files so target-repo rules stay consistent.
 - Target repositories use those rules during QA work; this repo’s root `AGENTS.md` focuses on maintaining the starter and npm package (see [npm releases](#npm-releases)).
@@ -71,14 +71,13 @@ README.md / README.es.md   public documentation
 ## Target repository structure (after `init`)
 
 ```text
-qa-ai.config.yaml
+qa-ai.config.yaml          # legacy root config (still supported)
+.qa-ai/qa-ai.config.yaml  # compact default for new projects
 .opencode/
 .opencode/commands/qa-init.md
-qa-ai-output/
-qa-ai-output/qa-knowledge-summary.md
-qa-ai-output/qa-init-decisions.md
-features/
-tests/
+.qa-ai/output/
+.qa-ai/features/
+.qa-ai/tests/
 ```
 
 Optional adapter outputs are generated only when requested with `--adapters` or bootstrap scripts:

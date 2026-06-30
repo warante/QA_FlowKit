@@ -7,7 +7,7 @@ import {
 } from './markdown-artifact-validator.mjs';
 import { getConfigValue, loadQaAiConfig, readText, resolveRepoPath } from './utils.mjs';
 import { normalizeId } from './gherkin-validate.mjs';
-import { ARTIFACT_PATHS } from './artifact-paths.mjs';
+import { ARTIFACT_PATHS, DEFAULT_FEATURE_PATH } from './artifact-paths.mjs';
 
 const allowedRepairTypes = new Set(['selector', 'wait', 'data', 'other']);
 
@@ -26,7 +26,7 @@ export async function validateHealingLog(cwd, options = {}) {
 
   const matrixPath =
     options.matrixPath || getConfigValue(config, 'traceability.matrixPath', ARTIFACT_PATHS.traceabilityMatrix);
-  const logPath = options.logPath || ARTIFACT_PATHS.healingLog;
+  const logPath = options.logPath || getConfigValue(config, 'healing.logPath', ARTIFACT_PATHS.healingLog);
   const allowMissing = options.allowMissing !== undefined ? options.allowMissing : false;
 
   const logAbsPath = resolveRepoPath(cwd, logPath, { label: 'healing log' });
@@ -52,7 +52,7 @@ export async function validateHealingLog(cwd, options = {}) {
   const uiPath = getConfigValue(config, 'automation.ui.specsPath');
   const apiPath = getConfigValue(config, 'automation.api.specsPath');
   const mobilePath = getConfigValue(config, 'automation.mobile.flowsPath');
-  const featurePath = getConfigValue(config, 'gherkin.featurePath', 'features');
+  const featurePath = getConfigValue(config, 'gherkin.featurePath', DEFAULT_FEATURE_PATH);
 
   const allowedRoots = [];
   for (const [cfgPath, label] of [
@@ -72,7 +72,7 @@ export async function validateHealingLog(cwd, options = {}) {
   try {
     resolvedFeaturePath = resolveRepoPath(cwd, featurePath, { label: 'gherkin.featurePath', allowRoot: true });
   } catch {
-    resolvedFeaturePath = path.resolve(cwd, 'features');
+    resolvedFeaturePath = path.resolve(cwd, DEFAULT_FEATURE_PATH);
   }
 
   const logContent = await readText(logAbsPath);

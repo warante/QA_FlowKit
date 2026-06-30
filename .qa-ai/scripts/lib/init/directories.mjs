@@ -1,40 +1,15 @@
-import path from 'node:path';
-import { FEATURE_SUBFOLDERS } from '../feature-layout.mjs';
-import { ensureDir, getConfigValue, manifestEntry, resolveRepoPath, writeFileSafe } from '../utils.mjs';
+import { DEFAULT_FEATURE_PATH } from '../artifact-paths.mjs';
 
-export async function createFeatureFolders({ cwd, withFeatureFolders, config, manifestEntries, dirResults, writes }) {
+/**
+ * Feature type subfolders are created lazily when the first .feature file is written.
+ */
+export async function createFeatureFolders({ withFeatureFolders }) {
   if (!withFeatureFolders) {
-    console.log('\nSkipping feature category folders. Use init without --no-feature-folders to create them.');
+    console.log('\nSkipping feature category folders (--no-feature-folders).');
     return;
   }
 
-  const featureRoot = getConfigValue(config, 'gherkin.featurePath', 'features');
-  for (const subfolder of FEATURE_SUBFOLDERS) {
-    const folder = resolveRepoPath(cwd, path.join(featureRoot, subfolder), {
-      label: `feature category folder "${subfolder}"`
-    });
-    const dirResult = await ensureDir(folder);
-    dirResults.push(dirResult);
-    if (dirResult.created) {
-      manifestEntries.push(
-        await manifestEntry(cwd, dirResult.path, {
-          type: 'dir',
-          category: 'generated',
-          source: 'init'
-        })
-      );
-    }
-
-    const keepResult = await writeFileSafe(path.join(folder, '.gitkeep'), '', { force: false });
-    writes.push(keepResult);
-    if (keepResult.written) {
-      manifestEntries.push(
-        await manifestEntry(cwd, keepResult.path, {
-          type: 'file',
-          category: 'generated',
-          source: 'init'
-        })
-      );
-    }
-  }
+  console.log(
+    `\nFeature category subfolders under ${DEFAULT_FEATURE_PATH}/ are created when the first .feature file is written.`
+  );
 }

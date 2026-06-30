@@ -15,6 +15,8 @@ async function setupTestImpactFixture({ matrixContent = '', reportContent = '' }
     '  qaTrack: standard',
     'traceability:',
     '  matrixPath: qa-ai-output/traceability-matrix.md',
+    'testImpact:',
+    '  analysisPath: qa-ai-output/test-impact-analysis.md',
     ''
   ].join('\n');
 

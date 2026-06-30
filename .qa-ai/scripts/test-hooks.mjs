@@ -7,6 +7,8 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { mergeClaudeSettings } from './lib/claude-settings.mjs';
+import { QA_OUTPUT_DIR, DEFAULT_FEATURE_PATH, ARTIFACT_PATHS } from './lib/artifact-paths.mjs';
+import { COMPACT_CONFIG_PATH } from './lib/project-paths.mjs';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const postEditScript = path.join(repoRoot, '.qa-ai/scripts/hooks/post-edit-validate.mjs');
@@ -32,23 +34,23 @@ async function createTempRepo() {
 
   // Copy .qa-ai directory recursively from repoRoot
   await fs.cp(path.join(repoRoot, '.qa-ai'), path.join(tempDir, '.qa-ai'), { recursive: true });
+  await fs.rm(path.join(tempDir, '.qa-ai', 'state', 'init-manifest.json'), { force: true });
 
-  // Re-create state/runs and output/features directories in tempDir
   await fs.mkdir(path.join(tempDir, '.qa-ai/state/runs'), { recursive: true });
-  await fs.mkdir(path.join(tempDir, 'qa-ai-output'), { recursive: true });
-  await fs.mkdir(path.join(tempDir, 'features/functional'), { recursive: true });
+  await fs.mkdir(path.join(tempDir, QA_OUTPUT_DIR), { recursive: true });
+  await fs.mkdir(path.join(tempDir, `${DEFAULT_FEATURE_PATH}/functional`), { recursive: true });
 
-  // Write basic config
   const configContent = [
     'project:',
     '  qaTrack: quick',
     '  interfaceLanguage: en',
     'gherkin:',
-    '  featurePath: features',
+    `  featurePath: ${DEFAULT_FEATURE_PATH}`,
     'traceability:',
-    '  matrixPath: qa-ai-output/traceability-matrix.md'
+    `  matrixPath: ${ARTIFACT_PATHS.traceabilityMatrix}`
   ].join('\n');
-  await fs.writeFile(path.join(tempDir, 'qa-ai.config.yaml'), configContent, 'utf8');
+  await fs.mkdir(path.join(tempDir, path.dirname(COMPACT_CONFIG_PATH)), { recursive: true });
+  await fs.writeFile(path.join(tempDir, COMPACT_CONFIG_PATH), configContent, 'utf8');
 
   return tempDir;
 }
@@ -69,7 +71,7 @@ test('Hooks: QA_FLOWKIT_DISABLE_HOOKS=1 overrides', async () => {
     const res = runHook(
       postEditScript,
       tempDir,
-      { tool_input: { file_path: 'features/functional/invalid.feature' } },
+      { tool_input: { file_path: `${DEFAULT_FEATURE_PATH}/functional/invalid.feature` } },
       { QA_FLOWKIT_DISABLE_HOOKS: '1' }
     );
     assert.equal(res.status, 0);
@@ -85,12 +87,12 @@ test('Hooks: post-edit-validate.mjs blocks on invalid feature write', async () =
   const tempDir = await createTempRepo();
   try {
     // Write invalid feature file
-    const invalidFeaturePath = path.join(tempDir, 'features/functional/invalid.feature');
+    const invalidFeaturePath = path.join(tempDir, `${DEFAULT_FEATURE_PATH}/functional/invalid.feature`);
     await fs.writeFile(invalidFeaturePath, 'Feature: Missing tags\n', 'utf8');
 
     const res = runHook(postEditScript, tempDir, {
       tool_name: 'Write',
-      tool_input: { file_path: 'features/functional/invalid.feature' }
+      tool_input: { file_path: `${DEFAULT_FEATURE_PATH}/functional/invalid.feature` }
     });
 
     assert.equal(res.status, 2);
@@ -104,7 +106,7 @@ test('Hooks: post-edit-validate.mjs passes on valid feature write', async () => 
   const tempDir = await createTempRepo();
   try {
     // Write valid feature file
-    const validFeaturePath = path.join(tempDir, 'features/functional/RF-101-valid.feature');
+    const validFeaturePath = path.join(tempDir, `${DEFAULT_FEATURE_PATH}/functional/RF-101-valid.feature`);
     await fs.writeFile(
       validFeaturePath,
       [
@@ -122,7 +124,7 @@ test('Hooks: post-edit-validate.mjs passes on valid feature write', async () => 
 
     const res = runHook(postEditScript, tempDir, {
       tool_name: 'Write',
-      tool_input: { file_path: 'features/functional/RF-101-valid.feature' }
+      tool_input: { file_path: `${DEFAULT_FEATURE_PATH}/functional/RF-101-valid.feature` }
     });
 
     if (res.status !== 0) {
@@ -198,7 +200,7 @@ test('Hooks: stop-gate.mjs checks outputs and blocks when check is needed', asyn
     );
 
     // Write expected output file for intake
-    await fs.writeFile(path.join(tempDir, 'qa-ai-output/requirement-analysis.md'), '# Requirements Analysis\n', 'utf8');
+    await fs.writeFile(path.join(tempDir, ARTIFACT_PATHS.requirementAnalysis), '# Requirements Analysis\n', 'utf8');
 
     // Runs stop gate - should exit 2 because output exists but check has not been run
     const res = runHook(stopGateScript, tempDir, {});
@@ -217,7 +219,7 @@ test('Hooks: stop-gate.mjs passes when check is complete and hashes match', asyn
     await fs.writeFile(path.join(tempDir, '.qa-ai/state/runs/active.json'), JSON.stringify({ runId }), 'utf8');
 
     // Write output file
-    const outputPath = path.join(tempDir, 'qa-ai-output/requirement-analysis.md');
+    const outputPath = path.join(tempDir, ARTIFACT_PATHS.requirementAnalysis);
     await fs.writeFile(outputPath, '# Requirements Analysis\n', 'utf8');
 
     // Compute simple hash for verification (SHA-256 not strictly required for test mock as long as it matches)
@@ -235,7 +237,7 @@ test('Hooks: stop-gate.mjs passes when check is complete and hashes match', asyn
         intake: {
           status: 'completed',
           attempts: 1,
-          outputs: [{ path: 'qa-ai-output/requirement-analysis.md', sha256: hash }]
+          outputs: [{ path: ARTIFACT_PATHS.requirementAnalysis, sha256: hash }]
         }
       }
     };
