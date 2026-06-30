@@ -48,6 +48,23 @@ this feature PR is merged.
 - Cross-platform smoke and npm-pack checks now account for generated adapters and framework-specific example paths.
 - Documentation drift and missing packaged contract files now fail validation before release.
 
+## [1.0.0-rc.4](https://github.com/warante/QA_FlowKit/compare/v1.0.0-rc.3...v1.0.0-rc.4) (2026-06-30)
+
+
+### Changed
+
+* cerrar gaps técnicos en utilidades, validadores, monolitos y docs ([#69](https://github.com/warante/QA_FlowKit/issues/69)) ([f332fce](https://github.com/warante/QA_FlowKit/commit/f332fcebb01cfd326ab694093c1e39d8ac78e78d))
+* **ci:** split validate:oss-extraction into core and e2e suites ([#66](https://github.com/warante/QA_FlowKit/issues/66)) ([25824bd](https://github.com/warante/QA_FlowKit/commit/25824bdc8813fcf7f8263863a48b151770753593))
+* consolidar validadores, optimizar CI y cerrar plan de revision profunda ([#71](https://github.com/warante/QA_FlowKit/issues/71)) ([c90333a](https://github.com/warante/QA_FlowKit/commit/c90333a527687aec73891fe868f38cc84eaa0a51))
+* dedupe framework libs, CI scripts, and test harness ([#68](https://github.com/warante/QA_FlowKit/issues/68)) ([df12dc8](https://github.com/warante/QA_FlowKit/commit/df12dc82fffbbf083800a479567f67f4d1b0bf2c))
+* implementar revision profunda de arquitectura QA FlowKit ([#70](https://github.com/warante/QA_FlowKit/issues/70)) ([edc565f](https://github.com/warante/QA_FlowKit/commit/edc565fa9ebe2980a1c94abafc1ba647e3eebe8d))
+* unify CI helpers and validator registry ([#67](https://github.com/warante/QA_FlowKit/issues/67)) ([3888f30](https://github.com/warante/QA_FlowKit/commit/3888f30a4890fb1b22c089700d75965a38b83a2c))
+
+
+### Documentation
+
+* align lifecycle claims and defaults with RC channel ([#64](https://github.com/warante/QA_FlowKit/issues/64)) ([6c7fd5d](https://github.com/warante/QA_FlowKit/commit/6c7fd5d1ab7b6e747e7c72a6c2457d325edadcb8))
+
 ## [1.0.0-rc.3](https://github.com/warante/QA_FlowKit/compare/v1.0.0-rc.2...v1.0.0-rc.3) (2026-06-29)
 
 

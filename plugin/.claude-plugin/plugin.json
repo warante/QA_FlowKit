@@ -1,7 +1,7 @@
 {
   "name": "qa-flowkit",
   "description": "QA FlowKit workflow skills, hooks and orchestrator agent / Skills, hooks y agente orquestador de QA FlowKit",
-  "version": "1.0.0-rc.3",
+  "version": "1.0.0-rc.4",
   "author": "warante",
   "homepage": "https://github.com/warante/QA_FlowKit",
   "repository": "https://github.com/warante/QA_FlowKit",
