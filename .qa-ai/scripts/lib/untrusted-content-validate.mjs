@@ -10,16 +10,17 @@ import {
   relativeTo,
   resolveRepoPath
 } from './utils.mjs';
+import { ARTIFACT_PATHS } from './artifact-paths.mjs';
 
 const textExtensions = new Set(['.csv', '.feature', '.json', '.md', '.txt', '.tsv', '.yaml', '.yml']);
 
 function configuredTargets(config) {
   const targets = new Set([
-    getConfigValue(config, 'sources.analysisPath', 'qa-ai-output/source-analysis.md'),
-    'qa-ai-output/requirement-analysis.md',
-    'qa-ai-output/normalized-requirements.md',
-    getConfigValue(config, 'knowledge.summaryPath', 'qa-ai-output/qa-knowledge-summary.md'),
-    getConfigValue(config, 'knowledge.decisionsPath', 'qa-ai-output/qa-init-decisions.md')
+    getConfigValue(config, 'sources.analysisPath', ARTIFACT_PATHS.sourceAnalysis),
+    ARTIFACT_PATHS.requirementAnalysis,
+    ARTIFACT_PATHS.normalizedRequirements,
+    getConfigValue(config, 'knowledge.summaryPath', ARTIFACT_PATHS.qaKnowledgeSummary),
+    getConfigValue(config, 'knowledge.decisionsPath', ARTIFACT_PATHS.qaInitDecisions)
   ]);
 
   for (const configuredPath of [
@@ -35,13 +36,9 @@ function configuredTargets(config) {
     const reqImportPath = getConfigValue(
       config,
       'sources.external.requirementsImportPath',
-      'qa-ai-output/imported-requirements.md'
+      ARTIFACT_PATHS.importedRequirements
     );
-    const casesImportPath = getConfigValue(
-      config,
-      'sources.external.casesImportPath',
-      'qa-ai-output/imported-cases.md'
-    );
+    const casesImportPath = getConfigValue(config, 'sources.external.casesImportPath', ARTIFACT_PATHS.importedCases);
     if (reqImportPath) targets.add(reqImportPath);
     if (casesImportPath) targets.add(casesImportPath);
   }
@@ -116,5 +113,14 @@ export async function validateUntrustedContent(cwd, options = {}) {
     else warnings.push(msg);
   }
 
-  return { ok, errors, warnings, findings, missing, strict };
+  return {
+    ok,
+    errors,
+    warnings,
+    findings,
+    missing,
+    blockingMissing,
+    scannedFiles: files.map((file) => relativeTo(cwd, file)),
+    strict
+  };
 }

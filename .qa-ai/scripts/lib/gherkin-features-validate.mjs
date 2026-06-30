@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import { validateFeatureFilePlacement } from './feature-layout.mjs';
 import { duplicateIdErrors, normalizeLanguage, validateFeatureContent } from './gherkin-validate.mjs';
 import { getConfigValue, listFilesRecursive, loadQaAiConfig, relativeTo, resolveRepoPath } from './utils.mjs';
-import { handleEmptyCollection, resolveSingleCollectionFile } from './collection-validator.mjs';
+import { resolveSingleCollectionFile } from './collection-validator.mjs';
 
 /**
  * @returns {Promise<{ ok: boolean, errors: string[], warnings: string[] }>}
@@ -88,6 +88,3 @@ export async function validateDesignFeatures(cwd, options = {}) {
 
   return { ok: totalErrors === 0, errors: aggErrors, warnings: aggWarnings };
 }
-
-/** @deprecated Use handleEmptyCollection in CLI only */
-export { handleEmptyCollection };

@@ -121,7 +121,7 @@ async function main() {
   }
 
   const templateDirs = (await fs.readdir(adapterRoot, { withFileTypes: true }))
-    .filter((entry) => entry.isDirectory())
+    .filter((entry) => entry.isDirectory() && entry.name !== 'shared')
     .map((entry) => entry.name)
     .sort();
   assert(

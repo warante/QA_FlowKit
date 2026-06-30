@@ -34,7 +34,7 @@ Before asking anything, resolve `project.interfaceLanguage` / `project.defaultLa
 
 If `$ARGUMENTS` is empty or ambiguous, ask the user:
 
-1. Use OpenCode's `question` tool to select where the new requirement/RF comes from:
+1. Use OpenCode's built-in `question` tool when available to select where the new requirement/RF comes from:
    - `1. Configured source` -> localize the label; use `sources.main` from config, then ask only for the source-specific identifier when needed.
    - `2. Local file` -> localize the label and ask for the path as free text.
    - `3. Pasted text` -> localize the label and ask for the requirement text as free text.
@@ -44,7 +44,7 @@ If `$ARGUMENTS` is empty or ambiguous, ask the user:
    confidence or non-deterministic behavior, ask whether it is an AI component:
    - EN: "Does this RF involve an AI/LLM, prediction, score, generative, biometric, confidence-based or otherwise non-deterministic component?"
    - ES: "¿Este RF involucra un componente de IA/LLM, predicción, puntuación, generación, biometría, confianza u otro comportamiento no determinista?"
-4. Use the `question` tool for the first-pass scope:
+4. Use the interactive question tool when available for the first-pass scope:
    - `1. Proposal only` -> localize the label and stop after proposal artifacts.
    - `2. Features after approval` -> localize the label, prepare the proposal, request approval, then generate new `.feature` files.
 

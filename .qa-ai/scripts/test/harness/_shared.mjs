@@ -6,14 +6,14 @@ import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { checkPhase, nextPhase } from '../../lib/harness-controller.mjs';
 import { hashFile } from '../../lib/utils.mjs';
+import { ARTIFACT_PATHS, QA_OUTPUT_DIR } from '../../lib/artifact-paths.mjs';
+import { copyFramework } from '../lib/integration-helpers.mjs';
 
 export const sourceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../..');
 export const cli = path.join(sourceRoot, 'bin', 'qa-flowkit.mjs');
 export const node = process.execPath;
 
-export async function copyFramework(targetRoot) {
-  await fs.cp(path.join(sourceRoot, '.qa-ai'), path.join(targetRoot, '.qa-ai'), { recursive: true, force: true });
-}
+export { copyFramework };
 
 export async function writeConfig(targetRoot, overrides = {}) {
   const base = {
@@ -30,24 +30,24 @@ export async function writeConfig(targetRoot, overrides = {}) {
     sources: {
       external: {
         enabled: false,
-        requirementsImportPath: 'qa-ai-output/imported-requirements.md',
-        casesImportPath: 'qa-ai-output/imported-cases.md'
+        requirementsImportPath: ARTIFACT_PATHS.importedRequirements,
+        casesImportPath: ARTIFACT_PATHS.importedCases
       }
     },
     requirements: { requireOfficialRfId: true },
     gherkin: { language: 'en', featurePath: 'features' },
     testDesign: {
-      proposalPath: 'qa-ai-output/test-design-proposal.md',
-      systemPath: 'qa-ai-output/test-design-system.md',
+      proposalPath: ARTIFACT_PATHS.testDesignProposal,
+      systemPath: ARTIFACT_PATHS.testDesignSystem,
       quality: {
         mode: 'off',
-        reportPath: 'qa-ai-output/gherkin-quality-report.md',
+        reportPath: ARTIFACT_PATHS.gherkinQualityReport,
         minDimensionsPassed: 7
       }
     },
-    traceability: { matrixPath: 'qa-ai-output/traceability-matrix.md' },
+    traceability: { matrixPath: ARTIFACT_PATHS.traceabilityMatrix },
     automation: { ui: { framework: 'none' }, api: { framework: 'none' } },
-    release: { gatePath: 'qa-ai-output/release-gate.yaml' }
+    release: { gatePath: ARTIFACT_PATHS.releaseGate }
   };
   const merged = JSON.parse(JSON.stringify(base));
   Object.assign(merged.project, overrides.project || {});
@@ -83,14 +83,14 @@ export async function writeConfig(targetRoot, overrides = {}) {
     '  language: en',
     `  featurePath: ${merged.gherkin.featurePath}`,
     'testDesign:',
-    '  proposalPath: qa-ai-output/test-design-proposal.md',
-    '  systemPath: qa-ai-output/test-design-system.md',
+    `  proposalPath: ${ARTIFACT_PATHS.testDesignProposal}`,
+    `  systemPath: ${ARTIFACT_PATHS.testDesignSystem}`,
     '  quality:',
     `    mode: ${merged.testDesign.quality.mode}`,
     `    reportPath: ${merged.testDesign.quality.reportPath}`,
     `    minDimensionsPassed: ${merged.testDesign.quality.minDimensionsPassed}`,
     'traceability:',
-    '  matrixPath: qa-ai-output/traceability-matrix.md',
+    `  matrixPath: ${ARTIFACT_PATHS.traceabilityMatrix}`,
     'automation:',
     '  ui:',
     `    framework: ${merged.automation.ui.framework}`,
@@ -111,7 +111,7 @@ export async function writeConfig(targetRoot, overrides = {}) {
 
   lines.push('');
 
-  await fs.mkdir(path.join(targetRoot, 'qa-ai-output'), { recursive: true });
+  await fs.mkdir(path.join(targetRoot, QA_OUTPUT_DIR), { recursive: true });
   await fs.mkdir(path.join(targetRoot, 'features'), { recursive: true });
   await fs.writeFile(path.join(targetRoot, 'qa-ai.config.yaml'), lines.join('\n'), 'utf8');
 }
@@ -192,9 +192,9 @@ export async function writeValidQualityReport(cwd, featureRel = 'features/functi
   const rows = dimensions.map(
     (dimension) => `| ${dimension} | ${dimension} criterion | pass | "Then the outcome is visible" |`
   );
-  await fs.mkdir(path.join(cwd, 'qa-ai-output'), { recursive: true });
+  await fs.mkdir(path.join(cwd, QA_OUTPUT_DIR), { recursive: true });
   await fs.writeFile(
-    path.join(cwd, 'qa-ai-output', 'gherkin-quality-report.md'),
+    path.join(cwd, ARTIFACT_PATHS.gherkinQualityReport),
     [
       '# Gherkin Quality Report',
       '- Rubric Version: 1',
@@ -226,11 +226,11 @@ export async function writeValidQualityReport(cwd, featureRel = 'features/functi
 }
 export async function writePhaseOutput(cwd, phaseId) {
   const outputs = {
-    intake: 'qa-ai-output/requirement-analysis.md',
-    normalize: 'qa-ai-output/normalized-requirements.md',
+    intake: ARTIFACT_PATHS.requirementAnalysis,
+    normalize: ARTIFACT_PATHS.normalizedRequirements,
     gherkin: 'features/sample.feature',
-    traceability: 'qa-ai-output/traceability-matrix.md',
-    pr: 'qa-ai-output/pr-summary.md'
+    traceability: ARTIFACT_PATHS.traceabilityMatrix,
+    pr: ARTIFACT_PATHS.prSummary
   };
   const target = outputs[phaseId];
   if (!target) return;

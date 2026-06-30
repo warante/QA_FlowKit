@@ -23,6 +23,7 @@ import {
   verifyPhaseOutputs
 } from './harness-validation.mjs';
 import { buildRunId } from './harness/run-id.mjs';
+import { firstActionablePhaseId, syncRunStatus } from './harness/run-status.mjs';
 import {
   blockerHelp,
   gatherPhaseBlockers,
@@ -30,34 +31,9 @@ import {
   maybeUnblockEntryBlockedPhase
 } from './harness/phase-transitions.mjs';
 import { checkAndInvalidateSyncPlanApproval } from './harness/approvals.mjs';
-
-export { buildRunId } from './harness/run-id.mjs';
 export { approveGate, retryPhase } from './harness/approvals.mjs';
 
-function firstActionablePhaseId(snapshot, contract) {
-  const order = getTrackPhaseOrder(contract, snapshot.track);
-  for (const phaseId of order) {
-    const state = snapshot.phases[phaseId];
-    if (!state) continue;
-    if (state.status === 'skipped' || state.status === 'completed') continue;
-    return phaseId;
-  }
-  return null;
-}
-
-function syncRunStatus(snapshot) {
-  const order = Object.values(snapshot.phases || {});
-  if (order.every((phase) => phase.status === 'completed' || phase.status === 'skipped')) {
-    snapshot.status = 'completed';
-    snapshot.activePhaseId = null;
-    return;
-  }
-  if (order.some((phase) => phase.status === 'blocked')) {
-    snapshot.status = 'blocked';
-    return;
-  }
-  snapshot.status = 'active';
-}
+export { buildRunId } from './harness/run-id.mjs';
 
 export async function startRun(cwd, { rfId = null, now = new Date() } = {}) {
   const configInfo = await loadQaAiConfig(cwd);

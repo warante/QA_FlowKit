@@ -12,6 +12,7 @@ import {
   logHeader
 } from './lib/utils.mjs';
 import { mergeClaudeSettings } from './lib/claude-settings.mjs';
+import { syncAdapterCommands } from './lib/adapter-commands-sync.mjs';
 
 const cwd = process.cwd();
 const args = parseArgs(process.argv);
@@ -57,6 +58,7 @@ async function main() {
   }
 
   logHeader('Sync agent adapters');
+  await syncAdapterCommands(path.join(cwd, '.qa-ai'));
   const names = selectedAdapterNames();
   const unknown = names.filter((name) => !(name in adapterMap));
   if (unknown.length > 0) {

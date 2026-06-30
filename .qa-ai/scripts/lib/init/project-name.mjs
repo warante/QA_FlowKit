@@ -20,8 +20,7 @@ export function selectedQaContextPath(args) {
   const values = commaList(args['qa-context'] || args.qaContext || args['qa-context-path'] || args.qaContextPath);
   if (values.length === 0) return null;
   if (values.length > 1) {
-    console.error('Only one --qa-context folder is supported in the MVP.');
-    process.exit(1);
+    throw new Error('Only one --qa-context folder is supported in the MVP.');
   }
   return values[0];
 }

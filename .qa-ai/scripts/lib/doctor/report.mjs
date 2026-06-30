@@ -83,13 +83,14 @@ export function printFinalResult(failed, warned) {
   console.log('\nResult:');
   if (failed > 0) {
     console.log(`FAILED - ${failed} required checks failed, ${warned} warnings.`);
-    process.exit(1);
+    return { ok: false, failed, warned };
   }
   if (warned > 0) {
     console.log(`VALID WITH WARNINGS - ${warned} optional checks missing.`);
   } else {
     console.log('VALID - all checks passed.');
   }
+  return { ok: true, failed, warned };
 }
 
 export async function printNextSteps(cwd, configExists) {

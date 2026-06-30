@@ -6,6 +6,7 @@ import { activeSpecialistsContent, configuredDirs } from './lib/project-config.m
 import { getTestManagementMappingFile } from './lib/test-management-config.mjs';
 import { normalizeLanguageStrict } from './lib/gherkin-validate.mjs';
 import { maybePrintClaudePluginHint, selectedAdapters } from './lib/init/adapters-init.mjs';
+import { githubValidateActionRef } from './lib/package-origin.mjs';
 import { assertNoChangeMe, assertValidConfig, personalizeConfig } from './lib/init/config-build.mjs';
 import { createFeatureFolders } from './lib/init/directories.mjs';
 import { generatedDocs, localizeTemplate } from './lib/init/docs.mjs';
@@ -38,14 +39,6 @@ const withFeatureFolders = !(args['no-feature-folders'] || args.noFeatureFolders
 const withCi = args['with-ci'] || args.withCi;
 const presetName = args.preset || 'playwright-full';
 const withKarateConfig = Boolean(args['with-karate-config'] || args.withKarateConfig || presetName === 'karate-full');
-const interfaceLanguage = normalizeLanguageStrict(
-  args['interface-language'] || args.interfaceLanguage || 'en',
-  'interface language'
-);
-const gherkinLanguage = normalizeLanguageStrict(
-  args['gherkin-language'] || args.gherkinLanguage || args.gherkin || 'en',
-  'Gherkin language'
-);
 let validatedQaContextPath = null;
 const qaAiDir = path.join(cwd, '.qa-ai');
 const presetsDir = path.join(qaAiDir, 'presets');
@@ -58,6 +51,15 @@ async function main() {
   }
 
   logHeader('QA FlowKit init');
+
+  const interfaceLanguage = normalizeLanguageStrict(
+    args['interface-language'] || args.interfaceLanguage || 'en',
+    'interface language'
+  );
+  const gherkinLanguage = normalizeLanguageStrict(
+    args['gherkin-language'] || args.gherkinLanguage || args.gherkin || 'en',
+    'Gherkin language'
+  );
 
   if (!(await pathExists(qaAiDir))) {
     console.error('Missing .qa-ai folder. Copy it into the repository root first.');
@@ -253,7 +255,7 @@ async function main() {
       '        uses: actions/checkout@v7',
       '',
       '      - name: QA FlowKit Validation',
-      `        uses: warante/QA_FlowKit/actions/validate@${majorVersion}`,
+      `        uses: ${githubValidateActionRef(majorVersion)}`,
       '        with:',
       `          version: '${packageVersion}'`,
       ''

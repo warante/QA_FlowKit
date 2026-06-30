@@ -1,14 +1,10 @@
 #!/usr/bin/env node
 import fs from 'node:fs/promises';
-import { assert, isMain, repoRoot } from './lib/ci-helpers.mjs';
+import { assert, isMain, readJson, repoRoot } from './lib/ci-helpers.mjs';
 import path from 'node:path';
 
 const ALLOWED_STATUS = new Set(['awaiting_publish', 'in_progress', 'completed']);
 const ALLOWED_CHECK_STATUS = new Set(['pending', 'passed', 'failed', 'skipped']);
-
-async function readJson(filePath) {
-  return JSON.parse(await fs.readFile(filePath, 'utf8'));
-}
 
 export async function verifyStablePostPublishStatus({ root = repoRoot } = {}) {
   const errors = [];

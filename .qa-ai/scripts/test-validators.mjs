@@ -2,10 +2,13 @@
 import './test/validators/yaml.mjs';
 import './test/validators/config.mjs';
 import './test/validators/injection-design.mjs';
+import './test/validators/injection-design-nfr.mjs';
+import './test/validators/injection-design-ai.mjs';
 import './test/validators/release-gate.mjs';
 import './test/validators/markdown-sync.mjs';
 import './test/validators/gherkin.mjs';
 import './test/validators/sync-diff.mjs';
+import './test/validators/external-intake.mjs';
 import './test/validators/execution.mjs';
 import './test/validators/healing-log.mjs';
 import './test/validators/test-impact.mjs';

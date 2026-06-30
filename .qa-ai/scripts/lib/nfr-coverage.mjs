@@ -1,8 +1,7 @@
 import { normalizeCoverageMode, COVERAGE_MODES, parseSectionTable } from './test-coverage.mjs';
 import path from 'node:path';
+import { normalizeRf, booleanValue } from './id-normalize.mjs';
 
-const TRUE_VALUES = new Set(['true', 'yes', 'y', 'required', 'applicable', 'si', 'sí']);
-const FALSE_VALUES = new Set(['false', 'no', 'n', 'not-applicable', 'not applicable', 'n/a', 'na']);
 const NOT_CONFIGURED_PHRASES = ['not configured', 'not configured for coverage'];
 
 /** Quality attributes recognized for source non-functional requirements. */
@@ -146,23 +145,6 @@ export function isKnownNfrContractValue(kind, value) {
     default:
       return false;
   }
-}
-
-function normalizeRf(value) {
-  return String(value || '')
-    .trim()
-    .replace(/_/g, '-')
-    .replace(/\s+/g, '-')
-    .toUpperCase();
-}
-
-function booleanValue(value) {
-  const normalized = String(value || '')
-    .trim()
-    .toLowerCase();
-  if (TRUE_VALUES.has(normalized)) return true;
-  if (FALSE_VALUES.has(normalized)) return false;
-  return null;
 }
 
 function requiredSeverity(mode) {

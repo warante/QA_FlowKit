@@ -1,21 +1,8 @@
 #!/usr/bin/env node
-import fs from 'node:fs/promises';
-import { featureTraceabilityIds, validateTraceabilityArtifacts } from './lib/traceability-validate.mjs';
-import {
-  getConfigValue,
-  listFilesRecursive,
-  loadQaAiConfig,
-  logHeader,
-  parseArgs,
-  pathExists,
-  readText,
-  relativeTo,
-  resolveRepoPath
-} from './lib/utils.mjs';
-import { isValidatorMain } from './lib/validator-cli.mjs';
-
-const cwd = process.cwd();
-const args = parseArgs(process.argv);
+export { validateTraceability } from './lib/traceability-matrix-validate.mjs';
+import { validateTraceability } from './lib/traceability-matrix-validate.mjs';
+import { logHeader, parseArgs } from './lib/utils.mjs';
+import { finishValidatorRun, isJsonMode, runValidatorMain } from './lib/validator-cli.mjs';
 
 function printHelp() {
   console.log(`Usage: node .qa-ai/scripts/validate-traceability.mjs [options]
@@ -33,95 +20,15 @@ Validates functional feature coverage, traceability matrix table shape, duplicat
 `);
 }
 
-export async function validateTraceability(cwd, options = {}) {
-  const configInfo = await loadQaAiConfig(cwd);
-  const config = configInfo.data || {};
-  const featureRoot = options.features || getConfigValue(config, 'gherkin.featurePath', 'features');
-  const matrixPath =
-    options.path || getConfigValue(config, 'traceability.matrixPath', 'qa-ai-output/traceability-matrix.md');
-  const normalizedPath = options.normalizedPath || 'qa-ai-output/normalized-requirements.md';
-  const proposalPath =
-    options.proposalPath || getConfigValue(config, 'testDesign.proposalPath', 'qa-ai-output/test-design-proposal.md');
-  const featureRootPath = resolveRepoPath(cwd, featureRoot, { label: 'feature root' });
-  const matrixFilePath = resolveRepoPath(cwd, matrixPath, { label: 'traceability matrix' });
-  const normalizedFilePath = resolveRepoPath(cwd, normalizedPath, { label: 'normalized requirements' });
-  const proposalFilePath = resolveRepoPath(cwd, proposalPath, { label: 'test design proposal' });
-  const files = await listFilesRecursive(featureRootPath, (filePath) => filePath.endsWith('.feature'));
-  const features = [];
-  for (const file of files) {
-    const content = await fs.readFile(file, 'utf8');
-    features.push({
-      ...featureTraceabilityIds(file, content),
-      file: relativeTo(cwd, file)
-    });
-  }
-
-  if (features.length === 0 && !options.allowEmpty) {
-    return {
-      ok: false,
-      skipped: false,
-      featureRoot,
-      matrixPath,
-      normalizedPath,
-      errors: [`No .feature files found under ${featureRoot}.`],
-      warnings: [],
-      message: `No .feature files found under ${featureRoot}.`
-    };
-  }
-
-  if (!(await pathExists(matrixFilePath))) {
-    if (options.allowMissing) {
-      return {
-        ok: true,
-        skipped: true,
-        featureRoot,
-        matrixPath,
-        normalizedPath,
-        errors: [],
-        warnings: [],
-        message: `Traceability matrix not found at ${matrixPath}.`
-      };
-    }
-    return {
-      ok: false,
-      skipped: false,
-      featureRoot,
-      matrixPath,
-      normalizedPath,
-      errors: [`Traceability matrix not found at ${matrixPath}.`],
-      warnings: [],
-      message: `Traceability matrix not found at ${matrixPath}.`
-    };
-  }
-
-  const matrixContent = await readText(matrixFilePath);
-  const normalizedContent = (await pathExists(normalizedFilePath)) ? await readText(normalizedFilePath) : '';
-  const proposalContent = (await pathExists(proposalFilePath)) ? await readText(proposalFilePath) : '';
-  const result = validateTraceabilityArtifacts({
-    matrixContent,
-    normalizedContent,
-    proposalContent,
-    features,
-    featureRoot
-  });
-
-  return {
-    ...result,
-    skipped: false,
-    featureRoot,
-    matrixPath,
-    normalizedPath,
-    features
-  };
-}
-
 async function main() {
+  const args = parseArgs(process.argv);
   if (args.help) {
     printHelp();
     return;
   }
 
-  const result = await validateTraceability(cwd, {
+  const jsonMode = isJsonMode(args);
+  const result = await validateTraceability(process.cwd(), {
     path: args.path,
     normalizedPath: args['normalized-path'],
     features: args.features,
@@ -129,7 +36,7 @@ async function main() {
     allowMissing: Boolean(args['allow-missing'])
   });
 
-  if (args.json) {
+  if (jsonMode) {
     console.log(JSON.stringify(result, null, 2));
     if (!result.ok) process.exit(1);
     return;
@@ -137,7 +44,6 @@ async function main() {
 
   logHeader('QA AI traceability validator');
   for (const warning of result.warnings || []) console.log(`[WARN] ${warning}`);
-  for (const error of result.errors || []) console.log(`[FAIL] ${error}`);
 
   if (result.nfrMetrics && result.nfrMetrics.total > 0) {
     const metrics = result.nfrMetrics;
@@ -147,17 +53,14 @@ async function main() {
     );
   }
 
-  if (!result.ok) {
-    console.log(`\nFAILED - ${(result.errors || []).length} traceability validation error(s).`);
-    process.exit(1);
-  }
-
-  console.log(`\n[PASS] ${result.matrixPath} traceability validation completed.`);
-}
-
-if (isValidatorMain(import.meta.url)) {
-  main().catch((error) => {
-    console.error(error);
-    process.exit(1);
+  finishValidatorRun({
+    ok: result.ok,
+    errors: result.errors,
+    warnings: [],
+    jsonMode: false,
+    successMessage: `\n[PASS] ${result.matrixPath} traceability validation completed.`,
+    failureMessage: `\nFAILED - ${(result.errors || []).length} traceability validation error(s).`
   });
 }
+
+runValidatorMain(import.meta.url, main);

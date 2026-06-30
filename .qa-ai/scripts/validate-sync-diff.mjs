@@ -15,6 +15,8 @@ import {
   resolveRepoPath,
   resolveTestManagementSyncPlanPath
 } from './lib/utils.mjs';
+import { ARTIFACT_PATHS } from './lib/artifact-paths.mjs';
+import { toFindings } from './lib/validator-api.mjs';
 
 const cwd = process.cwd();
 const args = parseArgs(process.argv);
@@ -41,10 +43,6 @@ function parseSnapshotTimestamp(content) {
   return Number.isNaN(date.getTime()) ? null : date;
 }
 
-function toFindings(errors) {
-  return errors.map((message) => ({ severity: 'error', message }));
-}
-
 async function main() {
   if (args.help) {
     printHelp();
@@ -60,11 +58,10 @@ async function main() {
   const config = configInfo.data || {};
 
   const diffPath =
-    args['diff-path'] ||
-    getConfigValue(config, 'testManagementSync.diffPath', 'qa-ai-output/test-management-sync-diff.md');
+    args['diff-path'] || getConfigValue(config, 'testManagementSync.diffPath', ARTIFACT_PATHS.testManagementSyncDiff);
   const snapshotPath =
     args['snapshot-path'] ||
-    getConfigValue(config, 'testManagementSync.remoteSnapshotPath', 'qa-ai-output/test-management-remote-snapshot.md');
+    getConfigValue(config, 'testManagementSync.remoteSnapshotPath', ARTIFACT_PATHS.testManagementRemoteSnapshot);
   const resolvedSyncPlan = args['plan-path']
     ? {
         path: args['plan-path'],
@@ -97,7 +94,7 @@ async function main() {
     if (!snapshotExists) errors.push(`Remote snapshot file not found at ${snapshotPath}`);
 
     if (jsonMode) {
-      console.log(JSON.stringify({ ok: false, errors, findings: toFindings(errors) }));
+      console.log(JSON.stringify({ ok: false, errors, findings: toFindings({ errors }) }));
     } else {
       for (const err of errors) console.error(`[FAIL] ${err}`);
     }
@@ -262,7 +259,7 @@ async function main() {
 
   if (errors.length > 0) {
     if (jsonMode) {
-      console.log(JSON.stringify({ ok: false, errors, findings: toFindings(errors) }));
+      console.log(JSON.stringify({ ok: false, errors, findings: toFindings({ errors }) }));
     } else {
       for (const err of errors) console.error(`[FAIL] ${err}`);
       console.error(`\nFAILED - ${errors.length} sync diff validation error(s).`);

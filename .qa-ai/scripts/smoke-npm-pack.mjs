@@ -62,7 +62,7 @@ async function validateCommandInteractionContract(packageRoot) {
   );
   await assertIncludes(
     path.join(packageRoot, '.qa-ai', 'adapters', 'opencode', 'commands', 'qa-add-tests.md'),
-    "Use OpenCode's `question` tool",
+    "Use OpenCode's built-in `question` tool",
     'OpenCode qa-add-tests selector contract'
   );
   await assertIncludes(

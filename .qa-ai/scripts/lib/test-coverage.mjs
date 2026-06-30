@@ -1,7 +1,12 @@
 import path from 'node:path';
 import { rfPattern } from './gherkin-validate.mjs';
 import { parse as parseGherkin } from './gherkin-parser.mjs';
-import { normalizeColumn, splitMarkdownRow, isSeparatorRow, rowValues } from './markdown-table.mjs';
+import { normalizeColumn } from './markdown-table.mjs';
+import { normalizeRf, booleanValue } from './id-normalize.mjs';
+import { parseSectionTable } from './table-helpers.mjs';
+
+export { normalizeRf } from './id-normalize.mjs';
+export { extractSection, parseSectionTable } from './table-helpers.mjs';
 
 import { normalizeAdvisoryMode, ADVISORY_MODES } from './mode-normalize.mjs';
 
@@ -29,17 +34,6 @@ export const AI_TESTING_TECHNIQUES = [
 ];
 
 const POSITIVE_TYPES = new Set(['functional', 'regression', 'smoke', 'e2e', 'integration', 'api']);
-const TRUE_VALUES = new Set(['true', 'yes', 'y', 'required', 'applicable', 'si', 'sí']);
-const FALSE_VALUES = new Set(['false', 'no', 'n', 'not-applicable', 'not applicable', 'n/a', 'na']);
-const SECTION_ALIASES = {
-  'proposed tests': ['pruebas propuestas'],
-  'coverage obligations': ['obligaciones de cobertura'],
-  'security review': ['revision de seguridad', 'revisión de seguridad'],
-  'residual coverage gaps': ['brechas de cobertura residual'],
-  'non-functional requirements': ['requisitos no funcionales'],
-  'non-functional coverage': ['cobertura no funcional'],
-  'non-functional traceability': ['trazabilidad no funcional']
-};
 
 export function normalizeCoverageMode(value, fallback = 'off') {
   return normalizeAdvisoryMode(value, fallback);
@@ -62,80 +56,9 @@ export function techniqueIsKnown(value) {
   );
 }
 
-export function extractSection(content, heading) {
-  const lines = String(content || '')
-    .replace(/\r/g, '')
-    .split('\n');
-  const normalizedHeading = normalizeColumn(heading.replace(/^#+\s*/, ''));
-  const acceptedHeadings = new Set([normalizedHeading, ...(SECTION_ALIASES[normalizedHeading] || [])]);
-  const start = lines.findIndex((line) => {
-    const match = line.trim().match(/^##\s+(.+)$/);
-    return match && acceptedHeadings.has(normalizeColumn(match[1]));
-  });
-  if (start === -1) return '';
-  const endOffset = lines.slice(start + 1).findIndex((line) => /^##\s+/.test(line.trim()));
-  const end = endOffset === -1 ? lines.length : start + 1 + endOffset;
-  return lines
-    .slice(start + 1, end)
-    .join('\n')
-    .trim();
-}
-
-export function parseSectionTable(content, heading, requiredColumns = []) {
-  const section = extractSection(content, heading);
-  if (!section) {
-    return { exists: false, errors: [], rows: [], header: [] };
-  }
-
-  const lines = section.split('\n');
-  const tableLines = [];
-  for (let index = 0; index < lines.length; index += 1) {
-    const cells = splitMarkdownRow(lines[index]);
-    if (cells) tableLines.push({ line: index + 1, cells });
-  }
-  if (tableLines.length < 2) {
-    return { exists: true, errors: [`Section "${heading}" must contain a Markdown table.`], rows: [], header: [] };
-  }
-
-  const header = tableLines[0].cells;
-  const normalizedHeader = header.map(normalizeColumn);
-  const errors = [];
-  if (!isSeparatorRow(tableLines[1].cells)) {
-    errors.push(`Section "${heading}" must have a separator row after the header.`);
-  }
-  for (const column of requiredColumns) {
-    if (!normalizedHeader.includes(normalizeColumn(column))) {
-      errors.push(`Section "${heading}" is missing required column "${column}".`);
-    }
-  }
-
-  const rows = tableLines.slice(2).flatMap((entry) => {
-    if (entry.cells.length !== header.length || entry.cells.every((cell) => !cell.trim())) return [];
-    return [{ line: entry.line, values: rowValues(header, entry.cells) }];
-  });
-  return { exists: true, errors, rows, header };
-}
-
-export function normalizeRf(value) {
-  return String(value || '')
-    .trim()
-    .replace(/_/g, '-')
-    .replace(/\s+/g, '-')
-    .toUpperCase();
-}
-
 export function rfFromText(value) {
   const match = String(value || '').match(rfPattern);
   return match ? normalizeRf(match[0]) : '';
-}
-
-function booleanValue(value) {
-  const normalized = String(value || '')
-    .trim()
-    .toLowerCase();
-  if (TRUE_VALUES.has(normalized)) return true;
-  if (FALSE_VALUES.has(normalized)) return false;
-  return null;
 }
 
 export function featureCoverageRecord(file, content) {

@@ -11,6 +11,7 @@ import {
   readText,
   resolveRepoPath
 } from './lib/utils.mjs';
+import { ARTIFACT_PATHS } from './lib/artifact-paths.mjs';
 
 const cwd = process.cwd();
 const args = parseArgs(process.argv);
@@ -78,9 +79,9 @@ async function main() {
 
   const requirementsPath =
     args['requirements-path'] ||
-    getConfigValue(config, 'sources.external.requirementsImportPath', 'qa-ai-output/imported-requirements.md');
+    getConfigValue(config, 'sources.external.requirementsImportPath', ARTIFACT_PATHS.importedRequirements);
   const casesPath =
-    args['cases-path'] || getConfigValue(config, 'sources.external.casesImportPath', 'qa-ai-output/imported-cases.md');
+    args['cases-path'] || getConfigValue(config, 'sources.external.casesImportPath', ARTIFACT_PATHS.importedCases);
   const rfPattern = args['rf-pattern'] || getConfigValue(config, 'requirements.rfIdPattern', 'RF-\\d+');
   const rfMatcher = compileRfIdMatcher(rfPattern);
   const strictMode = Boolean(args.strict);

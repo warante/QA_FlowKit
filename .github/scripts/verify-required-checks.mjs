@@ -1,15 +1,11 @@
 #!/usr/bin/env node
 import fs from 'node:fs/promises';
-import { assert, repoRoot } from './lib/ci-helpers.mjs';
 import path from 'node:path';
+import { assert, readJson, repoRoot } from './lib/ci-helpers.mjs';
 
 const manifestPath = path.join(repoRoot, 'docs', 'qa-ai', 'required-checks.v1.json');
 const packagePath = path.join(repoRoot, 'package.json');
 const ciDocsPath = path.join(repoRoot, 'docs', 'qa-ai', 'ci-observability.md');
-
-async function readJson(filePath) {
-  return JSON.parse(await fs.readFile(filePath, 'utf8'));
-}
 
 function findJobBlock(workflowText, jobId) {
   const escaped = jobId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');

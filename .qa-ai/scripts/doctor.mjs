@@ -47,8 +47,9 @@ async function main() {
     warned += configResults.warned;
   }
 
-  printFinalResult(failed, warned);
+  const finalResult = printFinalResult(failed, warned);
   await printNextSteps(cwd, configInfo.exists);
+  if (!finalResult.ok) process.exit(1);
 }
 
 main().catch((error) => {

@@ -1,10 +1,11 @@
 import { DEFAULT_TEST_MANAGEMENT_SYNC_PLAN_PATH, getConfigValue } from './utils.mjs';
+import { ARTIFACT_PATHS } from './artifact-paths.mjs';
 
 export function getTestManagementMappingFile(config) {
   return getConfigValue(
     config,
     'testManagement.mappingFile',
-    getConfigValue(config, 'testrail.mappingFile', 'qa-ai-output/test-management-mapping.json')
+    getConfigValue(config, 'testrail.mappingFile', ARTIFACT_PATHS.testManagementMapping)
   );
 }
 
