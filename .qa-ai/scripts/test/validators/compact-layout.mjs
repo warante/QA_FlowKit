@@ -129,6 +129,36 @@ test('init compact layout: playwright preset uses compact automation paths', asy
   assert.equal(config.testDesign.strategyRouting.mode, 'advisory');
 });
 
+test('show-config resolves Spanish languages from compact config without root file', async () => {
+  const cwd = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-cl-show-config-es-'));
+  await copyFramework(cwd);
+  runInit(cwd, [
+    '--no-adapters',
+    '--preset',
+    'playwright-full',
+    '--interface-language',
+    'es',
+    '--gherkin-language',
+    'es'
+  ]);
+  assert.equal(await pathExists(path.join(cwd, 'qa-ai.config.yaml')), false);
+  const { resolveProjectConfigSummary } = await import('../../lib/config-resolve.mjs');
+  const summary = await resolveProjectConfigSummary(cwd);
+  assert.equal(summary.ok, true);
+  assert.equal(summary.configPath, COMPACT_CONFIG_PATH);
+  assert.equal(summary.source, 'compact');
+  assert.equal(summary.interfaceLanguage, 'es');
+  assert.equal(summary.gherkinLanguage, 'es');
+  const result = spawnSync(process.execPath, [path.join(cwd, '.qa-ai/scripts/show-config.mjs'), '--json'], {
+    cwd,
+    encoding: 'utf8'
+  });
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  const json = JSON.parse(result.stdout.trim());
+  assert.equal(json.interfaceLanguage, 'es');
+  assert.equal(json.gherkinLanguage, 'es');
+});
+
 test('legacy project: root config and legacy paths still load', async () => {
   const cwd = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-cl-legacy-'));
   await copyFramework(cwd);

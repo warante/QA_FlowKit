@@ -6,6 +6,7 @@ disable-model-invocation: true
 ---
 
 !`npx qa-flowkit run status --json`
+!`node .qa-ai/scripts/show-config.mjs --json`
 
 Before any other action or user-facing text, read and follow `.qa-ai/workflows/command-interaction.md`.
 
@@ -14,7 +15,7 @@ Produce or update the formal release gate for this repository.
 Read first:
 
 - `AGENTS.md`
-- `qa-ai.config.yaml`
+- Resolved config from the injected `show-config --json` output (`configPath`, `qaTrack`, `aiTestingEnabled`, etc.)
 - `.qa-ai/rules/release-gate.rules.md`
 - `.qa-ai/rules/approval.rules.md`
 - `.qa-ai/agents/release-gate-agent.md`

@@ -168,14 +168,15 @@ the command.
 
 ## Guidance and maintenance
 
-| Command                          | Purpose                                                        |
-| -------------------------------- | -------------------------------------------------------------- |
-| `help [--json]`                  | Recommend the next workflow phase from state and artifacts     |
-| `export-report [options]`        | Export Gherkin-aligned test cases and execution results        |
-| `metrics [options]`              | Compute local workflow KPIs from the run event log             |
-| `sync-adapters [--adapters ...]` | Refresh selected root adapter files                            |
-| `clean`                          | Preview or remove generated files tracked in the init manifest |
-| `version`                        | Print the installed package version                            |
+| Command                          | Purpose                                                          |
+| -------------------------------- | ---------------------------------------------------------------- |
+| `help [--json]`                  | Recommend the next workflow phase from state and artifacts       |
+| `show-config [--json]`           | Print resolved config path, interface/Gherkin language and track |
+| `export-report [options]`        | Export Gherkin-aligned test cases and execution results          |
+| `metrics [options]`              | Compute local workflow KPIs from the run event log               |
+| `sync-adapters [--adapters ...]` | Refresh selected root adapter files                              |
+| `clean`                          | Preview or remove generated files tracked in the init manifest   |
+| `version`                        | Print the installed package version                              |
 
 ### `export-report`
 

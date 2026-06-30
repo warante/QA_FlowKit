@@ -1065,21 +1065,32 @@ To customize a command without risking overwrite, copy it to a different name (e
 
 **Cause**
 
-`gherkin.language` in `qa-ai.config.yaml` does not match the language you want.
+`gherkin.language` in the active project config does not match the language you want. New projects use compact layout (`.qa-ai/qa-ai.config.yaml`); legacy repos may still use root `qa-ai.config.yaml`. Agents that read only the root file may default to English even after Spanish init.
+
+**Diagnose**
+
+```bash
+node .qa-ai/scripts/show-config.mjs --json
+```
+
+Confirm `configPath`, `interfaceLanguage` and `gherkinLanguage`.
 
 **Fix**
 
-Update `qa-ai.config.yaml` directly:
+Update the active config file directly (path from `show-config`):
 
 ```yaml
+project:
+  interfaceLanguage: es
+  defaultLanguage: es
 gherkin:
   language: es
 ```
 
-Or re-run init with the correct flag:
+Or re-run init with the correct flags:
 
 ```bash
-node .qa-ai/scripts/init.mjs --gherkin-language es --force
+node .qa-ai/scripts/init.mjs --interface-language es --gherkin-language es --force
 ```
 
 For Spanish, remind the agent to include `# language: es` in all `.feature` files.

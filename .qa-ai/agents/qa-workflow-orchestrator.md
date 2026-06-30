@@ -11,7 +11,7 @@ Activated when the user starts a full QA workflow run (`/qa-full-flow`) or reque
 ## Inputs
 
 - `AGENTS.md` (mandatory read before acting).
-- `qa-ai.config.yaml` (project configuration).
+- Resolved project config: run `node .qa-ai/scripts/show-config.mjs --json` (or use injected output from slash commands). Compact init writes `.qa-ai/qa-ai.config.yaml`; legacy repos may use root `qa-ai.config.yaml` (root takes precedence when both exist).
 - `.qa-ai/rules/` (workflow behavior rules).
 - `.qa-ai/agents/README.md` (load order and phase mapping).
 - `knowledge.summaryPath` and `knowledge.decisionsPath` when `knowledge.enabled` is true.
@@ -19,7 +19,7 @@ Activated when the user starts a full QA workflow run (`/qa-full-flow`) or reque
 
 ## QA tracks (`project.qaTrack`)
 
-Read `project.qaTrack` from `qa-ai.config.yaml` (`quick`, `standard`, or `enterprise`). After each phase, recommend `node .qa-ai/scripts/qa-help.mjs` or `/qa-help`.
+Read `qaTrack` from the resolved `show-config --json` output (`quick`, `standard`, or `enterprise`). After each phase, recommend `node .qa-ai/scripts/qa-help.mjs` or `/qa-help`.
 
 | Track        | Purpose                                              | Phases omitted (in addition to config-based skips below)                                                            |
 | ------------ | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
@@ -67,8 +67,8 @@ These agents are not part of the numbered sequence above. Load them on demand wh
 ## Responsibilities
 
 - Read all mandatory inputs before acting.
-- Before the first user-facing response, resolve the configured interface language from `qa-ai.config.yaml` (`project.interfaceLanguage` / `project.defaultLanguage`) and use it for the complete interaction.
-- Use `gherkin.language` only for generated `.feature` files.
+- Before the first user-facing response, resolve the configured interface language from the `show-config --json` output (`interfaceLanguage`, falling back to `en` only when `ok` is false) and use it for the complete interaction.
+- Use `gherkinLanguage` from the same output only for generated `.feature` files.
 - Follow `.qa-ai/workflows/command-interaction.md` for interactive choices and free-text input.
 - Load the matching phase agent and active specialists before each phase.
 - Delegate to specialized agents conceptually (read their instructions, apply as role context).

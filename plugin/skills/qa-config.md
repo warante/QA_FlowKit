@@ -4,6 +4,8 @@ argument-hint: [--export path | --import path]
 allowed-tools: [view_file, write_file, edit_file, list_dir, grep_search, glob, run_command]
 ---
 
+!`node .qa-ai/scripts/show-config.mjs --json`
+
 Before any other action or user-facing text, read and follow `.qa-ai/workflows/command-interaction.md`.
 
 Import or export a reusable QA FlowKit configuration profile.
@@ -11,18 +13,18 @@ Import or export a reusable QA FlowKit configuration profile.
 Read these files first:
 
 - `AGENTS.md`
-- `qa-ai.config.yaml` when present
+- Resolved config from the injected `show-config --json` output when present (`configPath`, `interfaceLanguage`)
 - `.qa-ai/rules/`
 - `.qa-ai/agents/README.md`
 
-Use `project.interfaceLanguage` / `project.defaultLanguage` from `qa-ai.config.yaml` when present for user-facing questions and summaries.
+Use `interfaceLanguage` from the resolved `show-config --json` output when `ok` is true; otherwise use English for the interaction.
 
 If `$ARGUMENTS` is empty, ask the user:
 
 1. Do you want to export the current config or import an existing profile?
 2. What repo-local profile path should be used?
    - Recommended export path: `.qa-ai/config-profiles/team.yaml`.
-3. If importing and `qa-ai.config.yaml` already exists, should it be overwritten?
+3. If importing and an active config already exists (`ok` is true), should it be overwritten?
    - Recommend `no`; only use `--force` if the user explicitly approves.
 
 For export, run:

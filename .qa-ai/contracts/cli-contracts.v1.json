@@ -56,6 +56,25 @@
       }
     },
     {
+      "id": "show-config-json-initialized",
+      "setup": "golden-target",
+      "command": ["show-config", "--json"],
+      "exitCode": 0,
+      "json": {
+        "requiredKeys": [
+          "ok",
+          "configPath",
+          "source",
+          "interfaceLanguage",
+          "gherkinLanguage",
+          "qaTrack",
+          "aiTestingEnabled"
+        ],
+        "equals": { "ok": true, "source": "compact" },
+        "stderrEmpty": true
+      }
+    },
+    {
       "id": "validate-config-json-fail",
       "setup": "golden-target-invalid-config",
       "command": ["validate-config", "--json"],

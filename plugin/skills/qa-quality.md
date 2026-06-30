@@ -4,6 +4,8 @@ argument-hint: [RF ID or feature path]
 allowed-tools: [view_file, list_dir, grep_search, glob, run_command]
 ---
 
+!`node .qa-ai/scripts/show-config.mjs --json`
+
 Before any other action or user-facing text, read and follow `.qa-ai/workflows/command-interaction.md`.
 
 Evaluate generated Gherkin against the semantic quality rubric without editing feature files.
@@ -11,7 +13,7 @@ Evaluate generated Gherkin against the semantic quality rubric without editing f
 Read these files first:
 
 - `AGENTS.md`
-- `qa-ai.config.yaml`
+- Resolved config from the injected `show-config --json` output when present; otherwise run `node .qa-ai/scripts/show-config.mjs --json`
 - `.qa-ai/rules/README.md`
 - `.qa-ai/rules/gherkin.rules.md`
 - `.qa-ai/rules/gherkin-quality.rubric.md`
@@ -19,7 +21,7 @@ Read these files first:
 - `.qa-ai/agents/gherkin-quality-agent.md`
 - `.qa-ai/workflows/test-design.md`
 
-Use `project.interfaceLanguage` from `qa-ai.config.yaml` for user-facing questions and summaries.
+Use `interfaceLanguage` from the resolved `show-config --json` output for user-facing questions and summaries.
 
 If `$ARGUMENTS` is empty, evaluate the active RF when a harness run is active; otherwise evaluate the configured
 feature root.

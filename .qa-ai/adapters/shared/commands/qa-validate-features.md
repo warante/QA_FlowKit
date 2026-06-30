@@ -4,11 +4,13 @@ argument-hint: [optional validator flags]
 allowed-tools: [view_file, list_dir, grep_search, glob, run_command]
 ---
 
+!`node .qa-ai/scripts/show-config.mjs --json`
+
 Before any other action or user-facing text, read and follow `.qa-ai/workflows/command-interaction.md`.
 
 Validate QA FlowKit `.feature` files.
 
-Read `qa-ai.config.yaml` when present and use its configured interface language (`project.interfaceLanguage` / `project.defaultLanguage`, `en` or `es`) for questions, descriptions and summaries. The validator itself uses `gherkin.language` for `.feature` rules.
+Use `interfaceLanguage` from the resolved `show-config --json` output for questions, descriptions and summaries. The validator itself uses `gherkinLanguage` for `.feature` rules.
 Before proposing feature fixes, read `.qa-ai/agents/gherkin-test-design-agent.md` and `.qa-ai/agents/specialists/active.md` when present.
 
 If `$ARGUMENTS` is empty, run the validator using the configured feature path:

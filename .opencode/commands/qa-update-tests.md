@@ -4,6 +4,8 @@ argument-hint: [updated requirement source or RF ID]
 allowed-tools: [view_file, write_file, edit_file, list_dir, grep_search, glob, run_command]
 ---
 
+!`node .qa-ai/scripts/show-config.mjs --json`
+
 Before any other action or user-facing text, read and follow `.qa-ai/workflows/command-interaction.md`.
 
 Review existing QA tests when an RF or its acceptance criteria has changed.
@@ -11,7 +13,7 @@ Review existing QA tests when an RF or its acceptance criteria has changed.
 Read these files first:
 
 - `AGENTS.md`
-- `qa-ai.config.yaml` when present
+- Resolved config from the injected `show-config --json` output when present; otherwise run `node .qa-ai/scripts/show-config.mjs --json`. Compact init uses `.qa-ai/qa-ai.config.yaml`; legacy repos may use root `qa-ai.config.yaml`.
 - `.qa-ai/rules/`
 - `.qa-ai/agents/README.md`
 - `.qa-ai/agents/qa-workflow-orchestrator.md`
@@ -21,7 +23,7 @@ Read these files first:
 - `.qa-ai/rules/ai-testing.rules.md` when `aiTesting.enabled` is true or the RF signals AI/LLM behavior
 - `.qa-ai/workflows/test-design.md`
 
-Use `project.interfaceLanguage` / `project.defaultLanguage` from `qa-ai.config.yaml` for user-facing questions and summaries. Use `gherkin.language` only for `.feature` rules.
+Use `interfaceLanguage` and `gherkinLanguage` from the resolved `show-config --json` output for user-facing questions and summaries. Use `gherkinLanguage` only for `.feature` rules.
 
 If `$ARGUMENTS` is empty or ambiguous, ask the user:
 

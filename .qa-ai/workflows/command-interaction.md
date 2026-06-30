@@ -6,13 +6,13 @@ Apply this protocol to every QA FlowKit slash-command interaction.
 
 Before emitting any user-facing text:
 
-1. Read `qa-ai.config.yaml` when it exists.
-2. Resolve the interface language from `project.interfaceLanguage`, falling back to
-   `project.defaultLanguage`, then `en`.
-3. Use that language for the complete command interaction: questions, option labels,
+1. Prefer resolved settings from `node .qa-ai/scripts/show-config.mjs --json` (or `npx qa-flowkit show-config --json`). Slash commands may inject this JSON in the preamble.
+2. If reading manually, load config from `qa-ai.config.yaml` (legacy root) **or** `.qa-ai/qa-ai.config.yaml` (compact default). Root config takes precedence when both exist.
+3. Resolve the interface language from `interfaceLanguage` in the JSON output, or from `project.interfaceLanguage` / `project.defaultLanguage` in the loaded file. Default to `en` only when no config exists (`ok: false`).
+4. Use that language for the complete command interaction: questions, option labels,
    plans, approvals, progress, errors and summaries.
 
-Use `gherkin.language` only for `.feature` file content. Raw output from invoked scripts
+Use `gherkinLanguage` from the JSON output, or `gherkin.language` from the loaded config, only for `.feature` file content. Raw output from invoked scripts
 may remain in the script's language, but explain and summarize it in the configured
 interface language.
 

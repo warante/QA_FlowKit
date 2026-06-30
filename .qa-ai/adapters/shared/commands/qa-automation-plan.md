@@ -4,6 +4,8 @@ argument-hint: [feature path, RF ID, or test filter]
 allowed-tools: [view_file, write_file, edit_file, list_dir, grep_search, glob, run_command]
 ---
 
+!`node .qa-ai/scripts/show-config.mjs --json`
+
 Before any other action or user-facing text, read and follow `.qa-ai/workflows/command-interaction.md`.
 
 Create an automation feasibility and implementation plan from existing `.feature` tests.
@@ -11,7 +13,7 @@ Create an automation feasibility and implementation plan from existing `.feature
 Read these files first:
 
 - `AGENTS.md`
-- `qa-ai.config.yaml` when present
+- Resolved config from the injected `show-config --json` output when present; otherwise run `node .qa-ai/scripts/show-config.mjs --json`. Compact init uses `.qa-ai/qa-ai.config.yaml`; legacy repos may use root `qa-ai.config.yaml`.
 - `.qa-ai/rules/`
 - `.qa-ai/agents/README.md`
 - `.qa-ai/agents/qa-workflow-orchestrator.md`
@@ -22,7 +24,7 @@ Read these files first:
 - `.qa-ai/workflows/automation-analysis.md`
 - `.qa-ai/workflows/implementation.md`
 
-Use `project.interfaceLanguage` / `project.defaultLanguage` from `qa-ai.config.yaml` for user-facing questions and summaries.
+Use `interfaceLanguage` from the resolved `show-config --json` output for user-facing questions and summaries.
 
 If `$ARGUMENTS` is empty or ambiguous, ask the user:
 

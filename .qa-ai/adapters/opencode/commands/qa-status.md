@@ -5,6 +5,7 @@ allowed-tools: [view_file, list_dir, grep_search, glob, run_command]
 ---
 
 !`npx qa-flowkit run status --json`
+!`node .qa-ai/scripts/show-config.mjs --json`
 
 Before any other action or user-facing text, read and follow `.qa-ai/workflows/command-interaction.md`.
 
@@ -13,13 +14,13 @@ Summarize the current QA FlowKit status for this repository.
 Read these files first:
 
 - `AGENTS.md`
-- `qa-ai.config.yaml` when present
+- Resolved config from the injected `show-config --json` output when present; otherwise run `node .qa-ai/scripts/show-config.mjs --json`
 - `.qa-ai/rules/`
 - `.qa-ai/agents/README.md`
 - `.qa-ai/agents/qa-workflow-orchestrator.md`
 - `.qa-ai/agents/specialists/active.md` when present
 
-Use `project.interfaceLanguage` / `project.defaultLanguage` from `qa-ai.config.yaml` for the summary.
+Use `interfaceLanguage` from the resolved `show-config --json` output for the summary.
 
 If `$ARGUMENTS` is empty, inspect the whole configured QA workspace. If `$ARGUMENTS` is provided, treat it as a folder, RF ID or scope filter.
 

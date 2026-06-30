@@ -5,6 +5,7 @@ allowed-tools: [view_file, list_dir, grep_search, glob, run_command]
 ---
 
 !`npx qa-flowkit help --json`
+!`node .qa-ai/scripts/show-config.mjs --json`
 
 Before any other action or user-facing text, read and follow `.qa-ai/workflows/command-interaction.md`.
 
@@ -13,7 +14,7 @@ Provide context-aware guidance for the next QA workflow step in this repository.
 Read these files first:
 
 - `AGENTS.md`
-- `qa-ai.config.yaml` when present
+- Resolved config from the injected `show-config --json` output (`interfaceLanguage`, `qaTrack`, etc.)
 - `.qa-ai/agents/qa-workflow-orchestrator.md`
 
 If a harness run is active, inspect it first:

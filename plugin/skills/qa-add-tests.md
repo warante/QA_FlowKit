@@ -4,6 +4,8 @@ argument-hint: [requirement source or RF ID]
 allowed-tools: [view_file, write_file, edit_file, list_dir, grep_search, glob, run_command]
 ---
 
+!`node .qa-ai/scripts/show-config.mjs --json`
+
 Before any other action or user-facing text, read and follow `.qa-ai/workflows/command-interaction.md`.
 
 Add new QA tests to a repository that may already contain `.feature` files and automation tests.
@@ -11,7 +13,7 @@ Add new QA tests to a repository that may already contain `.feature` files and a
 Read these files first:
 
 - `AGENTS.md`
-- `qa-ai.config.yaml` when present
+- Resolved config from the injected `show-config --json` output when present; otherwise run `node .qa-ai/scripts/show-config.mjs --json`. Compact init uses `.qa-ai/qa-ai.config.yaml`; legacy repos may use root `qa-ai.config.yaml`.
 - `.qa-ai/rules/`
 - `.qa-ai/agents/README.md`
 - `.qa-ai/agents/qa-workflow-orchestrator.md`
@@ -30,11 +32,11 @@ On `standard` and `enterprise` tracks, also read `.qa-ai/agents/test-design-syst
 `qa-ai-output/test-design-system.md` before the per-RF proposal. On `quick`, perform a reduced NFR analysis and note
 that system test design was omitted unless the user requests it.
 
-Before asking anything, resolve `project.interfaceLanguage` / `project.defaultLanguage` from `qa-ai.config.yaml` and keep that language for the complete interaction. Use `gherkin.language` only for generated `.feature` files.
+Before asking anything, use `interfaceLanguage` from the resolved `show-config --json` output and keep that language for the complete interaction. Use `gherkinLanguage` only for generated `.feature` files.
 
 If `$ARGUMENTS` is empty or ambiguous, ask the user:
 
-1. Use Claude Code's interactive question tool when available to select where the new requirement/RF comes from:
+1. Use {{QUESTION_TOOL}} when available to select where the new requirement/RF comes from:
    - `1. Configured source` -> localize the label; use `sources.main` from config, then ask only for the source-specific identifier when needed.
    - `2. Local file` -> localize the label and ask for the path as free text.
    - `3. Pasted text` -> localize the label and ask for the requirement text as free text.
