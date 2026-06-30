@@ -1,6 +1,11 @@
 export { validateWorkflowContract } from '../../lib/harness-contract.mjs';
 export { inspectQaWorkflow, normalizeQaTrack } from '../../lib/qa-next-steps.mjs';
-export { activeSpecialists, activeSpecialistsContent, specialistsForNfrAttributes } from '../../lib/project-config.mjs';
+export {
+  activeSpecialists,
+  activeSpecialistsContent,
+  specialistCatalog,
+  specialistsForNfrAttributes
+} from '../../lib/project-config.mjs';
 export { validateReleaseGateData } from '../../lib/release-gate.mjs';
 export { loadConfigSchema, validateConfigData } from '../../lib/config-schema.mjs';
 export {

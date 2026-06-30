@@ -45,6 +45,11 @@ Apply during system-level and per-RF test design before final Gherkin generation
 
 - Load matching specialists from `.qa-ai/agents/specialists/available/` for detected NFR attributes even when not listed
   in `active.md`.
+- Apply strategy routing from [specialist-routing-matrix.md](../../docs/qa-ai/specialist-routing-matrix.md) and
+  `test-strategy-router.mjs` for RF/CA keyword signals and configured tools. One RF/CA may have multiple applicable
+  specialists. Record decisions in `## Strategy routing decisions` (per-RF proposal) and `## Strategy routing overview`
+  (system design). Evidence types remain `feature`, `automation-script`, `manual-charter`, `test-plan`, `technical-review`,
+  `residual-risk` — do not invent new Gherkin `@type:` values for strategy-only outputs.
 - Record the design technique for each proposed test when technique traceability is enabled. Supported techniques:
   equivalence partitioning, boundary value analysis, decision tables, state transitions, pairwise, error guessing
   and use-case testing. Do not place evidence types (`technical-review`, `automation-script`, `test-plan`,

@@ -295,6 +295,16 @@
             "requireDecisionForSourceNfr": { "type": "boolean" },
             "allowResidualRiskInAdvisory": { "type": "boolean" }
           }
+        },
+        "strategyRouting": {
+          "type": "object",
+          "additionalProperties": false,
+          "x-stability": "experimental",
+          "properties": {
+            "mode": { "type": "string", "enum": ["off", "advisory", "strict"] },
+            "includeKeywordSignals": { "type": "boolean" },
+            "maxSpecialistsPerCriterion": { "type": "integer", "minimum": 1, "maximum": 20 }
+          }
         }
       }
     },

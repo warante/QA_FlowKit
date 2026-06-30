@@ -46,6 +46,7 @@ test('stable command inventory covers public contract commands', () => {
     'validate-active-specialists': '.qa-ai/scripts/validate-active-specialists.mjs',
     'validate-release-gate': '.qa-ai/scripts/validate-release-gate.mjs',
     'validate-test-design': '.qa-ai/scripts/validate-test-design.mjs',
+    'validate-strategy-routing': '.qa-ai/scripts/validate-strategy-routing.mjs',
     'validate-test-coverage': '.qa-ai/scripts/validate-test-coverage.mjs',
     'validate-quality-report': '.qa-ai/scripts/validate-quality-report.mjs'
   };

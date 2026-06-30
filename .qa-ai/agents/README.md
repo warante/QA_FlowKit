@@ -54,7 +54,10 @@ These agents are not part of the numbered sequence. Load them on demand when the
 
 ## Specialists
 
-Auto-activated specialists are listed in `.qa-ai/agents/specialists/active.md` (generated from `qa-ai.config.yaml`). Available sources live under `.qa-ai/agents/specialists/available/`.
+Auto-activated specialists are listed in `.qa-ai/agents/specialists/active.md` (generated from `qa-ai.config.yaml`).
+Available sources live under `.qa-ai/agents/specialists/available/`. On-demand specialists are also loaded from
+explicit NFR attributes, RF/CA keyword signals, and project configuration — see
+[specialist-routing-matrix.md](../../docs/qa-ai/specialist-routing-matrix.md) and `test-strategy-router.mjs`.
 
 - **UI/E2E**: WebdriverIO, Playwright UI, Cypress, Selenium.
 - **Mobile**: Maestro and Appium via `automation.mobile.framework`. The mobile implementation phase uses the generic
@@ -62,7 +65,19 @@ Auto-activated specialists are listed in `.qa-ai/agents/specialists/active.md` (
 - **API**: Playwright API, Postman, REST Assured, Karate.
 - **Test management / issue tracker**: TestRail, Jira.
 - **AI system testing**: AI eval suites and authorized AI red-team design when `aiTesting.enabled: true`.
-- **Cross-cutting** (load on demand or add to `active.md`): `accessibility.md`, `performance.md`, `security.md`.
+- **Cross-cutting NFR** (load on demand): `accessibility.md`, `performance.md`, `security.md`, `scalability.md`,
+  `availability-reliability.md`, `usability.md`, `compatibility-portability.md`, `maintainability.md`.
+- **Exploratory and test data**: `exploratory-testing-agent.md`, `test-data-agent.md`.
+- **Contracts and data**: `contract-testing-agent.md`, `data-quality-agent.md`, `database-migration-agent.md`.
+- **UI/product quality**: `visual-regression-agent.md`, `cross-browser-device-agent.md`, `i18n-l10n-agent.md`,
+  `analytics-tracking-agent.md`.
+- **Operations**: `observability-testing-agent.md`, `post-deploy-validation-agent.md`, `browserstack-strategy-agent.md`.
+- **Security, privacy and compliance**: `security-advanced-agent.md`, `threat-modeling-agent.md`, `privacy-testing-agent.md`,
+  `compliance-testing-agent.md`.
+- **Performance and resilience**: `performance-execution-agent.md`, `resilience-chaos-agent.md`.
+
+On-demand specialists are not mandatory phases. Load them when NFR attributes, requirement/criterion signals, configured
+tools or explicit user instructions apply. `generic-test-design` remains the baseline specialist.
 
 ## Usage Rule
 

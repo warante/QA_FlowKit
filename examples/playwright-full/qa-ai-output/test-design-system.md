@@ -24,6 +24,13 @@ ORD-301 is fixed and read-only.
 
 Tests are isolated, parallel-safe and network-independent after dependency installation.
 
+## Strategy routing overview
+
+| RF / area | Signal | Specialist(s) | Decision | Evidence type | Rationale |
+| --------- | ------ | ------------- | -------- | ------------- | --------- |
+
+No on-demand specialists beyond the configured Playwright baseline for this example.
+
 ## Open questions
 
 None.

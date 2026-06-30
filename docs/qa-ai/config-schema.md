@@ -116,31 +116,35 @@ When both legacy keys and `inferredAcceptanceCriteria` are present, they must ag
 
 ## `testDesign` / `traceability` / `approval` / `testManagementSync` / `commands`
 
-| Section                                                  | Purpose                                            |
-| -------------------------------------------------------- | -------------------------------------------------- |
-| `testDesign.systemPath`                                  | System test design artifact                        |
-| `testDesign.proposalPath`                                | Per-RF proposal artifact                           |
-| `testDesign.coverage.mode`                               | `off`, `advisory` or `strict` coverage validation  |
-| `testDesign.coverage.requirePositive`                    | Require positive coverage per RF                   |
-| `testDesign.coverage.requireNegative`                    | Require negative coverage per RF                   |
-| `testDesign.coverage.requireAlternative`                 | Require an alternative flow or exclusion rationale |
-| `testDesign.coverage.requireBoundaryWhenApplicable`      | Require BVA evidence when applicable               |
-| `testDesign.coverage.requireAccessibilityWhenApplicable` | Require accessibility evidence or rationale        |
-| `testDesign.coverage.requirePerformanceWhenApplicable`   | Require performance evidence or rationale          |
-| `testDesign.coverage.requireSecurityReview`              | Require functional security applicability review   |
-| `testDesign.coverage.requireTechniqueTraceability`       | Require recorded test-design techniques            |
-| `testDesign.coverage.requireCriterionCoverage`           | Enforce atomic criterion proposal-to-feature gates |
-| `testDesign.quality.mode`                                | `off`, `advisory` or `gate` semantic rubric review |
-| `testDesign.quality.reportPath`                          | Gherkin quality report artifact                    |
-| `testDesign.quality.minDimensionsPassed`                 | Minimum passing rubric dimensions for gate mode    |
-| `traceability.matrixPath`                                | Traceability matrix                                |
-| `approval.*`                                             | Gates before external writes / PR                  |
-| `testManagementSync.mode`                                | `proposal-only` or `governed`                      |
-| `testManagementSync.diffPath`                            | Governed sync diff artifact                        |
-| `testManagementSync.applyLogPath`                        | Governed sync apply log                            |
-| `testManagementSync.rollbackPath`                        | Governed sync rollback plan                        |
-| `testManagementSync.remoteSnapshotPath`                  | Governed sync remote-state snapshot                |
-| `commands.testQA`                                        | Default validate-features command                  |
+| Section                                                  | Purpose                                                              |
+| -------------------------------------------------------- | -------------------------------------------------------------------- |
+| `testDesign.systemPath`                                  | System test design artifact                                          |
+| `testDesign.proposalPath`                                | Per-RF proposal artifact                                             |
+| `testDesign.coverage.mode`                               | `off`, `advisory` or `strict` coverage validation                    |
+| `testDesign.coverage.requirePositive`                    | Require positive coverage per RF                                     |
+| `testDesign.coverage.requireNegative`                    | Require negative coverage per RF                                     |
+| `testDesign.coverage.requireAlternative`                 | Require an alternative flow or exclusion rationale                   |
+| `testDesign.coverage.requireBoundaryWhenApplicable`      | Require BVA evidence when applicable                                 |
+| `testDesign.coverage.requireAccessibilityWhenApplicable` | Require accessibility evidence or rationale                          |
+| `testDesign.coverage.requirePerformanceWhenApplicable`   | Require performance evidence or rationale                            |
+| `testDesign.coverage.requireSecurityReview`              | Require functional security applicability review                     |
+| `testDesign.coverage.requireTechniqueTraceability`       | Require recorded test-design techniques                              |
+| `testDesign.coverage.requireCriterionCoverage`           | Enforce atomic criterion proposal-to-feature gates                   |
+| `testDesign.quality.mode`                                | `off`, `advisory` or `gate` semantic rubric review                   |
+| `testDesign.quality.reportPath`                          | Gherkin quality report artifact                                      |
+| `testDesign.quality.minDimensionsPassed`                 | Minimum passing rubric dimensions for gate mode                      |
+| `testDesign.nonFunctionalCoverage.mode`                  | `inherit`, `advisory`, `strict` or `off` for source NFR policy       |
+| `testDesign.strategyRouting.mode`                        | `off`, `advisory` or `strict` specialist keyword routing             |
+| `testDesign.strategyRouting.includeKeywordSignals`       | Enable RF/CA keyword routing (default `true` when mode is not `off`) |
+| `testDesign.strategyRouting.maxSpecialistsPerCriterion`  | Cap routed specialists per criterion (default `5`)                   |
+| `traceability.matrixPath`                                | Traceability matrix                                                  |
+| `approval.*`                                             | Gates before external writes / PR                                    |
+| `testManagementSync.mode`                                | `proposal-only` or `governed`                                        |
+| `testManagementSync.diffPath`                            | Governed sync diff artifact                                          |
+| `testManagementSync.applyLogPath`                        | Governed sync apply log                                              |
+| `testManagementSync.rollbackPath`                        | Governed sync rollback plan                                          |
+| `testManagementSync.remoteSnapshotPath`                  | Governed sync remote-state snapshot                                  |
+| `commands.testQA`                                        | Default validate-features command                                    |
 
 `testManagementSync.mode` defaults to `proposal-only`, which preserves the local proposal-first workflow and performs
 no external writes. `governed` adds the sync-diff, sync-apply and sync-verify harness phases; `sync-apply` is the only
@@ -149,6 +153,10 @@ phase allowed to request the `external-write:test-management` gate.
 `testDesign.quality.mode` defaults to `off` in every preset. `advisory` writes a reviewable semantic Gherkin quality
 report without blocking the workflow. `gate` treats the configured rubric threshold as a completion gate. See
 [quality-rubric.md](quality-rubric.md).
+
+`testDesign.strategyRouting.mode` defaults to `off` for backward compatibility. Agents may still recommend on-demand
+specialists from [specialist-routing-matrix.md](specialist-routing-matrix.md) in advisory mode. `strict` requires
+`## Strategy routing decisions` rows for critical keyword signals validated by `validate-strategy-routing.mjs`.
 
 ## `execution`
 

@@ -33,6 +33,7 @@
       "experimental": [
         "validate-test-coverage",
         "validate-quality-report",
+        "validate-strategy-routing",
         "validate-execution-evidence",
         "validate-healing-log",
         "validate-test-impact",

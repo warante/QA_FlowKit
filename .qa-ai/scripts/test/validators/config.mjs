@@ -122,7 +122,7 @@ test('specialistsForNfrAttributes: loads security and performance without preven
   const specialists = specialistsForNfrAttributes(['security', 'performance', 'maintainability']);
   assert.deepEqual(
     specialists.map(([id]) => id),
-    ['maintainability', 'performance', 'security']
+    ['maintainability', 'observability-testing-agent', 'performance', 'security']
   );
 });
 
@@ -132,6 +132,43 @@ test('specialistsForNfrAttributes: maps availability and portability families', 
     specialists.map(([id]) => id),
     ['availability-reliability', 'compatibility-portability']
   );
+});
+
+test('validateConfigData: accepts optional testDesign.strategyRouting', async () => {
+  const schema = await loadConfigSchema(repoRoot);
+  const valid = parseSimpleYaml(
+    await fs.readFile(path.join(repoRoot, '.qa-ai', 'presets', 'manual-only.yaml'), 'utf8')
+  );
+  const withRouting = {
+    ...valid,
+    testDesign: {
+      ...valid.testDesign,
+      strategyRouting: {
+        mode: 'advisory',
+        includeKeywordSignals: true,
+        maxSpecialistsPerCriterion: 5
+      }
+    }
+  };
+  const result = validateConfigData(withRouting, schema);
+  assert.equal(result.ok, true, result.errors.join('\n'));
+});
+
+test('validateConfigData: rejects unknown strategyRouting mode', async () => {
+  const schema = await loadConfigSchema(repoRoot);
+  const valid = parseSimpleYaml(
+    await fs.readFile(path.join(repoRoot, '.qa-ai', 'presets', 'manual-only.yaml'), 'utf8')
+  );
+  const invalid = {
+    ...valid,
+    testDesign: {
+      ...valid.testDesign,
+      strategyRouting: { mode: 'lenient' }
+    }
+  };
+  const result = validateConfigData(invalid, schema);
+  assert.equal(result.ok, false);
+  assertIncludes(result.errors, '$.testDesign.strategyRouting.mode');
 });
 
 test('validateWorkflowContract: accepts shipped workflow.v1.json', async () => {

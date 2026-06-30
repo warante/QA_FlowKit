@@ -51,6 +51,7 @@ test('validateTestDesignSystem: accepts valid English sections', () => {
       '## Cross-RF coverage strategy',
       '## Shared fixtures and data',
       '## Non-functional focus',
+      '## Strategy routing overview',
       '## Open questions'
     ].join('\n\n')}\n`
   );
@@ -88,6 +89,7 @@ test('validateTestDesignSystem: accepts valid Spanish sections', () => {
       '## Estrategia de cobertura entre RFs',
       '## Fixtures y datos compartidos',
       '## Enfoque no funcional',
+      '## Vision general de enrutado de estrategia',
       '## Preguntas abiertas'
     ].join('\n\n')}\n`
   );

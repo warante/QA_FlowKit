@@ -17,6 +17,7 @@ import {
   validateSyncPlan,
   validateTestCoverage,
   validateTestDesignArtifacts,
+  validateStrategyRouting,
   validateTestImpact,
   validateTraceability,
   validateUntrustedContent,
@@ -40,6 +41,7 @@ const IN_PROCESS_RUNNERS = {
   'validate-release-gate': (cwd, opts, config) =>
     validateReleaseGateFile(cwd, getConfigValue(config, 'releaseGate.path', ARTIFACT_PATHS.releaseGate), opts),
   'validate-test-design': (cwd, opts) => validateTestDesignArtifacts(cwd, opts),
+  'validate-strategy-routing': (cwd, opts, config) => validateStrategyRouting(cwd, { ...opts, config }),
   'validate-sync-plan': (cwd, opts) => validateSyncPlan(cwd, opts),
   'validate-sync-diff': (cwd, opts) => validateSyncDiff(cwd, opts),
   'validate-external-intake': (cwd, opts) => validateExternalIntake(cwd, opts)
@@ -105,6 +107,9 @@ export async function buildTargetValidatorSteps(context) {
           }
           if (id === 'validate-test-design') {
             return runner(root, { allowMissing });
+          }
+          if (id === 'validate-strategy-routing') {
+            return runner(root, { allowMissing }, config);
           }
           if (id === 'validate-sync-plan') {
             return runner(root, { allowEmpty, allowMissing });

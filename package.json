@@ -109,6 +109,7 @@
     "qa:validate-release-gate": "node .qa-ai/scripts/validate-release-gate.mjs",
     "qa:validate-execution-evidence": "node .qa-ai/scripts/validate-execution-evidence.mjs",
     "qa:validate-test-design": "node .qa-ai/scripts/validate-test-design.mjs",
+    "qa:validate-strategy-routing": "node .qa-ai/scripts/validate-strategy-routing.mjs",
     "qa:validate-test-coverage": "node .qa-ai/scripts/validate-test-coverage.mjs",
     "qa:validate-quality-report": "node .qa-ai/scripts/validate-quality-report.mjs",
     "qa:sync-adapters": "node .qa-ai/scripts/sync-agent-adapters.mjs",

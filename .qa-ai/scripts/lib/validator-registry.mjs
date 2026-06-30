@@ -23,7 +23,8 @@ export const TARGET_VALIDATOR_PIPELINE = [
   'validate-untrusted-content',
   'validate-active-specialists',
   'validate-release-gate',
-  'validate-test-design'
+  'validate-test-design',
+  'validate-strategy-routing'
 ];
 
 /** @type {Record<string, ValidatorEntry>} */
@@ -143,6 +144,20 @@ export const VALIDATOR_REGISTRY = {
     targetLabel: 'test design validation',
     targetKind: 'inProcess',
     targetWhen: { designTracks: ['standard', 'enterprise'], skipFlag: 'skip-test-design' }
+  },
+  'validate-strategy-routing': {
+    script: 'validate-strategy-routing.mjs',
+    cli: true,
+    harness: true,
+    harnessDefaultArgs: ['--allow-missing'],
+    targetLabel: 'strategy routing validation',
+    targetKind: 'inProcess',
+    targetWhen: {
+      designTracks: ['standard', 'enterprise'],
+      configMode: 'testDesign.strategyRouting.mode',
+      configModeIs: 'strict',
+      skipFlag: 'skip-strategy-routing'
+    }
   },
   'validate-test-coverage': {
     script: 'validate-test-coverage.mjs',

@@ -16,6 +16,7 @@ export const SYSTEM_SECTIONS = [
   '## Cross-RF coverage strategy',
   '## Shared fixtures and data',
   '## Non-functional focus',
+  '## Strategy routing overview',
   '## Open questions'
 ];
 
@@ -37,6 +38,7 @@ const SYSTEM_SECTION_ALIASES = new Map([
   ['## Cross-RF coverage strategy', ['## Estrategia de cobertura entre RFs']],
   ['## Shared fixtures and data', ['## Fixtures y datos compartidos']],
   ['## Non-functional focus', ['## Enfoque no funcional']],
+  ['## Strategy routing overview', ['## Vision general de enrutado de estrategia']],
   ['## Open questions', ['## Preguntas abiertas']]
 ]);
 
@@ -174,6 +176,27 @@ export function validateTestDesignProposal(content, options = {}) {
     if (!extractSectionExists(text, 'Security review')) errors.push('Missing section: ## Security review');
     if (!extractSectionExists(text, 'Residual coverage gaps')) {
       errors.push('Missing section: ## Residual coverage gaps');
+    }
+  }
+  const strategyRouting = parseSectionTable(text, 'Strategy routing decisions', [
+    'RF',
+    'Criterion IDs',
+    'Signal',
+    'Specialist(s)',
+    'Decision',
+    'Evidence type',
+    'Rationale'
+  ]);
+  if (strategyRouting.exists) {
+    errors.push(...strategyRouting.errors);
+    for (const row of strategyRouting.rows) {
+      const evidenceType = String(row.values['evidence type'] || '')
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, '-');
+      if (evidenceType && !EVIDENCE_TYPES.includes(evidenceType)) {
+        errors.push(`Unrecognized Evidence type "${row.values['evidence type']}" in Strategy routing decisions.`);
+      }
     }
   }
   return { ok: errors.length === 0, errors };

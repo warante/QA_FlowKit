@@ -242,6 +242,97 @@ export const specialistCatalog = {
     title: 'AI Red Team Specialist',
     categories: ['ai-testing', 'security'],
     aliases: ['ai-red-team', 'llm-red-team', 'adversarial-ai']
+  },
+  // On-demand strategy specialists (keyword / NFR / config routing)
+  'analytics-tracking-agent': {
+    title: 'Analytics and Tracking Testing Specialist',
+    categories: ['analytics', 'tracking', 'telemetry'],
+    aliases: ['analytics', 'tracking', 'events', 'posthog', 'plausible', 'segment', 'amplitude']
+  },
+  'browserstack-strategy-agent': {
+    title: 'BrowserStack Strategy Specialist',
+    categories: ['browserstack', 'device-cloud', 'ui', 'mobile'],
+    aliases: ['browserstack', 'automate', 'app-automate', 'browserstack-live', 'device-cloud']
+  },
+  'compliance-testing-agent': {
+    title: 'Compliance Testing Specialist',
+    categories: ['compliance', 'release'],
+    aliases: ['compliance', 'regulatory', 'audit', 'pci', 'soc2', 'iso27001', 'eidas']
+  },
+  'contract-testing-agent': {
+    title: 'Contract Testing Specialist',
+    categories: ['contract', 'api', 'integration'],
+    aliases: ['contract', 'contract-testing', 'openapi', 'asyncapi', 'pact', 'schema']
+  },
+  'cross-browser-device-agent': {
+    title: 'Cross-Browser and Cross-Device Testing Specialist',
+    categories: ['compatibility', 'portability', 'ui', 'mobile'],
+    aliases: ['cross-browser', 'cross-device', 'browser-matrix', 'device-matrix', 'responsive']
+  },
+  'data-quality-agent': {
+    title: 'Data Quality Testing Specialist',
+    categories: ['data-quality', 'integration'],
+    aliases: ['data-quality', 'reconciliation', 'etl', 'reporting-data']
+  },
+  'database-migration-agent': {
+    title: 'Database Migration Testing Specialist',
+    categories: ['database-migration', 'data-quality'],
+    aliases: ['database-migration', 'migration', 'schema-change', 'backfill', 'rollback']
+  },
+  'exploratory-testing-agent': {
+    title: 'Exploratory Testing Specialist',
+    categories: ['exploratory', 'test-design'],
+    aliases: ['exploratory', 'exploratory-testing', 'session-based-testing', 'charter']
+  },
+  'i18n-l10n-agent': {
+    title: 'Internationalization and Localization Testing Specialist',
+    categories: ['i18n', 'l10n', 'localization'],
+    aliases: ['i18n', 'l10n', 'localization', 'internationalization', 'locale', 'timezone']
+  },
+  'observability-testing-agent': {
+    title: 'Observability Testing Specialist',
+    categories: ['observability', 'maintainability'],
+    aliases: ['observability', 'logging', 'metrics', 'tracing', 'alerts', 'audit-events']
+  },
+  'performance-execution-agent': {
+    title: 'Performance Execution Specialist',
+    categories: ['performance', 'load-execution'],
+    aliases: ['performance-execution', 'k6', 'jmeter', 'gatling', 'load-test', 'stress-test', 'soak-test']
+  },
+  'post-deploy-validation-agent': {
+    title: 'Post-Deploy Validation Specialist',
+    categories: ['post-deploy', 'release'],
+    aliases: ['post-deploy', 'deployment-validation', 'production-smoke', 'synthetic', 'canary', 'rollback']
+  },
+  'privacy-testing-agent': {
+    title: 'Privacy Testing Specialist',
+    categories: ['privacy', 'compliance', 'security'],
+    aliases: ['privacy', 'gdpr', 'pii', 'consent', 'cookies', 'retention', 'deletion', 'biometrics']
+  },
+  'resilience-chaos-agent': {
+    title: 'Resilience and Chaos Testing Specialist',
+    categories: ['resilience', 'reliability'],
+    aliases: ['resilience', 'chaos', 'failover', 'disaster-recovery', 'circuit-breaker']
+  },
+  'security-advanced-agent': {
+    title: 'Advanced Security Testing Specialist',
+    categories: ['security', 'advanced-security'],
+    aliases: ['advanced-security', 'sast', 'dast', 'dependency-scan', 'secret-scan', 'supply-chain']
+  },
+  'test-data-agent': {
+    title: 'Test Data Strategy Specialist',
+    categories: ['test-data', 'test-design'],
+    aliases: ['test-data', 'fixtures', 'synthetic-data', 'data-setup']
+  },
+  'threat-modeling-agent': {
+    title: 'Threat Modeling Specialist',
+    categories: ['security', 'threat-modeling'],
+    aliases: ['threat-model', 'threat-modeling', 'stride', 'abuse-case', 'misuse-case']
+  },
+  'visual-regression-agent': {
+    title: 'Visual Regression Testing Specialist',
+    categories: ['visual-regression', 'ui'],
+    aliases: ['visual', 'visual-regression', 'screenshot', 'figma', 'layout']
   }
 };
 
@@ -256,8 +347,13 @@ export const NFR_ATTRIBUTE_SPECIALIST_MAP = {
   usability: 'usability',
   portability: 'compatibility-portability',
   compatibility: 'compatibility-portability',
-  maintainability: 'maintainability'
+  maintainability: ['maintainability', 'observability-testing-agent']
 };
+
+function resolveSpecialistIds(mapValue) {
+  if (!mapValue) return [];
+  return Array.isArray(mapValue) ? mapValue : [mapValue];
+}
 
 export function specialistsForNfrAttributes(attributes = []) {
   const active = new Map();
@@ -265,11 +361,32 @@ export function specialistsForNfrAttributes(attributes = []) {
     const normalized = String(attribute || '')
       .trim()
       .toLowerCase();
-    const specialistId = NFR_ATTRIBUTE_SPECIALIST_MAP[normalized];
-    if (!specialistId || !specialistCatalog[specialistId]) continue;
-    active.set(specialistId, specialistCatalog[specialistId]);
+    for (const specialistId of resolveSpecialistIds(NFR_ATTRIBUTE_SPECIALIST_MAP[normalized])) {
+      if (!specialistCatalog[specialistId]) continue;
+      active.set(specialistId, specialistCatalog[specialistId]);
+    }
   }
   return [...active.entries()].sort(([a], [b]) => a.localeCompare(b));
+}
+
+function frameworkSlugIncludes(value, token) {
+  return slug(value).includes(token);
+}
+
+function addConfigRoutedSpecialists(active, config) {
+  const uiFramework = getConfigValue(config, 'automation.ui.framework', '');
+  const mobileFramework = getConfigValue(config, 'automation.mobile.framework', '');
+  const uiSlug = slug(uiFramework);
+  const mobileSlug = slug(mobileFramework);
+
+  if (frameworkSlugIncludes(uiFramework, 'browserstack') || frameworkSlugIncludes(mobileFramework, 'browserstack')) {
+    active.set('browserstack-strategy-agent', specialistCatalog['browserstack-strategy-agent']);
+  }
+
+  const crossBrowserSignals = ['browserstack', 'device-matrix', 'browser-matrix', 'cross-browser', 'cross-device'];
+  if (crossBrowserSignals.some((token) => uiSlug.includes(token) || mobileSlug.includes(token))) {
+    active.set('cross-browser-device-agent', specialistCatalog['cross-browser-device-agent']);
+  }
 }
 
 export function activeSpecialists(config) {
@@ -306,6 +423,7 @@ export function activeSpecialists(config) {
     active.set('ai-evals', specialistCatalog['ai-evals']);
     active.set('ai-red-team', specialistCatalog['ai-red-team']);
   }
+  addConfigRoutedSpecialists(active, config);
   return [...active.entries()].sort(([a], [b]) => a.localeCompare(b));
 }
 

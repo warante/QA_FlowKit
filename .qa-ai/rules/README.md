@@ -50,26 +50,27 @@ Then load the rest before implementation or external-tool phases.
 
 Each `*.rules.md` includes an **Enforced by** line. Critical rules must map to a script (or be marked `prompt-only`).
 
-| Rule file                                                | Validator / enforcement                                                                                           |
-| -------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| [approval.rules.md](approval.rules.md)                   | `doctor.mjs`, `validate-target.mjs` (`--scan-secrets`), `lib/secret-patterns.mjs`                                 |
-| [workflow.rules.md](workflow.rules.md)                   | `doctor.mjs`, `validate-target.mjs`                                                                               |
-| [untrusted-content.rules.md](untrusted-content.rules.md) | `validate-untrusted-content.mjs`, `lib/injection-patterns.mjs`                                                    |
-| [requirements.rules.md](requirements.rules.md)           | `validate-traceability.mjs`, `validate-test-coverage.mjs` (source NFR rows)                                       |
-| [test-design.rules.md](test-design.rules.md)             | `validate-test-design.mjs`                                                                                        |
-| [test-design.rules.md](test-design.rules.md)             | `validate-test-coverage.mjs` for configured cross-feature obligations and `## Non-functional coverage`            |
-| [gherkin.rules.md](gherkin.rules.md)                     | `validate-features.mjs`, `lib/gherkin-validate.mjs`                                                               |
-| [ai-testing.rules.md](ai-testing.rules.md)               | `validate-features.mjs` (`@ai-component`/`@technique` tags), `validate-test-design.mjs` (AI coverage)             |
-| [test-management.rules.md](test-management.rules.md)     | `validate-sync-plan.mjs`, `validate-sync-diff.mjs`, `validate-sync-result.mjs`, `lib/test-management-mapping.mjs` |
-| [issue-tracker.rules.md](issue-tracker.rules.md)         | prompt-only (MVP)                                                                                                 |
-| [automation.rules.md](automation.rules.md)               | prompt-only                                                                                                       |
-| [ui-automation.rules.md](ui-automation.rules.md)         | prompt-only                                                                                                       |
-| [mobile-automation.rules.md](mobile-automation.rules.md) | `doctor.mjs` for paths; `validate-maestro-flows.mjs` for Maestro flows; implementation is prompt-guided           |
-| [api-testing.rules.md](api-testing.rules.md)             | prompt-only                                                                                                       |
-| [defect.rules.md](defect.rules.md)                       | prompt-only                                                                                                       |
-| [release-gate.rules.md](release-gate.rules.md)           | `validate-release-gate.mjs`                                                                                       |
-| [cleanup.rules.md](cleanup.rules.md)                     | `clean.mjs`                                                                                                       |
-| [karate.rules.md](karate.rules.md)                       | `validate-karate-features.mjs` (when api/ui framework is karate)                                                  |
+| Rule file                                                | Validator / enforcement                                                                                                  |
+| -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| [approval.rules.md](approval.rules.md)                   | `doctor.mjs`, `validate-target.mjs` (`--scan-secrets`), `lib/secret-patterns.mjs`                                        |
+| [workflow.rules.md](workflow.rules.md)                   | `doctor.mjs`, `validate-target.mjs`                                                                                      |
+| [untrusted-content.rules.md](untrusted-content.rules.md) | `validate-untrusted-content.mjs`, `lib/injection-patterns.mjs`                                                           |
+| [requirements.rules.md](requirements.rules.md)           | `validate-traceability.mjs`, `validate-test-coverage.mjs` (source NFR rows)                                              |
+| [test-design.rules.md](test-design.rules.md)             | `validate-test-design.mjs`                                                                                               |
+| [test-design.rules.md](test-design.rules.md)             | `validate-test-coverage.mjs` for configured cross-feature obligations and `## Non-functional coverage`                   |
+| Specialist routing matrix                                | [specialist-routing-matrix.md](../../docs/qa-ai/specialist-routing-matrix.md) (agent-guided; `test-strategy-router.mjs`) |
+| [gherkin.rules.md](gherkin.rules.md)                     | `validate-features.mjs`, `lib/gherkin-validate.mjs`                                                                      |
+| [ai-testing.rules.md](ai-testing.rules.md)               | `validate-features.mjs` (`@ai-component`/`@technique` tags), `validate-test-design.mjs` (AI coverage)                    |
+| [test-management.rules.md](test-management.rules.md)     | `validate-sync-plan.mjs`, `validate-sync-diff.mjs`, `validate-sync-result.mjs`, `lib/test-management-mapping.mjs`        |
+| [issue-tracker.rules.md](issue-tracker.rules.md)         | prompt-only (MVP)                                                                                                        |
+| [automation.rules.md](automation.rules.md)               | prompt-only                                                                                                              |
+| [ui-automation.rules.md](ui-automation.rules.md)         | prompt-only                                                                                                              |
+| [mobile-automation.rules.md](mobile-automation.rules.md) | `doctor.mjs` for paths; `validate-maestro-flows.mjs` for Maestro flows; implementation is prompt-guided                  |
+| [api-testing.rules.md](api-testing.rules.md)             | prompt-only                                                                                                              |
+| [defect.rules.md](defect.rules.md)                       | prompt-only                                                                                                              |
+| [release-gate.rules.md](release-gate.rules.md)           | `validate-release-gate.mjs`                                                                                              |
+| [cleanup.rules.md](cleanup.rules.md)                     | `clean.mjs`                                                                                                              |
+| [karate.rules.md](karate.rules.md)                       | `validate-karate-features.mjs` (when api/ui framework is karate)                                                         |
 
 `doctor.mjs` requires every `*.rules.md` file to exist. `validate-active-specialists.mjs` enforces specialist config against `qa-ai.config.yaml`.
 
