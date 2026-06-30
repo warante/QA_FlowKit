@@ -8,10 +8,13 @@ import {
   validateActiveSpecialists,
   validateDesignFeatures,
   validateExecutionEvidence,
+  validateExternalIntake,
   validateHealingLog,
   validateKarateFeatures,
   validateMaestroFlows,
   validateReleaseGateFile,
+  validateSyncDiff,
+  validateSyncPlan,
   validateTestCoverage,
   validateTestDesignArtifacts,
   validateTestImpact,
@@ -36,14 +39,17 @@ const IN_PROCESS_RUNNERS = {
   'validate-active-specialists': (cwd, opts) => validateActiveSpecialists(cwd, opts),
   'validate-release-gate': (cwd, opts, config) =>
     validateReleaseGateFile(cwd, getConfigValue(config, 'releaseGate.path', ARTIFACT_PATHS.releaseGate), opts),
-  'validate-test-design': (cwd, opts) => validateTestDesignArtifacts(cwd, opts)
+  'validate-test-design': (cwd, opts) => validateTestDesignArtifacts(cwd, opts),
+  'validate-sync-plan': (cwd, opts) => validateSyncPlan(cwd, opts),
+  'validate-sync-diff': (cwd, opts) => validateSyncDiff(cwd, opts),
+  'validate-external-intake': (cwd, opts) => validateExternalIntake(cwd, opts)
 };
 
 function subprocessArgs(id, { allowEmpty, allowMissing, strictUntrusted }) {
   const args = [validatorScriptPath(id)];
   if (['validate-sync-plan', 'validate-features'].includes(id) && allowEmpty) args.push('--allow-empty');
   if (id !== 'validate-untrusted-content' && allowMissing) args.push('--allow-missing');
-  if (['validate-sync-diff', 'validate-sync-result', 'validate-external-intake'].includes(id)) {
+  if (id === 'validate-sync-result') {
     args.push('--json');
   }
   if (id === 'validate-untrusted-content') {
@@ -98,6 +104,12 @@ export async function buildTargetValidatorSteps(context) {
             return runner(root, { allowMissing, allowPending: Boolean(args['allow-pending']) }, config);
           }
           if (id === 'validate-test-design') {
+            return runner(root, { allowMissing });
+          }
+          if (id === 'validate-sync-plan') {
+            return runner(root, { allowEmpty, allowMissing });
+          }
+          if (id === 'validate-sync-diff' || id === 'validate-external-intake') {
             return runner(root, { allowMissing });
           }
           const opts = ['validate-features', 'validate-karate-features', 'validate-maestro-flows'].includes(id)

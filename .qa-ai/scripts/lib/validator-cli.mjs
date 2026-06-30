@@ -4,15 +4,24 @@ export function isValidatorMain(importMetaUrl) {
   return process.argv[1] === fileURLToPath(importMetaUrl);
 }
 
-export function emitJson(ok, errors = [], warnings = []) {
+export function emitJson(ok, errors = [], warnings = [], extra = {}) {
   console.log(
     JSON.stringify({
       ok,
       errors,
       warnings,
-      findings: errors.map((message) => ({ severity: 'error', message }))
+      findings: errors.map((message) => ({ severity: 'error', message })),
+      ...extra
     })
   );
+}
+
+export function emitFindingsJson({ ok, errors = [], warnings = [], findings, extra = {} }) {
+  const resolvedFindings = findings || [
+    ...errors.map((message) => ({ severity: 'error', message })),
+    ...warnings.map((message) => ({ severity: 'warning', message }))
+  ];
+  console.log(JSON.stringify({ ok, errors, warnings, findings: resolvedFindings, ...extra }));
 }
 
 export function isJsonMode(args) {
@@ -20,21 +29,57 @@ export function isJsonMode(args) {
 }
 
 /** Finish a validator CLI run with consistent JSON/text output and exit code. */
-export function finishValidatorRun({ ok, errors = [], warnings = [], jsonMode, successMessage, failureMessage }) {
+export function finishValidatorRun({
+  ok,
+  errors = [],
+  warnings = [],
+  jsonMode,
+  successMessage,
+  failureMessage,
+  extraJson = {}
+}) {
   if (!ok) {
-    if (jsonMode) emitJson(false, errors, warnings);
+    if (jsonMode) emitJson(false, errors, warnings, extraJson);
     else {
       for (const warning of warnings) console.log(`WARNING: ${warning}`);
-      for (const error of errors) console.log(error);
+      for (const error of errors) console.error(error);
       console.log(failureMessage || `\nFAILED - ${errors.length} validation error(s).`);
     }
     process.exit(1);
   }
-  if (jsonMode) emitJson(true, [], warnings);
+  if (jsonMode) emitJson(true, [], warnings, extraJson);
   else {
     for (const warning of warnings) console.log(`WARNING: ${warning}`);
     if (successMessage) console.log(successMessage);
   }
+}
+
+export function finishValidatorFindingsRun({
+  ok,
+  errors = [],
+  warnings = [],
+  findings,
+  jsonMode,
+  successMessage,
+  failureMessage,
+  extraJson = {}
+}) {
+  if (!ok) {
+    if (jsonMode) {
+      emitFindingsJson({ ok: false, errors, warnings, findings, extra: extraJson });
+      process.exit(1);
+    }
+    for (const warning of warnings) console.log(`WARNING: ${warning}`);
+    for (const error of errors) console.error(error);
+    console.log(failureMessage || `\nFAILED - ${errors.length} validation error(s).`);
+    process.exit(1);
+  }
+  if (jsonMode) {
+    emitFindingsJson({ ok: true, errors: [], warnings, findings: findings || [], extra: extraJson });
+    return;
+  }
+  for (const warning of warnings) console.log(`WARNING: ${warning}`);
+  if (successMessage) console.log(successMessage);
 }
 
 /** Map common CLI flags to validator options. */

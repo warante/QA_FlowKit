@@ -13,6 +13,7 @@ import {
   logHeader
 } from './lib/utils.mjs';
 import { mergeClaudeSettings } from './lib/claude-settings.mjs';
+import { formatUnknownNamesError, resolveAdapterSelection } from './lib/adapter-selection.mjs';
 
 const cwd = process.cwd();
 const args = parseArgs(process.argv);
@@ -49,10 +50,7 @@ Supported agents: ${Object.keys(bootstrapMap).join(', ')}
 }
 
 function selectedAgents() {
-  const requested = [...commaList(args.agents), ...commaList(args.agent)].map((name) => name.toLowerCase());
-  if (requested.length === 0 || requested.includes('all')) return Object.keys(bootstrapMap);
-  if (requested.includes('none')) return [];
-  return [...new Set(requested)];
+  return resolveAdapterSelection([...commaList(args.agents), ...commaList(args.agent)], Object.keys(bootstrapMap));
 }
 
 async function main() {
@@ -69,10 +67,9 @@ async function main() {
   }
 
   const agents = selectedAgents();
-  const unknown = agents.filter((name) => !(name in bootstrapMap));
-  if (unknown.length > 0) {
-    console.error(`Unknown agent(s): ${unknown.join(', ')}`);
-    console.error(`Supported agents: ${Object.keys(bootstrapMap).join(', ')}`);
+  const unknownMessage = formatUnknownNamesError(agents, Object.keys(bootstrapMap), 'agent');
+  if (unknownMessage) {
+    console.error(unknownMessage);
     process.exit(1);
   }
 

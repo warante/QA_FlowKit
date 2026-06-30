@@ -1,9 +1,7 @@
 #!/usr/bin/env node
 import { validateQualityReport } from './lib/quality-report.mjs';
 import { logHeader, parseArgs } from './lib/utils.mjs';
-
-const cwd = process.cwd();
-const args = parseArgs(process.argv);
+import { finishValidatorRun, isJsonMode, runValidatorMain } from './lib/validator-cli.mjs';
 
 function printHelp() {
   console.log(`Usage: node .qa-ai/scripts/validate-quality-report.mjs [options]
@@ -22,12 +20,14 @@ Options:
 }
 
 async function main() {
+  const args = parseArgs(process.argv);
   if (args.help) {
     printHelp();
     return;
   }
 
-  const result = await validateQualityReport(cwd, {
+  const jsonMode = isJsonMode(args);
+  const result = await validateQualityReport(process.cwd(), {
     reportPath: args.path,
     featureRoot: args.features,
     mode: args.mode,
@@ -37,35 +37,28 @@ async function main() {
     allowMissing: Boolean(args['allow-missing'])
   });
 
-  if (args.json) {
+  if (jsonMode) {
     console.log(JSON.stringify(result, null, 2));
-  } else {
-    logHeader('QA AI Gherkin quality report validator');
-    if (result.skipped) {
-      console.log(`SKIP - quality mode is ${result.mode}.`);
-    }
-    if (result.message) console.log(result.message);
-    for (const finding of result.findings || []) {
-      const location = finding.file || finding.path || '';
-      console.log(`[${finding.severity.toUpperCase()}] ${location ? `${location}: ` : ''}${finding.message}`);
-    }
-    if (result.ok) {
-      console.log(
-        `\nVALID - quality report completed with ${(result.warnings || []).length} warning(s) in ${result.mode} mode.`
-      );
-    } else {
-      console.log(`\nFAILED - ${(result.errors || []).length} quality report error(s).`);
-    }
+    if (!result.ok) process.exit(1);
+    return;
   }
 
-  if (!result.ok) process.exit(1);
+  logHeader('QA AI Gherkin quality report validator');
+  if (result.skipped) console.log(`SKIP - quality mode is ${result.mode}.`);
+  if (result.message) console.log(result.message);
+  for (const finding of result.findings || []) {
+    const location = finding.file || finding.path || '';
+    console.log(`[${finding.severity.toUpperCase()}] ${location ? `${location}: ` : ''}${finding.message}`);
+  }
+
+  finishValidatorRun({
+    ok: result.ok,
+    errors: result.errors || [],
+    warnings: result.warnings || [],
+    jsonMode: false,
+    successMessage: `\nVALID - quality report completed with ${(result.warnings || []).length} warning(s) in ${result.mode} mode.`,
+    failureMessage: `\nFAILED - ${(result.errors || []).length} quality report error(s).`
+  });
 }
 
-main().catch((error) => {
-  if (args.json) {
-    console.log(JSON.stringify({ ok: false, error: error.message }, null, 2));
-  } else {
-    console.error(error);
-  }
-  process.exit(1);
-});
+runValidatorMain(import.meta.url, main);

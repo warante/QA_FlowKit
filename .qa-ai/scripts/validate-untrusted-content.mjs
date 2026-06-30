@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { validateUntrustedContent } from './lib/untrusted-content-validate.mjs';
 import { logHeader, parseArgs } from './lib/utils.mjs';
-import { runValidatorMain, validatorOptionsFromArgs } from './lib/validator-cli.mjs';
+import { emitFindingsJson, isJsonMode, runValidatorMain, validatorOptionsFromArgs } from './lib/validator-cli.mjs';
 
 function printHelp() {
   console.log(`Usage: node .qa-ai/scripts/validate-untrusted-content.mjs [options]
@@ -25,26 +25,29 @@ async function main() {
     return;
   }
 
+  const jsonMode = isJsonMode(args);
   const options = {
     ...validatorOptionsFromArgs(args),
     path: args.path
   };
   const result = await validateUntrustedContent(process.cwd(), options);
 
-  if (args.json) {
-    console.log(
-      JSON.stringify(
-        {
-          ok: result.ok,
-          strict: result.strict,
-          scannedFiles: result.scannedFiles,
-          missing: result.missing,
-          findings: result.findings
-        },
-        null,
-        2
-      )
-    );
+  if (jsonMode) {
+    emitFindingsJson({
+      ok: result.ok,
+      errors: result.errors,
+      warnings: result.warnings,
+      findings: result.findings?.map((finding) => ({
+        severity: options.strict ? 'error' : 'warning',
+        message: `${finding.file}:${finding.line} (${finding.pattern}) ${finding.excerpt}`,
+        ...finding
+      })),
+      extra: {
+        strict: result.strict,
+        scannedFiles: result.scannedFiles,
+        missing: result.missing
+      }
+    });
     if (!result.ok) process.exit(1);
     return;
   }

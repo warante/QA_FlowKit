@@ -53,7 +53,6 @@ contexts above unless repository rules require stricter per-scenario protection.
 | ------------ | ----------------------------- | ----------------------------------------------------------------------- | ----------------------------- | ------- | -------- |
 | `ci.yml`     | `npm-pack`                    | `npm pack allowlist`                                                    | release engineer              | 10m     | no       |
 | `ci.yml`     | `adapter-parity`              | `adapter template parity`                                               | developer experience engineer | 10m     | no       |
-| `ci.yml`     | `adapter-support`             | `adapter support inventory`                                             | developer experience engineer | 10m     | no       |
 | `ci.yml`     | `claude-plugin`               | `Claude plugin`                                                         | developer experience engineer | 10m     | no       |
 | `ci.yml`     | `golden-target`               | `golden target validate-target`                                         | QA automation engineer        | 15m     | no       |
 | `ci.yml`     | `karate-target`               | `karate target validate-target`                                         | QA automation engineer        | 15m     | no       |
@@ -70,7 +69,7 @@ contexts above unless repository rules require stricter per-scenario protection.
 | `ci.yml`     | `stable-release-pr-rehearsal` | `Stable Release PR rehearsal (TASK-084)`                                | release engineer              | 15m     | no       |
 | `ci.yml`     | `validate-starter`            | `Validate starter`                                                      | release engineer              | 20m     | yes      |
 | `ci.yml`     | `coverage`                    | `Coverage`                                                              | QA automation engineer        | 15m     | yes      |
-| `ci.yml`     | `validate`                    | `Validate (${{ matrix.os }}, Node ${{ matrix.node }})`                  | release engineer              | 20m     | no       |
+| `ci.yml`     | `validate`                    | `Platform smoke (${{ matrix.os }}, Node ${{ matrix.node }})`            | release engineer              | 20m     | no       |
 | `codeql.yml` | `analyze`                     | `Analyze JavaScript`                                                    | security engineer             | 15m     | yes      |
 
 ## Scheduled Checks

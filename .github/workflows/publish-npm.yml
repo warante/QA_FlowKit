@@ -58,7 +58,7 @@ jobs:
           npm run format:check
 
       - name: Run pre-publish validation
-        run: npm run validate:oss-extraction
+        run: npm run validate:core
 
       - name: Verify npm pack allowlist
         run: node .github/scripts/verify-npm-pack.mjs
@@ -103,9 +103,33 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          PUBLISHED=$(npm view "qa-flowkit@${PKG_VERSION}" version)
+          if [[ "${PKG_VERSION}" == *"-rc."* ]]; then
+            echo "RC release detected; running full post-publish validation."
+            node .github/scripts/run-rc-post-publish-validation.mjs --version "${PKG_VERSION}"
+            exit 0
+          fi
+          if [[ "${PKG_VERSION}" != *-* ]]; then
+            echo "Stable release detected; running full post-publish validation."
+            node .github/scripts/run-stable-post-publish-validation.mjs --version "${PKG_VERSION}"
+            exit 0
+          fi
+          PUBLISHED=""
+          for attempt in 1 2 3 4 5 6; do
+            if PUBLISHED=$(npm view "qa-flowkit@${PKG_VERSION}" version 2>/dev/null) && [[ -n "${PUBLISHED}" ]]; then
+              break
+            fi
+            echo "Attempt ${attempt}: version not visible yet on npm; waiting 15s..."
+            sleep 15
+          done
           if [[ "${PUBLISHED}" != "${PKG_VERSION}" ]]; then
-            echo "::error::npm view returned ${PUBLISHED}, expected ${PKG_VERSION}."
+            echo "::error::npm view returned '${PUBLISHED}', expected ${PKG_VERSION}."
             exit 1
           fi
           echo "Published version confirmed: ${PUBLISHED}"
+
+          VERIFY_DIR=$(mktemp -d)
+          npm pack "qa-flowkit@${PKG_VERSION}" --pack-destination "${VERIFY_DIR}"
+          TARBALL=$(ls "${VERIFY_DIR}"/qa-flowkit-*.tgz | head -n 1)
+          npm install --prefix "${VERIFY_DIR}/install" --ignore-scripts --no-save "${TARBALL}"
+          "${VERIFY_DIR}/install/node_modules/qa-flowkit/bin/qa-flowkit.mjs" version
+          echo "Post-publish smoke install passed."

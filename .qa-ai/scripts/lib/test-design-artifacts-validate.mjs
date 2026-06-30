@@ -1,4 +1,3 @@
-import fs from 'node:fs/promises';
 import { validateTestDesignProposal, validateTestDesignSystem } from './test-design.mjs';
 import { featureCoverageRecord, validateAiCoverage } from './test-coverage.mjs';
 import { getConfigValue, listFilesRecursive, loadQaAiConfig, pathExists, readText, resolveRepoPath } from './utils.mjs';
@@ -56,11 +55,35 @@ export async function validateTestDesignArtifacts(cwd, options = {}) {
   if (aiTestingEnabled) {
     const featurePath = getConfigValue(config, 'gherkin.featurePath', 'features');
     const featureRootPath = resolveRepoPath(cwd, featurePath, { label: 'feature root' });
-    const featureFiles = await listFilesRecursive(featureRootPath, (f) => f.endsWith('.feature')).catch(() => []);
+    let featureFiles;
+    try {
+      featureFiles = await listFilesRecursive(featureRootPath, (f) => f.endsWith('.feature'));
+    } catch (error) {
+      return {
+        ok: false,
+        system,
+        proposal,
+        aiCoverage,
+        errors: [...system.errors, ...proposal.errors, `Unable to read feature root: ${error.message}`]
+      };
+    }
     const features = [];
+    const readErrors = [];
     for (const file of featureFiles) {
-      const content = await fs.readFile(file, 'utf8').catch(() => '');
-      features.push(featureCoverageRecord(file, content));
+      try {
+        features.push(featureCoverageRecord(file, await readText(file)));
+      } catch (error) {
+        readErrors.push(`${file}: ${error.message}`);
+      }
+    }
+    if (readErrors.length > 0) {
+      return {
+        ok: false,
+        system,
+        proposal,
+        aiCoverage,
+        errors: [...system.errors, ...proposal.errors, ...readErrors]
+      };
     }
     const proposalAbsolute = resolveRepoPath(cwd, proposalPath, { label: 'proposal' });
     const proposalContent = (await pathExists(proposalAbsolute)) ? await readText(proposalAbsolute) : '';

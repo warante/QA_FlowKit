@@ -17,6 +17,7 @@ Activated for per-RF test design and Gherkin feature generation after requiremen
 - `qa-ai-output/test-design-system.md` when present (`standard` / `enterprise`).
 - `qa-ai.config.yaml` (`gherkin.language`, `gherkin.tags.required`, `gherkin.featurePath`, `testDesign.proposalPath`).
 - `.qa-ai/rules/gherkin.rules.md` and `.qa-ai/rules/test-design.rules.md` for naming, structure and proposal conventions.
+- `.qa-ai/scripts/lib/gherkin-constants.mjs` for required tag keys, supported `@type:` values, feature subfolders and acceptance-criteria labels (keep rules and generated features aligned with this module).
 - `.qa-ai/rules/ai-testing.rules.md` when `aiTesting.enabled` is true or an RF is marked as an AI component.
 - `.qa-ai/templates/test-design-proposal.template.md` as the shape reference for the proposal artifact.
 - Existing `features/` directory to detect duplicates and maintain consistency.

@@ -51,6 +51,8 @@ Do not mix Karate `* method` steps into design features or QA acceptance blocks 
 
 ## Tags
 
+**Canonical tag/type values:** enforced defaults and `@type:` allowlist live in `.qa-ai/scripts/lib/gherkin-constants.mjs` (single source of truth). Update that module first when adding supported types or folder mappings; keep this file aligned for human readers and agents.
+
 - **Required:** `@priority:`, `@type:`, `@manual:` (values from `gherkin.tags` in config when present).
 - **Supported `@type:` values:** `functional`, `regression`, `smoke`, `e2e`, `integration`, `api`, `negative`,
   `edge-case`, `accessibility`, `performance`, `security`. Other quality attributes use non-Gherkin evidence in

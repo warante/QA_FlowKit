@@ -13,6 +13,7 @@ import {
 } from './lib/utils.mjs';
 import { mergeClaudeSettings } from './lib/claude-settings.mjs';
 import { syncAdapterCommands } from './lib/adapter-commands-sync.mjs';
+import { formatUnknownNamesError, resolveAdapterSelection } from './lib/adapter-selection.mjs';
 
 const cwd = process.cwd();
 const args = parseArgs(process.argv);
@@ -45,10 +46,7 @@ Supported adapters: ${Object.keys(adapterMap).join(', ')}
 }
 
 function selectedAdapterNames() {
-  const requested = [...commaList(args.adapters), ...commaList(args.adapter)].map((name) => name.toLowerCase());
-  if (requested.length === 0 || requested.includes('all')) return Object.keys(adapterMap);
-  if (requested.includes('none')) return [];
-  return [...new Set(requested)];
+  return resolveAdapterSelection([...commaList(args.adapters), ...commaList(args.adapter)], Object.keys(adapterMap));
 }
 
 async function main() {
@@ -60,10 +58,9 @@ async function main() {
   logHeader('Sync agent adapters');
   await syncAdapterCommands(path.join(cwd, '.qa-ai'));
   const names = selectedAdapterNames();
-  const unknown = names.filter((name) => !(name in adapterMap));
-  if (unknown.length > 0) {
-    console.error(`Unknown adapter(s): ${unknown.join(', ')}`);
-    console.error(`Supported adapters: ${Object.keys(adapterMap).join(', ')}`);
+  const unknownMessage = formatUnknownNamesError(names, Object.keys(adapterMap), 'adapter');
+  if (unknownMessage) {
+    console.error(unknownMessage);
     process.exit(1);
   }
 

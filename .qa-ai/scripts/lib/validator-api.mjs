@@ -17,6 +17,9 @@ export { validateTestCoverage } from './test-coverage-validate.mjs';
 export { validateTestDesignArtifacts } from './test-design-artifacts-validate.mjs';
 export { validateQualityReport } from './quality-report.mjs';
 export { validateWorkflowContractFile as validateWorkflowContractApi } from './workflow-contract-validate.mjs';
+export { validateSyncDiff } from './sync-diff-validate.mjs';
+export { validateSyncPlan } from './sync-plan-validate.mjs';
+export { validateExternalIntake } from './external-intake-validate.mjs';
 
 /** Convert standard validator result to JSON findings shape used by validate-target. */
 export function toFindings(result) {

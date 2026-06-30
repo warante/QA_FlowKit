@@ -1,5 +1,7 @@
 import path from 'node:path';
 import { normalizeColumn, parseMarkdownTable } from './markdown-table.mjs';
+import { functionalMatrixContent } from './markdown-section.mjs';
+import { duplicateGroupedValues, duplicateRowIds } from './duplicate-row-ids.mjs';
 import { validateNfrTraceability } from './nfr-coverage.mjs';
 import { parseProposedTestRows } from './semantic-coverage.mjs';
 import { caseIdsFromText, idsFromText, normalizeId } from './gherkin-validate.mjs';
@@ -15,20 +17,6 @@ const requiredColumns = [
   'Priority',
   'Automation Status'
 ];
-
-function functionalMatrixContent(content) {
-  const lines = String(content || '')
-    .replace(/\r/g, '')
-    .split('\n');
-  const nfrIndex = lines.findIndex((line) => {
-    const match = line.trim().match(/^##\s+(.+)$/);
-    if (!match) return false;
-    const heading = match[1].trim().toLowerCase();
-    return heading === 'non-functional traceability' || heading === 'trazabilidad no funcional';
-  });
-  if (nfrIndex === -1) return content;
-  return lines.slice(0, nfrIndex).join('\n');
-}
 
 export function parseFunctionalTraceabilityMatrix(content) {
   const table = parseMarkdownTable(functionalMatrixContent(content), {
@@ -50,36 +38,19 @@ export function parseFunctionalTraceabilityMatrix(content) {
 }
 
 export function duplicateFunctionalTraceabilityErrors(rows) {
-  const errors = [];
-  const byCaseId = new Map();
-  const byFeatureFile = new Map();
-
-  for (const row of rows) {
-    for (const id of row.caseIds) {
-      const current = byCaseId.get(id) || [];
-      current.push(row.line);
-      byCaseId.set(id, current);
-    }
-
-    const featureFile = String(row.values[normalizeColumn('Feature File')] || '').trim();
-    if (featureFile) {
-      const normalizedFeatureFile = featureFile.replaceAll('\\', '/').toLowerCase();
-      const current = byFeatureFile.get(normalizedFeatureFile) || [];
-      current.push(row.line);
-      byFeatureFile.set(normalizedFeatureFile, current);
-    }
-  }
-
-  for (const [id, lines] of byCaseId.entries()) {
-    if (lines.length > 1) errors.push(`Identifier ${id} appears in multiple traceability rows: ${lines.join(', ')}.`);
-  }
-  for (const [featureFile, lines] of byFeatureFile.entries()) {
-    if (lines.length > 1) {
-      errors.push(`Feature file ${featureFile} appears in multiple traceability rows: ${lines.join(', ')}.`);
-    }
-  }
-
-  return errors;
+  const caseIdErrors = duplicateRowIds(rows, {
+    key: 'caseIds',
+    formatMessage: (id, lines) => `Identifier ${id} appears in multiple traceability rows: ${lines.join(', ')}.`
+  });
+  const featureErrors = duplicateGroupedValues(rows, {
+    extractKey: (row) => {
+      const featureFile = String(row.values[normalizeColumn('Feature File')] || '').trim();
+      return featureFile ? featureFile.replaceAll('\\', '/').toLowerCase() : '';
+    },
+    formatMessage: (featureFile, lines) =>
+      `Feature file ${featureFile} appears in multiple traceability rows: ${lines.join(', ')}.`
+  });
+  return [...caseIdErrors, ...featureErrors];
 }
 
 function normalizeAutomationStatus(value) {

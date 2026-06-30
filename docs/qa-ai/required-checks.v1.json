@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-06-25",
+  "generatedAt": "2026-06-30",
   "qaFlowKitVersion": "1.0.0-rc.3",
   "requiredBranchProtectionContexts": [
     "Validate starter",
@@ -25,15 +25,6 @@
       "required": false,
       "timeoutMinutes": 10,
       "triage": "Root adapter copies drifted from .qa-ai/adapters. Edit templates first, then sync root copies."
-    },
-    {
-      "workflow": ".github/workflows/ci.yml",
-      "jobId": "adapter-support",
-      "name": "adapter support inventory",
-      "owner": "developer experience engineer",
-      "required": false,
-      "timeoutMinutes": 10,
-      "triage": "Adapter support manifest drifted from templates or docs. Update adapter-support.v1.json and agent-compatibility.md."
     },
     {
       "workflow": ".github/workflows/ci.yml",
@@ -168,7 +159,7 @@
       "owner": "release engineer",
       "required": true,
       "timeoutMinutes": 20,
-      "triage": "Validate starter failed. Scenario E2E jobs are prerequisites; this job runs validate:core (docs, contracts, validators, smoke) without re-running E2E."
+      "triage": "Validate starter failed. Scenario E2E jobs are prerequisites; this job runs validate:core (docs, contracts, validators, smoke), collects coverage data, without re-running E2E."
     },
     {
       "workflow": ".github/workflows/ci.yml",
@@ -177,16 +168,16 @@
       "owner": "QA automation engineer",
       "required": true,
       "timeoutMinutes": 15,
-      "triage": "Validator/harness coverage dropped below threshold. Add focused tests or intentionally update coverage policy."
+      "triage": "Validator/harness coverage dropped below threshold. Validate starter already collected coverage; this job only enforces thresholds from the uploaded artifact."
     },
     {
       "workflow": ".github/workflows/ci.yml",
       "jobId": "validate",
-      "name": "Validate (${{ matrix.os }}, Node ${{ matrix.node }})",
+      "name": "Platform smoke (${{ matrix.os }}, Node ${{ matrix.node }})",
       "owner": "release engineer",
       "required": false,
       "timeoutMinutes": 20,
-      "triage": "Matrix validation failed. Compare OS/Node differences; this job runs validate:core only."
+      "triage": "Packed npm smoke or CLI integration failed on matrix OS/Node. validate:core runs only in Validate starter."
     },
     {
       "workflow": ".github/workflows/codeql.yml",

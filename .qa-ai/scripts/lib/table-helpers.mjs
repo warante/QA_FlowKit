@@ -1,32 +1,8 @@
 import { normalizeColumn, parseMarkdownTable, rowValues, splitMarkdownRow, isSeparatorRow } from './markdown-table.mjs';
-
-const SECTION_ALIASES = {
-  'proposed tests': ['pruebas propuestas'],
-  'coverage obligations': ['obligaciones de cobertura'],
-  'security review': ['revision de seguridad', 'revisión de seguridad'],
-  'residual coverage gaps': ['brechas de cobertura residual'],
-  'non-functional requirements': ['requisitos no funcionales'],
-  'non-functional coverage': ['cobertura no funcional'],
-  'non-functional traceability': ['trazabilidad no funcional']
-};
+import { extractMarkdownSection } from './markdown-section.mjs';
 
 export function extractSection(content, heading) {
-  const lines = String(content || '')
-    .replace(/\r/g, '')
-    .split('\n');
-  const normalizedHeading = normalizeColumn(heading.replace(/^#+\s*/, ''));
-  const acceptedHeadings = new Set([normalizedHeading, ...(SECTION_ALIASES[normalizedHeading] || [])]);
-  const start = lines.findIndex((line) => {
-    const match = line.trim().match(/^##\s+(.+)$/);
-    return match && acceptedHeadings.has(normalizeColumn(match[1]));
-  });
-  if (start === -1) return '';
-  const endOffset = lines.slice(start + 1).findIndex((line) => /^##\s+/.test(line.trim()));
-  const end = endOffset === -1 ? lines.length : start + 1 + endOffset;
-  return lines
-    .slice(start + 1, end)
-    .join('\n')
-    .trim();
+  return extractMarkdownSection(content, heading);
 }
 
 export function parseSectionTable(content, heading, requiredColumns = []) {

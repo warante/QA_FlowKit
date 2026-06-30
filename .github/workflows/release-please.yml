@@ -88,7 +88,7 @@ jobs:
           npm run format:check
 
       - name: Run pre-publish validation
-        run: npm run validate:oss-extraction
+        run: npm run validate:core
 
       - name: Verify npm pack allowlist
         run: node .github/scripts/verify-npm-pack.mjs

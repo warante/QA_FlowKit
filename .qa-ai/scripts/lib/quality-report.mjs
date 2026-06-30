@@ -3,6 +3,7 @@ import path from 'node:path';
 import { normalizeAdvisoryMode, isBlockingAdvisoryMode } from './mode-normalize.mjs';
 import { getActiveRunId, readRunSnapshot } from './harness-run-store.mjs';
 import { normalizeColumn, parseMarkdownTable } from './markdown-table.mjs';
+import { extractMarkdownSection } from './markdown-section.mjs';
 import {
   getConfigValue,
   hashFile,
@@ -38,17 +39,7 @@ function parseHeaderValue(content, label) {
 }
 
 function sectionAfterHeading(content, heading) {
-  const lines = String(content || '')
-    .replace(/\r/g, '')
-    .split('\n');
-  const start = lines.findIndex((line) => line.trim().toLowerCase() === heading.toLowerCase());
-  if (start === -1) return '';
-  const body = [];
-  for (const line of lines.slice(start + 1)) {
-    if (line.startsWith('## ')) break;
-    body.push(line);
-  }
-  return body.join('\n');
+  return extractMarkdownSection(content, heading, { exactMatch: true });
 }
 
 function detailSections(content) {

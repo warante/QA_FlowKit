@@ -5,27 +5,15 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { parse as parseGherkin } from './gherkin-parser.mjs';
 import { normalizeId, idsFromText } from './id-normalize.mjs';
+import { GHERKIN_TYPE_VALUES } from './gherkin-constants.mjs';
 
-export { normalizeId, idsFromText } from './id-normalize.mjs';
+export { normalizeId, idsFromText, idPattern } from './id-normalize.mjs';
 
 export const rfPattern = /\bRF[-_ ]?[A-Z0-9]+\b/i;
-export const idPattern = /\b(?:RF|TC|TEST|QA)(?:[-_][A-Z0-9]+| \d[A-Z0-9]*|\d+)\b/gi;
 export const caseIdPattern = /\b(?:TC|TEST|QA)(?:[-_][A-Z0-9]+| \d[A-Z0-9]*|\d+)\b/gi;
 
 /** Supported `@type:` values for Gherkin features (see gherkin.rules.md). */
-export const GHERKIN_TYPE_VALUES = new Set([
-  'functional',
-  'regression',
-  'smoke',
-  'e2e',
-  'integration',
-  'api',
-  'negative',
-  'edge-case',
-  'accessibility',
-  'performance',
-  'security'
-]);
+export { GHERKIN_TYPE_VALUES };
 
 export function requiredTagName(tag) {
   const normalized = String(tag).trim();

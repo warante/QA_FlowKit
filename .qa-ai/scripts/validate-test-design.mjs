@@ -3,7 +3,7 @@ export { validateTestDesignArtifacts } from './lib/test-design-artifacts-validat
 import { validateTestDesignArtifacts } from './lib/test-design-artifacts-validate.mjs';
 import { ARTIFACT_PATHS } from './lib/artifact-paths.mjs';
 import { logHeader, parseArgs } from './lib/utils.mjs';
-import { runValidatorMain } from './lib/validator-cli.mjs';
+import { finishValidatorFindingsRun, isJsonMode, runValidatorMain } from './lib/validator-cli.mjs';
 
 function printHelp() {
   console.log(`Usage: node .qa-ai/scripts/validate-test-design.mjs [options]
@@ -27,7 +27,7 @@ async function main() {
     return;
   }
 
-  const jsonMode = Boolean(args.json);
+  const jsonMode = isJsonMode(args);
   if (!jsonMode) logHeader('QA AI test design validator');
   const result = await validateTestDesignArtifacts(process.cwd(), {
     systemPath: args['system-path'],
@@ -36,17 +36,20 @@ async function main() {
     requireRfId: Boolean(args['require-rf-id'])
   });
 
+  const aiWarnings = (result.aiCoverage?.findings || []).filter((f) => f.severity !== 'error').map((f) => f.message);
+  const findings = [
+    ...result.errors.map((message) => ({ severity: 'error', message })),
+    ...aiWarnings.map((message) => ({ severity: 'warning', message }))
+  ];
+
   if (jsonMode) {
-    const warnings = (result.aiCoverage?.findings || []).filter((f) => f.severity !== 'error').map((f) => f.message);
-    console.log(
-      JSON.stringify({
-        ok: result.errors.length === 0,
-        errors: result.errors,
-        warnings,
-        findings: result.errors.map((message) => ({ severity: 'error', message }))
-      })
-    );
-    if (result.errors.length > 0) process.exit(1);
+    finishValidatorFindingsRun({
+      ok: result.errors.length === 0,
+      errors: result.errors,
+      warnings: aiWarnings,
+      findings,
+      jsonMode: true
+    });
     return;
   }
 
@@ -63,12 +66,15 @@ async function main() {
     }
   }
 
-  if (result.errors.length > 0) {
-    for (const error of result.errors) console.error(`FAIL - ${error}`);
-    process.exit(1);
-  }
-
-  console.log('\nVALID - test design artifacts passed validation.');
+  finishValidatorFindingsRun({
+    ok: result.errors.length === 0,
+    errors: result.errors,
+    warnings: aiWarnings,
+    findings,
+    jsonMode: false,
+    successMessage: '\nVALID - test design artifacts passed validation.',
+    failureMessage: `\nFAILED - ${result.errors.length} test design validation error(s).`
+  });
 }
 
 runValidatorMain(import.meta.url, main);
