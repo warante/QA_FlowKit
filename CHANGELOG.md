@@ -48,6 +48,15 @@ this feature PR is merged.
 - Cross-platform smoke and npm-pack checks now account for generated adapters and framework-specific example paths.
 - Documentation drift and missing packaged contract files now fail validation before release.
 
+## [1.0.0-rc.5](https://github.com/warante/QA_FlowKit/compare/v1.0.0-rc.4...v1.0.0-rc.5) (2026-06-30)
+
+
+### Added
+
+* adopt compact layout as default target repository structure ([#75](https://github.com/warante/QA_FlowKit/issues/75)) ([9292d34](https://github.com/warante/QA_FlowKit/commit/9292d345cd0705af49c20a65b10e42800432a19a))
+* ampliar especialistas de estrategia y enrutado inteligente ([#72](https://github.com/warante/QA_FlowKit/issues/72)) ([733e9bd](https://github.com/warante/QA_FlowKit/commit/733e9bda02e34e553ecd35977873f57fdc34e2d4))
+* segunda iteración de enrutado de especialistas QA ([#74](https://github.com/warante/QA_FlowKit/issues/74)) ([9222d0d](https://github.com/warante/QA_FlowKit/commit/9222d0dd8f6c9feff0508935367bff98afd55f85))
+
 ## [1.0.0-rc.4](https://github.com/warante/QA_FlowKit/compare/v1.0.0-rc.3...v1.0.0-rc.4) (2026-06-30)
 
 
