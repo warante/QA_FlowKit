@@ -1,5 +1,17 @@
-/** Root directory for generated QA workflow artifacts in target repositories. */
-export const QA_OUTPUT_DIR = 'qa-ai-output';
+import {
+  COMPACT_FEATURES_DIR,
+  COMPACT_OUTPUT_DIR,
+  COMPACT_TESTS_DIR,
+  LEGACY_FEATURES_DIR,
+  LEGACY_OUTPUT_DIR,
+  LEGACY_TESTS_DIR
+} from './project-paths.mjs';
+
+/** Default root directory for generated QA workflow artifacts in new target repositories. */
+export const QA_OUTPUT_DIR = COMPACT_OUTPUT_DIR;
+
+/** Legacy output directory kept for backward-compatible alias resolution. */
+export const LEGACY_QA_OUTPUT_DIR = LEGACY_OUTPUT_DIR;
 
 /** Default relative artifact paths under {@link QA_OUTPUT_DIR}. */
 export const ARTIFACT_PATHS = {
@@ -34,10 +46,39 @@ export const ARTIFACT_PATHS = {
   importedCases: `${QA_OUTPUT_DIR}/imported-cases.md`
 };
 
+export const DEFAULT_FEATURE_PATH = COMPACT_FEATURES_DIR;
+export const DEFAULT_TESTS_ROOT = COMPACT_TESTS_DIR;
+
 export const DEFAULT_TEST_MANAGEMENT_SYNC_PLAN_PATH = ARTIFACT_PATHS.testManagementSyncPlan;
 
-/** Backward-compatible artifact path aliases (old testrail-* names → test-management-* names). */
-export const LEGACY_ARTIFACT_ALIASES = new Map([
-  ['qa-ai-output/testrail-sync-plan.md', ARTIFACT_PATHS.testManagementSyncPlan],
-  ['qa-ai-output/testrail-coverage-analysis.md', ARTIFACT_PATHS.testManagementCoverage]
-]);
+function legacyArtifactAliases() {
+  const aliases = new Map([
+    ['qa-ai-output/testrail-sync-plan.md', ARTIFACT_PATHS.testManagementSyncPlan],
+    ['qa-ai-output/testrail-coverage-analysis.md', ARTIFACT_PATHS.testManagementCoverage]
+  ]);
+
+  for (const [, value] of Object.entries(ARTIFACT_PATHS)) {
+    const legacyPath = value.replace(`${COMPACT_OUTPUT_DIR}/`, `${LEGACY_OUTPUT_DIR}/`);
+    if (legacyPath !== value) {
+      aliases.set(legacyPath, value);
+    }
+  }
+
+  return aliases;
+}
+
+/** Backward-compatible artifact path aliases (legacy qa-ai-output/* and old testrail-* names). */
+export const LEGACY_ARTIFACT_ALIASES = legacyArtifactAliases();
+
+/**
+ * Resolve an artifact path in the same directory as a configured reference path.
+ * Keeps legacy and compact output roots aligned when only one artifact path is configured.
+ */
+export function siblingArtifactPath(referencePath, fileName) {
+  const normalized = String(referencePath || '').replaceAll('\\', '/');
+  const slash = normalized.lastIndexOf('/');
+  if (slash === -1) return fileName;
+  return `${normalized.slice(0, slash)}/${fileName}`;
+}
+
+export { LEGACY_FEATURES_DIR, LEGACY_OUTPUT_DIR, LEGACY_TESTS_DIR };

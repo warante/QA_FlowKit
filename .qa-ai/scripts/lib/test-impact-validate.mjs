@@ -23,7 +23,8 @@ export async function validateTestImpact(cwd, options = {}) {
 
   const matrixPath =
     options.matrixPath || getConfigValue(config, 'traceability.matrixPath', ARTIFACT_PATHS.traceabilityMatrix);
-  const reportPath = options.reportPath || ARTIFACT_PATHS.testImpactAnalysis;
+  const reportPath =
+    options.reportPath || getConfigValue(config, 'testImpact.analysisPath', ARTIFACT_PATHS.testImpactAnalysis);
   const allowMissing = options.allowMissing !== undefined ? options.allowMissing : false;
 
   const reportAbsPath = resolveRepoPath(cwd, reportPath, { label: 'test impact analysis report' });

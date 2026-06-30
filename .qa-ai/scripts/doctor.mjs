@@ -10,6 +10,7 @@ import {
 import { addAutomationChecks } from './lib/doctor/automation-checks.mjs';
 import { runConfigChecks } from './lib/doctor/config-checks.mjs';
 import { runHooksChecks } from './lib/doctor/hooks-checks.mjs';
+import { runLayoutChecks } from './lib/doctor/layout-checks.mjs';
 import { printFinalResult, printNextSteps, runPathChecks } from './lib/doctor/report.mjs';
 
 const cwd = process.cwd();
@@ -42,6 +43,9 @@ async function main() {
   failed += contractResults.failed;
 
   if (configInfo.exists) {
+    const layoutResults = await runLayoutChecks(cwd, configInfo);
+    warned += layoutResults.warned;
+
     const configResults = await runConfigChecks(cwd, configInfo);
     failed += configResults.failed;
     warned += configResults.warned;

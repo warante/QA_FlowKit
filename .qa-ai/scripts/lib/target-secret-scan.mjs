@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import { karateSecretScanRoots, usesKarate } from './automation-framework.mjs';
 import { scanPathsForSecrets } from './secret-patterns.mjs';
-import { QA_OUTPUT_DIR } from './artifact-paths.mjs';
+import { DEFAULT_FEATURE_PATH, QA_OUTPUT_DIR } from './artifact-paths.mjs';
 import { getConfigValue, listFilesRecursive, pathExists, relativeTo, resolveRepoPath } from './utils.mjs';
 
 function shouldScanFile(filePath) {
@@ -12,7 +12,7 @@ function shouldScanFile(filePath) {
 export async function collectTargetSecretScanFiles(cwd, config) {
   const dirs = [
     QA_OUTPUT_DIR,
-    getConfigValue(config, 'gherkin.featurePath', 'features'),
+    getConfigValue(config, 'gherkin.featurePath', DEFAULT_FEATURE_PATH),
     getConfigValue(config, 'automation.mobile.flowsPath', ''),
     ...(usesKarate(config) ? karateSecretScanRoots(config) : [])
   ].filter(Boolean);

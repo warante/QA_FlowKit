@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
+import { COMPACT_CONFIG_PATH } from '../../.qa-ai/scripts/lib/project-paths.mjs';
+import { DEFAULT_FEATURE_PATH, QA_OUTPUT_DIR } from '../../.qa-ai/scripts/lib/artifact-paths.mjs';
 import { runSourceCli } from './lib/ci-helpers.mjs';
 
 function parseJsonObjectFromOutput(output) {
@@ -18,7 +20,7 @@ async function initTarget(prefix = 'qa-flowkit-adversarial-') {
 }
 
 async function replaceConfigValue(cwd, search, replacement) {
-  const configPath = path.join(cwd, 'qa-ai.config.yaml');
+  const configPath = path.join(cwd, COMPACT_CONFIG_PATH);
   const content = await fs.readFile(configPath, 'utf8');
   assert.ok(content.includes(search), `Config did not contain expected text: ${search}`);
   await fs.writeFile(configPath, content.replace(search, replacement), 'utf8');
@@ -39,7 +41,7 @@ async function assertSymlinkEscapeRejected() {
       throw error;
     }
 
-    await replaceConfigValue(target, 'featurePath: features', 'featurePath: features-linked');
+    await replaceConfigValue(target, `featurePath: ${DEFAULT_FEATURE_PATH}`, 'featurePath: features-linked');
     const result = runSourceCli(target, ['run', 'start', '--rf', 'RF-LINK'], { expectFailure: true });
     assert.match(`${result.stdout}\n${result.stderr}`, /inside the repository|must stay/i);
   } finally {
@@ -51,7 +53,7 @@ async function assertSymlinkEscapeRejected() {
 async function assertPathTraversalRejected() {
   const target = await initTarget();
   try {
-    await replaceConfigValue(target, 'featurePath: features', 'featurePath: ../outside');
+    await replaceConfigValue(target, `featurePath: ${DEFAULT_FEATURE_PATH}`, 'featurePath: ../outside');
     const result = runSourceCli(target, ['run', 'start', '--rf', 'RF-PATH'], { expectFailure: true });
     assert.match(`${result.stdout}\n${result.stderr}`, /inside the repository|must stay/i);
   } finally {
@@ -63,8 +65,8 @@ async function assertSecretScanFailsWithoutLeakingValue() {
   const target = await initTarget();
   const secret = 'ghp_abcdefghijklmnopqrstuvwxyz1234567890abcd';
   try {
-    await fs.mkdir(path.join(target, 'qa-ai-output'), { recursive: true });
-    await fs.writeFile(path.join(target, 'qa-ai-output', 'requirement-analysis.md'), `operator token: ${secret}\n`);
+    await fs.mkdir(path.join(target, QA_OUTPUT_DIR), { recursive: true });
+    await fs.writeFile(path.join(target, QA_OUTPUT_DIR, 'requirement-analysis.md'), `operator token: ${secret}\n`);
     const result = runSourceCli(
       target,
       [
@@ -114,7 +116,7 @@ async function assertCorruptActiveStateDoesNotBreakHelp() {
 async function assertCleanDoesNotDeleteWithoutForceAndSkipsUnsafeManifestPath() {
   const target = await initTarget();
   try {
-    const generatedPath = path.join(target, 'qa-ai-output', 'generated.md');
+    const generatedPath = path.join(target, QA_OUTPUT_DIR, 'generated.md');
     await fs.writeFile(generatedPath, '# generated\n');
     await fs.mkdir(path.join(target, '.qa-ai', 'state'), { recursive: true });
     await fs.writeFile(
@@ -124,7 +126,7 @@ async function assertCleanDoesNotDeleteWithoutForceAndSkipsUnsafeManifestPath() 
           version: 1,
           entries: [
             {
-              path: 'qa-ai-output/generated.md',
+              path: `${QA_OUTPUT_DIR}/generated.md`,
               type: 'file',
               category: 'generated',
               source: 'test'

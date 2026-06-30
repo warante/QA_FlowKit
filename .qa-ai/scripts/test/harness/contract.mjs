@@ -22,12 +22,12 @@ test('renderBlocker covers all blocker types in English and Spanish', () => {
       type: 'modification',
       gate: 'modify-existing:intake',
       phaseName: 'Requirements intake',
-      paths: ['qa-ai-output/requirement-analysis.md']
+      paths: ['.qa-ai/output/requirement-analysis.md']
     },
     'missing-inputs': {
       type: 'missing-inputs',
       phaseName: 'Requirements normalization',
-      missing: ['qa-ai-output/requirement-analysis.md']
+      missing: ['.qa-ai/output/requirement-analysis.md']
     }
   };
 
@@ -56,7 +56,7 @@ test('contract rejects unknown validator and unsafe paths', async () => {
           name: 'Intake',
           guidance: ['../outside.md'],
           inputs: [],
-          outputs: [{ path: 'qa-ai-output/x.md' }],
+          outputs: [{ path: '.qa-ai/output/x.md' }],
           entryApprovals: [],
           validators: ['unknown-validator'],
           skipConditions: [],

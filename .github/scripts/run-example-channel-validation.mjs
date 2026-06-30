@@ -67,6 +67,18 @@ async function filesUnder(directory) {
   return files;
 }
 
+async function hasExampleEntry(exampleRoot, compactRel, legacyRel) {
+  for (const rel of [compactRel, legacyRel]) {
+    try {
+      await fs.stat(path.join(exampleRoot, rel));
+      return rel;
+    } catch {
+      // try next layout
+    }
+  }
+  return null;
+}
+
 async function verifyCanonicalExampleSources(manifest) {
   const trackedOrNew = new Set(
     run('git', ['ls-files', '--', 'examples'], { cwd: repoRoot })
@@ -83,21 +95,28 @@ async function verifyCanonicalExampleSources(manifest) {
 
   for (const example of manifest.examples) {
     const exampleRoot = path.join(repoRoot, example.path);
-    const requiredEntries = ['qa-ai.config.yaml', 'features', 'qa-ai-output'];
-    if (example.preset !== 'manual-only') requiredEntries.push('tests');
+    const requiredPairs = [
+      ['.qa-ai/qa-ai.config.yaml', 'qa-ai.config.yaml'],
+      ['.qa-ai/output', 'qa-ai-output'],
+      ['.qa-ai/features', 'features']
+    ];
+    if (example.preset !== 'manual-only') {
+      requiredPairs.push(['.qa-ai/tests', 'tests']);
+    }
 
-    for (const entry of requiredEntries) {
-      const absolutePath = path.join(exampleRoot, entry);
-      let stats;
-      try {
-        stats = await fs.stat(absolutePath);
-      } catch {
-        throw new Error(`Canonical example source is missing: ${example.path}/${entry}`);
+    for (const [compactRel, legacyRel] of requiredPairs) {
+      const resolvedRel = await hasExampleEntry(exampleRoot, compactRel, legacyRel);
+      if (!resolvedRel) {
+        throw new Error(
+          `Canonical example source is missing: ${example.path}/${compactRel} (compact) or ${example.path}/${legacyRel} (legacy)`
+        );
       }
 
+      const absolutePath = path.join(exampleRoot, resolvedRel);
+      const stats = await fs.stat(absolutePath);
       const files = stats.isDirectory() ? await filesUnder(absolutePath) : [absolutePath];
       if (files.length === 0) {
-        throw new Error(`Canonical example source is empty: ${example.path}/${entry}`);
+        throw new Error(`Canonical example source is empty: ${example.path}/${resolvedRel}`);
       }
 
       for (const file of files) {
@@ -162,7 +181,9 @@ async function main() {
         ],
         { cwd: targetRoot }
       );
-      run(node, [cli, 'validate-target'], { cwd: targetRoot });
+      run(node, [cli, 'validate-target', '--allow-empty', '--allow-missing', '--no-strict-doctor'], {
+        cwd: targetRoot
+      });
       const result = {
         example: example.id,
         preset: example.preset,

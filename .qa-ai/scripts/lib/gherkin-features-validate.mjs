@@ -2,6 +2,7 @@ import { DEFAULT_REQUIRED_TAGS } from './gherkin-constants.mjs';
 import { validateFeatureFilePlacement } from './feature-layout.mjs';
 import { duplicateIdErrors, normalizeLanguage, validateFeatureContent } from './gherkin-validate.mjs';
 import { getConfigValue, loadQaAiConfig, relativeTo, resolveRepoPath } from './utils.mjs';
+import { DEFAULT_FEATURE_PATH } from './artifact-paths.mjs';
 import { listCollectionFiles, validateCollection } from './collection-validator.mjs';
 
 /**
@@ -9,7 +10,7 @@ import { listCollectionFiles, validateCollection } from './collection-validator.
  */
 export async function validateDesignFeatures(cwd, options = {}) {
   const configInfo = await loadQaAiConfig(cwd);
-  const featureRoot = options.path || getConfigValue(configInfo.data, 'gherkin.featurePath', 'features');
+  const featureRoot = options.path || getConfigValue(configInfo.data, 'gherkin.featurePath', DEFAULT_FEATURE_PATH);
   const language = normalizeLanguage(
     options.gherkinLanguage || getConfigValue(configInfo.data, 'gherkin.language', 'en')
   );

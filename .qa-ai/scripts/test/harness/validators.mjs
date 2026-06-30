@@ -11,7 +11,14 @@ import {
   runPhaseValidators
 } from '../../lib/harness-validation.mjs';
 import { approveGate, checkPhase, setRfId, startRun } from '../../lib/harness-controller.mjs';
-import { advanceToPhase, node, prepareRepo, writeCustomValidator, writeValidGherkinFeature } from './_shared.mjs';
+import {
+  advanceToPhase,
+  configRelPath,
+  node,
+  prepareRepo,
+  writeCustomValidator,
+  writeValidGherkinFeature
+} from './_shared.mjs';
 
 test('approval note with secrets is rejected', () => {
   assert.throws(() => assertNoteHasNoSecrets('token: ghp_abcdefghijklmnopqrstuvwxyz1234567890abcd'), /secret/i);
@@ -56,7 +63,7 @@ test('checkPhase records warning events for non-blocking custom validator failur
   try {
     await writeCustomValidator(cwd, { exitCode: 1, ok: false });
     await fs.appendFile(
-      path.join(cwd, 'qa-ai.config.yaml'),
+      path.join(cwd, configRelPath),
       [
         'validators:',
         '  custom:',
@@ -96,7 +103,7 @@ test('validate-target --json includes custom validator results', async () => {
   try {
     await writeCustomValidator(cwd, { exitCode: 1, ok: false });
     await fs.appendFile(
-      path.join(cwd, 'qa-ai.config.yaml'),
+      path.join(cwd, configRelPath),
       [
         'validators:',
         '  custom:',

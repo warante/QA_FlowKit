@@ -14,6 +14,7 @@ import {
   resolveRepoPath,
   resolveTestManagementSyncPlanPath
 } from './utils.mjs';
+import { DEFAULT_FEATURE_PATH } from './artifact-paths.mjs';
 
 const writeClaimPattern =
   /\b(?:created|updated|deleted|synced|archived|creado|actualizado|eliminado|sincronizado|archivado)\s+(?:in|to|from|en|a|de)\s+(?:testrail|zephyr|xray|jira)\b/i;
@@ -91,7 +92,7 @@ async function validateMappingFile(cwd, config, errors) {
  */
 export async function validateSyncPlan(cwd, options = {}) {
   const configInfo = await loadQaAiConfig(cwd);
-  const featureRoot = options.features || getConfigValue(configInfo.data, 'gherkin.featurePath', 'features');
+  const featureRoot = options.features || getConfigValue(configInfo.data, 'gherkin.featurePath', DEFAULT_FEATURE_PATH);
   const resolvedSyncPlan = options.path
     ? { path: options.path, absPath: resolveRepoPath(cwd, options.path, { label: 'sync plan' }), isLegacy: false }
     : await resolveTestManagementSyncPlanPath(cwd, configInfo.data);

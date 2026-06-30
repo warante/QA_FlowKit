@@ -1,7 +1,7 @@
 import { validateTestDesignProposal, validateTestDesignSystem } from './test-design.mjs';
 import { featureCoverageRecord, validateAiCoverage } from './test-coverage.mjs';
 import { getConfigValue, listFilesRecursive, loadQaAiConfig, pathExists, readText, resolveRepoPath } from './utils.mjs';
-import { ARTIFACT_PATHS } from './artifact-paths.mjs';
+import { ARTIFACT_PATHS, DEFAULT_FEATURE_PATH, siblingArtifactPath } from './artifact-paths.mjs';
 
 async function validateFile(cwd, filePath, validator, options = {}) {
   const absolute = resolveRepoPath(cwd, filePath, { label: 'test design file' });
@@ -26,7 +26,7 @@ export async function validateTestDesignArtifacts(cwd, options = {}) {
   const proposalPath =
     options.proposalPath || getConfigValue(config, 'testDesign.proposalPath', ARTIFACT_PATHS.testDesignProposal);
 
-  const normalizedPath = options.normalizedPath || ARTIFACT_PATHS.normalizedRequirements;
+  const normalizedPath = options.normalizedPath || siblingArtifactPath(proposalPath, 'normalized-requirements.md');
   const normalizedAbsolute = resolveRepoPath(cwd, normalizedPath, { label: 'normalized requirements' });
   const normalizedContent = (await pathExists(normalizedAbsolute)) ? await readText(normalizedAbsolute) : '';
   const coverageMode = String(getConfigValue(config, 'testDesign.coverage.mode', 'off')).toLowerCase();
@@ -53,7 +53,7 @@ export async function validateTestDesignArtifacts(cwd, options = {}) {
   const aiRequiredTechniques = getConfigValue(config, 'aiTesting.requiredTechniques', []);
   let aiCoverage = { ok: true, findings: [], errors: [], warnings: [] };
   if (aiTestingEnabled) {
-    const featurePath = getConfigValue(config, 'gherkin.featurePath', 'features');
+    const featurePath = getConfigValue(config, 'gherkin.featurePath', DEFAULT_FEATURE_PATH);
     const featureRootPath = resolveRepoPath(cwd, featurePath, { label: 'feature root' });
     let featureFiles;
     try {

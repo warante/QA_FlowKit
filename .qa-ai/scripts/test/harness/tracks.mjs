@@ -7,7 +7,7 @@ import { getPhaseSkipReason, getTrackPhaseOrder, loadWorkflowContract } from '..
 import { checkPhase, getActiveRunSnapshot, getRunStatus, startRun } from '../../lib/harness-controller.mjs';
 import { writeRunSnapshot } from '../../lib/harness-run-store.mjs';
 import { parseSimpleYaml } from '../../lib/utils.mjs';
-import { prepareRepo, writeValidQualityReport } from './_shared.mjs';
+import { prepareRepo, configRelPath, writeValidQualityReport } from './_shared.mjs';
 
 test('quick track skips test-management and automation phases', async () => {
   const cwd = await prepareRepo('quick');
@@ -111,7 +111,7 @@ test('context phase skipped when knowledge disabled', async () => {
   const cwd = await prepareRepo('standard', { knowledge: { enabled: false } });
   try {
     const contract = await loadWorkflowContract(cwd);
-    const config = parseSimpleYaml(await fs.readFile(path.join(cwd, 'qa-ai.config.yaml'), 'utf8'));
+    const config = parseSimpleYaml(await fs.readFile(path.join(cwd, configRelPath), 'utf8'));
     const contextPhase = contract.phases.find((phase) => phase.id === 'context');
     assert.equal(getPhaseSkipReason(config, contextPhase), 'knowledge.enabled is false');
   } finally {

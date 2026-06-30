@@ -13,12 +13,12 @@ agents:
   specialistMode: auto
 sources:
   main: markdown
-  analysisPath: qa-ai-output/source-analysis.md
+  analysisPath: .qa-ai/output/source-analysis.md
 knowledge:
   enabled: false
   sourcePath: ''
-  summaryPath: qa-ai-output/qa-knowledge-summary.md
-  decisionsPath: qa-ai-output/qa-init-decisions.md
+  summaryPath: .qa-ai/output/qa-knowledge-summary.md
+  decisionsPath: .qa-ai/output/qa-init-decisions.md
 requirements:
   requireOfficialRfId: true
   inferredAcceptanceCriteria: require-approval
@@ -27,7 +27,7 @@ gherkin:
   oneScenarioPerFile: true
   requireAcceptanceCriteria: true
   manualTestsNeedFeatureFile: true
-  featurePath: features
+  featurePath: .qa-ai/features
   tags:
     required:
       - priority
@@ -40,15 +40,15 @@ testrail:
   allowCreateCases: true
   allowUpdateCases: approval-only
   allowDeleteCases: never
-  mappingFile: qa-ai-output/test-management-mapping.json
+  mappingFile: .qa-ai/output/test-management-mapping.json
 automation:
   ui:
     framework: playwright
-    specsPath: tests/playwright/ui
-    pageObjectsPath: tests/playwright/pages
+    specsPath: .qa-ai/tests/playwright/ui
+    pageObjectsPath: .qa-ai/tests/playwright/pages
   api:
     framework: playwright
-    specsPath: tests/playwright/api
+    specsPath: .qa-ai/tests/playwright/api
   mobile:
     framework: none
   strategy:
@@ -56,8 +56,8 @@ automation:
     requireProposalBeforeImplementation: true
     allowModifyExistingTests: approval-only
 testDesign:
-  systemPath: qa-ai-output/test-design-system.md
-  proposalPath: qa-ai-output/test-design-proposal.md
+  systemPath: .qa-ai/output/test-design-system.md
+  proposalPath: .qa-ai/output/test-design-proposal.md
   coverage:
     mode: advisory
     requirePositive: true
@@ -70,15 +70,15 @@ testDesign:
     requireTechniqueTraceability: false
   quality:
     mode: off
-    reportPath: qa-ai-output/gherkin-quality-report.md
+    reportPath: .qa-ai/output/gherkin-quality-report.md
     minDimensionsPassed: 7
   strategyRouting:
     mode: advisory
     includeKeywordSignals: true
 traceability:
-  matrixPath: qa-ai-output/traceability-matrix.md
+  matrixPath: .qa-ai/output/traceability-matrix.md
 release:
-  gatePath: qa-ai-output/release-gate.yaml
+  gatePath: .qa-ai/output/release-gate.yaml
 approval:
   beforeExternalWrite: true
   beforeExistingFileModification: true
@@ -92,10 +92,10 @@ commands:
   testQA: npm run test:qa
 testManagementSync:
   mode: proposal-only
-  diffPath: qa-ai-output/test-management-sync-diff.md
-  applyLogPath: qa-ai-output/test-management-apply-log.md
-  rollbackPath: qa-ai-output/test-management-rollback-plan.md
-  remoteSnapshotPath: qa-ai-output/test-management-remote-snapshot.md
+  diffPath: .qa-ai/output/test-management-sync-diff.md
+  applyLogPath: .qa-ai/output/test-management-apply-log.md
+  rollbackPath: .qa-ai/output/test-management-rollback-plan.md
+  remoteSnapshotPath: .qa-ai/output/test-management-remote-snapshot.md
 aiTesting:
   enabled: false
   requiredTechniques:

@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { ARTIFACT_PATHS } from '../artifact-paths.mjs';
+import { ARTIFACT_PATHS, DEFAULT_FEATURE_PATH } from '../artifact-paths.mjs';
 import { getConfigValue, LEGACY_ARTIFACT_ALIASES, pathExists } from '../utils.mjs';
 import { FEATURE_SUBFOLDERS } from '../feature-layout.mjs';
 import { normalizeQaTrack } from '../qa-next-steps.mjs';
@@ -66,7 +66,7 @@ function addWorkflowArtifactChecks(checks, config, strict) {
 }
 
 export function addArtifactChecks(checks, config, strict) {
-  const featurePath = getConfigValue(config, 'gherkin.featurePath', 'features');
+  const featurePath = getConfigValue(config, 'gherkin.featurePath', DEFAULT_FEATURE_PATH);
   const matrixPath = getConfigValue(config, 'traceability.matrixPath', ARTIFACT_PATHS.traceabilityMatrix);
   const mappingFile = getTestManagementMappingFile(config);
   const knowledgeEnabled = isEnabled(getConfigValue(config, 'knowledge.enabled', false));

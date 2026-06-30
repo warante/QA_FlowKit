@@ -78,7 +78,7 @@ Examples:
   npx qa-flowkit run retry --json
   npx qa-flowkit validate-target --allow-empty --allow-missing --no-strict-doctor
   npx qa-flowkit config --export .qa-ai/config-profiles/team.yaml
-  npx qa-flowkit export-report --format allure --out qa-ai-output/reports/allure
+  npx qa-flowkit export-report --format allure --out .qa-ai/output/reports/allure
   npx qa-flowkit metrics --json
 `);
 }
@@ -99,7 +99,7 @@ async function assertPackagedFramework() {
 }
 
 async function assertTargetFramework(command) {
-  if (!(await pathExists(path.join(targetFramework, 'scripts')))) {
+  if (!(await frameworkIsInstalled())) {
     console.error(`Missing .qa-ai framework folder. Run "qa-flowkit init" before "qa-flowkit ${command}".`);
     process.exit(1);
   }
@@ -117,12 +117,17 @@ function runNodeScript(scriptName, args = [], { allowWarnings = false } = {}) {
   return status;
 }
 
-async function copyPackagedFramework(target) {
+async function frameworkIsInstalled() {
+  return pathExists(path.join(targetFramework, 'scripts', 'init.mjs'));
+}
+
+async function copyPackagedFramework(target, { merge = false } = {}) {
   await fs.cp(packagedFramework, target, {
     recursive: true,
-    force: false,
-    errorOnExist: true
+    force: merge,
+    errorOnExist: !merge
   });
+  await fs.rm(path.join(target, 'state', 'init-manifest.json'), { force: true });
 }
 
 async function copyIfExists(source, target) {
@@ -148,17 +153,35 @@ async function selectedExistingAdapters() {
 
 async function init(args) {
   await assertPackagedFramework();
-  if (await pathExists(targetFramework)) {
+  if (await frameworkIsInstalled()) {
     console.error('A .qa-ai framework folder already exists in this repository.');
     console.error('Run "qa-flowkit update" to refresh it, or remove it intentionally before running init.');
     process.exit(1);
   }
 
-  await copyPackagedFramework(targetFramework);
+  const mergeIntoExisting = await pathExists(targetFramework);
+  if (mergeIntoExisting) {
+    await fs.mkdir(targetFramework, { recursive: true });
+  }
+  await copyPackagedFramework(targetFramework, { merge: mergeIntoExisting });
   const packageJson = JSON.parse(await fs.readFile(path.join(packageRoot, 'package.json'), 'utf8'));
   runNodeScript('init.mjs', [...withoutCliOnlyFlags(args), '--package-version', packageJson.version]);
   if (!hasFlag(args, 'skip-doctor')) {
     runNodeScript('doctor.mjs', [], { allowWarnings: true });
+  }
+}
+
+const USER_QA_AI_PRESERVE = ['output', 'features', 'tests', 'qa-ai.config.yaml'];
+
+async function backupUserQaAiContent(sourceFramework, backupFramework) {
+  for (const rel of USER_QA_AI_PRESERVE) {
+    await copyIfExists(path.join(sourceFramework, rel), path.join(backupFramework, rel));
+  }
+}
+
+async function restoreUserQaAiContent(sourceFramework, targetFramework) {
+  for (const rel of USER_QA_AI_PRESERVE) {
+    await restoreIfExists(path.join(sourceFramework, rel), path.join(targetFramework, rel));
   }
 }
 
@@ -184,19 +207,22 @@ async function update(args) {
   try {
     await copyIfExists(path.join(targetFramework, 'state'), path.join(backupFramework, 'state'));
     await copyIfExists(path.join(targetFramework, 'config-profiles'), path.join(backupFramework, 'config-profiles'));
+    await backupUserQaAiContent(targetFramework, backupFramework);
 
     await fs.rm(targetFramework, { recursive: true, force: true });
     await fs.cp(packagedFramework, targetFramework, { recursive: true, force: true });
+    await fs.rm(path.join(targetFramework, 'state', 'init-manifest.json'), { force: true });
 
     await restoreIfExists(path.join(backupFramework, 'state'), path.join(targetFramework, 'state'));
     await restoreIfExists(path.join(backupFramework, 'config-profiles'), path.join(targetFramework, 'config-profiles'));
+    await restoreUserQaAiContent(backupFramework, targetFramework);
   } finally {
     await fs.rm(tempRoot, { recursive: true, force: true });
   }
 
   console.log('Updated .qa-ai framework from the installed QA FlowKit package.');
   const packageJson = JSON.parse(await fs.readFile(path.join(packageRoot, 'package.json'), 'utf8'));
-  runNodeScript('init.mjs', ['--no-adapters', '--package-version', packageJson.version]);
+  runNodeScript('init.mjs', ['--no-adapters', '--skip-structure', '--package-version', packageJson.version]);
 
   const adapters = await selectedExistingAdapters();
   if (adapters.length > 0) {

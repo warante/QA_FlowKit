@@ -12,7 +12,7 @@ import {
   QA_TRACKS
 } from './harness-contract.mjs';
 import { getConfigValue, listFilesRecursive, loadQaAiConfig, parseSimpleYaml, pathExists, readText } from './utils.mjs';
-import { ARTIFACT_PATHS } from './artifact-paths.mjs';
+import { ARTIFACT_PATHS, DEFAULT_FEATURE_PATH } from './artifact-paths.mjs';
 import { normalizeGateDecision } from './release-gate.mjs';
 export { normalizeQaTrack, QA_TRACK_IDS, QA_TRACKS };
 
@@ -35,7 +35,7 @@ async function artifactExists(cwd, config, relPath) {
 }
 
 async function hasFeatureFiles(cwd, config) {
-  const featureRoot = resolveConfigPath(config, 'gherkin.featurePath') || 'features';
+  const featureRoot = resolveConfigPath(config, 'gherkin.featurePath') || DEFAULT_FEATURE_PATH;
   const files = await listFilesRecursive(path.join(cwd, featureRoot), (file) => file.endsWith('.feature'));
   return files.length > 0;
 }
@@ -414,7 +414,7 @@ function buildRecommendations({ ctx, pendingPhaseIds, completedPhaseIds, config,
     });
   }
 
-  const featurePath = resolveConfigPath(config, 'gherkin.featurePath') || 'features';
+  const featurePath = resolveConfigPath(config, 'gherkin.featurePath') || DEFAULT_FEATURE_PATH;
   if (!pendingPhaseIds.includes('gherkin') && completedPhaseIds.includes('gherkin')) {
     items.push({
       priority: 'optional',

@@ -1,5 +1,6 @@
 import path from 'node:path';
-import { pathCheck } from './report.mjs';
+import { anyPathCheck, pathCheck } from './report.mjs';
+import { COMPACT_CONFIG_PATH, LEGACY_CONFIG_PATH } from '../project-paths.mjs';
 import { validateWorkflowContract } from '../harness-contract.mjs';
 import { doctorRequiredScripts } from '../inventory-manifest.mjs';
 import {
@@ -21,7 +22,7 @@ export function buildFrameworkChecks({ isFrameworkSourceRepo, strict }) {
   const configLevel = isFrameworkSourceRepo && !strict ? 'optional' : 'required';
   const genericInstructionsLevel = isFrameworkSourceRepo ? 'required' : 'optional';
   return [
-    pathCheck(configLevel, 'config', 'qa-ai.config.yaml'),
+    anyPathCheck(configLevel, 'config', [LEGACY_CONFIG_PATH, COMPACT_CONFIG_PATH]),
     pathCheck('required', 'framework folder', '.qa-ai'),
     pathCheck('required', 'agents folder', '.qa-ai/agents'),
     pathCheck('required', 'rules folder', '.qa-ai/rules'),

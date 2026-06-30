@@ -15,7 +15,7 @@ import {
   relativeTo,
   resolveRepoPath
 } from './utils.mjs';
-import { ARTIFACT_PATHS } from './artifact-paths.mjs';
+import { ARTIFACT_PATHS, DEFAULT_FEATURE_PATH, siblingArtifactPath } from './artifact-paths.mjs';
 
 function coveragePolicy(config) {
   return {
@@ -43,7 +43,7 @@ export async function validateTestCoverage(cwd, options = {}) {
   const configInfo = await loadQaAiConfig(cwd);
   const config = configInfo.data || {};
   const mode = normalizeCoverageMode(options.mode || getConfigValue(config, 'testDesign.coverage.mode', 'off'));
-  const featureRoot = options.path || getConfigValue(config, 'gherkin.featurePath', 'features');
+  const featureRoot = options.path || getConfigValue(config, 'gherkin.featurePath', DEFAULT_FEATURE_PATH);
   const proposalPath =
     options.proposalPath || getConfigValue(config, 'testDesign.proposalPath', ARTIFACT_PATHS.testDesignProposal);
   const featureRootPath = resolveRepoPath(cwd, featureRoot, { label: 'feature root' });
@@ -58,7 +58,7 @@ export async function validateTestCoverage(cwd, options = {}) {
   }
 
   const proposalAbsolute = resolveRepoPath(cwd, proposalPath, { label: 'test design proposal' });
-  const normalizedPath = options.normalizedPath || ARTIFACT_PATHS.normalizedRequirements;
+  const normalizedPath = options.normalizedPath || siblingArtifactPath(proposalPath, 'normalized-requirements.md');
   const normalizedAbsolute = resolveRepoPath(cwd, normalizedPath, { label: 'normalized requirements' });
   let proposalContent = '';
   let normalizedContent = '';

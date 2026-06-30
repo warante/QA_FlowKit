@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { COMPACT_CONFIG_PATH } from './lib/project-paths.mjs';
+import { DEFAULT_FEATURE_PATH, QA_OUTPUT_DIR } from './lib/artifact-paths.mjs';
 import { validatePackFileList } from './lib/npm-pack-allowlist.mjs';
 import {
   assertExists,
@@ -99,9 +101,9 @@ async function main() {
     await validateCommandInteractionContract(path.join(initTarget, 'node_modules', 'qa-flowkit'));
     runCli(initTarget, ['init', '--skip-doctor']);
     await assertExists(path.join(initTarget, '.qa-ai', 'scripts', 'init.mjs'), '.qa-ai framework');
-    await assertExists(path.join(initTarget, 'qa-ai.config.yaml'), 'generated config');
-    await assertExists(path.join(initTarget, 'features'), 'features directory');
-    await assertExists(path.join(initTarget, 'qa-ai-output'), 'qa-ai-output directory');
+    await assertExists(path.join(initTarget, COMPACT_CONFIG_PATH), 'generated config');
+    await assertExists(path.join(initTarget, DEFAULT_FEATURE_PATH), 'features directory');
+    await assertExists(path.join(initTarget, QA_OUTPUT_DIR), 'output directory');
     await assertExists(path.join(initTarget, 'AGENTS.md'), 'default generic adapter');
     await assertIncludes(
       path.join(initTarget, 'AGENTS.md'),
@@ -134,7 +136,7 @@ async function main() {
     const blockedPayload = JSON.parse(blockedCheck.stdout);
     if (!blockedPayload.retryable) throw new Error('Expected validation block to be retryable.');
     runCli(initTarget, ['run', 'retry']);
-    await fs.writeFile(path.join(initTarget, 'qa-ai-output', 'requirement-analysis.md'), '# intake\n', 'utf8');
+    await fs.writeFile(path.join(initTarget, QA_OUTPUT_DIR, 'requirement-analysis.md'), '# intake\n', 'utf8');
     runCli(initTarget, ['run', 'check']);
 
     updateTarget = path.join(tempRoot, 'update-target');
@@ -146,7 +148,7 @@ async function main() {
     await fs.writeFile(path.join(updateTarget, '.qa-ai', 'state', 'keep.json'), '{}\n', 'utf8');
     await fs.writeFile(path.join(updateTarget, '.qa-ai', 'config-profiles', 'team.yaml'), 'version: 1\n', 'utf8');
     await fs.writeFile(path.join(updateTarget, '.qa-ai', 'obsolete.txt'), 'old\n', 'utf8');
-    await fs.writeFile(path.join(updateTarget, 'qa-ai-output', 'user.md'), 'USER\n', 'utf8');
+    await fs.writeFile(path.join(updateTarget, QA_OUTPUT_DIR, 'user.md'), 'USER\n', 'utf8');
     runCli(updateTarget, ['run', 'start', '--rf', 'RF-UPDATE']);
     runCli(updateTarget, ['run', 'next']);
     const activePointer = path.join(updateTarget, '.qa-ai', 'state', 'runs', 'active.json');
@@ -163,7 +165,7 @@ async function main() {
     await assertExists(path.join(updateTarget, '.qa-ai', 'state', 'keep.json'), 'preserved state');
     await assertExists(path.join(updateTarget, '.qa-ai', 'config-profiles', 'team.yaml'), 'preserved config profile');
     await assertMissing(path.join(updateTarget, '.qa-ai', 'obsolete.txt'), 'obsolete framework file');
-    await assertExists(path.join(updateTarget, 'qa-ai-output', 'user.md'), 'target output artifact');
+    await assertExists(path.join(updateTarget, QA_OUTPUT_DIR, 'user.md'), 'target output artifact');
 
     console.log('npm pack smoke tests passed.');
   } finally {

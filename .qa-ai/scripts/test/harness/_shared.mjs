@@ -6,9 +6,11 @@ import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { checkPhase, nextPhase } from '../../lib/harness-controller.mjs';
 import { hashFile } from '../../lib/utils.mjs';
-import { ARTIFACT_PATHS, QA_OUTPUT_DIR } from '../../lib/artifact-paths.mjs';
+import { ARTIFACT_PATHS, QA_OUTPUT_DIR, DEFAULT_FEATURE_PATH } from '../../lib/artifact-paths.mjs';
+import { COMPACT_CONFIG_PATH } from '../../lib/project-paths.mjs';
 import { copyFramework } from '../lib/integration-helpers.mjs';
 
+export const configRelPath = COMPACT_CONFIG_PATH;
 export const sourceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../..');
 export const cli = path.join(sourceRoot, 'bin', 'qa-flowkit.mjs');
 export const node = process.execPath;
@@ -35,7 +37,7 @@ export async function writeConfig(targetRoot, overrides = {}) {
       }
     },
     requirements: { requireOfficialRfId: true },
-    gherkin: { language: 'en', featurePath: 'features' },
+    gherkin: { language: 'en', featurePath: DEFAULT_FEATURE_PATH },
     testDesign: {
       proposalPath: ARTIFACT_PATHS.testDesignProposal,
       systemPath: ARTIFACT_PATHS.testDesignSystem,
@@ -112,8 +114,9 @@ export async function writeConfig(targetRoot, overrides = {}) {
   lines.push('');
 
   await fs.mkdir(path.join(targetRoot, QA_OUTPUT_DIR), { recursive: true });
-  await fs.mkdir(path.join(targetRoot, 'features'), { recursive: true });
-  await fs.writeFile(path.join(targetRoot, 'qa-ai.config.yaml'), lines.join('\n'), 'utf8');
+  await fs.mkdir(path.join(targetRoot, DEFAULT_FEATURE_PATH), { recursive: true });
+  await fs.mkdir(path.join(targetRoot, path.dirname(COMPACT_CONFIG_PATH)), { recursive: true });
+  await fs.writeFile(path.join(targetRoot, COMPACT_CONFIG_PATH), lines.join('\n'), 'utf8');
 }
 
 export async function prepareRepo(track = 'standard', extra = {}) {
@@ -134,7 +137,7 @@ export async function writeCustomValidator(cwd, { exitCode = 1, ok = false } = {
       '  console.log(JSON.stringify({ ok: true, findings: [] }));',
       '  process.exit(0);',
       '}',
-      `console.log(JSON.stringify({ ok: ${ok}, findings: ${ok ? '[]' : '[{ file: "features/bad.feature", message: "Custom warning", severity: "error" }]'} }));`,
+      `console.log(JSON.stringify({ ok: ${ok}, findings: ${ok ? '[]' : '[{ file: "${DEFAULT_FEATURE_PATH}/bad.feature", message: "Custom warning", severity: "error" }]'} }));`,
       `process.exit(${exitCode});`,
       ''
     ].join('\n'),
@@ -157,7 +160,10 @@ export function sleep(ms) {
   });
 }
 
-export async function writeValidGherkinFeature(cwd, relativePath = 'features/RF-9-TC-001-sample.feature') {
+export async function writeValidGherkinFeature(
+  cwd,
+  relativePath = `${DEFAULT_FEATURE_PATH}/RF-9-TC-001-sample.feature`
+) {
   const featurePath = path.join(cwd, relativePath);
   await fs.mkdir(path.dirname(featurePath), { recursive: true });
   await fs.writeFile(
@@ -176,7 +182,10 @@ Feature: Sample
   );
 }
 
-export async function writeValidQualityReport(cwd, featureRel = 'features/functional/RF-9-TC-001-sample.feature') {
+export async function writeValidQualityReport(
+  cwd,
+  featureRel = `${DEFAULT_FEATURE_PATH}/functional/RF-9-TC-001-sample.feature`
+) {
   await writeValidGherkinFeature(cwd, featureRel);
   const hash = await hashFile(path.join(cwd, featureRel));
   const dimensions = [
@@ -228,7 +237,7 @@ export async function writePhaseOutput(cwd, phaseId) {
   const outputs = {
     intake: ARTIFACT_PATHS.requirementAnalysis,
     normalize: ARTIFACT_PATHS.normalizedRequirements,
-    gherkin: 'features/sample.feature',
+    gherkin: `${DEFAULT_FEATURE_PATH}/sample.feature`,
     traceability: ARTIFACT_PATHS.traceabilityMatrix,
     pr: ARTIFACT_PATHS.prSummary
   };

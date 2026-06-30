@@ -41,20 +41,24 @@ async function main() {
     assert.equal(started.track, 'quick');
 
     assertPhase(jsonOutput(runSourceCli(target, ['run', 'next', '--json']), 'intake next'), 'intake');
-    await copyFixture('expected/qa-ai-output/requirement-analysis.md', target, 'qa-ai-output/requirement-analysis.md');
+    await copyFixture('expected/qa-ai-output/requirement-analysis.md', target, '.qa-ai/output/requirement-analysis.md');
     assert.equal(jsonOutput(runSourceCli(target, ['run', 'check', '--json']), 'intake check').ok, true);
 
     assertPhase(jsonOutput(runSourceCli(target, ['run', 'next', '--json']), 'normalize next'), 'normalize');
     await copyFixture(
       'expected/qa-ai-output/normalized-requirements.md',
       target,
-      'qa-ai-output/normalized-requirements.md'
+      '.qa-ai/output/normalized-requirements.md'
     );
     assert.equal(jsonOutput(runSourceCli(target, ['run', 'check', '--json']), 'normalize check').ok, true);
 
     runSourceCli(target, ['run', 'approve', 'test-design', '--note', 'RF-101 quick-path design approved', '--json']);
     assertPhase(jsonOutput(runSourceCli(target, ['run', 'next', '--json']), 'gherkin next'), 'gherkin');
-    await copyFixture('invalid/RF-101-TC-001-login.feature', target, 'features/functional/RF-101-TC-001-login.feature');
+    await copyFixture(
+      'invalid/RF-101-TC-001-login.feature',
+      target,
+      '.qa-ai/features/functional/RF-101-TC-001-login.feature'
+    );
 
     const failedGherkin = jsonOutput(
       runSourceCli(target, ['run', 'check', '--json'], { expectFailure: true }),
@@ -68,17 +72,17 @@ async function main() {
     await copyFixture(
       'expected/features/functional/RF-101-TC-001-login.feature',
       target,
-      'features/functional/RF-101-TC-001-login.feature'
+      '.qa-ai/features/functional/RF-101-TC-001-login.feature'
     );
     assert.equal(jsonOutput(runSourceCli(target, ['run', 'check', '--json']), 'corrected Gherkin check').ok, true);
     console.log('[PASS] corrected Gherkin passed');
 
     assertPhase(jsonOutput(runSourceCli(target, ['run', 'next', '--json']), 'traceability next'), 'traceability');
-    await copyFixture('expected/qa-ai-output/traceability-matrix.md', target, 'qa-ai-output/traceability-matrix.md');
+    await copyFixture('expected/qa-ai-output/traceability-matrix.md', target, '.qa-ai/output/traceability-matrix.md');
     assert.equal(jsonOutput(runSourceCli(target, ['run', 'check', '--json']), 'traceability check').ok, true);
 
     assertPhase(jsonOutput(runSourceCli(target, ['run', 'next', '--json']), 'PR next'), 'pr');
-    await copyFixture('expected/qa-ai-output/pr-summary.md', target, 'qa-ai-output/pr-summary.md');
+    await copyFixture('expected/qa-ai-output/pr-summary.md', target, '.qa-ai/output/pr-summary.md');
     const finalCheck = jsonOutput(runSourceCli(target, ['run', 'check', '--json']), 'PR check');
     assert.equal(finalCheck.ok, true);
     assert.equal(finalCheck.status, 'completed');

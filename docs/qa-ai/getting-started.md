@@ -184,24 +184,18 @@ node .qa-ai/scripts/init.mjs --preset manual-only --interface-language en --gher
 
 Use `--interface-language es --gherkin-language es` if your team writes requirements and Gherkin in Spanish.
 
-What this creates:
+What this creates (compact layout):
 
 ```text
-qa-ai.config.yaml
-qa-ai-output/
-features/
-  accessibility/.gitkeep
-  api/.gitkeep
-  e2e/.gitkeep
-  functional/.gitkeep
-  integration/.gitkeep
-  manual/.gitkeep
-  security/.gitkeep
+.qa-ai/qa-ai.config.yaml
+.qa-ai/output/
+.qa-ai/features/
 AGENTS.md
 ```
 
-No `tests/` folder is created because `manual-only` sets all automation frameworks to `none`.
-Use `--no-feature-folders` only if your repository intentionally manages the `features/<category>/` layout itself.
+Feature type subfolders (`functional/`, `api/`, etc.) are created lazily when the first `.feature` file is written, not during `init`.
+No root-level `qa-ai.config.yaml`, `qa-ai-output/`, `features/` or `tests/` folders are created by default.
+Legacy root layouts remain supported when already present or explicitly configured.
 
 **Step 3 — Verify setup**
 

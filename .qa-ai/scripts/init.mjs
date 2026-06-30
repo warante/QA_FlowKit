@@ -14,6 +14,7 @@ import { printHelp } from './lib/init/help.mjs';
 import { availablePresets, isKarateConfigured } from './lib/init/presets.mjs';
 import { derivedProjectName, selectedQaContextPath } from './lib/init/project-name.mjs';
 import {
+  COMPACT_CONFIG_PATH,
   ensureDir,
   getConfigValue,
   loadQaAiConfig,
@@ -25,6 +26,7 @@ import {
   recordManifestEntries,
   readText,
   relativeTo,
+  resolveQaAiConfigPath,
   resolveRepoPath,
   writeFileSafe,
   logHeader
@@ -36,6 +38,7 @@ const force = Boolean(args.force);
 const withDocTemplates = Boolean(args['with-doc-templates'] || args.withDocTemplates);
 const withTestManagementMapping = Boolean(args['with-test-management-mapping'] || args.withTestManagementMapping);
 const withFeatureFolders = !(args['no-feature-folders'] || args.noFeatureFolders);
+const skipStructure = Boolean(args['skip-structure'] || args.skipStructure);
 const withCi = args['with-ci'] || args.withCi;
 const presetName = args.preset || 'playwright-full';
 const withKarateConfig = Boolean(args['with-karate-config'] || args.withKarateConfig || presetName === 'karate-full');
@@ -95,7 +98,9 @@ async function main() {
 
   const adapters = await selectedAdapters(cwd, args);
 
-  const configPath = path.join(cwd, 'qa-ai.config.yaml');
+  const resolvedConfig = await resolveQaAiConfigPath(cwd);
+  const configPath = resolvedConfig.source === 'missing' ? path.join(cwd, COMPACT_CONFIG_PATH) : resolvedConfig.absPath;
+  const configRelPath = resolvedConfig.source === 'missing' ? COMPACT_CONFIG_PATH : resolvedConfig.path;
   const projectName = await derivedProjectName(cwd, args);
   console.log(`Using project name: ${projectName}`);
   const configContent = personalizeConfig({
@@ -125,24 +130,27 @@ async function main() {
   const effectiveConfigContent = configWrite.written ? configContent : (await loadQaAiConfig(cwd)).content;
   const config = parseSimpleYaml(effectiveConfigContent);
 
-  const dirs = configuredDirs(config);
-
   const dirResults = [];
-  for (const dir of [...dirs].filter(Boolean).sort()) {
-    const result = await ensureDir(resolveRepoPath(cwd, dir, { label: `configured directory "${dir}"` }));
-    dirResults.push(result);
-    if (result.created) {
-      manifestEntries.push(
-        await manifestEntry(cwd, result.path, {
-          type: 'dir',
-          category: 'generated',
-          source: 'init'
-        })
-      );
+  if (!skipStructure) {
+    const dirs = configuredDirs(config);
+    for (const dir of [...dirs].filter(Boolean).sort()) {
+      const result = await ensureDir(resolveRepoPath(cwd, dir, { label: `configured directory "${dir}"` }));
+      dirResults.push(result);
+      if (result.created) {
+        manifestEntries.push(
+          await manifestEntry(cwd, result.path, {
+            type: 'dir',
+            category: 'generated',
+            source: 'init'
+          })
+        );
+      }
     }
-  }
 
-  await createFeatureFolders({ cwd, withFeatureFolders, config, manifestEntries, dirResults, writes });
+    await createFeatureFolders({ withFeatureFolders });
+  } else {
+    console.log('\nSkipping configured directory creation (--skip-structure).');
+  }
 
   if (withDocTemplates) {
     for (const [src, dest] of generatedDocs(config)) {
@@ -168,12 +176,12 @@ async function main() {
       }
     }
   } else {
-    console.log('\nSkipping starter QA docs. Use --with-doc-templates to generate qa-ai-output/*.md templates.');
+    console.log('\nSkipping starter QA docs. Use --with-doc-templates to generate .qa-ai/output/*.md templates.');
   }
 
   const specialistsResult = await writeFileSafe(
     resolveRepoPath(cwd, '.qa-ai/agents/specialists/active.md', { label: 'active specialists index' }),
-    activeSpecialistsContent(config),
+    activeSpecialistsContent(config, 'node .qa-ai/scripts/init.mjs', configRelPath),
     { force: true }
   );
   writes.push(specialistsResult);

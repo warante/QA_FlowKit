@@ -11,9 +11,9 @@ It uses the `quick` track, has no automation runtime and performs no external wr
 ## Contents
 
 - `requirements/RF-101-login.md`: source requirement.
-- `qa-ai.config.yaml`: manual-only quick-track configuration.
-- `qa-ai-output/`: initialization decisions, reviewed requirement, traceability and PR artifacts.
-- `features/functional/`: one manual Gherkin test case.
+- `.qa-ai/qa-ai.config.yaml`: manual-only quick-track configuration.
+- `.qa-ai/output/`: initialization decisions, reviewed requirement, traceability and PR artifacts.
+- `.qa-ai/features/functional/`: one manual Gherkin test case.
 
 ## Validate from the QA FlowKit repository
 

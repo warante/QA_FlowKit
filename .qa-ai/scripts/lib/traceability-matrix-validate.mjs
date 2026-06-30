@@ -9,7 +9,7 @@ import {
   relativeTo,
   resolveRepoPath
 } from './utils.mjs';
-import { ARTIFACT_PATHS } from './artifact-paths.mjs';
+import { ARTIFACT_PATHS, DEFAULT_FEATURE_PATH, siblingArtifactPath } from './artifact-paths.mjs';
 
 /**
  * @returns {Promise<object>}
@@ -17,12 +17,12 @@ import { ARTIFACT_PATHS } from './artifact-paths.mjs';
 export async function validateTraceability(cwd, options = {}) {
   const configInfo = await loadQaAiConfig(cwd);
   const config = configInfo.data || {};
-  const featureRoot = options.features || getConfigValue(config, 'gherkin.featurePath', 'features');
+  const featureRoot = options.features || getConfigValue(config, 'gherkin.featurePath', DEFAULT_FEATURE_PATH);
   const matrixPath =
     options.path || getConfigValue(config, 'traceability.matrixPath', ARTIFACT_PATHS.traceabilityMatrix);
-  const normalizedPath = options.normalizedPath || ARTIFACT_PATHS.normalizedRequirements;
   const proposalPath =
     options.proposalPath || getConfigValue(config, 'testDesign.proposalPath', ARTIFACT_PATHS.testDesignProposal);
+  const normalizedPath = options.normalizedPath || siblingArtifactPath(proposalPath, 'normalized-requirements.md');
   const featureRootPath = resolveRepoPath(cwd, featureRoot, { label: 'feature root' });
   const matrixFilePath = resolveRepoPath(cwd, matrixPath, { label: 'traceability matrix' });
   const normalizedFilePath = resolveRepoPath(cwd, normalizedPath, { label: 'normalized requirements' });

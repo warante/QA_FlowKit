@@ -13,7 +13,7 @@ agents:
   specialistMode: auto
 sources:
   main: jira
-  analysisPath: qa-ai-output/source-analysis.md
+  analysisPath: .qa-ai/output/source-analysis.md
   jira:
     enabled: true
     projectKey: CHANGE_ME
@@ -29,8 +29,8 @@ sources:
 knowledge:
   enabled: false
   sourcePath: ''
-  summaryPath: qa-ai-output/qa-knowledge-summary.md
-  decisionsPath: qa-ai-output/qa-init-decisions.md
+  summaryPath: .qa-ai/output/qa-knowledge-summary.md
+  decisionsPath: .qa-ai/output/qa-init-decisions.md
 requirements:
   requireOfficialRfId: true
   inferredAcceptanceCriteria: require-approval
@@ -39,7 +39,7 @@ gherkin:
   oneScenarioPerFile: true
   requireAcceptanceCriteria: true
   manualTestsNeedFeatureFile: true
-  featurePath: features
+  featurePath: .qa-ai/features
   tags:
     required:
       - priority
@@ -52,24 +52,24 @@ testrail:
   allowCreateCases: true
   allowUpdateCases: approval-only
   allowDeleteCases: never
-  mappingFile: qa-ai-output/test-management-mapping.json
+  mappingFile: .qa-ai/output/test-management-mapping.json
 automation:
   ui:
     framework: webdriverio
-    specsPath: tests/wdio/specs
-    pageObjectsPath: tests/wdio/pageobjects
+    specsPath: .qa-ai/tests/wdio/specs
+    pageObjectsPath: .qa-ai/tests/wdio/pageobjects
   api:
     framework: playwright-api
-    specsPath: tests/api/specs
+    specsPath: .qa-ai/tests/api/specs
   strategy:
     automateAllTechnicallyPossible: true
     requireProposalBeforeImplementation: true
     allowModifyExistingTests: approval-only
 traceability:
-  matrixPath: qa-ai-output/traceability-matrix.md
+  matrixPath: .qa-ai/output/traceability-matrix.md
 testDesign:
-  systemPath: qa-ai-output/test-design-system.md
-  proposalPath: qa-ai-output/test-design-proposal.md
+  systemPath: .qa-ai/output/test-design-system.md
+  proposalPath: .qa-ai/output/test-design-proposal.md
   coverage:
     mode: advisory
     requirePositive: true
@@ -82,13 +82,13 @@ testDesign:
     requireTechniqueTraceability: false
   quality:
     mode: off
-    reportPath: qa-ai-output/gherkin-quality-report.md
+    reportPath: .qa-ai/output/gherkin-quality-report.md
     minDimensionsPassed: 7
   strategyRouting:
     mode: advisory
     includeKeywordSignals: true
 release:
-  gatePath: qa-ai-output/release-gate.yaml
+  gatePath: .qa-ai/output/release-gate.yaml
 approval:
   beforeExternalWrite: true
   beforeExistingFileModification: true
@@ -102,10 +102,10 @@ commands:
   testQA: npm run test:qa
 testManagementSync:
   mode: proposal-only
-  diffPath: qa-ai-output/test-management-sync-diff.md
-  applyLogPath: qa-ai-output/test-management-apply-log.md
-  rollbackPath: qa-ai-output/test-management-rollback-plan.md
-  remoteSnapshotPath: qa-ai-output/test-management-remote-snapshot.md
+  diffPath: .qa-ai/output/test-management-sync-diff.md
+  applyLogPath: .qa-ai/output/test-management-apply-log.md
+  rollbackPath: .qa-ai/output/test-management-rollback-plan.md
+  remoteSnapshotPath: .qa-ai/output/test-management-remote-snapshot.md
 aiTesting:
   enabled: false
   requiredTechniques:

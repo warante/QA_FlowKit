@@ -8,6 +8,7 @@ import { resolveContractPath, resolveOutputSpec } from './harness-contract.mjs';
 import {
   listHarnessFeatureFiles,
   resolveConfigHarnessPath,
+  resolveExistingOutputTarget,
   resolveHarnessRelativePath,
   resolveOutputHarnessPaths
 } from './harness-paths.mjs';
@@ -31,7 +32,7 @@ export function assertNoteHasNoSecrets(note) {
 }
 
 async function fileOutputExists(cwd, config, outputSpec) {
-  const target = resolveOutputHarnessPaths(cwd, config, outputSpec);
+  const target = await resolveExistingOutputTarget(cwd, config, outputSpec);
   if (target.kind === 'featureFiles') {
     const files = await listHarnessFeatureFiles(cwd, config, outputSpec);
     return files.length > 0;
@@ -62,7 +63,7 @@ export async function outputExists(cwd, config, outputSpec) {
 export async function collectOutputHashes(cwd, config, outputs) {
   const hashes = [];
   for (const outputSpec of outputs) {
-    const target = resolveOutputHarnessPaths(cwd, config, outputSpec);
+    const target = await resolveExistingOutputTarget(cwd, config, outputSpec);
     if (target.kind === 'featureFiles') {
       const files = await listHarnessFeatureFiles(cwd, config, outputSpec);
       for (const filePath of files) {
@@ -106,7 +107,7 @@ export async function ensurePhaseBaseline(cwd, config, phaseState, phaseDef) {
 export async function captureOutputBaseline(cwd, config, outputs) {
   const baseline = [];
   for (const outputSpec of outputs || []) {
-    const target = resolveOutputHarnessPaths(cwd, config, outputSpec);
+    const target = await resolveExistingOutputTarget(cwd, config, outputSpec);
     if (target.kind === 'featureFiles') {
       const files = await listHarnessFeatureFiles(cwd, config, outputSpec);
       for (const filePath of files) {

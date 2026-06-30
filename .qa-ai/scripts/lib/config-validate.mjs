@@ -1,6 +1,7 @@
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import { validateConfigContractContent } from './contract-schemas.mjs';
+import { resolveQaAiConfigPath } from './project-paths.mjs';
 import { pathExists } from './utils.mjs';
 
 /**
@@ -9,7 +10,7 @@ import { pathExists } from './utils.mjs';
 export async function validateConfig(cwd, options = {}) {
   const configPath = options.configPath
     ? path.resolve(cwd, String(options.configPath))
-    : path.join(cwd, 'qa-ai.config.yaml');
+    : (await resolveQaAiConfigPath(cwd)).absPath;
 
   if (!(await pathExists(configPath))) {
     if (options.allowMissing) {

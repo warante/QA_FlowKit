@@ -2,6 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { validateNode } from './json-schema-lite.mjs';
 import { parseSimpleYaml, pathExists } from './utils.mjs';
+import { resolveQaAiConfigPath } from './project-paths.mjs';
 
 const schemaRelPath = path.join('.qa-ai', 'contracts', 'config.v1.schema.json');
 
@@ -26,9 +27,10 @@ export async function validateConfigContent(content, root = process.cwd(), filen
   return validateConfigData(parseSimpleYaml(content, filename), schema);
 }
 
-export async function validateConfigFile(root = process.cwd(), configPath = path.join(root, 'qa-ai.config.yaml')) {
-  if (!(await pathExists(configPath))) {
-    return { ok: false, errors: [`${path.relative(root, configPath) || configPath}: file is missing`] };
+export async function validateConfigFile(root = process.cwd(), configPath) {
+  const resolvedPath = configPath || (await resolveQaAiConfigPath(root)).absPath;
+  if (!(await pathExists(resolvedPath))) {
+    return { ok: false, errors: [`${path.relative(root, resolvedPath) || resolvedPath}: file is missing`] };
   }
-  return validateConfigContent(await fs.readFile(configPath, 'utf8'), root, configPath);
+  return validateConfigContent(await fs.readFile(resolvedPath, 'utf8'), root, resolvedPath);
 }

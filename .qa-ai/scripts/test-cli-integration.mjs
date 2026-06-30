@@ -7,6 +7,8 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { parseSimpleYaml } from './lib/utils.mjs';
 import { FEATURE_SUBFOLDERS } from './lib/feature-layout.mjs';
+import { COMPACT_CONFIG_PATH } from './lib/project-paths.mjs';
+import { DEFAULT_FEATURE_PATH, QA_OUTPUT_DIR } from './lib/artifact-paths.mjs';
 import { copyFramework, frameworkSourceRoot } from './test/lib/integration-helpers.mjs';
 
 const repoRoot = frameworkSourceRoot;
@@ -55,8 +57,18 @@ function runNode(cwd, script, args = [], { expectFailure = false } = {}) {
   return result;
 }
 
+function configFile(cwd) {
+  return path.join(cwd, COMPACT_CONFIG_PATH);
+}
+
 async function readConfig(cwd) {
-  return parseSimpleYaml(await fs.readFile(path.join(cwd, 'qa-ai.config.yaml'), 'utf8'));
+  const rootConfig = path.join(cwd, 'qa-ai.config.yaml');
+  try {
+    await fs.access(rootConfig);
+    return parseSimpleYaml(await fs.readFile(rootConfig, 'utf8'));
+  } catch {
+    return parseSimpleYaml(await fs.readFile(configFile(cwd), 'utf8'));
+  }
 }
 
 async function hashDirectory(dirPath) {
@@ -118,7 +130,7 @@ async function main() {
       'init manifest should track the CI workflow file'
     );
 
-    const packageNameConfigContent = await fs.readFile(path.join(packageNameTarget, 'qa-ai.config.yaml'), 'utf8');
+    const packageNameConfigContent = await fs.readFile(configFile(packageNameTarget), 'utf8');
     const packageNameConfig = parseSimpleYaml(packageNameConfigContent);
     assert.equal(packageNameConfig.project.name, 'demo-app');
     assert.equal(packageNameConfig.testrail.projectName, 'demo-app');
@@ -127,17 +139,16 @@ async function main() {
       await fs.readFile(path.join(packageNameTarget, '.qa-ai', 'state', 'init-manifest.json'), 'utf8')
     );
     const manifestPaths = new Set(packageNameManifest.entries.map((entry) => entry.path));
+    assert.ok(manifestPaths.has(COMPACT_CONFIG_PATH), 'init manifest should track compact config');
     for (const subfolder of FEATURE_SUBFOLDERS) {
-      assert.ok(manifestPaths.has(`features/${subfolder}`), `init manifest should track features/${subfolder}`);
       assert.ok(
-        manifestPaths.has(`features/${subfolder}/.gitkeep`),
-        `init manifest should track features/${subfolder}/.gitkeep`
+        !manifestPaths.has(`${DEFAULT_FEATURE_PATH}/${subfolder}`),
+        `init manifest should not pre-create ${DEFAULT_FEATURE_PATH}/${subfolder}`
       );
-      await fs.access(path.join(packageNameTarget, 'features', subfolder, '.gitkeep'));
     }
     runCli(packageNameTarget, ['clean', '--force']);
     for (const subfolder of FEATURE_SUBFOLDERS) {
-      await assert.rejects(() => fs.access(path.join(packageNameTarget, 'features', subfolder)));
+      await assert.rejects(() => fs.access(path.join(packageNameTarget, DEFAULT_FEATURE_PATH, subfolder)));
     }
 
     const basenameTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-flowkit-basename-'));
@@ -145,9 +156,8 @@ async function main() {
     runCli(basenameTarget, ['init', '--preset', 'manual-only', '--skip-doctor']);
     const basenameConfig = await readConfig(basenameTarget);
     assert.equal(basenameConfig.project.name, path.basename(basenameTarget));
-    await fs.rm(path.join(basenameTarget, 'features', 'api'), { recursive: true, force: true });
     const missingFolderDoctor = runCli(basenameTarget, ['doctor']);
-    assert.ok(missingFolderDoctor.stdout.includes('[WARN] feature category folder api: features/api'));
+    assert.ok(missingFolderDoctor.stdout.includes(`[WARN] feature category folder api: ${DEFAULT_FEATURE_PATH}/api`));
 
     const directTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-flowkit-direct-init-'));
     extraTempRoots.push(directTarget);
@@ -255,19 +265,19 @@ async function main() {
     const noFeatureFoldersTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-flowkit-no-feature-folders-'));
     extraTempRoots.push(noFeatureFoldersTarget);
     runCli(noFeatureFoldersTarget, ['init', '--preset', 'manual-only', '--no-feature-folders', '--skip-doctor']);
-    await fs.access(path.join(noFeatureFoldersTarget, 'features'));
-    await assert.rejects(() => fs.access(path.join(noFeatureFoldersTarget, 'features', 'functional')));
+    await fs.access(path.join(noFeatureFoldersTarget, DEFAULT_FEATURE_PATH));
+    await assert.rejects(() => fs.access(path.join(noFeatureFoldersTarget, DEFAULT_FEATURE_PATH, 'functional')));
 
     const configValidationTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-flowkit-config-validation-'));
     extraTempRoots.push(configValidationTarget);
     runCli(configValidationTarget, ['init', '--preset', 'manual-only', '--skip-doctor']);
     JSON.parse(runCli(configValidationTarget, ['validate-config', '--json']).stdout);
-    const validConfigContent = await fs.readFile(path.join(configValidationTarget, 'qa-ai.config.yaml'), 'utf8');
+    const validConfigContent = await fs.readFile(configFile(configValidationTarget), 'utf8');
     const invalidConfigContent = validConfigContent
       .replace('qaTrack: quick', 'qaTrack: slow')
       .replace('oneScenarioPerFile: true', 'oneScenarioPerFile: yes')
       .concat('unknownTopLevel: true\n');
-    await fs.writeFile(path.join(configValidationTarget, 'qa-ai.config.yaml'), invalidConfigContent, 'utf8');
+    await fs.writeFile(configFile(configValidationTarget), invalidConfigContent, 'utf8');
     const invalidConfig = runCli(configValidationTarget, ['validate-config'], { expectFailure: true });
     assert.ok(invalidConfig.stdout.includes('$.unknownTopLevel'));
     assert.ok(invalidConfig.stdout.includes('$.project.qaTrack'));
@@ -291,7 +301,7 @@ async function main() {
       }
     );
     assert.ok(brokenInit.stderr.includes('$.unknownTopLevel'));
-    await assert.rejects(() => fs.access(path.join(brokenPresetTarget, 'qa-ai.config.yaml')));
+    await assert.rejects(() => fs.access(configFile(brokenPresetTarget)));
 
     runCli(tempRoot, ['init', '--skip-doctor']);
     runCli(tempRoot, ['validate-config']);
@@ -450,11 +460,11 @@ async function main() {
     assert.equal(contractJson.status, 0);
     JSON.parse(contractJson.stdout.trim());
 
-    await fs.writeFile(path.join(tempRoot, 'qa-ai-output', 'requirement-analysis.md'), '# original\n', 'utf8');
+    await fs.writeFile(path.join(tempRoot, QA_OUTPUT_DIR, 'requirement-analysis.md'), '# original\n', 'utf8');
     runCli(tempRoot, ['run', 'next']);
     const activeRun = JSON.parse(runCli(tempRoot, ['run', 'status', '--json']).stdout);
     runCli(tempRoot, ['run', 'resume', activeRun.runId]);
-    await fs.writeFile(path.join(tempRoot, 'qa-ai-output', 'requirement-analysis.md'), '# modified\n', 'utf8');
+    await fs.writeFile(path.join(tempRoot, QA_OUTPUT_DIR, 'requirement-analysis.md'), '# modified\n', 'utf8');
     const blockedStatus = JSON.parse(runCli(tempRoot, ['run', 'status', '--json']).stdout);
     assert.ok(blockedStatus.blockers.some((item) => item.type === 'modification'));
 

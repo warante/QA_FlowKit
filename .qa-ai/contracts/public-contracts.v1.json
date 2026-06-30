@@ -131,13 +131,13 @@
     "stable": [
       ".qa-ai/",
       "qa-ai.config.yaml",
-      "qa-ai-output/",
+      ".qa-ai/output/",
       "features/",
       ".qa-ai/config-profiles/",
       ".qa-ai/state/runs/"
     ],
     "experimental": [
-      "qa-ai-output/source-analysis.md",
+      ".qa-ai/output/source-analysis.md",
       "features/security/",
       "Framework-specific automation paths selected by presets or config."
     ],

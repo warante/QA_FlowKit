@@ -19,6 +19,8 @@ async function setupHealingFixture({ matrixContent = '', logContent = '', create
     '  featurePath: features',
     'traceability:',
     '  matrixPath: qa-ai-output/traceability-matrix.md',
+    'healing:',
+    '  logPath: qa-ai-output/healing-log.md',
     'automation:',
     '  ui:',
     '    framework: playwright',

@@ -4,6 +4,7 @@ import { activeSpecialistsContent, configuredDirs } from './lib/project-config.m
 import {
   copyFileSafe,
   ensureDir,
+  formatMissingConfigMessage,
   loadQaAiConfig,
   logHeader,
   manifestEntry,
@@ -14,6 +15,7 @@ import {
   readText,
   recordManifestEntries,
   relativeTo,
+  resolveQaAiConfigPath,
   resolveRepoPath,
   writeFileSafe
 } from './lib/utils.mjs';
@@ -68,7 +70,7 @@ async function exportConfig(targetArg) {
 
   const configInfo = await loadQaAiConfig(cwd);
   if (!configInfo.exists) {
-    console.error('Missing qa-ai.config.yaml. Run init first or import an existing profile.');
+    console.error(formatMissingConfigMessage(cwd));
     process.exit(1);
   }
 
@@ -92,7 +94,7 @@ async function exportConfig(targetArg) {
   }
 }
 
-async function applyImportedStructure(config) {
+async function applyImportedStructure(config, configRelPath) {
   const manifestEntries = [];
   const dirResults = [];
   for (const dir of [...configuredDirs(config)].filter(Boolean).sort()) {
@@ -111,7 +113,7 @@ async function applyImportedStructure(config) {
 
   const specialistsResult = await writeFileSafe(
     resolveRepoPath(cwd, '.qa-ai/agents/specialists/active.md', { label: 'active specialists index' }),
-    activeSpecialistsContent(config, 'node .qa-ai/scripts/config.mjs --import'),
+    activeSpecialistsContent(config, 'node .qa-ai/scripts/config.mjs --import', configRelPath),
     { force }
   );
   if (specialistsResult.written) {
@@ -143,7 +145,8 @@ async function importConfig(sourceArg) {
 
   const content = await readText(source);
   const config = validateProfileContent(content, source);
-  const configPath = path.join(cwd, 'qa-ai.config.yaml');
+  const resolved = await resolveQaAiConfigPath(cwd);
+  const configPath = resolved.absPath;
   const configWrite = await writeFileSafe(configPath, content.endsWith('\n') ? content : `${content}\n`, { force });
   console.log(`${configWrite.written ? 'imported' : 'skipped '} ${relativeTo(cwd, configWrite.path)}`);
 
@@ -160,7 +163,7 @@ async function importConfig(sourceArg) {
 
   let structureResult = null;
   if (applyStructure) {
-    structureResult = await applyImportedStructure(config);
+    structureResult = await applyImportedStructure(config, resolved.path);
     manifestEntries.push(...structureResult.manifestEntries);
   } else {
     console.log('Skipping configured folders and active specialists because --no-structure was passed.');

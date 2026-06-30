@@ -17,16 +17,28 @@ const exampleRoot = exampleRootFromRepo('examples', 'manual-only');
 
 async function digestTree(root) {
   const entries = [];
-  const ignoredTopLevel = new Set(['.qa-ai', 'node_modules']);
+  const ignoredPrefixes = [
+    '.qa-ai/scripts/',
+    '.qa-ai/agents/',
+    '.qa-ai/rules/',
+    '.qa-ai/templates/',
+    '.qa-ai/contracts/',
+    '.qa-ai/presets/',
+    '.qa-ai/adapters/',
+    '.qa-ai/workflows/',
+    '.qa-ai/state/'
+  ];
+  const ignoredTopLevel = new Set(['node_modules']);
 
-  async function visit(directory, depth = 0) {
+  async function visit(directory, depth = 0, _relativePrefix = '') {
     for (const entry of await fs.readdir(directory, { withFileTypes: true })) {
       if (depth === 0 && ignoredTopLevel.has(entry.name)) continue;
       const absolutePath = path.join(directory, entry.name);
+      const relativePath = path.relative(root, absolutePath).replaceAll(path.sep, '/');
       if (entry.isDirectory()) {
-        await visit(absolutePath, depth + 1);
+        await visit(absolutePath, depth + 1, relativePath);
       } else {
-        const relativePath = path.relative(root, absolutePath).replaceAll(path.sep, '/');
+        if (ignoredPrefixes.some((prefix) => relativePath.startsWith(prefix))) continue;
         const content = await fs.readFile(absolutePath);
         entries.push(`${relativePath}:${createHash('sha256').update(content).digest('hex')}`);
       }

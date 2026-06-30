@@ -775,8 +775,8 @@ traceability:
     // Verify manifest entries
     const manifestRaw = await fs.readFile(path.join(tmp, '.qa-ai', 'state', 'init-manifest.json'), 'utf8');
     const manifest = JSON.parse(manifestRaw);
-    assert.ok(manifest.entries.some((e) => e.path === 'qa-ai-output/reports/cucumber-json'));
-    assert.ok(manifest.entries.some((e) => e.path === 'qa-ai-output/reports/cucumber-json/cucumber.json'));
+    assert.ok(manifest.entries.some((e) => e.path === '.qa-ai/output/reports/cucumber-json'));
+    assert.ok(manifest.entries.some((e) => e.path === '.qa-ai/output/reports/cucumber-json/cucumber.json'));
 
     // 2. Export Allure
     const resAllure = await exportReport(tmp, {

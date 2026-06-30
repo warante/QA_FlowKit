@@ -8,8 +8,9 @@ const sourceRoot = path.resolve(path.join(import.meta.dirname, '..', '..', '..',
 export const frameworkSourceRoot = sourceRoot;
 const node = process.execPath;
 
-export function copyFramework(targetDir) {
-  return fs.cp(path.join(sourceRoot, '.qa-ai'), path.join(targetDir, '.qa-ai'), { recursive: true, force: true });
+export async function copyFramework(targetDir) {
+  await fs.cp(path.join(sourceRoot, '.qa-ai'), path.join(targetDir, '.qa-ai'), { recursive: true, force: true });
+  await fs.rm(path.join(targetDir, '.qa-ai', 'state', 'init-manifest.json'), { force: true });
 }
 
 export function runInWorkspace(cwd, args, { expectFailure = false } = {}) {

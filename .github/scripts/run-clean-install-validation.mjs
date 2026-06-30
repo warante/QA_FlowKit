@@ -45,7 +45,7 @@ async function extractTarball(tarball, extractDir) {
 }
 
 async function writeMinimalFeature(targetRoot) {
-  const featureDir = path.join(targetRoot, 'features', 'manual');
+  const featureDir = path.join(targetRoot, '.qa-ai', 'features', 'manual');
   await fs.mkdir(featureDir, { recursive: true });
   await fs.writeFile(
     path.join(featureDir, 'RF-101-clean-install.feature'),
@@ -69,7 +69,15 @@ async function assertPrimaryCommandsFromTarballInstall(targetRoot) {
   assert.ok(/^\d+\.\d+\.\d+/.test(version), 'version should print semver');
 
   runCli(targetRoot, ['init', '--skip-doctor']);
-  await assertExists(path.join(targetRoot, 'qa-ai.config.yaml'), 'generated config');
+  await assertExists(path.join(targetRoot, '.qa-ai', 'qa-ai.config.yaml'), 'generated compact config');
+  assert.equal(
+    await fs
+      .access(path.join(targetRoot, 'qa-ai.config.yaml'))
+      .then(() => true)
+      .catch(() => false),
+    false,
+    'root qa-ai.config.yaml should not exist after compact init'
+  );
   await assertExists(path.join(targetRoot, '.qa-ai', 'scripts', 'init.mjs'), 'framework copy');
   runCli(targetRoot, ['init', '--skip-doctor'], { expectFailure: true });
 
@@ -121,7 +129,7 @@ async function assertPrimaryCommandsFromTarballInstall(targetRoot) {
     '--format',
     'cucumber-json',
     '--out',
-    'qa-ai-output/reports/cucumber',
+    '.qa-ai/output/reports/cucumber',
     '--json'
   ]);
   runCli(targetRoot, ['help']);
@@ -133,7 +141,7 @@ async function assertFolderCopyOfflineFlow(packageDir, workspaceRoot) {
   await fs.cp(path.join(packageDir, '.qa-ai'), path.join(workspaceRoot, '.qa-ai'), { recursive: true });
 
   runScript(workspaceRoot, '.qa-ai/scripts/init.mjs', ['--no-adapters', '--skip-doctor']);
-  await assertExists(path.join(workspaceRoot, 'qa-ai.config.yaml'), 'folder-copy config');
+  await assertExists(path.join(workspaceRoot, '.qa-ai', 'qa-ai.config.yaml'), 'folder-copy compact config');
   runScript(workspaceRoot, '.qa-ai/scripts/doctor.mjs');
   runScript(workspaceRoot, '.qa-ai/scripts/bootstrap-agent-adapters.mjs', ['--agents', 'none']);
   runScript(workspaceRoot, '.qa-ai/scripts/validate-config.mjs');

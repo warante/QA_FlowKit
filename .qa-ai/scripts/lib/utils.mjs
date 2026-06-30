@@ -5,12 +5,34 @@ import crypto from 'node:crypto';
 import { parseYaml, stripInlineComment } from './yaml.mjs';
 import {
   ARTIFACT_PATHS,
+  DEFAULT_FEATURE_PATH,
   DEFAULT_TEST_MANAGEMENT_SYNC_PLAN_PATH,
   LEGACY_ARTIFACT_ALIASES,
   QA_OUTPUT_DIR
 } from './artifact-paths.mjs';
+import { resolveQaAiConfigPath } from './project-paths.mjs';
 
-export { ARTIFACT_PATHS, DEFAULT_TEST_MANAGEMENT_SYNC_PLAN_PATH, LEGACY_ARTIFACT_ALIASES, QA_OUTPUT_DIR };
+export {
+  ARTIFACT_PATHS,
+  DEFAULT_FEATURE_PATH,
+  DEFAULT_TEST_MANAGEMENT_SYNC_PLAN_PATH,
+  LEGACY_ARTIFACT_ALIASES,
+  QA_OUTPUT_DIR
+};
+export {
+  COMPACT_CONFIG_PATH,
+  COMPACT_FEATURES_DIR,
+  COMPACT_OUTPUT_DIR,
+  COMPACT_TESTS_DIR,
+  detectLegacyLayout,
+  formatMissingConfigMessage,
+  LEGACY_CONFIG_PATH,
+  LEGACY_FEATURES_DIR,
+  LEGACY_OUTPUT_DIR,
+  LEGACY_TESTS_DIR,
+  recommendedConfigPath,
+  resolveQaAiConfigPath
+} from './project-paths.mjs';
 
 export const manifestRelativePath = '.qa-ai/state/init-manifest.json';
 
@@ -288,14 +310,30 @@ export async function loadQaAiConfig(cwd, { useCache = true } = {}) {
   if (useCache && loadQaAiConfig.cache.has(cacheKey)) {
     return loadQaAiConfig.cache.get(cacheKey);
   }
-  const filePath = path.join(cwd, 'qa-ai.config.yaml');
-  if (!(await pathExists(filePath))) {
-    const result = { exists: false, path: filePath, content: '', data: {} };
+  const resolved = await resolveQaAiConfigPath(cwd);
+  if (resolved.source === 'missing') {
+    const result = {
+      exists: false,
+      path: resolved.absPath,
+      relPath: resolved.path,
+      source: resolved.source,
+      dualConfig: resolved.dualConfig,
+      content: '',
+      data: {}
+    };
     if (useCache) loadQaAiConfig.cache.set(cacheKey, result);
     return result;
   }
-  const content = await readText(filePath);
-  const result = { exists: true, path: filePath, content, data: normalizeRequirementsConfig(parseSimpleYaml(content)) };
+  const content = await readText(resolved.absPath);
+  const result = {
+    exists: true,
+    path: resolved.absPath,
+    relPath: resolved.path,
+    source: resolved.source,
+    dualConfig: resolved.dualConfig,
+    content,
+    data: normalizeRequirementsConfig(parseSimpleYaml(content, resolved.path))
+  };
   if (useCache) loadQaAiConfig.cache.set(cacheKey, result);
   return result;
 }
