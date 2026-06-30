@@ -35,7 +35,7 @@ windows, retries, recovery, idempotency or fault tolerance.
 - Recovery path: <retry, failover, idempotency rule>
 - Expected final state: <consistent state after recovery>
 - Environment / precondition: <approved non-prod environment>
-- Evidence type: test-plan | automation-script | residual-risk
+- Evidence type: choose one per row — `test-plan`, `automation-script` or `residual-risk`
 ```
 
 ## Safety Boundaries

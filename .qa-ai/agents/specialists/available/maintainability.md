@@ -20,7 +20,7 @@ documentation, technical debt or operability attributes that need review evidenc
 
 ## Output
 
-- Add `## Non-functional coverage` rows with Evidence type `technical-review` or `residual-risk`.
+- Add `## Non-functional coverage` rows with one Evidence type per row: `technical-review` or `residual-risk`.
 - Keep functional test cases separate from maintainability review evidence.
 
 ## Maintainability review template

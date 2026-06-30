@@ -203,6 +203,37 @@ export const STRATEGY_ROUTING_RULES = [
       'privacy policy',
       'personal data'
     ]
+  },
+  {
+    id: 'mobile-advanced',
+    specialists: ['mobile-advanced-agent'],
+    evidenceTypes: ['feature', 'automation-script', 'manual-charter', 'test-plan', 'technical-review', 'residual-risk'],
+    signals: [
+      'permission',
+      'permissions',
+      'offline',
+      'online',
+      'network loss',
+      'slow network',
+      'background',
+      'foreground',
+      'app restart',
+      'app kill',
+      'deep link',
+      'push notification',
+      'biometric',
+      'face id',
+      'touch id',
+      'camera',
+      'geolocation',
+      'rotation',
+      'orientation',
+      'app upgrade',
+      'app update',
+      'webview',
+      'android permission',
+      'ios permission'
+    ]
   }
 ];
 

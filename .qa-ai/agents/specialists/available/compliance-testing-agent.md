@@ -31,7 +31,7 @@ Act as a QA compliance evidence coordinator. Translate declared obligations into
 ## Test Design Guidance
 
 - Use only obligations explicitly provided by the user, requirements or project documents.
-- Map each obligation to evidence type: feature, automation-script, test-plan, technical-review, approval or residual-risk.
+- Map each obligation to one evidence type per row: feature, automation-script, test-plan, technical-review or residual-risk. Record legal/compliance sign-off in Owner or Notes, not as an evidence type.
 - Keep control IDs stable and traceable to RF/CA when possible.
 - Record owner and sign-off requirement for non-QA obligations.
 - Do not infer compliance scope from product category alone.
@@ -41,10 +41,10 @@ Act as a QA compliance evidence coordinator. Translate declared obligations into
 ```markdown
 ## Compliance evidence matrix — <Project/Release>
 
-| Obligation/control                    | Source        | RF/CA          | Evidence type                        | Artifact path | Owner         | Status  |
-| ------------------------------------- | ------------- | -------------- | ------------------------------------ | ------------- | ------------- | ------- |
-| Access to sensitive record is audited | Policy SEC-01 | RF-<ID> CA-<N> | automation-script + technical-review | <path>        | QA/Security   | planned |
-| Data retention policy followed        | Legal policy  | RF-<ID>        | technical-review                     | <path>        | Legal/Product | pending |
+| Obligation/control                    | Source        | RF/CA          | Evidence type     | Supporting evidence | Artifact path | Owner         | Status  |
+| ------------------------------------- | ------------- | -------------- | ----------------- | ------------------- | ------------- | ------------- | ------- |
+| Access to sensitive record is audited | Policy SEC-01 | RF-<ID> CA-<N> | automation-script | technical-review    | <path>        | QA/Security   | planned |
+| Data retention policy followed        | Legal policy  | RF-<ID>        | technical-review  |                     | <path>        | Legal/Product | pending |
 
 ### Sign-off boundaries
 

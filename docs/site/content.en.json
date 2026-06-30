@@ -131,8 +131,8 @@
     "notes": "Key control gates include official RF ID confirmation, proposal-first test-management synchronization and deterministic Gherkin validation before traceability and release decisions.",
     "track_intro": "When you install QA FlowKit, you choose how much of the QA journey it guides. Both options keep tests, traceability and validators inside your repository.",
     "tracks": [
-      "<strong>Quick</strong> — Manual QA teams: requirements → Gherkin → traceability matrix",
-      "<strong>Standard</strong> — Full workflow: test design, automation planning and PR-ready outputs"
+      "<strong>Quick</strong> — Manual QA teams: requirements → Gherkin → traceability matrix (strategy routing off)",
+      "<strong>Standard</strong> — Full workflow with advisory specialist routing from requirement signals"
     ]
   },
   "features": {
@@ -155,6 +155,10 @@
       {
         "title": "Resumable harness",
         "text": "Persistent run state, append-only event log and <code>run status</code> across agent sessions."
+      },
+      {
+        "title": "On-demand specialist routing",
+        "text": "Route privacy, mobile, security, cloud and other strategy specialists from requirement signals. Standard presets use advisory mode; strict mode can enforce documented routing decisions."
       },
       {
         "title": "Safety boundaries",
@@ -332,6 +336,10 @@
       {
         "href": "https://github.com/warante/QA_FlowKit/blob/main/docs/qa-ai/cli-reference.md",
         "label": "CLI reference"
+      },
+      {
+        "href": "https://github.com/warante/QA_FlowKit/blob/main/docs/qa-ai/specialist-routing-matrix.md",
+        "label": "Specialist routing"
       },
       { "href": "https://github.com/warante/QA_FlowKit/blob/main/docs/qa-ai/demo.md", "label": "RF-101 demo" }
     ]

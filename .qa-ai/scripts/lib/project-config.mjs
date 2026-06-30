@@ -333,6 +333,20 @@ export const specialistCatalog = {
     title: 'Visual Regression Testing Specialist',
     categories: ['visual-regression', 'ui'],
     aliases: ['visual', 'visual-regression', 'screenshot', 'figma', 'layout']
+  },
+  'mobile-advanced-agent': {
+    title: 'Mobile Advanced Testing Specialist',
+    categories: ['mobile', 'mobile-advanced', 'test-design'],
+    aliases: [
+      'mobile-advanced',
+      'mobile-interruptions',
+      'mobile-permissions',
+      'offline-mobile',
+      'push-notifications',
+      'deep-links',
+      'biometrics',
+      'mobile-upgrade'
+    ]
   }
 };
 

@@ -56,7 +56,8 @@ first.
 - For each RF/CA, apply strategy routing (`test-strategy-router.mjs` and
   [specialist-routing-matrix.md](../../docs/qa-ai/specialist-routing-matrix.md)) and record `## Strategy routing decisions`
   before generating `.feature` files. Use Gherkin only for observable behavior. Use non-Gherkin evidence rows for strategy
-  outputs such as charters, test plans, technical reviews or residual risks.
+  outputs such as charters, test plans, technical reviews or residual risks. Advanced mobile scenarios may use
+  `mobile-advanced-agent` guidance with `manual-charter`, `test-plan` or `residual-risk` when Gherkin is not sufficient.
 - Record one `## Non-functional coverage` row per source NFR. Use Gherkin (`@type:` + `.feature`) only when the
   attribute is observable through scenarios; otherwise choose `test-plan`, `manual-charter`, `technical-review` or
   `residual-risk`.

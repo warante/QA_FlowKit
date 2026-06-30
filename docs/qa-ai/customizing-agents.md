@@ -93,6 +93,9 @@ Specialists are best for framework and tool conventions:
 - Browser/device/cloud provider practices.
 - Non-functional quality attributes (availability, scalability, usability, compatibility, maintainability, etc.) via
   on-demand specialists under `.qa-ai/agents/specialists/available/` — loaded during test design when
+  NFR attributes, RF/CA keyword signals or explicit user instructions apply. Standard presets enable
+  `testDesign.strategyRouting.mode: advisory` to recommend specialists without blocking validators. Use `strict` only when
+  you need enforced `## Strategy routing decisions` rows for configured `criticalSignals`.
   `normalized-requirements.md` lists matching source NFR attributes even if not in `active.md`.
 
 Add or update specialist files under:

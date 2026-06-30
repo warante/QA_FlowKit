@@ -154,6 +154,41 @@ test('validateConfigData: accepts optional testDesign.strategyRouting', async ()
   assert.equal(result.ok, true, result.errors.join('\n'));
 });
 
+test('validateConfigData: accepts optional testDesign.strategyRouting.criticalSignals', async () => {
+  const schema = await loadConfigSchema(repoRoot);
+  const valid = parseSimpleYaml(
+    await fs.readFile(path.join(repoRoot, '.qa-ai', 'presets', 'manual-only.yaml'), 'utf8')
+  );
+  const withCritical = {
+    ...valid,
+    testDesign: {
+      ...valid.testDesign,
+      strategyRouting: {
+        mode: 'strict',
+        criticalSignals: ['gdpr', 'figma', 'analytics event']
+      }
+    }
+  };
+  const result = validateConfigData(withCritical, schema);
+  assert.equal(result.ok, true, result.errors.join('\n'));
+});
+
+test('validateConfigData: accepts empty criticalSignals array', async () => {
+  const schema = await loadConfigSchema(repoRoot);
+  const valid = parseSimpleYaml(
+    await fs.readFile(path.join(repoRoot, '.qa-ai', 'presets', 'manual-only.yaml'), 'utf8')
+  );
+  const withEmpty = {
+    ...valid,
+    testDesign: {
+      ...valid.testDesign,
+      strategyRouting: { mode: 'strict', criticalSignals: [] }
+    }
+  };
+  const result = validateConfigData(withEmpty, schema);
+  assert.equal(result.ok, true, result.errors.join('\n'));
+});
+
 test('validateConfigData: rejects unknown strategyRouting mode', async () => {
   const schema = await loadConfigSchema(repoRoot);
   const valid = parseSimpleYaml(

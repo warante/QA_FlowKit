@@ -42,10 +42,10 @@ Act as a privacy QA specialist. Identify testable privacy behavior, data exposur
 ```markdown
 ## Privacy test plan — RF-<ID>
 
-| Privacy obligation                 | Data category           | Trigger              | Expected behavior                     | Evidence type               | Owner         |
-| ---------------------------------- | ----------------------- | -------------------- | ------------------------------------- | --------------------------- | ------------- |
-| Consent withdrawal stops analytics | user identifier/session | user opts out        | non-essential events suppressed       | feature + automation-script | QA/Product    |
-| Export personal data               | profile data            | user requests export | export contains permitted fields only | api/manual-charter          | Product/Legal |
+| Privacy obligation                 | Data category           | Trigger              | Expected behavior                     | Evidence type     | Supporting evidence | Owner         |
+| ---------------------------------- | ----------------------- | -------------------- | ------------------------------------- | ----------------- | ------------------- | ------------- |
+| Consent withdrawal stops analytics | user identifier/session | user opts out        | non-essential events suppressed       | automation-script | feature             | QA/Product    |
+| Export personal data               | profile data            | user requests export | export contains permitted fields only | manual-charter    |                     | Product/Legal |
 
 ### Privacy checks
 

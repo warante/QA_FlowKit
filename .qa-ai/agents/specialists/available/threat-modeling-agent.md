@@ -50,9 +50,9 @@ Act as a QA-focused threat modeling facilitator. Identify assets, trust boundari
 
 ### Abuse cases
 
-| Abuse case                          | Threat category | Precondition             | Expected mitigation        | QA evidence       | Owner   |
-| ----------------------------------- | --------------- | ------------------------ | -------------------------- | ----------------- | ------- |
-| User accesses another tenant record | elevation/IDOR  | valid low-privilege user | request denied and audited | security scenario | Backend |
+| Abuse case                          | Threat category | Precondition             | Expected mitigation        | Evidence type    | Supporting evidence | Owner   |
+| ----------------------------------- | --------------- | ------------------------ | -------------------------- | ---------------- | ------------------- | ------- |
+| User accesses another tenant record | elevation/IDOR  | valid low-privilege user | request denied and audited | technical-review | feature             | Backend |
 
 ### Open questions
 
