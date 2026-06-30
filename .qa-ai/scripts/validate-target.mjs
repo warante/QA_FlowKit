@@ -25,6 +25,7 @@ Options:
   --no-strict-doctor  Run doctor without --strict
   --skip-release-gate Skip release gate validation (enterprise track only)
   --skip-test-design   Skip test design markdown validation
+  --skip-strategy-routing Skip strict strategy routing validation
   --skip-test-coverage Skip configured cross-feature coverage validation
   --skip-quality-report Skip configured semantic Gherkin quality validation
   --strict-untrusted-content Fail on prompt-injection-like requirement/context content
@@ -41,6 +42,7 @@ Runs the target-repository validation pipeline:
   validate-active-specialists
   validate-release-gate (enterprise track only)
   validate-test-design (standard and enterprise tracks)
+  validate-strategy-routing (when testDesign.strategyRouting.mode is strict)
   validate-test-coverage (when testDesign.coverage.mode is not off)
   validate-quality-report (when testDesign.quality.mode is not off)
   validate-untrusted-content (warn mode by default)

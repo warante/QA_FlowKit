@@ -26,6 +26,8 @@ const spanishTemplateHeadings = new Map([
   ['## Cross-RF coverage strategy', '## Estrategia de cobertura entre RFs'],
   ['## Shared fixtures and data', '## Fixtures y datos compartidos'],
   ['## Non-functional focus', '## Enfoque no funcional'],
+  ['## Strategy routing overview', '## Vision general de enrutado de estrategia'],
+  ['## Strategy routing decisions', '## Decisiones de enrutado de estrategia'],
   ['## Open questions', '## Preguntas abiertas'],
   ['# Test Design Proposal (per RF / epic)', '# Propuesta de diseno de pruebas (por RF / epic)'],
   ['## Official RF ID', '## RF oficial'],

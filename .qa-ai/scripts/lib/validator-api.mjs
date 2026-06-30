@@ -20,6 +20,7 @@ export { validateWorkflowContractFile as validateWorkflowContractApi } from './w
 export { validateSyncDiff } from './sync-diff-validate.mjs';
 export { validateSyncPlan } from './sync-plan-validate.mjs';
 export { validateExternalIntake } from './external-intake-validate.mjs';
+export { validateStrategyRouting } from './strategy-routing-validate.mjs';
 
 /** Convert standard validator result to JSON findings shape used by validate-target. */
 export function toFindings(result) {

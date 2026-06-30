@@ -27,11 +27,14 @@ enumerating individual cases. Plan the strategy and confirm scope before writing
 ## Procedure (plan before writing)
 
 1. Read `normalized-requirements.md` and detect the source NFR attributes; load the matching on-demand specialists.
-2. Draft the system-wide strategy (scope, architecture alignment, testability risks, cross-RF coverage) and the
+2. Run or apply the specialist routing matrix (`test-strategy-router.mjs` and
+   [specialist-routing-matrix.md](../../docs/qa-ai/specialist-routing-matrix.md)) before drafting the system-wide strategy.
+   Summarize selected specialist families in `## Strategy routing overview`.
+3. Draft the system-wide strategy (scope, architecture alignment, testability risks, cross-RF coverage) and the
    `## Non-functional focus` section before writing the artifact.
-3. Present the plan and resolve scope ambiguities or AI-component questions with the user.
-4. Write `qa-ai-output/test-design-system.md` from the template.
-5. Run `node .qa-ai/scripts/validate-test-design.mjs` and report open questions that block per-RF design.
+4. Present the plan and resolve scope ambiguities or AI-component questions with the user.
+5. Write `qa-ai-output/test-design-system.md` from the template.
+6. Run `node .qa-ai/scripts/validate-test-design.mjs` and report open questions that block per-RF design.
 
 ## Responsibilities
 

@@ -43,7 +43,7 @@ test('governed sync plan approval and invalidation on modification', async () =>
         id: 'test-design-system',
         file: 'qa-ai-output/test-design-system.md',
         content:
-          '# System Test Design\n## Scope\n## Architecture alignment\n## Testability risks\n## Cross-RF coverage strategy\n## Shared fixtures and data\n## Non-functional focus\n## Open questions'
+          '# System Test Design\n## Scope\n## Architecture alignment\n## Testability risks\n## Cross-RF coverage strategy\n## Shared fixtures and data\n## Non-functional focus\n## Strategy routing overview\n## Open questions'
       },
       {
         id: 'test-design-rf',

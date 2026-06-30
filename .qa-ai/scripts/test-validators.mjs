@@ -16,4 +16,5 @@ import './test/validators/untrusted-content.mjs';
 import './test/validators/execution.mjs';
 import './test/validators/healing-log.mjs';
 import './test/validators/test-impact.mjs';
+import './test/validators/specialist-routing.mjs';
 import './test/validators/subprocess.mjs';

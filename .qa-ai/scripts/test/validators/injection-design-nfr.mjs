@@ -461,7 +461,11 @@ test('validateSourceNfrCoverage: residual-risk strict fails', async () => {
 
 test('specialistsForNfrAttributes: maps usability and maintainability families', () => {
   const specialists = specialistsForNfrAttributes(['usability', 'maintainability']);
-  assert.deepEqual(specialists.map(([id]) => id).sort(), ['maintainability', 'usability']);
+  assert.deepEqual(specialists.map(([id]) => id).sort(), [
+    'maintainability',
+    'observability-testing-agent',
+    'usability'
+  ]);
 });
 
 test('NFR contract constants cover taxonomy and evidence types', () => {

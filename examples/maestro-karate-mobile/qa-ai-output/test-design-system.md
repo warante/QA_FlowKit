@@ -24,6 +24,13 @@ The local API returns a fixed demo balance.
 
 No external service or production account is used.
 
+## Strategy routing overview
+
+| RF / area | Signal | Specialist(s) | Decision | Evidence type | Rationale |
+| --------- | ------ | ------------- | -------- | ------------- | --------- |
+
+Mobile and API specialists are covered by configured Maestro and Karate frameworks; no extra strategy routing rows.
+
 ## Open questions
 
 The host application build remains an evaluator-provided prerequisite.

@@ -24,6 +24,13 @@ The local application exposes the fixed Ada Lovelace profile.
 
 Tests avoid external networks and shared state.
 
+## Strategy routing overview
+
+| RF / area | Signal | Specialist(s) | Decision | Evidence type | Rationale |
+| --------- | ------ | ------------- | -------- | ------------- | --------- |
+
+No additional on-demand specialists for this Karate reference example.
+
 ## Open questions
 
 None.

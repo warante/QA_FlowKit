@@ -10,4 +10,5 @@
 
 Add one row per source NFR from `normalized-requirements.md`. Functional rows and NFR rows are separate; do not count
 NFR evidence as functional CA coverage in summary metrics. Use `Automation Status: proposal-only` for planned tests
-without generated artifacts.
+without generated artifacts. Strategy routing outputs (`test-plan`, `manual-charter`, `technical-review`,
+`residual-risk`) may appear in Evidence reference without a `.feature` file when the specialist evidence is non-Gherkin.

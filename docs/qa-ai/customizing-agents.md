@@ -125,7 +125,8 @@ node .qa-ai/scripts/validate-active-specialists.mjs
 2. Add the specialist to `specialistCatalog` in `.qa-ai/scripts/lib/project-config.mjs`.
 3. Include aliases for the config values users are likely to enter.
 4. Add docs if the specialist introduces a new supported framework.
-5. Run:
+5. For strategy routing families, also update [specialist-routing-matrix.md](../../docs/qa-ai/specialist-routing-matrix.md) and `test-strategy-router.mjs`.
+6. Run:
 
 ```bash
 npm run validate:oss-extraction

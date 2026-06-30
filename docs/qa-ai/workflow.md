@@ -45,6 +45,11 @@ Requirements:
 - Requirements remain authoritative; design and visual inputs are supporting evidence.
 - Record extraction limitations and contradictions instead of silently merging incompatible sources.
 
+After normalization, apply on-demand specialist routing from explicit NFR attributes, RF/CA keyword signals and
+configured tools. See [specialist-routing-matrix.md](specialist-routing-matrix.md). Record decisions in
+`## Strategy routing overview` (system design) and `## Strategy routing decisions` (per-RF proposal). On-demand
+specialists are advisory unless `testDesign.strategyRouting.mode` is `strict`.
+
 ## Step 2 - Official RF ID validation
 
 Requirements:

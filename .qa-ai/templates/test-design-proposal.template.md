@@ -31,6 +31,14 @@ rationale; disabling preventive coverage flags is not a valid exclusion. Support
 `automation-script`, `manual-charter`, `test-plan`, `technical-review`, `residual-risk`. `residual-risk` documents
 a blocked gap and does not count as satisfied coverage in `strict` mode.
 
+## Strategy routing decisions
+
+| RF  | Criterion IDs | Signal | Specialist(s) | Decision | Evidence type | Rationale |
+| --- | ------------- | ------ | ------------- | -------- | ------------- | --------- |
+
+Record one row per RF/CA where keyword signals, NFR attributes or configured tools suggest an on-demand specialist.
+Use `applicable`, `not-applicable`, `deferred` or `residual-risk` in Decision. Non-Gherkin evidence is valid.
+
 ## Security review
 
 | RF  | Category | Applicable | Evidence or test | Rationale |

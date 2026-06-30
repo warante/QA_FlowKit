@@ -24,7 +24,7 @@ QA FlowKit is currently in **Release Candidate**; see the [stability policy](doc
 AI agents can generate tests quickly, but teams still need consistent structure, traceability, approval points and
 reliable validation. QA FlowKit installs those controls inside the target repository:
 
-- phase-specific agent instructions and reusable specialists;
+- phase-specific agent instructions and reusable specialists (including on-demand strategy specialists — see [specialist routing](docs/qa-ai/specialist-routing-matrix.md));
 - quick, standard and enterprise workflow tracks;
 - persistent, resumable run state and an append-only event log;
 - validation for Gherkin, traceability, test design, sync plans and release gates;
