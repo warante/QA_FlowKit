@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "generatedAt": "2026-06-26",
-  "qaFlowKitVersion": "1.0.0-rc.3",
+  "qaFlowKitVersion": "1.0.0-rc.4",
   "task": "TASK-081",
   "status": "planned",
   "rcVersion": null,
