@@ -1,5 +1,5 @@
-# Cursor IDE (local)
-.cursor/
+# Cursor IDE (local); commit only README — skills/settings stay untracked
+.cursor/*
 !.cursor/README.md
 
 # Secrets and local env

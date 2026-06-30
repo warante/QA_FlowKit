@@ -26,7 +26,7 @@ CI runs [`.github/scripts/verify-adapter-parity.mjs`](.github/scripts/verify-ada
 
 ## Cursor skills (non-core)
 
-The [`.cursor/skills/`](.cursor/skills/) folder is **repository-only** and is not part of the published npm package.
+The `.cursor/skills/` folder is **repository-only** and is not part of the published npm package.
 
 - Skills there are optional, third-party or maintainer-local Cursor Agent Skills (for example community skill packs copied into this repo for dogfooding).
 - They are **not** shipped by `npx qa-flowkit init`, not validated by framework CI, and not required for target-repository QA workflows.
