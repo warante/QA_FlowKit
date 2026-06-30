@@ -21,7 +21,7 @@ async function prepareWorkspace(setup) {
   await fs.cp(fixtureRoot, workspace, { recursive: true, force: true });
 
   if (setup === 'golden-target-invalid-config') {
-    const configPath = path.join(workspace, 'qa-ai.config.yaml');
+    const configPath = path.join(workspace, '.qa-ai/qa-ai.config.yaml');
     const content = await fs.readFile(configPath, 'utf8');
     await fs.writeFile(configPath, content.replace(/^version:\s*1/m, 'version: 2'), 'utf8');
   }
