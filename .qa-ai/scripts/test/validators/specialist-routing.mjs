@@ -11,7 +11,13 @@ import {
   specialistsFromConfig,
   STRATEGY_ROUTING_RULES
 } from '../../lib/test-strategy-router.mjs';
-import { validateStrategyRouting } from '../../lib/strategy-routing-validate.mjs';
+import {
+  validateStrategyRouting,
+  resolveCriticalSignals,
+  DEFAULT_CRITICAL_SIGNALS
+} from '../../lib/strategy-routing-validate.mjs';
+import { NFR_EVIDENCE_TYPES } from '../../lib/nfr-coverage.mjs';
+import { getConfigValue } from '../../lib/utils.mjs';
 import { repoRoot } from './_shared.mjs';
 
 const EXPANSION_SPECIALISTS = [
@@ -24,6 +30,7 @@ const EXPANSION_SPECIALISTS = [
   'database-migration-agent',
   'exploratory-testing-agent',
   'i18n-l10n-agent',
+  'mobile-advanced-agent',
   'observability-testing-agent',
   'performance-execution-agent',
   'post-deploy-validation-agent',
@@ -34,6 +41,63 @@ const EXPANSION_SPECIALISTS = [
   'threat-modeling-agent',
   'visual-regression-agent'
 ];
+
+const EVIDENCE_COLUMN_NAMES = new Set(['evidence type', 'evidence', 'qa evidence']);
+const INVALID_EVIDENCE_COMBINATION = /[/+]|\s+or\s+|\s+and\s+/i;
+
+function normalizeEvidenceCell(value) {
+  return String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, '-');
+}
+
+function parseMarkdownTableRows(content) {
+  const lines = content.split(/\r?\n/);
+  const issues = [];
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index].trim();
+    if (!line.startsWith('|')) continue;
+    const cells = line
+      .split('|')
+      .slice(1, -1)
+      .map((cell) => cell.trim());
+    if (cells.length === 0) continue;
+    const headerCells = cells.map((cell) => cell.toLowerCase());
+    const evidenceIndexes = headerCells
+      .map((name, cellIndex) => (EVIDENCE_COLUMN_NAMES.has(name) ? cellIndex : -1))
+      .filter((cellIndex) => cellIndex >= 0);
+    if (evidenceIndexes.length === 0) continue;
+    let rowIndex = index + 1;
+    while (rowIndex < lines.length) {
+      const rowLine = lines[rowIndex].trim();
+      if (!rowLine.startsWith('|')) break;
+      if (/^\|\s*[-:]+/.test(rowLine)) {
+        rowIndex += 1;
+        continue;
+      }
+      const rowCells = rowLine
+        .split('|')
+        .slice(1, -1)
+        .map((cell) => cell.trim());
+      for (const evidenceIndex of evidenceIndexes) {
+        const raw = rowCells[evidenceIndex] || '';
+        if (!raw || raw === '<path>' || raw.includes('<')) continue;
+        if (INVALID_EVIDENCE_COMBINATION.test(raw)) {
+          issues.push(`line ${rowIndex + 1}: combined evidence value "${raw}"`);
+          continue;
+        }
+        const normalized = normalizeEvidenceCell(raw);
+        if (normalized && !NFR_EVIDENCE_TYPES.includes(normalized)) {
+          issues.push(`line ${rowIndex + 1}: unknown evidence type "${raw}"`);
+        }
+      }
+      rowIndex += 1;
+    }
+    index = rowIndex - 1;
+  }
+  return issues;
+}
 
 test('specialistCatalog: expansion pack ids exist with source files', async () => {
   for (const id of EXPANSION_SPECIALISTS) {
@@ -196,6 +260,262 @@ test('validateStrategyRouting: strict mode accepts valid routing rows', async ()
     const result = await validateStrategyRouting(cwd, {
       config: {
         testDesign: { strategyRouting: { mode: 'strict' }, proposalPath: 'qa-ai-output/test-design-proposal.md' }
+      }
+    });
+    assert.equal(result.ok, true, result.errors.join('\n'));
+  } finally {
+    await fs.rm(cwd, { recursive: true, force: true });
+  }
+});
+
+test('specialist evidence templates: no invalid Evidence type values in available specialists', async () => {
+  const dir = path.join(repoRoot, '.qa-ai/agents/specialists/available');
+  const files = (await fs.readdir(dir)).filter((name) => name.endsWith('.md'));
+  const failures = [];
+  for (const file of files) {
+    const content = await fs.readFile(path.join(dir, file), 'utf8');
+    const issues = parseMarkdownTableRows(content);
+    if (issues.length > 0) failures.push(`${file}: ${issues.join('; ')}`);
+  }
+  assert.equal(failures.length, 0, failures.join('\n'));
+});
+
+const STANDARD_PRESETS = [
+  'playwright-full.yaml',
+  'karate-full.yaml',
+  'maestro-karate-mobile.yaml',
+  'selenium-jest-browserstack.yaml',
+  'webdriverio-playwright-api.yaml'
+];
+
+test('presets: standard track defaults strategyRouting to advisory', async () => {
+  for (const preset of STANDARD_PRESETS) {
+    const content = await fs.readFile(path.join(repoRoot, '.qa-ai/presets', preset), 'utf8');
+    const config = parseSimpleYaml(content);
+    assert.equal(
+      getConfigValue(config, 'testDesign.strategyRouting.mode', 'off'),
+      'advisory',
+      `${preset} should use advisory strategy routing`
+    );
+  }
+});
+
+test('presets: manual-only keeps strategyRouting off', async () => {
+  const content = await fs.readFile(path.join(repoRoot, '.qa-ai/presets/manual-only.yaml'), 'utf8');
+  const config = parseSimpleYaml(content);
+  assert.equal(getConfigValue(config, 'testDesign.strategyRouting.mode', 'off'), 'off');
+});
+
+test('routeStrategiesForText: mobile advanced signals route to mobile-advanced-agent', () => {
+  const signals = [
+    'Verify push notification opt-out after login.',
+    'Open the marketing deep link on cold start.',
+    'App must recover after going offline mid-checkout.',
+    'Biometric login fallback when Face ID is unavailable.',
+    'Camera permission denied shows graceful error.',
+    'App upgrade must preserve user session data.'
+  ];
+  for (const text of signals) {
+    const routes = routeStrategiesForText(text, { mode: 'advisory' });
+    assert.ok(
+      routes.some((route) => route.specialistId === 'mobile-advanced-agent'),
+      `Expected mobile-advanced-agent for: ${text}`
+    );
+  }
+});
+
+test('routeStrategiesForText: Appium or Maestro alone do not route mobile-advanced-agent', () => {
+  for (const text of ['Run Appium smoke on Android emulator.', 'Execute Maestro flows for login.']) {
+    const routes = routeStrategiesForText(text, { mode: 'advisory' });
+    assert.ok(!routes.some((route) => route.specialistId === 'mobile-advanced-agent'), text);
+  }
+});
+
+test('activeSpecialists: maestro preset loads maestro but not mobile-advanced-agent', async () => {
+  const content = await fs.readFile(path.join(repoRoot, '.qa-ai/presets/maestro-karate-mobile.yaml'), 'utf8');
+  const config = parseSimpleYaml(content);
+  const ids = activeSpecialists(config).map(([id]) => id);
+  assert.ok(ids.includes('maestro'));
+  assert.ok(!ids.includes('mobile-advanced-agent'));
+});
+
+test('routeStrategiesForText: BrowserStack plus push notification routes cloud and mobile advanced', () => {
+  const routes = routeStrategiesForText('Run push notification test on BrowserStack App Automate.', {
+    mode: 'advisory'
+  });
+  assert.ok(routes.some((route) => route.specialistId === 'browserstack-strategy-agent'));
+  assert.ok(routes.some((route) => route.specialistId === 'mobile-advanced-agent'));
+});
+
+test('resolveCriticalSignals: uses defaults when not configured', () => {
+  assert.deepEqual(resolveCriticalSignals({}), DEFAULT_CRITICAL_SIGNALS);
+  assert.deepEqual(
+    resolveCriticalSignals({ testDesign: { strategyRouting: { mode: 'strict' } } }),
+    DEFAULT_CRITICAL_SIGNALS
+  );
+});
+
+test('resolveCriticalSignals: normalizes trims and deduplicates', () => {
+  const resolved = resolveCriticalSignals({
+    testDesign: { strategyRouting: { criticalSignals: [' GDPR ', 'gdpr', 'Figma'] } }
+  });
+  assert.deepEqual(resolved, ['gdpr', 'figma']);
+});
+
+test('resolveCriticalSignals: empty array disables critical enforcement', () => {
+  assert.deepEqual(resolveCriticalSignals({ testDesign: { strategyRouting: { criticalSignals: [] } } }), []);
+});
+
+async function writeStrictProposal(cwd, bodyLines = []) {
+  await fs.mkdir(path.join(cwd, 'qa-ai-output'), { recursive: true });
+  const proposal = ['# Test Design Proposal', '## Official RF ID', 'RF-1', ...bodyLines, ''].join('\n');
+  await fs.writeFile(path.join(cwd, 'qa-ai-output/test-design-proposal.md'), proposal, 'utf8');
+}
+
+test('validateStrategyRouting: strict fails when configured critical signal lacks routing row', async () => {
+  const cwd = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-strategy-figma-fail-'));
+  try {
+    await writeStrictProposal(cwd, [
+      '## Strategy routing decisions',
+      '',
+      '| RF | Criterion IDs | Signal | Specialist(s) | Decision | Evidence type | Rationale |',
+      '| --- | ------------- | ------ | ------------- | -------- | ------------- | --------- |',
+      '| RF-1 | CA-1 | unrelated | test-data-agent | applicable | test-plan | unrelated |',
+      '',
+      'Compare layout against the new Figma redesign.'
+    ]);
+    const result = await validateStrategyRouting(cwd, {
+      config: {
+        testDesign: {
+          strategyRouting: { mode: 'strict', criticalSignals: ['figma'] },
+          proposalPath: 'qa-ai-output/test-design-proposal.md'
+        }
+      }
+    });
+    assert.equal(result.ok, false);
+    assert.ok(result.errors.some((error) => error.includes('figma')));
+  } finally {
+    await fs.rm(cwd, { recursive: true, force: true });
+  }
+});
+
+test('validateStrategyRouting: strict passes when configured critical signal has routing row', async () => {
+  const cwd = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-strategy-figma-pass-'));
+  try {
+    await writeStrictProposal(cwd, [
+      '## Strategy routing decisions',
+      '',
+      '| RF | Criterion IDs | Signal | Specialist(s) | Decision | Evidence type | Rationale |',
+      '| --- | ------------- | ------ | ------------- | -------- | ------------- | --------- |',
+      '| RF-1 | CA-1 | figma | visual-regression-agent | applicable | automation-script | layout parity |',
+      '',
+      'Compare layout against the new Figma redesign.'
+    ]);
+    const result = await validateStrategyRouting(cwd, {
+      config: {
+        testDesign: {
+          strategyRouting: { mode: 'strict', criticalSignals: ['figma'] },
+          proposalPath: 'qa-ai-output/test-design-proposal.md'
+        }
+      }
+    });
+    assert.equal(result.ok, true, result.errors.join('\n'));
+  } finally {
+    await fs.rm(cwd, { recursive: true, force: true });
+  }
+});
+
+test('validateStrategyRouting: strict with analytics event critical signal', async () => {
+  const cwd = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-strategy-analytics-'));
+  try {
+    await writeStrictProposal(cwd, [
+      '## Strategy routing decisions',
+      '',
+      '| RF | Criterion IDs | Signal | Specialist(s) | Decision | Evidence type | Rationale |',
+      '| --- | ------------- | ------ | ------------- | -------- | ------------- | --------- |',
+      '| RF-1 | CA-1 | analytics event | analytics-tracking-agent | applicable | automation-script | event check |',
+      '',
+      'Verify analytics event payload on checkout.'
+    ]);
+    const result = await validateStrategyRouting(cwd, {
+      config: {
+        testDesign: {
+          strategyRouting: { mode: 'strict', criticalSignals: ['analytics event'] },
+          proposalPath: 'qa-ai-output/test-design-proposal.md'
+        }
+      }
+    });
+    assert.equal(result.ok, true, result.errors.join('\n'));
+  } finally {
+    await fs.rm(cwd, { recursive: true, force: true });
+  }
+});
+
+test('validateStrategyRouting: advisory does not enforce critical signals', async () => {
+  const cwd = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-strategy-advisory-'));
+  try {
+    await writeStrictProposal(cwd, ['## Scope', '', 'User consent and GDPR deletion must be verified.']);
+    const result = await validateStrategyRouting(cwd, {
+      config: {
+        testDesign: {
+          strategyRouting: { mode: 'advisory', criticalSignals: ['gdpr'] },
+          proposalPath: 'qa-ai-output/test-design-proposal.md'
+        }
+      },
+      mode: 'advisory'
+    });
+    assert.equal(result.ok, true, result.errors.join('\n'));
+  } finally {
+    await fs.rm(cwd, { recursive: true, force: true });
+  }
+});
+
+test('validateStrategyRouting: strict fails when default critical signal lacks routing row', async () => {
+  const cwd = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-strategy-gdpr-default-fail-'));
+  try {
+    await writeStrictProposal(cwd, [
+      '## Strategy routing decisions',
+      '',
+      '| RF | Criterion IDs | Signal | Specialist(s) | Decision | Evidence type | Rationale |',
+      '| --- | ------------- | ------ | ------------- | -------- | ------------- | --------- |',
+      '| RF-1 | CA-1 | unrelated | test-data-agent | applicable | test-plan | unrelated |',
+      '',
+      'User consent and GDPR deletion must be verified.'
+    ]);
+    const result = await validateStrategyRouting(cwd, {
+      config: {
+        testDesign: {
+          strategyRouting: { mode: 'strict' },
+          proposalPath: 'qa-ai-output/test-design-proposal.md'
+        }
+      }
+    });
+    assert.equal(result.ok, false);
+    assert.ok(result.errors.some((error) => error.includes('gdpr')));
+    assert.ok(result.errors.some((error) => error.includes('privacy-testing-agent')));
+  } finally {
+    await fs.rm(cwd, { recursive: true, force: true });
+  }
+});
+
+test('validateStrategyRouting: empty criticalSignals does not fail on gdpr text', async () => {
+  const cwd = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-strategy-empty-critical-'));
+  try {
+    await writeStrictProposal(cwd, [
+      '## Strategy routing decisions',
+      '',
+      '| RF | Criterion IDs | Signal | Specialist(s) | Decision | Evidence type | Rationale |',
+      '| --- | ------------- | ------ | ------------- | -------- | ------------- | --------- |',
+      '| RF-1 | CA-1 | scope | test-data-agent | applicable | test-plan | placeholder |',
+      '',
+      'User consent and GDPR deletion must be verified.'
+    ]);
+    const result = await validateStrategyRouting(cwd, {
+      config: {
+        testDesign: {
+          strategyRouting: { mode: 'strict', criticalSignals: [] },
+          proposalPath: 'qa-ai-output/test-design-proposal.md'
+        }
       }
     });
     assert.equal(result.ok, true, result.errors.join('\n'));

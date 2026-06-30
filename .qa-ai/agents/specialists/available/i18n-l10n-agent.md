@@ -42,10 +42,10 @@ Act as an i18n/l10n QA specialist. Define locale coverage, observable formatting
 ```markdown
 ## Localization test matrix — <Project/RF>
 
-| Locale | Language direction | Date/time                    | Number/currency    | UI risk | Coverage          | Evidence       |
-| ------ | ------------------ | ---------------------------- | ------------------ | ------- | ----------------- | -------------- |
-| es-ES  | LTR                | dd/MM/yyyy, Europe/Madrid    | EUR, comma decimal | medium  | smoke + key flows | feature/manual |
-| en-US  | LTR                | MM/dd/yyyy, America/New_York | USD, dot decimal   | medium  | representative    | feature/manual |
+| Locale | Language direction | Date/time                    | Number/currency    | UI risk | Coverage          | Evidence type | Supporting evidence |
+| ------ | ------------------ | ---------------------------- | ------------------ | ------- | ----------------- | ------------- | ------------------- |
+| es-ES  | LTR                | dd/MM/yyyy, Europe/Madrid    | EUR, comma decimal | medium  | smoke + key flows | feature       | manual-charter      |
+| en-US  | LTR                | MM/dd/yyyy, America/New_York | USD, dot decimal   | medium  | representative    | feature       |                     |
 
 ### Checks
 

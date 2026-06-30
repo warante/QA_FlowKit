@@ -303,7 +303,11 @@
           "properties": {
             "mode": { "type": "string", "enum": ["off", "advisory", "strict"] },
             "includeKeywordSignals": { "type": "boolean" },
-            "maxSpecialistsPerCriterion": { "type": "integer", "minimum": 1, "maximum": 20 }
+            "maxSpecialistsPerCriterion": { "type": "integer", "minimum": 1, "maximum": 20 },
+            "criticalSignals": {
+              "type": "array",
+              "items": { "type": "string", "minLength": 1 }
+            }
           }
         }
       }

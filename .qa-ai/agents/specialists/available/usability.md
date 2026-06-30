@@ -15,7 +15,7 @@ completion or user-error prevention without a measurable oracle.
 ## Focus
 
 - User profile, task, success criterion and evaluation method (heuristic review, moderated session, benchmark task).
-- Prefer `manual-charter` or `technical-review` when behavior is subjective.
+- Prefer one evidence type per row: `manual-charter` or `technical-review` when behavior is subjective.
 - Record open questions when “easy to use” lacks a testable success condition.
 
 ## Output
@@ -31,8 +31,8 @@ completion or user-error prevention without a measurable oracle.
 - User profile: <e.g. new admin user>
 - Task under evaluation: <task the user must complete>
 - Success criterion: <observable, e.g. completes in <= 3 steps without help>
-- Evaluation method: heuristic review | moderated session | benchmark task
-- Evidence type: manual-charter | technical-review
+- Evaluation method: heuristic review, moderated session or benchmark task (choose one)
+- Evidence type: manual-charter (or technical-review when a review artifact is the primary evidence)
 - Open questions: <unresolved testable conditions>
 ```
 

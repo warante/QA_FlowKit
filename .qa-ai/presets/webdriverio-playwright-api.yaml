@@ -84,6 +84,9 @@ testDesign:
     mode: off
     reportPath: qa-ai-output/gherkin-quality-report.md
     minDimensionsPassed: 7
+  strategyRouting:
+    mode: advisory
+    includeKeywordSignals: true
 release:
   gatePath: qa-ai-output/release-gate.yaml
 approval:

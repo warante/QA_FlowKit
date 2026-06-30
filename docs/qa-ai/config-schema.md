@@ -137,6 +137,7 @@ When both legacy keys and `inferredAcceptanceCriteria` are present, they must ag
 | `testDesign.strategyRouting.mode`                        | `off`, `advisory` or `strict` specialist keyword routing             |
 | `testDesign.strategyRouting.includeKeywordSignals`       | Enable RF/CA keyword routing (default `true` when mode is not `off`) |
 | `testDesign.strategyRouting.maxSpecialistsPerCriterion`  | Cap routed specialists per criterion (default `5`)                   |
+| `testDesign.strategyRouting.criticalSignals`             | Strict-only keyword signals that require routing decision rows       |
 | `traceability.matrixPath`                                | Traceability matrix                                                  |
 | `approval.*`                                             | Gates before external writes / PR                                    |
 | `testManagementSync.mode`                                | `proposal-only` or `governed`                                        |
@@ -154,9 +155,23 @@ phase allowed to request the `external-write:test-management` gate.
 report without blocking the workflow. `gate` treats the configured rubric threshold as a completion gate. See
 [quality-rubric.md](quality-rubric.md).
 
-`testDesign.strategyRouting.mode` defaults to `off` for backward compatibility. Agents may still recommend on-demand
-specialists from [specialist-routing-matrix.md](specialist-routing-matrix.md) in advisory mode. `strict` requires
-`## Strategy routing decisions` rows for critical keyword signals validated by `validate-strategy-routing.mjs`.
+`testDesign.strategyRouting.mode` defaults to `off` in code for backward compatibility. Standard presets (`playwright-full`, `karate-full`, `maestro-karate-mobile`, `selenium-jest-browserstack`, `webdriverio-playwright-api`) ship with `advisory`, which recommends specialists from keyword signals without blocking validators. `manual-only` ships with `off`. `strict` requires `## Strategy routing decisions` rows for signals listed in `testDesign.strategyRouting.criticalSignals` (defaults: `gdpr`, `browserstack`, `openapi`, `sast`, `dast`). Set `criticalSignals: []` to skip critical-signal row enforcement in strict mode.
+
+```yaml
+testDesign:
+  strategyRouting:
+    mode: advisory
+    includeKeywordSignals: true
+    maxSpecialistsPerCriterion: 5
+    criticalSignals:
+      - gdpr
+      - browserstack
+      - openapi
+      - sast
+      - dast
+      - figma
+      - biometric
+```
 
 ## `execution`
 

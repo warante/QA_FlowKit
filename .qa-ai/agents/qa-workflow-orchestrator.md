@@ -84,7 +84,9 @@ These agents are not part of the numbered sequence above. Load them on demand wh
   `.qa-ai/scripts/lib/test-strategy-router.mjs` and [specialist-routing-matrix.md](../../docs/qa-ai/specialist-routing-matrix.md).
   Load matching on-demand specialists before system and per-RF test design. More than one specialist may apply to the
   same RF/CA. Keep routing decisions in `## Strategy routing overview` (system design) and
-  `## Strategy routing decisions` (per-RF proposal) plus traceability artifacts.
+  `## Strategy routing decisions` (per-RF proposal) plus traceability artifacts. Standard presets use
+  `testDesign.strategyRouting.mode: advisory` (recommend, do not block). `strict` enforces routing rows for configured
+  `criticalSignals`. Route advanced mobile behavior to `mobile-advanced-agent` by signal, not from Appium/Maestro alone.
 - Ensure each source NFR has a row in `test-design-proposal.md` (`## Non-functional coverage`) and
   `traceability-matrix.md` (`## Non-functional traceability`). Run `validate-test-coverage.mjs` and
   `validate-traceability.mjs` when those artifacts exist.

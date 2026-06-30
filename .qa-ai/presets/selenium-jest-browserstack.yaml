@@ -70,6 +70,9 @@ testDesign:
     mode: off
     reportPath: qa-ai-output/gherkin-quality-report.md
     minDimensionsPassed: 7
+  strategyRouting:
+    mode: advisory
+    includeKeywordSignals: true
 traceability:
   matrixPath: qa-ai-output/traceability-matrix.md
 release:

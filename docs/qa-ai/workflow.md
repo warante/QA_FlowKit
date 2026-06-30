@@ -47,8 +47,10 @@ Requirements:
 
 After normalization, apply on-demand specialist routing from explicit NFR attributes, RF/CA keyword signals and
 configured tools. See [specialist-routing-matrix.md](specialist-routing-matrix.md). Record decisions in
-`## Strategy routing overview` (system design) and `## Strategy routing decisions` (per-RF proposal). On-demand
-specialists are advisory unless `testDesign.strategyRouting.mode` is `strict`.
+`## Strategy routing overview` (system design) and `## Strategy routing decisions` (per-RF proposal). Standard presets
+use `testDesign.strategyRouting.mode: advisory` to recommend specialists without blocking; `strict` enforces routing rows
+for configured `criticalSignals`. Advanced mobile scenarios may route to `mobile-advanced-agent` by signal, not by
+Appium/Maestro framework selection alone.
 
 ## Step 2 - Official RF ID validation
 

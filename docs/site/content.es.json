@@ -131,8 +131,8 @@
     "notes": "Las puertas de control clave incluyen confirmación del ID RF oficial, sincronización de gestión de pruebas en modo solo-propuesta (proposal-first) y validación determinista de Gherkin antes de trazabilidad y decisiones de release.",
     "track_intro": "Al instalar QA FlowKit eliges cuánto del recorrido QA quieres que guíe. En ambos casos las pruebas, la trazabilidad y los validadores quedan en tu repositorio.",
     "tracks": [
-      "<strong>Quick</strong> — Equipos de QA manual: requisitos → Gherkin → matriz de trazabilidad",
-      "<strong>Standard</strong> — Flujo completo: diseño de pruebas, plan de automatización y salidas para PR"
+      "<strong>Quick</strong> — Equipos de QA manual: requisitos → Gherkin → matriz de trazabilidad (routing de estrategia en off)",
+      "<strong>Standard</strong> — Flujo completo con enrutado advisory de especialistas por señales en requisitos"
     ]
   },
   "features": {
@@ -155,6 +155,10 @@
       {
         "title": "Arnés resumible",
         "text": "Estado persistente de ejecución, registro de eventos y <code>run status</code> entre sesiones del agente."
+      },
+      {
+        "title": "Enrutado de especialistas bajo demanda",
+        "text": "Enruta especialistas de privacidad, mobile, seguridad, cloud y otras estrategias desde señales en requisitos. Los presets standard usan modo advisory; el modo strict puede exigir decisiones de routing documentadas."
       },
       {
         "title": "Límites de seguridad",
@@ -335,6 +339,10 @@
       {
         "href": "https://github.com/warante/QA_FlowKit/blob/main/docs/qa-ai/cli-reference.md",
         "label": "Referencia CLI"
+      },
+      {
+        "href": "https://github.com/warante/QA_FlowKit/blob/main/docs/qa-ai/specialist-routing-matrix.md",
+        "label": "Enrutado de especialistas"
       },
       { "href": "https://github.com/warante/QA_FlowKit/blob/main/docs/qa-ai/demo.md", "label": "Demo RF-101" }
     ]

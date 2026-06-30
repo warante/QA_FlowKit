@@ -61,7 +61,7 @@ explicit NFR attributes, RF/CA keyword signals, and project configuration — se
 
 - **UI/E2E**: WebdriverIO, Playwright UI, Cypress, Selenium.
 - **Mobile**: Maestro and Appium via `automation.mobile.framework`. The mobile implementation phase uses the generic
-  UI implementation agent plus the active mobile specialist.
+  UI implementation agent plus the active mobile specialist. Advanced mobile strategy (`permissions`, `offline`, `push notification`, `deep link`, biometrics, etc.) routes to `mobile-advanced-agent.md` by requirement signals, not by framework alone.
 - **API**: Playwright API, Postman, REST Assured, Karate.
 - **Test management / issue tracker**: TestRail, Jira.
 - **AI system testing**: AI eval suites and authorized AI red-team design when `aiTesting.enabled: true`.
@@ -71,7 +71,7 @@ explicit NFR attributes, RF/CA keyword signals, and project configuration — se
 - **Contracts and data**: `contract-testing-agent.md`, `data-quality-agent.md`, `database-migration-agent.md`.
 - **UI/product quality**: `visual-regression-agent.md`, `cross-browser-device-agent.md`, `i18n-l10n-agent.md`,
   `analytics-tracking-agent.md`.
-- **Operations**: `observability-testing-agent.md`, `post-deploy-validation-agent.md`, `browserstack-strategy-agent.md`.
+- **Operations**: `observability-testing-agent.md`, `post-deploy-validation-agent.md`, `browserstack-strategy-agent.md`, `mobile-advanced-agent.md`.
 - **Security, privacy and compliance**: `security-advanced-agent.md`, `threat-modeling-agent.md`, `privacy-testing-agent.md`,
   `compliance-testing-agent.md`.
 - **Performance and resilience**: `performance-execution-agent.md`, `resilience-chaos-agent.md`.

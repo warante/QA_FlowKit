@@ -39,7 +39,7 @@ both apply, load both and keep their rows distinct.
 - Threshold / oracle: <e.g. p95 < 800ms at target load, error rate < 1%>
 - Resource assumptions: <nodes, replicas, DB tier>
 - Environment / precondition: <isolated perf env, data volume, warm-up>
-- Evidence type: test-plan | automation-script (k6/Gatling) | residual-risk
+- Evidence type: choose one per row — `test-plan`, `automation-script` (k6/Gatling, etc.) or `residual-risk`
 ```
 
 ## Safety Boundaries

@@ -25,7 +25,7 @@ disciplina del prompt. QA FlowKit está actualmente en fase de **candidato a ver
 Los agentes de IA generan pruebas rápidamente, pero los equipos siguen necesitando estructura, trazabilidad,
 aprobaciones y validación fiable. QA FlowKit instala esos controles dentro del repositorio destino:
 
-- instrucciones por fase y especialistas reutilizables (incluidos especialistas de estrategia bajo demanda — ver [enrutado de especialistas](docs/qa-ai/specialist-routing-matrix.md));
+- instrucciones por fase y especialistas reutilizables (incluidos especialistas de estrategia bajo demanda — ver [enrutado de especialistas](docs/qa-ai/specialist-routing-matrix.md); los presets standard incluyen `testDesign.strategyRouting.mode: advisory` para recomendar especialistas por señales en requisitos sin bloquear validadores; `manual-only` mantiene el routing en `off`);
 - tracks `quick`, `standard` y `enterprise`;
 - estado persistente, reanudable y con registro de eventos;
 - validación de Gherkin, trazabilidad, diseño de pruebas, planes de sync y release gates;

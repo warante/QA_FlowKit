@@ -4,11 +4,26 @@ import { parseSectionTable } from './table-helpers.mjs';
 import { getConfigValue, readText, pathExists, resolveRepoPath } from './utils.mjs';
 import { routeStrategiesForText } from './test-strategy-router.mjs';
 
+export const DEFAULT_CRITICAL_SIGNALS = ['gdpr', 'browserstack', 'openapi', 'sast', 'dast'];
+
 function normalizeStrategyRoutingMode(config = {}) {
   const mode = String(getConfigValue(config, 'testDesign.strategyRouting.mode', 'off'))
     .trim()
     .toLowerCase();
   return ['off', 'advisory', 'strict'].includes(mode) ? mode : 'off';
+}
+
+/**
+ * Resolve configured critical signals for strict-mode validation.
+ * When omitted, uses DEFAULT_CRITICAL_SIGNALS. When set to [], no signals are treated as critical.
+ * @param {object} config
+ * @returns {string[]}
+ */
+export function resolveCriticalSignals(config = {}) {
+  const raw = getConfigValue(config, 'testDesign.strategyRouting.criticalSignals', undefined);
+  if (raw === undefined) return [...DEFAULT_CRITICAL_SIGNALS];
+  if (!Array.isArray(raw)) return [...DEFAULT_CRITICAL_SIGNALS];
+  return [...new Set(raw.map((signal) => String(signal).trim().toLowerCase()).filter(Boolean))];
 }
 
 /**
@@ -68,7 +83,7 @@ export async function validateStrategyRouting(cwd, options = {}) {
   }
 
   const routes = routeStrategiesForText(content, { config, mode: 'advisory' });
-  const criticalSignals = new Set(['gdpr', 'browserstack', 'openapi', 'sast', 'dast']);
+  const criticalSignals = new Set(resolveCriticalSignals(config));
   for (const route of routes) {
     if (!criticalSignals.has(String(route.signal || '').toLowerCase())) continue;
     const listed = table.rows.some((row) =>
