@@ -1,37 +1,9 @@
 /**
  * Shared npm pack allowlist for verify-npm-pack, smoke-npm-pack and E2E-06.
  */
+import { packagedCommandScripts } from './inventory-manifest.mjs';
 
-export const STABLE_COMMAND_SCRIPTS = [
-  'bin/qa-flowkit.mjs',
-  '.qa-ai/scripts/init.mjs',
-  '.qa-ai/scripts/bootstrap-agent-adapters.mjs',
-  '.qa-ai/scripts/config.mjs',
-  '.qa-ai/scripts/doctor.mjs',
-  '.qa-ai/scripts/clean.mjs',
-  '.qa-ai/scripts/qa-help.mjs',
-  '.qa-ai/scripts/qa-run.mjs',
-  '.qa-ai/scripts/qa-metrics.mjs',
-  '.qa-ai/scripts/export-report.mjs',
-  '.qa-ai/scripts/sync-agent-adapters.mjs',
-  '.qa-ai/scripts/validate-config.mjs',
-  '.qa-ai/scripts/validate-untrusted-content.mjs',
-  '.qa-ai/scripts/validate-external-intake.mjs',
-  '.qa-ai/scripts/validate-target.mjs',
-  '.qa-ai/scripts/validate-features.mjs',
-  '.qa-ai/scripts/validate-karate-features.mjs',
-  '.qa-ai/scripts/validate-maestro-flows.mjs',
-  '.qa-ai/scripts/validate-traceability.mjs',
-  '.qa-ai/scripts/validate-sync-plan.mjs',
-  '.qa-ai/scripts/validate-sync-diff.mjs',
-  '.qa-ai/scripts/validate-sync-result.mjs',
-  '.qa-ai/scripts/validate-active-specialists.mjs',
-  '.qa-ai/scripts/validate-release-gate.mjs',
-  '.qa-ai/scripts/validate-test-design.mjs',
-  '.qa-ai/scripts/validate-test-coverage.mjs',
-  '.qa-ai/scripts/validate-quality-report.mjs',
-  '.qa-ai/scripts/validate-workflow-contract.mjs'
-];
+export const STABLE_COMMAND_SCRIPTS = packagedCommandScripts();
 
 export const PACK_INFRASTRUCTURE = [
   'package.json',

@@ -4,6 +4,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { parse as parseGherkin } from './gherkin-parser.mjs';
+import { normalizeId, idsFromText } from './id-normalize.mjs';
+
+export { normalizeId, idsFromText } from './id-normalize.mjs';
 
 export const rfPattern = /\bRF[-_ ]?[A-Z0-9]+\b/i;
 export const idPattern = /\b(?:RF|TC|TEST|QA)(?:[-_][A-Z0-9]+| \d[A-Z0-9]*|\d+)\b/gi;
@@ -44,15 +47,14 @@ export function normalizeLanguage(value) {
   return 'en';
 }
 
-/** Like normalizeLanguage but exits the process when the value is not a supported language code. */
+/** Like normalizeLanguage but throws when the value is not a supported language code. */
 export function normalizeLanguageStrict(value, label = 'language') {
   const normalized = String(value || '')
     .trim()
     .toLowerCase();
   if (['es', 'esp', 'spa', 'spanish', 'espanol', 'espa\u00f1ol'].includes(normalized)) return 'es';
   if (['en', 'eng', 'english', 'ingles', 'ingl\u00e9s'].includes(normalized)) return 'en';
-  console.error(`Unsupported ${label}: ${value}. Use "en" or "es".`);
-  process.exit(1);
+  throw new Error(`Unsupported ${label}: ${value}. Use "en" or "es".`);
 }
 
 export function languageRules(language) {
@@ -93,16 +95,6 @@ export function escapeRegExp(value) {
 export function hasRequiredTag(content, tagName) {
   const pattern = new RegExp(`(?:^|\\s)${escapeRegExp(tagName)}:[^\\s]+`, 'm');
   return pattern.test(content);
-}
-
-export function normalizeId(value) {
-  return String(value || '')
-    .replace(/\s+/g, '-')
-    .toUpperCase();
-}
-
-export function idsFromText(value) {
-  return [...String(value || '').matchAll(idPattern)].map((match) => normalizeId(match[0]));
 }
 
 export function caseIdsFromText(value) {

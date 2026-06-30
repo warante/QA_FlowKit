@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-import { spawnSync } from 'node:child_process';
 import { normalizeQaTrack } from './lib/qa-next-steps.mjs';
 import { formatSecretScanFindingsForJson, scanTargetSecrets } from './lib/target-secret-scan.mjs';
 import {
@@ -8,7 +7,12 @@ import {
   validateCustomValidatorConfig
 } from './lib/custom-validators.mjs';
 import { getConfigValue, loadQaAiConfig, logHeader, parseArgs } from './lib/utils.mjs';
-import { buildTargetValidatorSteps, runInProcessStep, runSubprocessStep } from './lib/validate-target-runner.mjs';
+import {
+  buildTargetValidatorSteps,
+  runInProcessStep,
+  runSubprocessStep,
+  runSubprocessStepJson
+} from './lib/validate-target-runner.mjs';
 
 const args = parseArgs(process.argv);
 
@@ -50,56 +54,6 @@ function customValidatorCommandSpecs(config) {
   }));
 }
 
-function parseTextFindings(label, output) {
-  const findings = [];
-  const lines = output.split(/\r?\n/);
-  let currentFile = null;
-
-  for (const line of lines) {
-    const trimmed = line.trim();
-    if (!trimmed) continue;
-
-    const featMatch = line.match(/^\[FAIL\]\s+(.*?\.(?:feature|spec|flow|js|ts|mjs|cjs|yaml|yml|json|md))$/);
-    if (featMatch) {
-      currentFile = featMatch[1];
-      continue;
-    }
-
-    if (line.startsWith('  - ') && currentFile) {
-      findings.push({ file: currentFile, message: line.slice(4).trim(), severity: 'error' });
-      continue;
-    }
-
-    if (line.startsWith('  [WARN] ') && currentFile) {
-      findings.push({ file: currentFile, message: line.slice(9).trim(), severity: 'warning' });
-      continue;
-    }
-
-    if (line.startsWith('[FAIL]') || line.startsWith('[WARN]')) {
-      const severity = line.startsWith('[FAIL]') ? 'error' : 'warning';
-      const content = line.slice(6).trim();
-      const fileLineMatch = content.match(/^([^:\s]+):(\d+)(?::)?\s*(.*)$/);
-      if (fileLineMatch && (fileLineMatch[1].includes('/') || fileLineMatch[1].includes('.'))) {
-        findings.push({
-          file: fileLineMatch[1],
-          line: parseInt(fileLineMatch[2], 10),
-          message: fileLineMatch[3],
-          severity
-        });
-      } else {
-        findings.push({ message: content, severity });
-      }
-      continue;
-    }
-
-    if (line.startsWith('FAILED -') || line.startsWith('FAILED:')) {
-      findings.push({ message: line.trim(), severity: 'error' });
-    }
-  }
-
-  return findings;
-}
-
 function printInProcessTextResult(step, runResult) {
   const { result } = runResult;
   if (result.skipped) {
@@ -133,36 +87,7 @@ async function runStepText(cwd, step) {
 
 async function runStepJson(cwd, step) {
   if (step.kind === 'subprocess') {
-    const subprocessArgs = step.args.includes('--json') ? step.args : [...step.args, '--json'];
-    const result = spawnSync(process.execPath, subprocessArgs, {
-      cwd,
-      encoding: 'utf8',
-      stdio: 'pipe',
-      shell: false
-    });
-    const passed = (result.status ?? 1) === 0;
-    let findings;
-    try {
-      const parsed = JSON.parse(result.stdout);
-      if (parsed && Array.isArray(parsed.findings)) {
-        findings = parsed.findings.map((f) => ({
-          file: f.file || f.path || '',
-          line: typeof f.line === 'number' ? f.line : undefined,
-          message: f.message || '',
-          severity: f.severity || (passed ? 'warning' : 'error')
-        }));
-      } else if (parsed && Array.isArray(parsed.errors)) {
-        findings = parsed.errors.map((err) => ({
-          message: typeof err === 'string' ? err : JSON.stringify(err),
-          severity: 'error'
-        }));
-      } else {
-        findings = parseTextFindings(step.label, `${result.stdout}\n${result.stderr}`);
-      }
-    } catch {
-      findings = parseTextFindings(step.label, `${result.stdout}\n${result.stderr}`);
-    }
-    return { name: step.label, status: passed ? 'passed' : 'failed', findings };
+    return runSubprocessStepJson(cwd, step);
   }
 
   const runResult = await runInProcessStep(cwd, step);

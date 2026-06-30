@@ -1,6 +1,5 @@
 import fs from 'node:fs/promises';
 import { resolveRepoPath } from './utils.mjs';
-import { emitJson } from './validator-cli.mjs';
 
 /**
  * Resolve and validate a single --file argument under one or more allowed roots.
@@ -28,15 +27,17 @@ export async function resolveSingleCollectionFile({
   return { ok: true, file: resolvedFile };
 }
 
-/** Exit with JSON or text failure for a single-file resolution error. */
+/** Signal a single-file resolution failure (CLI should format and exit). */
 export function exitSingleFileFailure(result, jsonMode, { prefix = 'FAILED - ' } = {}) {
-  if (jsonMode) emitJson(false, [result.error]);
-  else console.log(`${prefix}${result.error}`);
-  process.exit(1);
+  const error = new Error(result.error);
+  error.jsonMode = jsonMode;
+  error.prefix = prefix;
+  error.validatorCliFailure = true;
+  throw error;
 }
 
 /**
- * Handle zero-file collection: exit on failure or emit success when allow-empty.
+ * Handle zero-file collection.
  * @returns {boolean} true when the caller should return early (empty handled)
  */
 export function handleEmptyCollection({
@@ -45,20 +46,18 @@ export function handleEmptyCollection({
   jsonMode,
   failureErrors,
   failureTextLines,
-  successText
+  successText: _successText
 }) {
   if (fileCount > 0) return false;
 
   if (!allowEmpty) {
     const errors = Array.isArray(failureErrors) ? failureErrors : [failureErrors];
-    if (jsonMode) emitJson(false, errors);
-    else {
-      for (const line of failureTextLines || errors) console.log(line);
-    }
-    process.exit(1);
+    const error = new Error(errors[0] || 'No files found.');
+    error.jsonMode = jsonMode;
+    error.failureTextLines = failureTextLines || errors;
+    error.validatorCliFailure = true;
+    throw error;
   }
 
-  if (jsonMode) emitJson(true);
-  else if (successText) console.log(successText);
   return true;
 }

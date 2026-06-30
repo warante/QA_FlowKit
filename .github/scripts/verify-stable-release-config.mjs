@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import fs from 'node:fs/promises';
-import { assert, isMain, repoRoot } from './lib/ci-helpers.mjs';
+import { assert, isMain, readJson, repoRoot } from './lib/ci-helpers.mjs';
 import path from 'node:path';
 import {
   ACTIVE_CONFIG,
@@ -15,11 +15,6 @@ import { verifyReleasePolicy } from './verify-release-policy.mjs';
 import { verifyStableReleaseApproval } from './verify-stable-release-approval.mjs';
 
 const ALLOWED_STATUS = new Set(['prepared', 'merged', 'verified']);
-
-async function readJson(filePath) {
-  return JSON.parse(await fs.readFile(filePath, 'utf8'));
-}
-
 export async function verifyStableReleaseConfig({ root = repoRoot } = {}) {
   const errors = [];
   const recordPath = path.join(root, 'docs', 'qa-ai', 'stable-release-config.v1.json');

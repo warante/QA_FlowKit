@@ -207,8 +207,7 @@ export function configOverrides({
   for (const item of commaList(args.set)) {
     const equalsIndex = item.indexOf('=');
     if (equalsIndex <= 0) {
-      console.error(`Invalid --set value: ${item}. Use key.path=value.`);
-      process.exit(1);
+      throw new Error(`Invalid --set value: ${item}. Use key.path=value.`);
     }
     overrides.push([item.slice(0, equalsIndex).trim(), item.slice(equalsIndex + 1).trim()]);
   }
@@ -242,16 +241,20 @@ export function personalizeConfig({
 export function assertNoChangeMe(content) {
   const keys = findChangeMeKeys(content);
   if (keys.length === 0) return;
-  console.error('Generated qa-ai.config.yaml still contains CHANGE_ME placeholders:');
-  for (const key of keys) console.error(`- ${key}`);
-  console.error('Pass explicit init flags or --set key=value overrides for these keys.');
-  process.exit(1);
+  const message = [
+    'Generated qa-ai.config.yaml still contains CHANGE_ME placeholders:',
+    ...keys.map((key) => `- ${key}`),
+    'Pass explicit init flags or --set key=value overrides for these keys.'
+  ].join('\n');
+  throw new Error(message);
 }
 
 export async function assertValidConfig(content, cwd) {
   const result = await validateConfigContent(content, cwd);
   if (result.ok) return;
-  console.error('Generated qa-ai.config.yaml failed schema validation:');
-  for (const error of result.errors) console.error(`- ${error}`);
-  process.exit(1);
+  const message = [
+    'Generated qa-ai.config.yaml failed schema validation:',
+    ...result.errors.map((error) => `- ${error}`)
+  ].join('\n');
+  throw new Error(message);
 }

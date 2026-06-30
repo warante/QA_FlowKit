@@ -23,9 +23,48 @@ export function isJsonMode(args) {
 export function finishValidatorRun({ ok, errors = [], warnings = [], jsonMode, successMessage, failureMessage }) {
   if (!ok) {
     if (jsonMode) emitJson(false, errors, warnings);
-    else console.log(failureMessage || `\nFAILED - ${errors.length} validation error(s).`);
+    else {
+      for (const warning of warnings) console.log(`WARNING: ${warning}`);
+      for (const error of errors) console.log(error);
+      console.log(failureMessage || `\nFAILED - ${errors.length} validation error(s).`);
+    }
     process.exit(1);
   }
   if (jsonMode) emitJson(true, [], warnings);
-  else if (successMessage) console.log(successMessage);
+  else {
+    for (const warning of warnings) console.log(`WARNING: ${warning}`);
+    if (successMessage) console.log(successMessage);
+  }
+}
+
+/** Map common CLI flags to validator options. */
+export function validatorOptionsFromArgs(args) {
+  return {
+    path: args.path,
+    file: args.file,
+    allowEmpty: Boolean(args['allow-empty']),
+    allowMissing: Boolean(args['allow-missing']),
+    strict: Boolean(args.strict),
+    gherkinLanguage: args['gherkin-language'] || args.gherkinLanguage || args.gherkin,
+    strictTags: Boolean(args['strict-tags']),
+    strictLayout: Boolean(args['strict-layout']),
+    noDuplicates: Boolean(args['no-duplicates']),
+    strictRf: Boolean(args['strict-rf']),
+    configPath: args.config
+  };
+}
+
+/** Handle framework-not-configured skip (Karate, Maestro, etc.). */
+export function finishSkippedValidator({ jsonMode, message }) {
+  if (jsonMode) emitJson(true);
+  else if (message) console.log(message);
+}
+
+/** Run async validator entrypoint with standard error handling. */
+export function runValidatorMain(importMetaUrl, main) {
+  if (!isValidatorMain(importMetaUrl)) return;
+  main().catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
 }

@@ -1,26 +1,13 @@
 #!/usr/bin/env node
-import fs from 'node:fs/promises';
-import { validateFeatureFilePlacement } from './lib/feature-layout.mjs';
-import { duplicateIdErrors, normalizeLanguage, validateFeatureContent } from './lib/gherkin-validate.mjs';
+import { validateDesignFeatures } from './lib/gherkin-features-validate.mjs';
+import { logHeader, parseArgs } from './lib/utils.mjs';
 import {
-  getConfigValue,
-  listFilesRecursive,
-  loadQaAiConfig,
-  logHeader,
-  parseArgs,
-  relativeTo,
-  resolveRepoPath
-} from './lib/utils.mjs';
-import {
-  exitSingleFileFailure,
-  handleEmptyCollection,
-  resolveSingleCollectionFile
-} from './lib/collection-validator.mjs';
-import { finishValidatorRun, isJsonMode, isValidatorMain } from './lib/validator-cli.mjs';
-
-const cwd = process.cwd();
-const args = parseArgs(process.argv);
-const jsonMode = isJsonMode(args);
+  finishSkippedValidator,
+  finishValidatorRun,
+  isJsonMode,
+  runValidatorMain,
+  validatorOptionsFromArgs
+} from './lib/validator-cli.mjs';
 
 function printHelp() {
   console.log(`Usage: node .qa-ai/scripts/validate-features.mjs [options]
@@ -42,137 +29,30 @@ For executable Karate features, use validate-karate-features.mjs.
 }
 
 async function main() {
+  const args = parseArgs(process.argv);
   if (args.help) {
     printHelp();
     return;
   }
 
+  const jsonMode = isJsonMode(args);
   if (!jsonMode) logHeader('QA AI feature validator');
-  const configInfo = await loadQaAiConfig(cwd);
-  const featureRoot = args.path || getConfigValue(configInfo.data, 'gherkin.featurePath', 'features');
-  const language = normalizeLanguage(
-    args['gherkin-language'] ||
-      args.gherkinLanguage ||
-      args.gherkin ||
-      getConfigValue(configInfo.data, 'gherkin.language', 'en')
-  );
-  const requiredTags = getConfigValue(configInfo.data, 'gherkin.tags.required', ['priority', 'type', 'manual']);
-  const tagNames =
-    Array.isArray(requiredTags) && requiredTags.length > 0 ? requiredTags : ['priority', 'type', 'manual'];
-  const featureRootPath = resolveRepoPath(cwd, featureRoot, { label: 'feature root' });
-  const strictTags = Boolean(args['strict-tags']);
-  const strictLayout = Boolean(args['strict-layout']);
-  const aiTestingConfig = {
-    enabled: Boolean(getConfigValue(configInfo.data, 'aiTesting.enabled', false)),
-    requiredTechniques: getConfigValue(configInfo.data, 'aiTesting.requiredTechniques', []),
-    optionalTechniques: getConfigValue(configInfo.data, 'aiTesting.optionalTechniques', [])
-  };
 
-  let files;
-  if (args.file) {
-    const single = await resolveSingleCollectionFile({
-      cwd,
-      fileArg: args.file,
-      isUnderRoot: (resolved) => resolved.startsWith(featureRootPath),
-      notUnderRootError: `file "${args.file}" is not under feature root "${featureRoot}".`,
-      fileLabel: 'single feature file'
-    });
-    if (!single.ok) exitSingleFileFailure(single, jsonMode);
-    files = [single.file];
-    args['no-duplicates'] = true;
-  } else {
-    files = await listFilesRecursive(featureRootPath, (filePath) => filePath.endsWith('.feature'));
-  }
+  const result = await validateDesignFeatures(process.cwd(), validatorOptionsFromArgs(args));
 
-  if (
-    handleEmptyCollection({
-      fileCount: files.length,
-      allowEmpty: Boolean(args['allow-empty']),
-      jsonMode,
-      failureErrors: [`No .feature files found under ${featureRoot}.`],
-      failureTextLines: [
-        `No .feature files found under ${featureRoot}.`,
-        '\nFAILED - no feature files found. Pass --allow-empty when this is expected.'
-      ],
-      successText: `No .feature files found under ${featureRoot}.`
-    })
-  ) {
+  if (result.skipped) {
+    finishSkippedValidator({ jsonMode, message: result.skipMessage });
     return;
   }
 
-  let totalErrors = 0;
-  const aggErrors = [];
-  const aggWarnings = [];
-  const results = [];
-  for (const file of files) {
-    const content = await fs.readFile(file, 'utf8');
-    const result = {
-      file,
-      ...validateFeatureContent(content, file, tagNames, language, { strictTags, aiTestingConfig, repoRoot: cwd })
-    };
-    results.push(result);
-    const placement = validateFeatureFilePlacement(file, featureRootPath, content);
-    result.placementWarnings = placement.warnings;
-    const rel = relativeTo(cwd, file);
-
-    if (result.errors.length === 0 && placement.warnings.length === 0) {
-      if (!jsonMode) console.log(`[PASS] ${rel}`);
-    } else if (result.errors.length === 0 && placement.warnings.length > 0) {
-      if (strictLayout) {
-        totalErrors += placement.warnings.length;
-        for (const warning of placement.warnings) aggErrors.push(`${rel}: ${warning}`);
-        if (!jsonMode) {
-          console.log(`[FAIL] ${rel}`);
-          for (const warning of placement.warnings) console.log(`  - ${warning}`);
-        }
-      } else {
-        for (const warning of placement.warnings) aggWarnings.push(`${rel}: ${warning}`);
-        if (!jsonMode) {
-          console.log(`[PASS] ${rel}`);
-          for (const warning of placement.warnings) console.log(`  [WARN] ${warning}`);
-        }
-      }
-    } else {
-      totalErrors += result.errors.length;
-      if (strictLayout) totalErrors += placement.warnings.length;
-      for (const error of result.errors) aggErrors.push(`${rel}: ${error}`);
-      for (const warning of placement.warnings) {
-        if (strictLayout) aggErrors.push(`${rel}: ${warning}`);
-        else aggWarnings.push(`${rel}: ${warning}`);
-      }
-      if (!jsonMode) {
-        console.log(`[FAIL] ${rel}`);
-        for (const error of result.errors) console.log(`  - ${error}`);
-        for (const warning of placement.warnings) console.log(`  - ${warning}`);
-      }
-    }
-  }
-
-  if (!args['no-duplicates']) {
-    const duplicateErrors = duplicateIdErrors(results);
-    if (duplicateErrors.length > 0) {
-      totalErrors += duplicateErrors.length;
-      for (const error of duplicateErrors) aggErrors.push(`Duplicate identifier: ${error}`);
-      if (!jsonMode) {
-        console.log('[FAIL] Duplicate identifier validation');
-        for (const error of duplicateErrors) console.log(`  - ${error}`);
-      }
-    }
-  }
-
   finishValidatorRun({
-    ok: totalErrors === 0,
-    errors: aggErrors,
-    warnings: aggWarnings,
+    ok: result.ok,
+    errors: result.errors,
+    warnings: result.warnings,
     jsonMode,
     successMessage: '\nVALID - all feature files passed.',
-    failureMessage: `\nFAILED - ${totalErrors} validation errors.`
+    failureMessage: `\nFAILED - ${result.errors.length} validation error(s).`
   });
 }
 
-if (isValidatorMain(import.meta.url)) {
-  main().catch((error) => {
-    console.error(error);
-    process.exit(1);
-  });
-}
+runValidatorMain(import.meta.url, main);

@@ -1,6 +1,7 @@
 import { spawnSync } from 'node:child_process';
 import { getConfigValue } from './utils.mjs';
 import { TARGET_VALIDATOR_PIPELINE, VALIDATOR_REGISTRY, validatorScriptPath } from './validator-registry.mjs';
+import { ARTIFACT_PATHS } from './artifact-paths.mjs';
 import { shouldIncludeTargetValidator } from './validate-target-conditions.mjs';
 import { validateQualityReport } from './quality-report.mjs';
 import {
@@ -34,7 +35,7 @@ const IN_PROCESS_RUNNERS = {
   'validate-untrusted-content': (cwd, opts) => validateUntrustedContent(cwd, opts),
   'validate-active-specialists': (cwd, opts) => validateActiveSpecialists(cwd, opts),
   'validate-release-gate': (cwd, opts, config) =>
-    validateReleaseGateFile(cwd, getConfigValue(config, 'releaseGate.path', 'qa-ai-output/release-gate.yaml'), opts),
+    validateReleaseGateFile(cwd, getConfigValue(config, 'releaseGate.path', ARTIFACT_PATHS.releaseGate), opts),
   'validate-test-design': (cwd, opts) => validateTestDesignArtifacts(cwd, opts)
 };
 
@@ -132,6 +133,92 @@ export function runSubprocessStep(cwd, step, { quiet = false } = {}) {
     status: result.status ?? 1,
     stdout: result.stdout || '',
     stderr: result.stderr || ''
+  };
+}
+
+export function parseTextFindings(label, output) {
+  const findings = [];
+  const lines = output.split(/\r?\n/);
+  let currentFile = null;
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+
+    const featMatch = line.match(/^\[FAIL\]\s+(.*?\.(?:feature|spec|flow|js|ts|mjs|cjs|yaml|yml|json|md))$/);
+    if (featMatch) {
+      currentFile = featMatch[1];
+      continue;
+    }
+
+    if (line.startsWith('  - ') && currentFile) {
+      findings.push({ file: currentFile, message: line.slice(4).trim(), severity: 'error' });
+      continue;
+    }
+
+    if (line.startsWith('  [WARN] ') && currentFile) {
+      findings.push({ file: currentFile, message: line.slice(9).trim(), severity: 'warning' });
+      continue;
+    }
+
+    if (line.startsWith('[FAIL]') || line.startsWith('[WARN]')) {
+      const severity = line.startsWith('[FAIL]') ? 'error' : 'warning';
+      const content = line.slice(6).trim();
+      const fileLineMatch = content.match(/^([^:\s]+):(\d+)(?::)?\s*(.*)$/);
+      if (fileLineMatch && (fileLineMatch[1].includes('/') || fileLineMatch[1].includes('.'))) {
+        findings.push({
+          file: fileLineMatch[1],
+          line: parseInt(fileLineMatch[2], 10),
+          message: fileLineMatch[3],
+          severity
+        });
+      } else {
+        findings.push({ message: content, severity });
+      }
+      continue;
+    }
+
+    if (line.startsWith('FAILED -') || line.startsWith('FAILED:')) {
+      findings.push({ message: line.trim(), severity: 'error' });
+    }
+  }
+
+  return findings;
+}
+
+function normalizeSubprocessFindings(parsed, passed, stepLabel, stdout, stderr) {
+  if (parsed && Array.isArray(parsed.findings)) {
+    return parsed.findings.map((f) => ({
+      file: f.file || f.path || '',
+      line: typeof f.line === 'number' ? f.line : undefined,
+      message: f.message || '',
+      severity: f.severity || (passed ? 'warning' : 'error')
+    }));
+  }
+  if (parsed && Array.isArray(parsed.errors)) {
+    return parsed.errors.map((err) => ({
+      message: typeof err === 'string' ? err : JSON.stringify(err),
+      severity: 'error'
+    }));
+  }
+  return parseTextFindings(stepLabel, `${stdout}\n${stderr}`);
+}
+
+export function runSubprocessStepJson(cwd, step) {
+  const subprocessArgs = step.args.includes('--json') ? step.args : [...step.args, '--json'];
+  const result = runSubprocessStep(cwd, { ...step, args: subprocessArgs }, { quiet: true });
+  const passed = result.ok;
+  let findings;
+  try {
+    const parsed = JSON.parse(result.stdout);
+    findings = normalizeSubprocessFindings(parsed, passed, step.label, result.stdout, result.stderr);
+  } catch {
+    findings = parseTextFindings(step.label, `${result.stdout}\n${result.stderr}`);
+  }
+  return {
+    name: step.label,
+    status: passed ? 'passed' : 'failed',
+    findings
   };
 }
 

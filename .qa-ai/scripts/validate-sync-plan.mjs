@@ -2,6 +2,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { normalizeColumn, parseMarkdownTable } from './lib/markdown-table.mjs';
+import { idsFromText, normalizeId } from './lib/id-normalize.mjs';
 import { validateTestManagementMapping } from './lib/test-management-mapping.mjs';
 import { getTestManagementMappingFile } from './lib/test-management-config.mjs';
 import {
@@ -21,7 +22,6 @@ import { emitJson, isJsonMode } from './lib/validator-cli.mjs';
 const cwd = process.cwd();
 const args = parseArgs(process.argv);
 const jsonMode = isJsonMode(args);
-const idPattern = /\b(?:RF|TC|TEST|QA)(?:[-_][A-Z0-9]+| \d[A-Z0-9]*|\d+)\b/gi;
 const writeClaimPattern =
   /\b(?:created|updated|deleted|synced|archived|creado|actualizado|eliminado|sincronizado|archivado)\s+(?:in|to|from|en|a|de)\s+(?:testrail|zephyr|xray|jira)\b/i;
 const requiredColumns = ['ID', 'Proposed action', 'Approval status'];
@@ -43,16 +43,6 @@ Options:
 
 Validates proposal-first language, feature identifier coverage, sync-plan table shape and duplicate plan IDs.
 `);
-}
-
-function normalizeId(value) {
-  return String(value || '')
-    .replace(/\s+/g, '-')
-    .toUpperCase();
-}
-
-function idsFromText(value) {
-  return [...String(value || '').matchAll(idPattern)].map((match) => normalizeId(match[0]));
 }
 
 function parseSyncPlanTable(content) {

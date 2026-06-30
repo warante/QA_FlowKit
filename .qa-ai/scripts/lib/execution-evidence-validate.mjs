@@ -4,6 +4,7 @@ import { parseJUnitXml, parseCucumberJson, extractTestIds } from './execution-re
 import { parseEvalJson } from './eval-results.mjs';
 import { parseMarkdownTable, normalizeColumn } from './markdown-table.mjs';
 import { getConfigValue, loadQaAiConfig, pathExists, readText, resolveRepoPath } from './utils.mjs';
+import { ARTIFACT_PATHS } from './artifact-paths.mjs';
 import { getTestManagementMappingFile } from './test-management-config.mjs';
 import { normalizeId } from './gherkin-validate.mjs';
 import { resolveGlobs } from './glob.mjs';
@@ -164,7 +165,7 @@ export async function validateExecutionEvidence(cwd, options = {}) {
   const config = configInfo.data || {};
 
   const matrixPath =
-    options.matrixPath || getConfigValue(config, 'traceability.matrixPath', 'qa-ai-output/traceability-matrix.md');
+    options.matrixPath || getConfigValue(config, 'traceability.matrixPath', ARTIFACT_PATHS.traceabilityMatrix);
   const mappingFile = options.mappingFile || getTestManagementMappingFile(config);
   const resultsPaths = options.resultsPaths || getConfigValue(config, 'execution.resultsPaths', []);
   const evalResultsPaths = options.evalResultsPaths || getConfigValue(config, 'execution.evalResultsPaths', []);

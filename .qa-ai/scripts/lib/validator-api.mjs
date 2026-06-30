@@ -8,13 +8,13 @@ export { validateMaestroFlowsCollection as validateMaestroFlows } from './maestr
 export { validateConfig } from './config-validate.mjs';
 export { validateActiveSpecialists } from './active-specialists-validate.mjs';
 export { validateUntrustedContent } from './untrusted-content-validate.mjs';
-export { validateHealingLog } from '../validate-healing-log.mjs';
-export { validateTestImpact } from '../validate-test-impact.mjs';
-export { validateTraceability } from '../validate-traceability.mjs';
-export { validateReleaseGateFile } from '../validate-release-gate.mjs';
+export { validateHealingLog } from './healing-log-validate.mjs';
+export { validateTestImpact } from './test-impact-validate.mjs';
+export { validateTraceability } from './traceability-matrix-validate.mjs';
+export { validateReleaseGateFile } from './release-gate-validate.mjs';
 export { validateExecutionEvidence } from './execution-evidence-validate.mjs';
-export { validateTestCoverage } from '../validate-test-coverage.mjs';
-export { validateTestDesignArtifacts } from '../validate-test-design.mjs';
+export { validateTestCoverage } from './test-coverage-validate.mjs';
+export { validateTestDesignArtifacts } from './test-design-artifacts-validate.mjs';
 export { validateQualityReport } from './quality-report.mjs';
 export { validateWorkflowContractFile as validateWorkflowContractApi } from './workflow-contract-validate.mjs';
 

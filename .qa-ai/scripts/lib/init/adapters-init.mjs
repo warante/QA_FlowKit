@@ -1,6 +1,7 @@
 import path from 'node:path';
 import { defaultInitAdapters } from '../detect-adapters.mjs';
 import { commaList, pathExists } from '../utils.mjs';
+import { githubRepositorySlug } from '../package-origin.mjs';
 
 export function shouldPromptForAdapters(args) {
   return Boolean(process.stdin.isTTY && process.stdout.isTTY && !process.env.CI && !args['no-interactive']);
@@ -52,15 +53,14 @@ export async function promptAdapterSelection(defaultAdapters, args) {
 
   const invalid = selected.filter((value) => !valueSet.has(value));
   if (invalid.length > 0) {
-    console.error(`Unknown adapter selection: ${invalid.join(', ')}`);
-    console.error('Use one or more of: claude, opencode, codex, gemini, generic, all, none.');
-    process.exit(1);
+    throw new Error(
+      `Unknown adapter selection: ${invalid.join(', ')}. Use one or more of: claude, opencode, codex, gemini, generic, all, none.`
+    );
   }
   if (selected.includes('__auto__')) return defaultAdapters;
   if (selected.includes('__none__')) {
     if (selected.length > 1) {
-      console.error('Adapter selection "none" cannot be combined with other adapters.');
-      process.exit(1);
+      throw new Error('Adapter selection "none" cannot be combined with other adapters.');
     }
     return [];
   }
@@ -82,6 +82,6 @@ export async function maybePrintClaudePluginHint(cwd) {
   const localMarketplace = path.join(cwd, '.claude-plugin', 'marketplace.json');
   if (await pathExists(localMarketplace)) return;
   console.log(
-    '\nClaude Code plugin tip: install the QA FlowKit plugin with `claude marketplace add warante/QA_FlowKit` for namespaced skills and hooks.'
+    `\nClaude Code plugin tip: install the QA FlowKit plugin with \`claude marketplace add ${githubRepositorySlug()}\` for namespaced skills and hooks.`
   );
 }

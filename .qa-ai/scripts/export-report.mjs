@@ -5,6 +5,7 @@ import crypto from 'node:crypto';
 import { resolveGlobs } from './lib/glob.mjs';
 import { parseJUnitXml, parseCucumberJson, extractTestIds } from './lib/execution-results.mjs';
 import { parseMarkdownTable, normalizeColumn } from './lib/markdown-table.mjs';
+import { ARTIFACT_PATHS, QA_OUTPUT_DIR } from './lib/artifact-paths.mjs';
 import {
   getConfigValue,
   loadQaAiConfig,
@@ -274,7 +275,7 @@ export async function exportReport(cwd, options = {}) {
     throw new Error(`Unsupported format: "${format}". Supported formats: cucumber-json, allure, junit-xml.`);
   }
 
-  const rawOut = options.out || `qa-ai-output/reports/${format}`;
+  const rawOut = options.out || `${QA_OUTPUT_DIR}/reports/${format}`;
   const outDir = resolveRepoPath(cwd, rawOut, { label: 'out' });
 
   const configInfo = await loadQaAiConfig(cwd);
@@ -314,7 +315,7 @@ export async function exportReport(cwd, options = {}) {
   }
 
   const matrixPath =
-    options.matrixPath || getConfigValue(config, 'traceability.matrixPath', 'qa-ai-output/traceability-matrix.md');
+    options.matrixPath || getConfigValue(config, 'traceability.matrixPath', ARTIFACT_PATHS.traceabilityMatrix);
   const matrixAbsPath = resolveRepoPath(cwd, matrixPath, { label: 'traceability matrix' });
   if (!(await pathExists(matrixAbsPath))) {
     throw new Error(`Traceability matrix file not found at: ${matrixPath}`);

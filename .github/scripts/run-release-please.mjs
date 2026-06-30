@@ -5,7 +5,7 @@
  */
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
-import { isMain } from './lib/ci-helpers.mjs';
+import { isMain, readJsonSync } from './lib/ci-helpers.mjs';
 
 export const FIRST_RC_VERSION = '1.0.0-rc.1';
 
@@ -43,7 +43,7 @@ function gh(args, token) {
 }
 
 function readJson(relativePath) {
-  return JSON.parse(fs.readFileSync(relativePath, 'utf8'));
+  return readJsonSync(relativePath);
 }
 
 function readManifestVersion(manifestFile) {

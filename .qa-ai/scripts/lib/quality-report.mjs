@@ -13,8 +13,9 @@ import {
   relativeTo,
   resolveRepoPath
 } from './utils.mjs';
+import { ARTIFACT_PATHS } from './artifact-paths.mjs';
 
-const DEFAULT_REPORT_PATH = 'qa-ai-output/gherkin-quality-report.md';
+const DEFAULT_REPORT_PATH = ARTIFACT_PATHS.gherkinQualityReport;
 const DEFAULT_RUBRIC_PATH = '.qa-ai/rules/gherkin-quality.rubric.md';
 
 function addFinding(findings, severity, message, extra = {}) {

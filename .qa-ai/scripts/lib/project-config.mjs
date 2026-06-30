@@ -8,6 +8,7 @@ import {
   isKarateFramework
 } from './automation-framework.mjs';
 import { getTestManagementMappingFile } from './test-management-config.mjs';
+import { ARTIFACT_PATHS, QA_OUTPUT_DIR } from './artifact-paths.mjs';
 import { getConfigValue } from './utils.mjs';
 
 export function slug(value) {
@@ -30,19 +31,19 @@ export function isConfiguredFramework(value) {
 export function addCommonDirs(dirs, config) {
   const featureRoot = getConfigValue(config, 'gherkin.featurePath', 'features');
 
-  dirs.add('qa-ai-output');
+  dirs.add(QA_OUTPUT_DIR);
   // Type subfolders (functional, api, e2e, …) are created when the first .feature is written.
   dirs.add(featureRoot);
 
-  const matrixPath = getConfigValue(config, 'traceability.matrixPath', 'qa-ai-output/traceability-matrix.md');
+  const matrixPath = getConfigValue(config, 'traceability.matrixPath', ARTIFACT_PATHS.traceabilityMatrix);
   if (matrixPath) dirs.add(path.dirname(matrixPath));
 
   const mappingFile = getTestManagementMappingFile(config);
   if (mappingFile) dirs.add(path.dirname(mappingFile));
 
-  const knowledgeSummaryPath = getConfigValue(config, 'knowledge.summaryPath', 'qa-ai-output/qa-knowledge-summary.md');
-  const knowledgeDecisionsPath = getConfigValue(config, 'knowledge.decisionsPath', 'qa-ai-output/qa-init-decisions.md');
-  const sourceAnalysisPath = getConfigValue(config, 'sources.analysisPath', 'qa-ai-output/source-analysis.md');
+  const knowledgeSummaryPath = getConfigValue(config, 'knowledge.summaryPath', ARTIFACT_PATHS.qaKnowledgeSummary);
+  const knowledgeDecisionsPath = getConfigValue(config, 'knowledge.decisionsPath', ARTIFACT_PATHS.qaInitDecisions);
+  const sourceAnalysisPath = getConfigValue(config, 'sources.analysisPath', ARTIFACT_PATHS.sourceAnalysis);
   if (knowledgeSummaryPath) dirs.add(path.dirname(knowledgeSummaryPath));
   if (knowledgeDecisionsPath) dirs.add(path.dirname(knowledgeDecisionsPath));
   if (sourceAnalysisPath) dirs.add(path.dirname(sourceAnalysisPath));

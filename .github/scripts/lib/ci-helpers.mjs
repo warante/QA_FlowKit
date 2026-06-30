@@ -33,6 +33,14 @@ export async function readJson(filePath) {
   return JSON.parse(await fs.readFile(filePath, 'utf8'));
 }
 
+export function readJsonSync(filePath) {
+  return JSON.parse(fsSync.readFileSync(filePath, 'utf8'));
+}
+
+export async function readJsonFromRoot(root, relativePath) {
+  return readJson(path.join(root, relativePath));
+}
+
 export function assert(condition, message, errors) {
   if (!condition) errors.push(message);
 }

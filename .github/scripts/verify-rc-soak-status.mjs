@@ -1,15 +1,10 @@
 #!/usr/bin/env node
 import fs from 'node:fs/promises';
-import { assert, isMain, repoRoot } from './lib/ci-helpers.mjs';
+import { assert, isMain, readJson, repoRoot } from './lib/ci-helpers.mjs';
 import path from 'node:path';
 
 const ALLOWED_STATUS = new Set(['planned', 'in_progress', 'completed']);
 const ALLOWED_STEP_STATUS = new Set(['pending', 'passed', 'failed']);
-
-async function readJson(filePath) {
-  return JSON.parse(await fs.readFile(filePath, 'utf8'));
-}
-
 function parseDate(value) {
   if (!value) return null;
   const parsed = new Date(value);

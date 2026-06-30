@@ -9,7 +9,7 @@ import crypto from 'node:crypto';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { repoRoot } from './lib/ci-helpers.mjs';
+import { repoRoot, readJson } from './lib/ci-helpers.mjs';
 import { pathExists } from '../../.qa-ai/scripts/lib/utils.mjs';
 
 const adapterRoot = path.join(repoRoot, '.qa-ai', 'adapters', 'claude');
@@ -19,10 +19,6 @@ const checkOnly = process.argv.includes('--check');
 
 const bilingualDescription =
   'QA FlowKit workflow skills, hooks and orchestrator agent / Skills, hooks y agente orquestador de QA FlowKit';
-
-async function readJson(filePath) {
-  return JSON.parse(await fs.readFile(filePath, 'utf8'));
-}
 
 function slashPath(value) {
   return value.replace(/\\/g, '/');

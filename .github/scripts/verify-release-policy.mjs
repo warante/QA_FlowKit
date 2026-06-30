@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import fs from 'node:fs/promises';
-import { assert, isMain, repoRoot } from './lib/ci-helpers.mjs';
 import path from 'node:path';
+import { assert, isMain, readJsonFromRoot, repoRoot } from './lib/ci-helpers.mjs';
 import { resolveNpmDistTag } from './lib/npm-dist-tag.mjs';
 
 const ACTIVE_CONFIG = '.release-please-config.json';
@@ -12,10 +12,6 @@ function packageKeys(config) {
   return Object.keys(config.packages || {})
     .sort()
     .join('\0');
-}
-
-async function readJsonFromRoot(root, relativePath) {
-  return JSON.parse(await fs.readFile(path.join(root, relativePath), 'utf8'));
 }
 
 async function collectVersionedManifestPaths(root) {

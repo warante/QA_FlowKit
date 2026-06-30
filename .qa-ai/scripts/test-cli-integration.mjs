@@ -5,11 +5,11 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
 import { parseSimpleYaml } from './lib/utils.mjs';
 import { FEATURE_SUBFOLDERS } from './lib/feature-layout.mjs';
+import { copyFramework, frameworkSourceRoot } from './test/lib/integration-helpers.mjs';
 
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+const repoRoot = frameworkSourceRoot;
 const cli = path.join(repoRoot, 'bin', 'qa-flowkit.mjs');
 const node = process.execPath;
 
@@ -151,7 +151,7 @@ async function main() {
 
     const directTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-flowkit-direct-init-'));
     extraTempRoots.push(directTarget);
-    await fs.cp(path.join(repoRoot, '.qa-ai'), path.join(directTarget, '.qa-ai'), { recursive: true });
+    await copyFramework(directTarget);
     runNode(directTarget, path.join(directTarget, '.qa-ai', 'scripts', 'init.mjs'), [
       '--preset',
       'manual-only',
@@ -279,7 +279,7 @@ async function main() {
 
     const brokenPresetTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-flowkit-broken-preset-'));
     extraTempRoots.push(brokenPresetTarget);
-    await fs.cp(path.join(repoRoot, '.qa-ai'), path.join(brokenPresetTarget, '.qa-ai'), { recursive: true });
+    await copyFramework(brokenPresetTarget);
     const brokenPreset = `${await fs.readFile(path.join(repoRoot, '.qa-ai', 'presets', 'manual-only.yaml'), 'utf8')}unknownTopLevel: true\n`;
     await fs.writeFile(path.join(brokenPresetTarget, '.qa-ai', 'presets', 'broken.yaml'), brokenPreset, 'utf8');
     const brokenInit = runNode(
@@ -490,7 +490,7 @@ async function main() {
         ].join('\n'),
         'utf8'
       );
-      await fs.cp(path.join(repoRoot, '.qa-ai'), path.join(tmpDir, '.qa-ai'), { recursive: true });
+      await copyFramework(tmpDir);
       await fs.writeFile(
         path.join(tmpDir, 'qa-ai.config.yaml'),
         [
@@ -593,7 +593,7 @@ async function main() {
       const nfrFixtureRoot = path.join(repoRoot, 'test', 'fixtures', 'nfr-coverage');
       const nfrTemp = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-flowkit-nfr-cli-'));
       extraTempRoots.push(nfrTemp);
-      await fs.cp(path.join(repoRoot, '.qa-ai'), path.join(nfrTemp, '.qa-ai'), { recursive: true });
+      await copyFramework(nfrTemp);
       await fs.mkdir(path.join(nfrTemp, 'qa-ai-output'), { recursive: true });
       await fs.copyFile(path.join(nfrFixtureRoot, 'qa-ai.config.yaml'), path.join(nfrTemp, 'qa-ai.config.yaml'));
       await fs.copyFile(

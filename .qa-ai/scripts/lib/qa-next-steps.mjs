@@ -12,6 +12,7 @@ import {
   QA_TRACKS
 } from './harness-contract.mjs';
 import { getConfigValue, listFilesRecursive, loadQaAiConfig, parseSimpleYaml, pathExists, readText } from './utils.mjs';
+import { ARTIFACT_PATHS } from './artifact-paths.mjs';
 import { normalizeGateDecision } from './release-gate.mjs';
 export { normalizeQaTrack, QA_TRACK_IDS, QA_TRACKS };
 
@@ -41,10 +42,7 @@ async function hasFeatureFiles(cwd, config) {
 
 async function isPhaseComplete(cwd, config, phaseId, def) {
   if (def.releaseGate) {
-    const gatePath = resolveConfigPath(
-      config,
-      getConfigValue(config, 'release.gatePath', 'qa-ai-output/release-gate.yaml')
-    );
+    const gatePath = resolveConfigPath(config, getConfigValue(config, 'release.gatePath', ARTIFACT_PATHS.releaseGate));
     const absolute = path.join(cwd, gatePath);
     if (!(await pathExists(absolute))) return false;
     try {
@@ -56,7 +54,7 @@ async function isPhaseComplete(cwd, config, phaseId, def) {
     }
   }
   if (phaseId === 'context') {
-    const summary = resolveConfigPath(config, 'knowledge.summaryPath') || 'qa-ai-output/qa-knowledge-summary.md';
+    const summary = resolveConfigPath(config, 'knowledge.summaryPath') || ARTIFACT_PATHS.qaKnowledgeSummary;
     return artifactExists(cwd, config, summary);
   }
   if (def.featureFiles) {
@@ -359,7 +357,7 @@ function buildRecommendations({ ctx, pendingPhaseIds, completedPhaseIds, config,
         priority: 'required',
         title: 'Record release quality gate',
         command: '/qa-gate',
-        detail: 'Produce qa-ai-output/release-gate.yaml with PASS, CONCERNS, FAIL or WAIVED.'
+        detail: `Produce ${ARTIFACT_PATHS.releaseGate} with PASS, CONCERNS, FAIL or WAIVED.`
       });
     } else {
       items.push({
