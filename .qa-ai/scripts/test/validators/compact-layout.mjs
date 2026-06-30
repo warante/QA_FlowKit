@@ -5,6 +5,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { activeSpecialistsContent } from '../../lib/project-config.mjs';
 import {
   COMPACT_CONFIG_PATH,
   COMPACT_FEATURES_DIR,
@@ -19,6 +20,14 @@ import { repoRoot } from './_shared.mjs';
 
 async function copyFramework(targetRoot) {
   await fs.cp(path.join(repoRoot, '.qa-ai'), path.join(targetRoot, '.qa-ai'), { recursive: true });
+}
+
+async function writeActiveSpecialists(targetRoot, configRelPath, configText) {
+  const config = parseSimpleYaml(configText);
+  const content = activeSpecialistsContent(config, 'node .qa-ai/scripts/init.mjs', configRelPath);
+  const activePath = path.join(targetRoot, '.qa-ai/agents/specialists/active.md');
+  await fs.mkdir(path.dirname(activePath), { recursive: true });
+  await fs.writeFile(activePath, content, 'utf8');
 }
 
 function runInit(targetRoot, args = []) {
@@ -79,6 +88,7 @@ test('doctor warns on duplicate config without failing', async () => {
     'Dual'
   );
   await fs.writeFile(path.join(cwd, 'qa-ai.config.yaml'), preset, 'utf8');
+  await writeActiveSpecialists(cwd, 'qa-ai.config.yaml', preset);
   await fs.writeFile(path.join(cwd, COMPACT_CONFIG_PATH), 'project:\n  name: Compact Duplicate\n', 'utf8');
   await fs.mkdir(path.join(cwd, '.qa-ai/features'), { recursive: true });
   await fs.mkdir(path.join(cwd, '.qa-ai/output'), { recursive: true });
@@ -125,7 +135,9 @@ test('legacy project: root config and legacy paths still load', async () => {
   const legacyPreset = (await fs.readFile(path.join(repoRoot, '.qa-ai/presets/manual-only.yaml'), 'utf8'))
     .replaceAll('.qa-ai/output/', 'qa-ai-output/')
     .replaceAll('featurePath: .qa-ai/features', 'featurePath: features');
-  await fs.writeFile(path.join(cwd, 'qa-ai.config.yaml'), legacyPreset.replaceAll('CHANGE_ME', 'Legacy'), 'utf8');
+  const legacyConfig = legacyPreset.replaceAll('CHANGE_ME', 'Legacy');
+  await fs.writeFile(path.join(cwd, 'qa-ai.config.yaml'), legacyConfig, 'utf8');
+  await writeActiveSpecialists(cwd, 'qa-ai.config.yaml', legacyConfig);
   await fs.mkdir(path.join(cwd, 'features'), { recursive: true });
   await fs.mkdir(path.join(cwd, 'qa-ai-output'), { recursive: true });
 
