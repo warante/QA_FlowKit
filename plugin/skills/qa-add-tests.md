@@ -36,7 +36,7 @@ Before asking anything, use `interfaceLanguage` from the resolved `show-config -
 
 If `$ARGUMENTS` is empty or ambiguous, ask the user:
 
-1. Use {{QUESTION_TOOL}} when available to select where the new requirement/RF comes from:
+1. Use Claude Code's interactive question tool when available to select where the new requirement/RF comes from:
    - `1. Configured source` -> localize the label; use `sources.main` from config, then ask only for the source-specific identifier when needed.
    - `2. Local file` -> localize the label and ask for the path as free text.
    - `3. Pasted text` -> localize the label and ask for the requirement text as free text.
