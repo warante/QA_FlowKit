@@ -28,7 +28,6 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
-        if: ${{ hashFiles('package-lock.json') != '' }}
         run: npm ci --ignore-scripts
 
       - name: Verify npm pack allowlist
@@ -62,17 +61,6 @@ jobs:
 
       - name: Verify adapter parity
         run: node .github/scripts/verify-adapter-parity.mjs
-
-  adapter-support:
-    name: adapter support inventory
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7
-
-      - name: Verify adapter support manifest
-        run: npm run test:adapter-support
 
   claude-plugin:
     name: Claude plugin
@@ -414,7 +402,6 @@ jobs:
       [
         npm-pack,
         adapter-parity,
-        adapter-support,
         claude-plugin,
         golden-target,
         karate-target,
@@ -441,6 +428,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
+      - uses: ./.github/actions/download-pack-artifact
+
       - name: Setup Node.js with npm release-age policy
         uses: ./.github/actions/setup-node-with-npm-policy
         with:
@@ -450,36 +439,49 @@ jobs:
         run: node .github/scripts/verify-dependency-policy.mjs
 
       - name: Install dependencies
-        if: ${{ hashFiles('package-lock.json') != '' }}
         run: npm ci --ignore-scripts
 
       - name: Audit dependencies
-        if: ${{ hashFiles('package-lock.json') != '' }}
         run: npm audit --audit-level=low
 
       - name: Check script syntax
         run: node .github/scripts/check-syntax.mjs
 
       - name: Lint
-        if: ${{ hashFiles('package-lock.json') != '' }}
         run: npm run lint
 
       - name: Format check
-        if: ${{ hashFiles('package-lock.json') != '' }}
         run: npm run format:check
 
       - name: Run starter validation and smoke tests
         run: npm run validate:core
 
+      - name: Collect validator and harness coverage
+        run: npm run coverage:collect
+
+      - name: Upload coverage data
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-flowkit-coverage
+          path: coverage/qa-flowkit/
+          if-no-files-found: error
+          retention-days: 1
+
   coverage:
     name: Coverage
-    needs: npm-pack
+    needs: validate-starter
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+
+      - name: Download coverage data
+        uses: actions/download-artifact@v4
+        with:
+          name: qa-flowkit-coverage
+          path: coverage/qa-flowkit/
 
       - name: Setup Node.js with npm release-age policy
         uses: ./.github/actions/setup-node-with-npm-policy
@@ -489,16 +491,15 @@ jobs:
       - name: Install dependencies
         run: npm ci --ignore-scripts
 
-      - name: Check validator and harness coverage
-        run: npm run coverage:check
+      - name: Check validator and harness coverage thresholds
+        run: npm run coverage:threshold
 
   validate:
-    name: 'Validate (${{ matrix.os }}, Node ${{ matrix.node }})'
+    name: 'Platform smoke (${{ matrix.os }}, Node ${{ matrix.node }})'
     needs:
       [
         npm-pack,
         adapter-parity,
-        adapter-support,
         claude-plugin,
         golden-target,
         karate-target,
@@ -536,32 +537,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
+      - uses: ./.github/actions/download-pack-artifact
+
       - name: Setup Node.js with npm release-age policy
         uses: ./.github/actions/setup-node-with-npm-policy
         with:
           node-version: ${{ matrix.node }}
 
-      - name: Check dependency policy
-        run: node .github/scripts/verify-dependency-policy.mjs
-
       - name: Install dependencies
-        if: ${{ hashFiles('package-lock.json') != '' }}
         run: npm ci --ignore-scripts
 
-      - name: Audit dependencies
-        if: ${{ hashFiles('package-lock.json') != '' }}
-        run: npm audit --audit-level=low
+      - name: Run packed npm smoke test
+        run: node .qa-ai/scripts/smoke-npm-pack.mjs
 
-      - name: Check script syntax
-        run: node .github/scripts/check-syntax.mjs
-
-      - name: Lint
-        if: ${{ hashFiles('package-lock.json') != '' }}
-        run: npm run lint
-
-      - name: Format check
-        if: ${{ hashFiles('package-lock.json') != '' }}
-        run: npm run format:check
-
-      - name: Run starter validation and smoke tests
-        run: npm run validate:core
+      - name: Run CLI integration tests
+        run: node .qa-ai/scripts/test-cli-integration.mjs

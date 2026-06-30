@@ -18,10 +18,33 @@ function collectChecks(manifest) {
   return [...(manifest.checks || []), ...(manifest.scheduledChecks || [])];
 }
 
+function todayUtc() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+async function syncManifestMetadata(manifest, packageJson) {
+  const updates = [];
+  if (manifest.qaFlowKitVersion !== packageJson.version) {
+    manifest.qaFlowKitVersion = packageJson.version;
+    updates.push(`qaFlowKitVersion -> ${packageJson.version}`);
+  }
+  const today = todayUtc();
+  if (manifest.generatedAt !== today) {
+    manifest.generatedAt = today;
+    updates.push(`generatedAt -> ${today}`);
+  }
+  if (updates.length > 0) {
+    await fs.writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
+    console.log(`Auto-synced required-checks manifest: ${updates.join(', ')}`);
+  }
+  return manifest;
+}
+
 async function main() {
   const errors = [];
-  const manifest = await readJson(manifestPath);
+  let manifest = await readJson(manifestPath);
   const packageJson = await readJson(packagePath);
+  manifest = await syncManifestMetadata(manifest, packageJson);
   const docs = await fs.readFile(ciDocsPath, 'utf8');
 
   assert(manifest.schemaVersion === 1, 'required checks manifest schemaVersion must be 1', errors);

@@ -18,6 +18,7 @@ runs:
       with:
         node-version: ${{ inputs.node-version }}
         registry-url: ${{ inputs.registry-url }}
+        cache: npm
 
     - name: Upgrade npm for minimum release-age policy
       shell: bash
