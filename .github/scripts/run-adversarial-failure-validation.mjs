@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { COMPACT_CONFIG_PATH } from '../../.qa-ai/scripts/lib/project-paths.mjs';
 import { DEFAULT_FEATURE_PATH, QA_OUTPUT_DIR } from '../../.qa-ai/scripts/lib/artifact-paths.mjs';
-import { runSourceCli } from './lib/ci-helpers.mjs';
+import { installAndConfigureSource, runSourceCli } from './lib/ci-helpers.mjs';
 
 function parseJsonObjectFromOutput(output) {
   const start = output.indexOf('{');
@@ -15,7 +15,7 @@ function parseJsonObjectFromOutput(output) {
 
 async function initTarget(prefix = 'qa-flowkit-adversarial-') {
   const target = await fs.mkdtemp(path.join(os.tmpdir(), prefix));
-  runSourceCli(target, ['init', '--preset', 'manual-only', '--skip-doctor', '--no-adapters']);
+  installAndConfigureSource(target, ['--preset', 'manual-only', '--no-adapters']);
   return target;
 }
 

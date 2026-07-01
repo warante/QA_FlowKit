@@ -10,6 +10,7 @@ import path from 'node:path';
 import { validatePackFileList } from '../../.qa-ai/scripts/lib/npm-pack-allowlist.mjs';
 import {
   assertExists,
+  configureFramework,
   installPackTarball,
   isMain,
   node,
@@ -68,7 +69,8 @@ async function assertPrimaryCommandsFromTarballInstall(targetRoot) {
   const version = runCli(targetRoot, ['version']).stdout.trim();
   assert.ok(/^\d+\.\d+\.\d+/.test(version), 'version should print semver');
 
-  runCli(targetRoot, ['init', '--skip-doctor']);
+  runCli(targetRoot, []);
+  configureFramework(targetRoot, ['--no-adapters']);
   await assertExists(path.join(targetRoot, '.qa-ai', 'qa-ai.config.yaml'), 'generated compact config');
   assert.equal(
     await fs
@@ -79,7 +81,7 @@ async function assertPrimaryCommandsFromTarballInstall(targetRoot) {
     'root qa-ai.config.yaml should not exist after compact init'
   );
   await assertExists(path.join(targetRoot, '.qa-ai', 'scripts', 'init.mjs'), 'framework copy');
-  runCli(targetRoot, ['init', '--skip-doctor'], { expectFailure: true });
+  runCli(targetRoot, [], { expectFailure: true });
 
   const helpJson = JSON.parse(runCli(targetRoot, ['help', '--json']).stdout);
   assert.equal(typeof helpJson.initialized, 'boolean');

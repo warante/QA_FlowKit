@@ -9,7 +9,7 @@ import path from 'node:path';
 import { resolveNpmDistTag } from './lib/npm-dist-tag.mjs';
 import { isPreparedStablePolicy, STABLE_CONFIG } from './lib/stable-release-config.mjs';
 import { verifyStableReleaseConfig } from './verify-stable-release-config.mjs';
-import { isMain, packAndInstall, repoRoot, runCli } from './lib/ci-helpers.mjs';
+import { installAndConfigurePacked, isMain, packAndInstall, repoRoot, runCli } from './lib/ci-helpers.mjs';
 
 async function packAndInstallSmoke(tempRoot) {
   const packDir = path.join(tempRoot, 'pack');
@@ -24,7 +24,7 @@ async function packAndInstallSmoke(tempRoot) {
 
   const version = runCli(installRoot, ['version']).stdout.trim();
   assert.match(version, /^\d+\.\d+\.\d+/, 'packed install must expose semver version');
-  runCli(installRoot, ['init', '--skip-doctor', '--no-adapters']);
+  installAndConfigurePacked(installRoot, ['--no-adapters']);
   runCli(installRoot, ['doctor']);
   runCli(installRoot, ['validate-config', '--json']);
 

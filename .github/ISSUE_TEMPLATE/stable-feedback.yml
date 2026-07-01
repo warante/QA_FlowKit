@@ -21,7 +21,7 @@ body:
     attributes:
       label: Primary scenario
       options:
-        - Clean install (npx qa-flowkit@latest init)
+        - Clean install (npx qa-flowkit@latest, then /qa-init or node .qa-ai/scripts/init.mjs)
         - Update from beta or RC
         - Quick path / manual-only workflow
         - Standard Playwright example

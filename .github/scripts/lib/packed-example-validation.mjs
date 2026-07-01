@@ -49,7 +49,12 @@ export async function createPackedExampleWorkspace({ tempPrefix, exampleRoot, cl
 }
 
 export function runPackedInit(cli, targetRoot, preset, extraInitArgs = []) {
-  run(node, [cli, 'init', '--preset', preset, '--no-adapters', '--skip-doctor', ...extraInitArgs], { cwd: targetRoot });
+  run(node, [cli], { cwd: targetRoot });
+  run(
+    node,
+    [path.join(targetRoot, '.qa-ai', 'scripts', 'init.mjs'), '--preset', preset, '--no-adapters', ...extraInitArgs],
+    { cwd: targetRoot }
+  );
 }
 
 export function runPackedValidateTarget(cli, targetRoot) {

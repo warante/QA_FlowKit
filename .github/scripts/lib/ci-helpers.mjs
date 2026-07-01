@@ -124,6 +124,21 @@ export function runSourceCli(cwd, args, options = {}) {
   return run(node, [sourceCliPath, ...args], { cwd, ...options });
 }
 
+export function configureFramework(targetRoot, args = [], options = {}) {
+  const initScript = path.join(targetRoot, '.qa-ai', 'scripts', 'init.mjs');
+  return run(node, [initScript, ...args], { cwd: targetRoot, ...options });
+}
+
+export function installAndConfigurePacked(targetRoot, initArgs = [], options = {}) {
+  runCli(targetRoot, []);
+  return configureFramework(targetRoot, initArgs, options);
+}
+
+export function installAndConfigureSource(targetRoot, initArgs = [], options = {}) {
+  runSourceCli(targetRoot, []);
+  return configureFramework(targetRoot, initArgs, options);
+}
+
 export function parseJsonStdout(result, label) {
   try {
     return JSON.parse(result.stdout);
