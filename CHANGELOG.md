@@ -48,6 +48,13 @@ this feature PR is merged.
 - Cross-platform smoke and npm-pack checks now account for generated adapters and framework-specific example paths.
 - Documentation drift and missing packaged contract files now fail validation before release.
 
+## [1.0.0-rc.6](https://github.com/warante/QA_FlowKit/compare/v1.0.0-rc.5...v1.0.0-rc.6) (2026-07-01)
+
+
+### Fixed
+
+* resolver idioma de interfaz desde config compacta ([#76](https://github.com/warante/QA_FlowKit/issues/76)) ([a999653](https://github.com/warante/QA_FlowKit/commit/a99965314ce339577e2c4c25d096e2f495f78df6))
+
 ## [1.0.0-rc.5](https://github.com/warante/QA_FlowKit/compare/v1.0.0-rc.4...v1.0.0-rc.5) (2026-06-30)
 
 
