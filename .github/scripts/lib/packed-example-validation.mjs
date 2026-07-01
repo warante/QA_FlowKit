@@ -49,7 +49,7 @@ export async function createPackedExampleWorkspace({ tempPrefix, exampleRoot, cl
 }
 
 export function runPackedInit(cli, targetRoot, preset, extraInitArgs = []) {
-  run(node, [cli], { cwd: targetRoot });
+  run(node, [cli, 'init', '--no-adapters'], { cwd: targetRoot });
   run(
     node,
     [path.join(targetRoot, '.qa-ai', 'scripts', 'init.mjs'), '--preset', preset, '--no-adapters', ...extraInitArgs],
