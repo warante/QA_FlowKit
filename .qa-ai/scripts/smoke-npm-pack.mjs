@@ -10,7 +10,8 @@ import {
   installPackTarball,
   repoRoot,
   resolvePackTarball,
-  runCli
+  runCli,
+  runNodeScript
 } from '../../.github/scripts/lib/ci-helpers.mjs';
 
 async function assertIncludes(filePath, expected, label = filePath) {
@@ -99,7 +100,8 @@ async function main() {
     await fs.mkdir(initTarget, { recursive: true });
     installPackTarball(initTarget, tarball, { npmCache });
     await validateCommandInteractionContract(path.join(initTarget, 'node_modules', 'qa-flowkit'));
-    runCli(initTarget, ['init', '--skip-doctor']);
+    runCli(initTarget, []);
+    runNodeScript(path.join(initTarget, '.qa-ai', 'scripts', 'init.mjs'), ['--no-adapters']);
     await assertExists(path.join(initTarget, '.qa-ai', 'scripts', 'init.mjs'), '.qa-ai framework');
     await assertExists(path.join(initTarget, COMPACT_CONFIG_PATH), 'generated config');
     await assertExists(path.join(initTarget, DEFAULT_FEATURE_PATH), 'features directory');
@@ -110,8 +112,9 @@ async function main() {
       '.qa-ai/workflows/command-interaction.md',
       'generated generic command interaction contract'
     );
-    await assertMissing(path.join(initTarget, '.opencode'), 'undetected OpenCode adapter');
-    runCli(initTarget, ['init', '--skip-doctor'], { expectFailure: true });
+    await assertExists(path.join(initTarget, '.claude'), 'auto-detected Claude adapter');
+    await assertMissing(path.join(initTarget, '.opencode'), 'non-selected OpenCode adapter');
+    runCli(initTarget, ['init'], { expectFailure: true });
     runCli(initTarget, ['doctor']);
     runCli(initTarget, ['validate-target', '--allow-empty', '--allow-missing', '--no-strict-doctor']);
 
@@ -142,7 +145,8 @@ async function main() {
     updateTarget = path.join(tempRoot, 'update-target');
     await fs.mkdir(updateTarget, { recursive: true });
     installPackTarball(updateTarget, tarball, { npmCache });
-    runCli(updateTarget, ['init', '--skip-doctor']);
+    runCli(updateTarget, []);
+    runNodeScript(path.join(updateTarget, '.qa-ai', 'scripts', 'init.mjs'), ['--no-adapters']);
     await fs.mkdir(path.join(updateTarget, '.qa-ai', 'state'), { recursive: true });
     await fs.mkdir(path.join(updateTarget, '.qa-ai', 'config-profiles'), { recursive: true });
     await fs.writeFile(path.join(updateTarget, '.qa-ai', 'state', 'keep.json'), '{}\n', 'utf8');

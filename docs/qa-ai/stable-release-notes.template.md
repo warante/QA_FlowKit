@@ -13,7 +13,7 @@
 ## Install
 
 ```bash
-npx qa-flowkit@latest init
+npx qa-flowkit@latest
 npx qa-flowkit@latest doctor --strict
 ```
 

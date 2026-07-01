@@ -42,12 +42,23 @@ The AI reasons and edits files. QA FlowKit controls phase order, required output
 From the repository where you want QA FlowKit:
 
 ```bash
-npx qa-flowkit init
-# choose your AI coding CLI adapter in the setup menu
+npx qa-flowkit
+```
+
+Open the repository in your AI coding CLI and run the guided setup:
+
+```text
+/qa-init
+```
+
+Or configure directly from the terminal:
+
+```bash
+node .qa-ai/scripts/init.mjs
 npx qa-flowkit doctor # optional
 ```
 
-Open the repository in your AI coding CLI. Use the generated QA command surface:
+Use the generated QA command surface:
 
 ```text
 /qa-help
@@ -129,8 +140,10 @@ The track controls workflow depth; presets configure frameworks and tools.
 Example:
 
 ```bash
-npx qa-flowkit@rc init --preset karate-full --adapters generic,claude
+node .qa-ai/scripts/init.mjs --preset karate-full --adapters generic,claude
 ```
+
+Or run `/qa-init` in your AI coding agent for interactive setup.
 
 See the [configuration schema](docs/qa-ai/config-schema.md) for all generated keys.
 
@@ -138,7 +151,7 @@ See the [configuration schema](docs/qa-ai/config-schema.md) for all generated ke
 
 | Command                                               | Purpose                                                      |
 | ----------------------------------------------------- | ------------------------------------------------------------ |
-| `qa-flowkit init`                                     | Install and configure the framework                          |
+| `qa-flowkit`                                          | Copy the `.qa-ai/` framework into the repository             |
 | `qa-flowkit update`                                   | Upgrade `.qa-ai/` while preserving run state                 |
 | `qa-flowkit doctor`                                   | Diagnose installation and configuration                      |
 | `qa-flowkit help`                                     | Recommend the next QA workflow step                          |
@@ -247,8 +260,8 @@ outside `.qa-ai/`. Review the [beta-to-1.0 migration guide](docs/qa-ai/beta-to-1
 
 ## Source Repository
 
-This repository maintains the framework, CLI, CI and npm package. A target QA repository receives `.qa-ai/`,
-configuration and generated QA artifacts through `npx qa-flowkit init`.
+This repository maintains the framework, CLI, CI and npm package. A target QA repository receives `.qa-ai/`
+through `npx qa-flowkit`, then configures QA artifacts through `/qa-init` or `node .qa-ai/scripts/init.mjs`.
 
 Before proposing a source-repository PR:
 

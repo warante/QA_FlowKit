@@ -1,6 +1,6 @@
 # AGENTS.md - QA FlowKit (target repository)
 
-This file is the generic instruction layer for all AI coding agents working in a **target repository** initialized with QA FlowKit (via `npx qa-flowkit init` or folder copy).
+This file is the generic instruction layer for all AI coding agents working in a **target repository** initialized with QA FlowKit (via `npx qa-flowkit` or folder copy).
 
 **Not the QA FlowKit source repo:** if you are contributing to the framework itself, read the root [AGENTS.md](https://github.com/warante/QA_FlowKit/blob/main/AGENTS.md) in the [warante/QA_FlowKit](https://github.com/warante/QA_FlowKit) repository instead.
 
@@ -94,7 +94,7 @@ Or run individual validators listed in [workflow.rules.md](.qa-ai/rules/workflow
 ## Completion criteria
 
 ```bash
-npx qa-flowkit init
+npx qa-flowkit
 npx qa-flowkit doctor
 ```
 

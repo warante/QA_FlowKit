@@ -92,7 +92,7 @@ function hookCommand(scriptPath) {
     "const fs=require('node:fs')",
     "const cp=require('node:child_process')",
     `const script='${scriptPath}'`,
-    "if(!fs.existsSync(script)){console.error('QA FlowKit framework not installed in this repository. Run: npx qa-flowkit init');process.exit(0)}",
+    "if(!fs.existsSync(script)){console.error('QA FlowKit framework not installed in this repository. Run: npx qa-flowkit');process.exit(0)}",
     "const res=cp.spawnSync(process.execPath,[script],{stdio:'inherit'})",
     'process.exit(res.status ?? 1)'
   ].join(';');

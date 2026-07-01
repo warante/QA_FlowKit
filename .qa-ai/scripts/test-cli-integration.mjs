@@ -61,6 +61,11 @@ function configFile(cwd) {
   return path.join(cwd, COMPACT_CONFIG_PATH);
 }
 
+function initFramework(target, args = []) {
+  runCli(target, []);
+  runNode(target, path.join(target, '.qa-ai', 'scripts', 'init.mjs'), args);
+}
+
 async function readConfig(cwd) {
   const rootConfig = path.join(cwd, 'qa-ai.config.yaml');
   try {
@@ -115,11 +120,11 @@ async function main() {
     const packageNameTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-flowkit-package-name-'));
     extraTempRoots.push(packageNameTarget);
     await fs.writeFile(path.join(packageNameTarget, 'package.json'), '{"name":"demo-app"}\n', 'utf8');
-    runCli(packageNameTarget, ['init', '--preset', 'manual-only', '--skip-doctor']);
+    initFramework(packageNameTarget, ['--preset', 'manual-only', '--no-adapters']);
 
     const ciTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-flowkit-ci-init-'));
     extraTempRoots.push(ciTarget);
-    runCli(ciTarget, ['init', '--preset', 'manual-only', '--skip-doctor', '--with-ci', 'github']);
+    initFramework(ciTarget, ['--preset', 'manual-only', '--with-ci', 'github', '--no-adapters']);
     await fs.access(path.join(ciTarget, '.github', 'workflows', 'qa-flowkit.yml'));
     const ciManifest = JSON.parse(
       await fs.readFile(path.join(ciTarget, '.qa-ai', 'state', 'init-manifest.json'), 'utf8')
@@ -153,7 +158,7 @@ async function main() {
 
     const basenameTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-flowkit-basename-'));
     extraTempRoots.push(basenameTarget);
-    runCli(basenameTarget, ['init', '--preset', 'manual-only', '--skip-doctor']);
+    initFramework(basenameTarget, ['--preset', 'manual-only', '--no-adapters']);
     const basenameConfig = await readConfig(basenameTarget);
     assert.equal(basenameConfig.project.name, path.basename(basenameTarget));
     const missingFolderDoctor = runCli(basenameTarget, ['doctor']);
@@ -264,13 +269,13 @@ async function main() {
 
     const noFeatureFoldersTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-flowkit-no-feature-folders-'));
     extraTempRoots.push(noFeatureFoldersTarget);
-    runCli(noFeatureFoldersTarget, ['init', '--preset', 'manual-only', '--no-feature-folders', '--skip-doctor']);
+    initFramework(noFeatureFoldersTarget, ['--preset', 'manual-only', '--no-feature-folders', '--no-adapters']);
     await fs.access(path.join(noFeatureFoldersTarget, DEFAULT_FEATURE_PATH));
     await assert.rejects(() => fs.access(path.join(noFeatureFoldersTarget, DEFAULT_FEATURE_PATH, 'functional')));
 
     const configValidationTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-flowkit-config-validation-'));
     extraTempRoots.push(configValidationTarget);
-    runCli(configValidationTarget, ['init', '--preset', 'manual-only', '--skip-doctor']);
+    initFramework(configValidationTarget, ['--preset', 'manual-only', '--no-adapters']);
     JSON.parse(runCli(configValidationTarget, ['validate-config', '--json']).stdout);
     const validConfigContent = await fs.readFile(configFile(configValidationTarget), 'utf8');
     const invalidConfigContent = validConfigContent
@@ -303,7 +308,7 @@ async function main() {
     assert.ok(brokenInit.stderr.includes('$.unknownTopLevel'));
     await assert.rejects(() => fs.access(configFile(brokenPresetTarget)));
 
-    runCli(tempRoot, ['init', '--skip-doctor']);
+    initFramework(tempRoot, ['--no-adapters']);
     runCli(tempRoot, ['validate-config']);
     await fs.mkdir(path.join(tempRoot, 'requirements'), { recursive: true });
     await fs.writeFile(
@@ -362,7 +367,7 @@ async function main() {
 
     const metricsTarget = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-flowkit-metrics-'));
     extraTempRoots.push(metricsTarget);
-    runCli(metricsTarget, ['init', '--preset', 'manual-only', '--skip-doctor']);
+    initFramework(metricsTarget, ['--preset', 'manual-only', '--no-adapters']);
     const emptyMetrics = runCli(metricsTarget, ['metrics']);
     assert.ok(emptyMetrics.stdout.includes('No workflow runs found'));
     await writeMetricsRun(

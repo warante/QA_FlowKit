@@ -15,7 +15,7 @@ export const ANNOUNCEMENT_REQUIRED_SECTIONS = [
   '## Feedback'
 ];
 
-export const STABLE_PRIMARY_COMMANDS = ['npx qa-flowkit@latest', 'npx qa-flowkit init'];
+export const STABLE_PRIMARY_COMMANDS = ['npx qa-flowkit@latest', 'npx qa-flowkit'];
 
 export const STABLE_LIFECYCLE_EN = /\*\*Stable\*\*/i;
 export const STABLE_LIFECYCLE_ES = /\*\*Estable\*\*/i;

@@ -209,8 +209,8 @@ export async function inspectQaWorkflow(cwd) {
         {
           priority: 'required',
           title: 'Generate project configuration',
-          command: 'npx qa-flowkit init',
-          detail: 'Creates qa-ai.config.yaml and the configured folder layout (or: node .qa-ai/scripts/init.mjs).'
+          command: 'npx qa-flowkit',
+          detail: 'Copies the .qa-ai/ framework folder (then configure with /qa-init or node .qa-ai/scripts/init.mjs).'
         },
         {
           priority: 'recommended',
@@ -449,11 +449,12 @@ export function formatHelpReport(report, { query = '' } = {}) {
   if (!report.initialized || !report.configExists) {
     if (!report.configExists && report.initialized) {
       lines.push('qa-ai.config.yaml is missing — run init first:');
-      lines.push('  npx qa-flowkit init');
+      lines.push('  npx qa-flowkit');
+      lines.push('  node .qa-ai/scripts/init.mjs');
       lines.push('');
     } else if (!report.initialized) {
       lines.push('QA FlowKit is not installed in this repository — run init first:');
-      lines.push('  npx qa-flowkit init');
+      lines.push('  npx qa-flowkit');
       lines.push('');
     }
     for (const item of report.recommendations) {

@@ -155,7 +155,7 @@ Some paths exist only in the QA FlowKit **source repository** for maintainer wor
 | `tasks/`, `examples/`           | Maintainer planning and compatibility fixtures                                                    | No                           |
 | `docs/` (public site)           | GitHub Pages and evergreen docs beyond packaged `docs/qa-ai/`                                     | Partial (`docs/qa-ai/` only) |
 
-Target repositories receive only what `npx qa-flowkit init` and optional adapter sync generate: `.qa-ai/`, `qa-ai.config.yaml`, selected adapter paths and configured workflow folders. See [Agent compatibility](agent-compatibility.md) for adapter and plugin parity.
+Target repositories receive only what `npx qa-flowkit` and optional adapter sync generate: `.qa-ai/`, `qa-ai.config.yaml`, selected adapter paths and configured workflow folders. See [Agent compatibility](agent-compatibility.md) for adapter and plugin parity.
 
 ## Init manifest
 

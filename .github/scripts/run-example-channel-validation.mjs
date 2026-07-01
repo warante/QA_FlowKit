@@ -168,16 +168,15 @@ async function main() {
       await fs.cp(path.join(repoRoot, example.path), targetRoot, { recursive: true });
 
       const startedAt = Date.now();
+      run(node, [cli], { cwd: targetRoot });
       run(
         node,
         [
-          cli,
-          'init',
+          path.join(targetRoot, '.qa-ai', 'scripts', 'init.mjs'),
           '--preset',
           example.preset,
           ...extraInitArgsForExample(example),
-          '--no-adapters',
-          '--skip-doctor'
+          '--no-adapters'
         ],
         { cwd: targetRoot }
       );

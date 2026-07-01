@@ -6,7 +6,7 @@ versioned independently from target-repository initialization.
 The plugin is a host integration. It provides namespaced skills, the workflow orchestrator agent and
 hook configuration for Claude Code. The repository framework remains the substrate: target
 repositories still need `.qa-ai/`, `qa-ai.config.yaml`, validators, rules and workflow state from
-`npx qa-flowkit init`.
+`npx qa-flowkit`.
 
 ## Install
 
@@ -35,12 +35,12 @@ plugin/
 Inside the QA or automation repository, initialize the framework first:
 
 ```bash
-npx qa-flowkit init
+npx qa-flowkit
 ```
 
 The plugin skills complement that installed framework. Commands that need repository state should
 read the target repo's `.qa-ai/` files and run the local validators. When `.qa-ai/` is absent, the
-plugin hooks print a clear message telling the user to run `npx qa-flowkit init`.
+plugin hooks print a clear message telling the user to run `npx qa-flowkit`.
 
 Skills are namespaced as QA FlowKit plugin skills, for example:
 
@@ -82,7 +82,7 @@ excluded from npm pack output and are validated separately in CI.
 Claude Code users can choose either path:
 
 - plugin install for versioned, namespaced Claude skills and hooks;
-- repo-local adapter generation through `npx qa-flowkit init --adapters claude` or
+- repo-local adapter generation through `node .qa-ai/scripts/init.mjs --adapters claude` or
   `node .qa-ai/scripts/sync-agent-adapters.mjs --adapters claude`.
 
 Other hosts keep receiving the same capabilities through their adapters. The plugin does not make

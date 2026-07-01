@@ -28,16 +28,17 @@ const commandMap = {
 function printHelp() {
   console.log(`QA FlowKit
 
-Usage:
-  qa-flowkit <command> [options]
+Setup:
+  qa-flowkit                       Copy the .qa-ai framework into the current repository.
+                                   Then configure with /qa-init or node .qa-ai/scripts/init.mjs.
 
-Setup commands:
-  init [options]                   Copy the .qa-ai framework and run first-time setup
+Usage:
+  qa-flowkit [command] [options]
+
+Commands:
   update [options]                 Upgrade .qa-ai to the installed package version
   bootstrap [options]              Generate agent adapter files after copying .qa-ai manually
   config [options]                 Export or import a qa-ai.config.yaml profile
-
-Validation commands:
   doctor [options]                 Check that the .qa-ai framework is correctly installed
   validate-config [options]        Validate qa-ai.config.yaml against the published schema
   validate-untrusted-content [options] Scan requirement and QA context files for prompt-injection-like content
@@ -55,11 +56,7 @@ Validation commands:
   validate-test-design [options]   Validate system and per-RF test design artifacts
   validate-test-coverage [options] Validate configured cross-feature coverage obligations
   validate-quality-report [options] Validate the semantic Gherkin quality report
-
-Harness commands:
   run <subcommand>                 Resumable QA workflow run (start, status, next, check, retry, set-rf, approve, resume)
-
-Other commands:
   export-report [options]          Export Gherkin-aligned test cases and execution results to Cucumber JSON, Allure, or JUnit XML
   metrics [options]                Compute local workflow KPIs from .qa-ai/state/runs/
   sync-adapters [options]          Re-sync agent adapter files from the packaged templates
@@ -69,8 +66,7 @@ Other commands:
   version, -v, --version           Print the installed QA FlowKit version
 
 Examples:
-  npx qa-flowkit init
-  npx qa-flowkit init --preset manual-only --interface-language es --gherkin-language es
+  npx qa-flowkit
   npx qa-flowkit update
   npx qa-flowkit update --dry-run --json
   npx qa-flowkit doctor --strict
@@ -83,15 +79,12 @@ Examples:
   npx qa-flowkit config --export .qa-ai/config-profiles/team.yaml
   npx qa-flowkit export-report --format allure --out .qa-ai/output/reports/allure
   npx qa-flowkit metrics --json
+  node .qa-ai/scripts/init.mjs --preset manual-only --interface-language es --gherkin-language es
 `);
 }
 
 function hasFlag(args, name) {
   return args.includes(`--${name}`);
-}
-
-function withoutCliOnlyFlags(args) {
-  return args.filter((arg) => !['--skip-doctor'].includes(arg));
 }
 
 async function assertPackagedFramework() {
@@ -103,7 +96,7 @@ async function assertPackagedFramework() {
 
 async function assertTargetFramework(command) {
   if (!(await frameworkIsInstalled())) {
-    console.error(`Missing .qa-ai framework folder. Run "qa-flowkit init" before "qa-flowkit ${command}".`);
+    console.error(`Missing .qa-ai framework folder. Run "qa-flowkit" before "qa-flowkit ${command}".`);
     process.exit(1);
   }
 }
@@ -154,6 +147,60 @@ async function selectedExistingAdapters() {
   return detectExistingAdapters(cwd);
 }
 
+function shouldPromptForAdapters(args) {
+  return Boolean(process.stdin.isTTY && process.stdout.isTTY && !process.env.CI && !args.includes('--no-interactive'));
+}
+
+async function promptAdapterSelection(args) {
+  const choices = [
+    { key: '1', label: 'OpenCode', value: 'opencode' },
+    { key: '2', label: 'Claude Code', value: 'claude' },
+    { key: '3', label: 'Codex Desktop', value: 'codex' },
+    { key: '4', label: 'Gemini CLI', value: 'gemini' },
+    { key: '5', label: 'All available adapters', value: 'all' },
+    { key: '6', label: 'None (skip adapter setup)', value: '__none__' }
+  ];
+
+  if (!shouldPromptForAdapters(args)) {
+    return detectBootstrapAdapter();
+  }
+
+  console.log('Select your AI coding agent:');
+  for (const { key, label } of choices) {
+    console.log(`  ${key}. ${label}`);
+  }
+
+  const { createInterface } = await import('node:readline/promises');
+  const rl = createInterface({ input: process.stdin, output: process.stdout });
+  let answer;
+  try {
+    answer = await rl.question('\nAgent selection [1]: ');
+  } finally {
+    rl.close();
+  }
+
+  const selection = (answer || '1').trim();
+  if (selection === '6') return null;
+
+  const choice = choices.find((c) => c.key === selection || c.value === selection.toLowerCase());
+  return choice ? choice.value : 'opencode';
+}
+
+async function detectBootstrapAdapter() {
+  const adaptersDir = path.join(cwd, '.qa-ai', 'adapters');
+  try {
+    const entries = await fs.readdir(adaptersDir, { withFileTypes: true });
+    const available = entries
+      .filter((e) => e.isDirectory() && ['opencode', 'claude', 'codex', 'gemini'].includes(e.name))
+      .map((e) => e.name)
+      .sort();
+    return available.length > 0 ? available[0] : null;
+  } catch {
+    // adapters dir doesn't exist yet
+  }
+  return null;
+}
+
 async function init(args) {
   await assertPackagedFramework();
   if (await frameworkIsInstalled()) {
@@ -163,15 +210,28 @@ async function init(args) {
   }
 
   const mergeIntoExisting = await pathExists(targetFramework);
-  if (mergeIntoExisting) {
-    await fs.mkdir(targetFramework, { recursive: true });
-  }
   await copyPackagedFramework(targetFramework, { merge: mergeIntoExisting });
-  const packageJson = JSON.parse(await fs.readFile(path.join(packageRoot, 'package.json'), 'utf8'));
-  runNodeScript('init.mjs', [...withoutCliOnlyFlags(args), '--package-version', packageJson.version]);
-  if (!hasFlag(args, 'skip-doctor')) {
-    runNodeScript('doctor.mjs', [], { allowWarnings: true });
+
+  console.log('');
+  console.log('.qa-ai/ framework copied successfully.');
+  console.log('');
+
+  const skipAdapters = args.includes('--no-adapters');
+  if (!skipAdapters) {
+    const agentAdapter = await promptAdapterSelection(args);
+    const adapters = agentAdapter ? (agentAdapter === 'all' ? 'all' : [agentAdapter, 'generic'].join(',')) : 'generic';
+    console.log(`\nSyncing adapters: ${adapters}...`);
+    runNodeScript('sync-agent-adapters.mjs', ['--adapters', adapters]);
   }
+
+  console.log('');
+  console.log('Next steps to configure QA FlowKit:');
+  console.log('  Agent-first:  open your AI coding agent and run /qa-init');
+  console.log('  CLI-first:    node .qa-ai/scripts/init.mjs [options]');
+  console.log('');
+  console.log('Example:');
+  console.log('  node .qa-ai/scripts/init.mjs --preset playwright-full --project-name "My Project"');
+  console.log('');
 }
 
 const USER_QA_AI_PRESERVE = ['output', 'features', 'tests', 'qa-ai.config.yaml'];
@@ -242,13 +302,14 @@ async function update(args) {
 }
 
 async function main() {
-  const [command = 'help', ...args] = process.argv.slice(2);
-  if (command === 'help' && args.includes('--json')) {
-    await assertTargetFramework('help');
-    runNodeScript('qa-help.mjs', args);
-    return;
-  }
+  const [command, ...args] = process.argv.slice(2);
+
   if (['-h', '--help', 'help'].includes(command)) {
+    if (command === 'help' && args.includes('--json')) {
+      await assertTargetFramework('help');
+      runNodeScript('qa-help.mjs', args);
+      return;
+    }
     printHelp();
     return;
   }
@@ -257,7 +318,8 @@ async function main() {
     console.log(packageJson.version);
     return;
   }
-  if (command === 'init') {
+
+  if (!command || command === 'init') {
     await init(args);
     return;
   }

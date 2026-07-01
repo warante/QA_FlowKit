@@ -52,7 +52,7 @@ records.
 Install RC:
 
 ```bash
-npx qa-flowkit@rc init
+npx qa-flowkit@rc
 ```
 
 ## Frozen during RC

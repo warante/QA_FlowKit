@@ -26,7 +26,7 @@ The runner:
 1. packs the current QA FlowKit source;
 2. copies this example to a temporary clean target;
 3. installs the tarball without accessing external services;
-4. runs `qa-flowkit init --preset manual-only`;
+4. runs `npx qa-flowkit` then `node .qa-ai/scripts/init.mjs --preset manual-only`;
 5. verifies the example artifacts were not overwritten;
 6. runs `doctor --strict` and `validate-target`.
 
@@ -37,7 +37,8 @@ The same test runs in CI on Ubuntu and Windows with Node.js 20 and 22.
 From a copy of this directory:
 
 ```bash
-npx qa-flowkit@rc init --preset manual-only --no-adapters
+npx qa-flowkit@rc
+node .qa-ai/scripts/init.mjs --preset manual-only --no-adapters
 npx qa-flowkit@rc doctor --strict
 npx qa-flowkit@rc validate-target
 ```
