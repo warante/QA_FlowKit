@@ -4,23 +4,25 @@ argument-hint: [optional note for qa-init-decisions]
 allowed-tools: [view_file, write_file, edit_file, list_dir, grep_search, glob, run_command]
 ---
 
+!`node .qa-ai/scripts/show-config.mjs --json`
+
 Before any other action or user-facing text, read and follow `.qa-ai/workflows/command-interaction.md`.
 
 Enable **enterprise governance mode** on an initialized repository. This is not a separate init template: it sets
-`project.qaTrack: enterprise` in `qa-ai.config.yaml` on top of the existing **standard** workflow (full test design,
+`project.qaTrack: enterprise` in the active project config (`configPath` from `show-config --json`) on top of the existing **standard** workflow (full test design,
 automation planning and PR flow), adding release-gate validation and stricter target checks.
 
 Read these files first:
 
 - `AGENTS.md`
-- `qa-ai.config.yaml`
+- Resolved config from the injected `show-config --json` output (`configPath`, `qaTrack`, `interfaceLanguage`)
 - `.qa-ai/rules/release-gate.rules.md`
 - `.qa-ai/workflows/release-gate.md`
 - `docs/qa-ai/release-gate.md` when present in the repository
 
-Use `project.interfaceLanguage` / `project.defaultLanguage` from `qa-ai.config.yaml` for user-facing text.
+Use `interfaceLanguage` from the resolved `show-config --json` output for user-facing text.
 
-If `qa-ai.config.yaml` is missing, tell the user to run `/qa-init` first. Do not create config from scratch.
+If `ok` is false, tell the user to run `/qa-init` first. Do not create config from scratch.
 
 If `$ARGUMENTS` is empty, ask the user:
 
@@ -30,13 +32,13 @@ If `$ARGUMENTS` is empty, ask the user:
    - Explain this does **not** replace init or change automation presets; it only updates `project.qaTrack`.
 2. If the current track is `quick`, warn that enterprise governance expects the **standard** workflow. Recommend
    switching to `standard` first unless the team explicitly accepts enabling governance on a quick-track repository.
-3. Ask for explicit approval before editing `qa-ai.config.yaml`.
+3. Ask for explicit approval before editing the active config file (`configPath` from `show-config --json`).
 
 When approved:
 
 1. Read the current `project.qaTrack` value.
 2. If already `enterprise`, summarize what is enabled and suggest `/qa-status` and `/qa-help` instead of rewriting config.
-3. Otherwise set `project.qaTrack` to `enterprise` in `qa-ai.config.yaml` (preserve all other keys).
+3. Otherwise set `project.qaTrack` to `enterprise` in the active config file (`configPath` from `show-config --json`; preserve all other keys).
 4. Optionally append a short note to `qa-ai-output/qa-init-decisions.md` when that file exists, recording the governance
    enablement date and `$ARGUMENTS` when provided.
 

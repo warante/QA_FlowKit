@@ -5,6 +5,7 @@ allowed-tools: [view_file, write_file, edit_file, list_dir, grep_search, glob, r
 ---
 
 !`npx qa-flowkit run status --json`
+!`node .qa-ai/scripts/show-config.mjs --json`
 
 Before any other action or user-facing text, read and follow `.qa-ai/workflows/command-interaction.md`.
 
@@ -14,7 +15,7 @@ supporting inputs such as PDFs, images, HTML, spreadsheets, URLs and design refe
 Read these files first:
 
 - `AGENTS.md`
-- `qa-ai.config.yaml`
+- Resolved config from the injected `show-config --json` output (`configPath`, `interfaceLanguage`, `gherkinLanguage`, `qaTrack`, `aiTestingEnabled`). When `ok` is false, run `node .qa-ai/scripts/show-config.mjs --json` and default to `en` only then. Do not assume `qa-ai.config.yaml` at the repository root; compact init writes `.qa-ai/qa-ai.config.yaml`.
 - `.qa-ai/rules/`
 - `.qa-ai/agents/README.md`
 - `.qa-ai/agents/qa-workflow-orchestrator.md`
@@ -24,7 +25,7 @@ Read these files first:
 
 For each phase, load the matching phase agent from `.qa-ai/agents/README.md` and any active specialists before producing or changing artifacts. If the current tool cannot call subagents, treat those Markdown files as required role instructions.
 
-Use `project.interfaceLanguage` / `project.defaultLanguage` from `qa-ai.config.yaml` for user-facing questions and descriptions. Use `gherkin.language` only for generated `.feature` files. Supported values are `en` and `es`; default to `en` if the config is missing.
+Use `interfaceLanguage` and `gherkinLanguage` from the injected `show-config --json` output for user-facing questions and descriptions. Use `gherkinLanguage` only for generated `.feature` files. Supported values are `en` and `es`; default to `en` only when `ok` is false.
 
 If `$ARGUMENTS` is empty or the requirement source is ambiguous, ask the user:
 
@@ -92,6 +93,6 @@ For early/incomplete repositories, use `node .qa-ai/scripts/validate-target.mjs 
 
 Do not write to configured external tools. Ask for the official RF ID before final feature generation if it is missing.
 
-Respect `project.qaTrack` from `qa-ai.config.yaml` (see `.qa-ai/workflows/full-flow.md`).
+Respect `qaTrack` from the injected `show-config --json` output (see `.qa-ai/workflows/full-flow.md`).
 
 When this workflow step completes, run `/qa-help` or `node .qa-ai/scripts/qa-help.mjs` and share the recommended next phase.

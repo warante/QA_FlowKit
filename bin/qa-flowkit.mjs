@@ -21,7 +21,8 @@ const commandMap = {
   'export-report': 'export-report.mjs',
   metrics: 'qa-metrics.mjs',
   help: 'qa-help.mjs',
-  clean: 'clean.mjs'
+  clean: 'clean.mjs',
+  'show-config': 'show-config.mjs'
 };
 
 function printHelp() {
@@ -63,6 +64,7 @@ Other commands:
   metrics [options]                Compute local workflow KPIs from .qa-ai/state/runs/
   sync-adapters [options]          Re-sync agent adapter files from the packaged templates
   help [options]                   Show context-aware next-step guidance for the QA workflow
+  show-config [options]            Print resolved interface/Gherkin language and track from config
   clean [options]                  Remove generated files tracked in the init manifest
   version, -v, --version           Print the installed QA FlowKit version
 
@@ -73,6 +75,7 @@ Examples:
   npx qa-flowkit update --dry-run --json
   npx qa-flowkit doctor --strict
   npx qa-flowkit validate-config --json
+  npx qa-flowkit show-config --json
   npx qa-flowkit run start --rf RF-123
   npx qa-flowkit run next --json
   npx qa-flowkit run retry --json

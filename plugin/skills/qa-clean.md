@@ -4,11 +4,13 @@ argument-hint: [optional clean flags]
 allowed-tools: [view_file, write_file, edit_file, list_dir, grep_search, glob, run_command]
 ---
 
+!`node .qa-ai/scripts/show-config.mjs --json`
+
 Before any other action or user-facing text, read and follow `.qa-ai/workflows/command-interaction.md`.
 
 Preview or execute cleanup for generated QA FlowKit artifacts.
 
-Read `qa-ai.config.yaml` when present and use its configured interface language (`project.interfaceLanguage` / `project.defaultLanguage`, `en` or `es`) for questions, descriptions and summaries.
+Use `interfaceLanguage` from the resolved `show-config --json` output (`en` or `es`; default to `en` only when `ok` is false) for questions, descriptions and summaries.
 
 If `$ARGUMENTS` is empty, run the safe dry-run first:
 

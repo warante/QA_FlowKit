@@ -6,6 +6,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { inspectQaWorkflow, validateReleaseGateData, parseMarkdownTable } from './_fixtures.mjs';
 import { assertIncludes, repoRoot, runValidatorScript, withTempWorkspace } from './_shared.mjs';
+import { copyFramework } from '../lib/integration-helpers.mjs';
 
 // --- release gate ---
 
@@ -101,6 +102,71 @@ test('inspectQaWorkflow: quick track next phase is gherkin after requirements', 
     assert.ok(
       report.recommendations.some((item) => item.title.includes('Gherkin') || item.title.includes('Next phase'))
     );
+    assert.ok(report.recommendations.some((item) => item.command === '/qa-full-flow'));
+    assert.ok(report.recommendations.some((item) => item.command === '/qa-validate-features'));
+    assert.ok(
+      !report.recommendations.some((item) => item.command.includes('node .qa-ai/scripts/validate-features.mjs'))
+    );
+  } finally {
+    await fs.rm(tempDir, { recursive: true, force: true });
+  }
+});
+
+test('inspectQaWorkflow: standard track recommends /qa-status for aggregated validation', async () => {
+  const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-ai-help-'));
+  try {
+    await copyFramework(tempDir);
+    const outputDir = path.join(tempDir, '.qa-ai', 'output');
+    await fs.mkdir(outputDir, { recursive: true });
+    await fs.mkdir(path.join(tempDir, '.qa-ai', 'features'), { recursive: true });
+    await fs.writeFile(
+      path.join(tempDir, '.qa-ai', 'features', 'RF-001-sample.feature'),
+      '@priority:high @type:smoke @manual:true @rf:RF-001\nFeature: Sample\n  Acceptance Criteria:\n    Given x\n',
+      'utf8'
+    );
+    for (const name of [
+      'requirement-analysis.md',
+      'normalized-requirements.md',
+      'test-design-system.md',
+      'test-design-proposal.md'
+    ]) {
+      await fs.writeFile(path.join(outputDir, name), `# ${name}\n`, 'utf8');
+    }
+    await fs.writeFile(
+      path.join(tempDir, '.qa-ai', 'qa-ai.config.yaml'),
+      [
+        'project:',
+        '  qaTrack: standard',
+        'knowledge:',
+        '  enabled: false',
+        'tools:',
+        '  testManagement: none',
+        '  issueTracker: none',
+        'sources:',
+        '  external:',
+        '    enabled: false',
+        'automation:',
+        '  ui:',
+        '    framework: none',
+        '  api:',
+        '    framework: none',
+        'gherkin:',
+        '  featurePath: .qa-ai/features',
+        'testDesign:',
+        '  systemPath: .qa-ai/output/test-design-system.md',
+        '  proposalPath: .qa-ai/output/test-design-proposal.md',
+        '  quality:',
+        '    mode: off',
+        'traceability:',
+        '  matrixPath: .qa-ai/output/traceability-matrix.md',
+        ''
+      ].join('\n'),
+      'utf8'
+    );
+    const report = await inspectQaWorkflow(tempDir);
+    assert.equal(report.pendingPhaseIds[0], 'traceability');
+    assert.ok(report.recommendations.some((item) => item.command === '/qa-status'));
+    assert.ok(!report.recommendations.some((item) => item.command.includes('node .qa-ai/scripts/validate-target.mjs')));
   } finally {
     await fs.rm(tempDir, { recursive: true, force: true });
   }

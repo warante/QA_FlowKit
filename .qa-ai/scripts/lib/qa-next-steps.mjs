@@ -16,6 +16,19 @@ import { ARTIFACT_PATHS, DEFAULT_FEATURE_PATH } from './artifact-paths.mjs';
 import { normalizeGateDecision } from './release-gate.mjs';
 export { normalizeQaTrack, QA_TRACK_IDS, QA_TRACKS };
 
+/** Agent slash commands preferred over raw node script invocations in recommendations. */
+const AGENT_SLASH_COMMANDS = {
+  doctor: '/qa-doctor',
+  'validate-features': '/qa-validate-features',
+  'validate-target': '/qa-status',
+  'validate-release-gate': '/qa-gate',
+  'validate-quality-report': '/qa-quality'
+};
+
+function agentSlashCommand(id, nodeFallback) {
+  return AGENT_SLASH_COMMANDS[id] || nodeFallback;
+}
+
 function resolveConfigPath(config, keyOrPath) {
   if (!keyOrPath) return '';
   const text = String(keyOrPath).trim();
@@ -135,7 +148,7 @@ function buildActiveRunRecommendations(snapshot, contract, config) {
     items.push({
       priority: ctx.track === 'enterprise' ? 'required' : 'recommended',
       title: 'Run aggregated target validation',
-      command: 'node .qa-ai/scripts/validate-target.mjs',
+      command: agentSlashCommand('validate-target', 'node .qa-ai/scripts/validate-target.mjs'),
       detail:
         ctx.track === 'enterprise'
           ? 'Runs strict doctor, validators and release gate for CI-style hardening.'
@@ -202,7 +215,7 @@ export async function inspectQaWorkflow(cwd) {
         {
           priority: 'recommended',
           title: 'Verify setup',
-          command: 'node .qa-ai/scripts/doctor.mjs',
+          command: agentSlashCommand('doctor', 'node .qa-ai/scripts/doctor.mjs'),
           detail: 'Validates framework assets and configured paths.'
         }
       ],
@@ -323,7 +336,7 @@ function buildRecommendations({ ctx, pendingPhaseIds, completedPhaseIds, config,
       items.push({
         priority: 'recommended',
         title: 'Validate features after generation',
-        command: 'node .qa-ai/scripts/validate-features.mjs',
+        command: agentSlashCommand('validate-features', 'node .qa-ai/scripts/validate-features.mjs'),
         detail: 'Checks Gherkin structure, tags, RF IDs and acceptance criteria.'
       });
     }
@@ -339,7 +352,7 @@ function buildRecommendations({ ctx, pendingPhaseIds, completedPhaseIds, config,
       items.push({
         priority: 'recommended',
         title: 'Validate Gherkin quality report',
-        command: 'node .qa-ai/scripts/validate-quality-report.mjs',
+        command: agentSlashCommand('validate-quality-report', 'node .qa-ai/scripts/validate-quality-report.mjs'),
         detail: 'Checks rubric version, current feature hashes, evidence rows and gate thresholds.'
       });
     }
@@ -377,7 +390,7 @@ function buildRecommendations({ ctx, pendingPhaseIds, completedPhaseIds, config,
       items.push({
         priority: ctx.track === 'enterprise' ? 'required' : 'recommended',
         title: 'Run aggregated target validation',
-        command: 'node .qa-ai/scripts/validate-target.mjs',
+        command: agentSlashCommand('validate-target', 'node .qa-ai/scripts/validate-target.mjs'),
         detail:
           ctx.track === 'enterprise'
             ? 'Runs strict doctor, validators and release gate for CI-style hardening.'
@@ -388,7 +401,7 @@ function buildRecommendations({ ctx, pendingPhaseIds, completedPhaseIds, config,
       items.push({
         priority: 'recommended',
         title: 'Validate release gate file',
-        command: 'node .qa-ai/scripts/validate-release-gate.mjs',
+        command: agentSlashCommand('validate-release-gate', 'node .qa-ai/scripts/validate-release-gate.mjs'),
         detail: 'Checks decision, risks, evidence paths and approver rules.'
       });
     }
@@ -501,6 +514,8 @@ export function formatHelpReport(report, { query = '' } = {}) {
     lines.push('');
   }
 
-  lines.push('Tip: run `/qa-help` in your agent or `node .qa-ai/scripts/qa-help.mjs` after each workflow step.');
+  lines.push(
+    'Tip: run `/qa-help` in your agent after each workflow step. Use `node .qa-ai/scripts/qa-help.mjs` on hookless hosts only.'
+  );
   return lines.join('\n').trimEnd();
 }
