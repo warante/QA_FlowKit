@@ -8,6 +8,7 @@
         "update",
         "bootstrap",
         "config",
+        "show-config",
         "doctor",
         "validate-config",
         "validate-untrusted-content",
@@ -55,6 +56,7 @@
     "jsonOutputs": {
       "stable": [
         "help --json",
+        "show-config --json",
         "validate-untrusted-content --json",
         "validate-external-intake --json",
         "validate-sync-diff --json",
