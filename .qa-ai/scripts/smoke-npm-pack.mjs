@@ -7,11 +7,11 @@ import { validatePackFileList } from './lib/npm-pack-allowlist.mjs';
 import {
   assertExists,
   assertMissing,
+  configureFramework,
   installPackTarball,
   repoRoot,
   resolvePackTarball,
-  runCli,
-  runNodeScript
+  runCli
 } from '../../.github/scripts/lib/ci-helpers.mjs';
 
 async function assertIncludes(filePath, expected, label = filePath) {
@@ -101,7 +101,7 @@ async function main() {
     installPackTarball(initTarget, tarball, { npmCache });
     await validateCommandInteractionContract(path.join(initTarget, 'node_modules', 'qa-flowkit'));
     runCli(initTarget, []);
-    runNodeScript(path.join(initTarget, '.qa-ai', 'scripts', 'init.mjs'), ['--no-adapters']);
+    configureFramework(initTarget, ['--no-adapters']);
     await assertExists(path.join(initTarget, '.qa-ai', 'scripts', 'init.mjs'), '.qa-ai framework');
     await assertExists(path.join(initTarget, COMPACT_CONFIG_PATH), 'generated config');
     await assertExists(path.join(initTarget, DEFAULT_FEATURE_PATH), 'features directory');
@@ -146,7 +146,7 @@ async function main() {
     await fs.mkdir(updateTarget, { recursive: true });
     installPackTarball(updateTarget, tarball, { npmCache });
     runCli(updateTarget, []);
-    runNodeScript(path.join(updateTarget, '.qa-ai', 'scripts', 'init.mjs'), ['--no-adapters']);
+    configureFramework(updateTarget, ['--no-adapters']);
     await fs.mkdir(path.join(updateTarget, '.qa-ai', 'state'), { recursive: true });
     await fs.mkdir(path.join(updateTarget, '.qa-ai', 'config-profiles'), { recursive: true });
     await fs.writeFile(path.join(updateTarget, '.qa-ai', 'state', 'keep.json'), '{}\n', 'utf8');
