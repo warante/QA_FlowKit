@@ -5,12 +5,14 @@ QA FlowKit now ships an npm CLI while preserving the portable `.qa-ai/` framewor
 ## Primary flow
 
 ```bash
-npx qa-flowkit init
+npx qa-flowkit
 ```
 
-`init` copies the packaged `.qa-ai/` folder into the target repository, runs the existing init logic, generates the default config and folders, syncs the default OpenCode adapter, and runs `doctor` in warn-only mode.
+Running `qa-flowkit` without a subcommand copies the packaged `.qa-ai/` folder into the target repository.
+Once copied, configure QA FlowKit with `/qa-init` in your AI coding agent or `node .qa-ai/scripts/init.mjs`
+from the terminal.
 
-If `.qa-ai/` already exists, `init` stops safely and asks the user to run:
+If `.qa-ai/` already exists, `qa-flowkit` stops safely and asks the user to run:
 
 ```bash
 npx qa-flowkit update
@@ -18,7 +20,7 @@ npx qa-flowkit update
 
 ## CLI commands
 
-- `qa-flowkit init`
+- `qa-flowkit` (default — copy framework)
 - `qa-flowkit update`
 - `qa-flowkit doctor`
 - `qa-flowkit validate-target`
@@ -27,7 +29,7 @@ npx qa-flowkit update
 - `qa-flowkit help`
 - `qa-flowkit clean`
 
-All commands except `init` require `.qa-ai/` in the target repository and delegate to the existing `.qa-ai/scripts/*.mjs` implementation.
+All commands except the default (framework copy) require `.qa-ai/` in the target repository and delegate to the existing `.qa-ai/scripts/*.mjs` implementation.
 
 ## Compatibility contract
 

@@ -1,6 +1,6 @@
 # AGENTS.md - QA FlowKit
 
-This file is the generic instruction layer for all AI coding agents working in **this repository** (the QA FlowKit starter and npm package source). Target repositories that run `npx qa-flowkit init` receive their own generated `AGENTS.md` from [`.qa-ai/adapters/generic/AGENTS.md`](.qa-ai/adapters/generic/AGENTS.md) (different role: QA workflow in _your_ repo, not framework maintenance).
+This file is the generic instruction layer for all AI coding agents working in **this repository** (the QA FlowKit starter and npm package source). Target repositories that run `npx qa-flowkit` receive their own generated `AGENTS.md` from [`.qa-ai/adapters/generic/AGENTS.md`](.qa-ai/adapters/generic/AGENTS.md) (different role: QA workflow in _your_ repo, not framework maintenance).
 
 ## Two repositories
 
@@ -11,7 +11,7 @@ This file is the generic instruction layer for all AI coding agents working in *
 
 ## Project purpose
 
-Build an open-source, portable QA AI workflow starter. Users install via **`npx qa-flowkit init`** (npm package `qa-flowkit`) or by copying `.qa-ai/` into a target QA/automation repository. Claude Code and OpenCode can also start through `/qa-init` after running the bootstrap script from `.qa-ai`.
+Build an open-source, portable QA AI workflow starter. Users install via **`npx qa-flowkit`** (npm package `qa-flowkit`) or by copying `.qa-ai/` into a target QA/automation repository. Claude Code and OpenCode can also start through `/qa-init` after running the bootstrap script from `.qa-ai`.
 
 ## Primary goal
 
@@ -180,7 +180,8 @@ Releases are **not** done by manually bumping `package.json` and pushing tags. T
 A target user must be able to:
 
 ```bash
-npx qa-flowkit init
+npx qa-flowkit
+node .qa-ai/scripts/init.mjs
 npx qa-flowkit doctor
 ```
 
@@ -195,4 +196,4 @@ node .qa-ai/scripts/doctor.mjs
 
 The generated repository must be ready for use with Codex Desktop, Claude Code and other AI coding tools.
 
-The preferred agent-first setup is: copy `.qa-ai` or run `npx qa-flowkit init`, run `node .qa-ai/scripts/bootstrap-agent-adapters.mjs` (or `npx qa-flowkit bootstrap` after init), open Claude Code or OpenCode, then run `/qa-init`.
+The preferred agent-first setup is: copy `.qa-ai` or run `npx qa-flowkit`, run `node .qa-ai/scripts/bootstrap-agent-adapters.mjs` (or `npx qa-flowkit bootstrap` after init), open Claude Code or OpenCode, then run `/qa-init`.

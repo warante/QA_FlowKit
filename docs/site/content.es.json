@@ -52,7 +52,7 @@
       { "href": "#commands", "label": "Ver comandos", "variant": "secondary" },
       { "href": "https://www.npmjs.com/package/qa-flowkit", "label": "Ver paquete npm", "variant": "secondary" }
     ],
-    "terminal_code": "npx qa-flowkit init\n\nabre tu CLI de IA y usa la superficie de comandos generada:\n\n/qa-init\n/qa-full-flow"
+    "terminal_code": "npx qa-flowkit\n\nabre tu CLI de IA y ejecuta la configuracion guiada:\n\n/qa-init\n/qa-full-flow"
   },
   "signals": [
     { "strong": "Node.js 20+", "span": "CLI nativo y scripts portables" },
@@ -273,8 +273,8 @@
     ],
     "terminal_commands": [
       {
-        "code": "npx qa-flowkit init",
-        "description": "Instala <code>.qa-ai/</code>, genera la configuración, carpetas y adaptadores de agente seleccionados."
+        "code": "npx qa-flowkit",
+        "description": "Copia <code>.qa-ai/</code> en el repositorio. Luego configura con <code>/qa-init</code> o <code>node .qa-ai/scripts/init.mjs</code>."
       },
       {
         "code": "npx qa-flowkit doctor",
@@ -325,7 +325,7 @@
     "eyebrow": "Inicio en dos minutos",
     "title": "Instala QA FlowKit en el repositorio de QA",
     "intro": "Ejecuta la CLI, elige un adaptador, abre tu herramienta de IA y usa la superficie de comandos QA generada.",
-    "terminal_code": "npx qa-flowkit init\n\nabre tu CLI de IA y usa la superficie de comandos generada:\n\n/qa-init\n/qa-add-tests"
+    "terminal_code": "npx qa-flowkit\n\nabre tu CLI de IA y ejecuta la configuracion guiada:\n\n/qa-init\n/qa-add-tests"
   },
   "footer": {
     "tagline": "Starter QA open source con licencia MIT.",

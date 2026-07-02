@@ -12,20 +12,37 @@ Compatibility levels and deprecations are defined in [Public Contracts](public-c
 
 ## Setup commands
 
-| Command     | Purpose                                                                      |
-| ----------- | ---------------------------------------------------------------------------- |
-| `init`      | Copy `.qa-ai/`, generate config/folders and selected adapters                |
-| `update`    | Replace the installed framework while preserving state and profiles          |
-| `bootstrap` | Generate minimal Claude Code/OpenCode bootstrap commands after a folder copy |
-| `config`    | Export or import reusable configuration profiles                             |
+| Command      | Purpose                                                                      |
+| ------------ | ---------------------------------------------------------------------------- |
+| (no command) | Copy `.qa-ai/` into the current repository; the main install step            |
+| `update`     | Replace the installed framework while preserving state and profiles          |
+| `bootstrap`  | Generate minimal Claude Code/OpenCode bootstrap commands after a folder copy |
+| `config`     | Export or import reusable configuration profiles                             |
 
-### `init`
+### Framework install (default command)
 
 ```bash
-npx qa-flowkit@rc init [options]
+npx qa-flowkit@rc
 ```
 
-Common options:
+Running `qa-flowkit` without a subcommand copies the packaged `.qa-ai/` framework folder into the current
+repository. Once copied, configure QA FlowKit through one of these paths:
+
+**Agent-first (recommended):**
+
+```text
+/qa-init
+```
+
+Open your AI coding agent and run `/qa-init` for guided interactive configuration.
+
+**CLI-first:**
+
+```bash
+node .qa-ai/scripts/init.mjs [options]
+```
+
+Common `init.mjs` options:
 
 | Option                             | Values / behavior                                                                        |
 | ---------------------------------- | ---------------------------------------------------------------------------------------- |
@@ -52,7 +69,6 @@ Common options:
 | `--with-test-management-mapping`   | Create the mapping JSON template                                                         |
 | `--set <key=value>`                | Repeatable scalar config override                                                        |
 | `--force`                          | Explicitly allow overwrite of generated files                                            |
-| `--skip-doctor`                    | CLI-only option that skips the post-init doctor run                                      |
 
 Default init uses the Playwright UI + API preset. In an interactive terminal, it shows an AI CLI adapter selector
 before syncing root command/instruction files. In non-interactive environments it detects existing host folders such

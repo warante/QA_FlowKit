@@ -14,7 +14,7 @@ The first pilot ran against a real automation repository using WebdriverIO (UI) 
 
 ### Init and configuration
 
-- `npx qa-flowkit init --preset webdriverio-playwright-api` completed in under a minute and produced a correct `qa-ai.config.yaml` with no manual edits needed.
+- `node .qa-ai/scripts/init.mjs --preset webdriverio-playwright-api` completed in under a minute and produced a correct `qa-ai.config.yaml` with no manual edits needed.
 - The `--qa-context` flag let the team point to an existing `qa-knowledge/` folder. The agent read it during `/qa-init` and proposed accurate defaults for tool choices and Gherkin language.
 - `doctor.mjs` immediately identified a missing Playwright config file (it had been renamed). This caught a real issue before any workflow ran.
 
@@ -63,9 +63,9 @@ The sync plan validator requires proposal-first language and rejects rows that c
 
 ### Step-by-step
 
-1. Run `npx qa-flowkit init` (or `init --preset manual-only` for manual-only teams).
+1. Run `npx qa-flowkit` (or `node .qa-ai/scripts/init.mjs --preset manual-only` for manual-only teams after copying).
 2. Run `npx qa-flowkit doctor` and fix any `[FAIL]` items before proceeding.
-3. Create a `qa-ai-knowledge/` folder with your team's QA process notes and re-run `init --qa-context qa-ai-knowledge`.
+3. Create a `qa-ai-knowledge/` folder with your team's QA process notes and re-run `node .qa-ai/scripts/init.mjs --qa-context qa-ai-knowledge`.
 4. Open Claude Code or OpenCode and run `/qa-init`. The agent reads context and proposes workflow defaults.
 5. Work through phases in order: `intake` → `test-design` → `gherkin` → `traceability`.
 6. Run `npx qa-flowkit validate-features` and `npx qa-flowkit validate-traceability` before each PR.

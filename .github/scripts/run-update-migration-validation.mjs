@@ -8,6 +8,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import {
   assertMissing,
+  installAndConfigurePacked,
   installPackTarball,
   parseJsonStdout,
   repoRoot,
@@ -34,7 +35,7 @@ async function main() {
     const { tarball } = await resolvePackTarball({ packDir, npmCache });
     installPackTarball(targetRoot, tarball, { npmCache });
 
-    runCli(targetRoot, ['init', '--preset', 'manual-only', '--adapters', 'generic', '--skip-doctor']);
+    installAndConfigurePacked(targetRoot, ['--preset', 'manual-only', '--adapters', 'generic']);
     await overlayOldestSupportedFixture(targetRoot);
 
     const before = {

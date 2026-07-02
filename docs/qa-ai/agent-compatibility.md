@@ -96,7 +96,7 @@ After copying `.qa-ai/` and running the bootstrap script, start the agent and ru
 
 The command asks for the required initialization choices, including optional QA context folder, interface language, Gherkin language, base template, requirement source, optional framework overrides and adapter selection, then runs `node .qa-ai/scripts/init.mjs`. Use `/qa-init`, not `/init`, because `/init` is a built-in command in both Claude Code and OpenCode.
 
-Claude Code users can alternatively install the generated QA FlowKit plugin from this repository's marketplace. The plugin provides namespaced skills, hooks and the orchestrator agent, but it does not replace target-repository initialization: the repo still needs `.qa-ai/` and `qa-ai.config.yaml` from `npx qa-flowkit init`. See [Claude Code Plugin](claude-plugin.md).
+Claude Code users can alternatively install the generated QA FlowKit plugin from this repository's marketplace. The plugin provides namespaced skills, hooks and the orchestrator agent, but it does not replace target-repository initialization: the repo still needs `.qa-ai/` and `qa-ai.config.yaml` from `npx qa-flowkit`. See [Claude Code Plugin](claude-plugin.md).
 
 Advanced users may still pass flags directly:
 

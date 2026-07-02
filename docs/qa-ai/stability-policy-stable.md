@@ -14,7 +14,7 @@ policy text in [`stability-policy.md`](stability-policy.md) after TASK-086 publi
 ## Default install channel
 
 ```bash
-npx qa-flowkit@latest init
+npx qa-flowkit@latest
 npx qa-flowkit@latest update
 ```
 

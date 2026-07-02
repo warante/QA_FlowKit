@@ -6,14 +6,14 @@
 ## Summary
 
 - **Package:** `qa-flowkit@latest` (`1.0.0`)
-- **Install:** `npx qa-flowkit@latest init`
+- **Install:** `npx qa-flowkit@latest`
 - **Prior channels:** `beta`, `rc` (still installable for migration testing)
 - **Contracts:** frozen public CLI and validator contracts per [stability-policy-stable.md](stability-policy-stable.md)
 
 ## Install
 
 ```bash
-npx qa-flowkit@latest init
+npx qa-flowkit@latest
 npx qa-flowkit doctor --strict
 ```
 
@@ -36,7 +36,8 @@ See [beta-to-1.0-migration.md](beta-to-1.0-migration.md).
 ## Demo
 
 ```bash
-npx qa-flowkit@latest init --preset manual-only --adapters generic
+npx qa-flowkit@latest
+node .qa-ai/scripts/init.mjs --preset manual-only --adapters generic
 npx qa-flowkit@latest run start --rf RF-101
 npx qa-flowkit@latest validate-target
 ```

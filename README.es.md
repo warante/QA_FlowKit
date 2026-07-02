@@ -44,12 +44,23 @@ resultado de las validaciones.
 Desde el repositorio donde quieres instalar QA FlowKit:
 
 ```bash
-npx qa-flowkit init
-# elige tu CLI de IA en el menú de instalación
+npx qa-flowkit
+```
+
+Abre el repositorio en tu CLI de IA y ejecuta la configuracion guiada:
+
+```text
+/qa-init
+```
+
+O configura directamente desde la terminal:
+
+```bash
+node .qa-ai/scripts/init.mjs
 npx qa-flowkit doctor # opcional
 ```
 
-Abre el repositorio en tu CLI de IA y usa la superficie de comandos generada:
+Usa la superficie de comandos generada:
 
 ```text
 /qa-help
@@ -132,8 +143,10 @@ El track controla la profundidad; los presets configuran frameworks y herramient
 Ejemplo:
 
 ```bash
-npx qa-flowkit@rc init --preset karate-full --adapters generic,claude
+node .qa-ai/scripts/init.mjs --preset karate-full --adapters generic,claude
 ```
+
+O ejecuta `/qa-init` en tu agente de IA para configuracion interactiva.
 
 Consulta el [esquema de configuración](docs/qa-ai/config-schema.md).
 
@@ -141,7 +154,7 @@ Consulta el [esquema de configuración](docs/qa-ai/config-schema.md).
 
 | Comando                                               | Propósito                                                  |
 | ----------------------------------------------------- | ---------------------------------------------------------- |
-| `qa-flowkit init`                                     | Instalar y configurar el framework                         |
+| `qa-flowkit`                                          | Copiar el framework `.qa-ai/` al repositorio               |
 | `qa-flowkit update`                                   | Actualizar `.qa-ai/` conservando el estado                 |
 | `qa-flowkit doctor`                                   | Diagnosticar instalación y configuración                   |
 | `qa-flowkit help`                                     | Recomendar el siguiente paso del workflow                  |
@@ -253,8 +266,8 @@ Consulta la [guía de migración beta a 1.0](docs/qa-ai/beta-to-1.0-migration.md
 
 ## Repositorio Fuente
 
-Este repositorio mantiene el framework, CLI, CI y paquete npm. Un repositorio QA destino recibe `.qa-ai/`,
-configuración y artefactos mediante `npx qa-flowkit init`.
+Este repositorio mantiene el framework, CLI, CI y paquete npm. Un repositorio QA destino recibe `.qa-ai/`
+mediante `npx qa-flowkit`, y luego configura los artefactos QA con `/qa-init` o `node .qa-ai/scripts/init.mjs`.
 
 Antes de proponer un PR:
 

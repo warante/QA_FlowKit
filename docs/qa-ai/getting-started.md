@@ -7,12 +7,23 @@ Step-by-step setup flows for each user type. Pick the one that matches your situ
 From your **target** repository root (Node.js 20+):
 
 ```bash
-npx qa-flowkit init
-# choose your AI coding CLI adapter in the setup menu
+npx qa-flowkit
+```
+
+Open the repository in your AI coding CLI and run the guided setup:
+
+```text
+/qa-init
+```
+
+Or configure directly from the terminal:
+
+```bash
+node .qa-ai/scripts/init.mjs
 npx qa-flowkit doctor # optional
 ```
 
-Open the repository in your AI coding CLI and use the generated command surface:
+Use the generated command surface:
 
 ```text
 /qa-help
@@ -50,7 +61,7 @@ When the workflow is complete, record the decision with `/qa-gate` and run `npx 
 Advanced alternatives at init or by hand:
 
 ```bash
-npx qa-flowkit init --preset playwright-full --qa-track enterprise
+node .qa-ai/scripts/init.mjs --preset playwright-full --qa-track enterprise
 # or edit qa-ai.config.yaml → project.qaTrack: enterprise
 ```
 
@@ -73,7 +84,8 @@ Acceptance criteria:
 From a temporary **target** repository root:
 
 ```bash
-npx qa-flowkit@rc init --preset manual-only --qa-track quick
+npx qa-flowkit@rc
+node .qa-ai/scripts/init.mjs --preset manual-only --qa-track quick
 npx qa-flowkit doctor
 npx qa-flowkit run start --rf RF-101
 npx qa-flowkit run next
@@ -136,7 +148,8 @@ Presets: [config-schema.md](config-schema.md) · Stability: [stability-policy.md
 For teams using [Karate](https://docs.karatelabs.io/getting-started/why-karate) for API and UI automation:
 
 ```bash
-npx qa-flowkit@rc init --preset karate-full
+npx qa-flowkit@rc
+node .qa-ai/scripts/init.mjs --preset karate-full
 npx qa-flowkit validate-features
 npx qa-flowkit validate-karate-features
 ```

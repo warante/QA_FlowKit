@@ -28,7 +28,7 @@ sources:
 
 When `enabled: true`:
 
-- `npx qa-flowkit init --with-doc-templates` generates empty stubs at the configured paths.
+- `node .qa-ai/scripts/init.mjs --with-doc-templates` generates empty stubs at the configured paths.
 - The `external-intake` phase is inserted before `tm-coverage` in standard and enterprise tracks.
 - `validate-target` runs `validate-external-intake` automatically.
 - `validate-untrusted-content` scans both import files alongside the normal requirement sources.

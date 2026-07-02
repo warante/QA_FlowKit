@@ -937,7 +937,8 @@ The target directory is missing the generated `.qa-ai/` framework copy. Installi
 **Fix**
 
 ```bash
-npx qa-flowkit init
+npx qa-flowkit
+node .qa-ai/scripts/init.mjs --no-adapters
 ```
 
 If npm is unavailable, copy the packaged framework manually and run init offline:

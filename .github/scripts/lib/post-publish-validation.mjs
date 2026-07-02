@@ -7,7 +7,16 @@ import { parsePackOutput, validatePackFileList } from '../../../.qa-ai/scripts/l
 import { resolveNpmDistTag, simulateRegistryVisibilityCheck } from './npm-dist-tag.mjs';
 import { assertRcVersion, parseDistTagsJson } from './rc-version.mjs';
 import { assertStableVersion } from './stable-version.mjs';
-import { node, npmCommand, npmExecPath, parseJsonStdout, repoRoot, runCli, runNpm } from './ci-helpers.mjs';
+import {
+  installAndConfigurePacked,
+  node,
+  npmCommand,
+  npmExecPath,
+  parseJsonStdout,
+  repoRoot,
+  runCli,
+  runNpm
+} from './ci-helpers.mjs';
 import { overlayOldestSupportedFixture } from './migration-fixture.mjs';
 
 const CHANNELS = {
@@ -132,7 +141,7 @@ async function assertCleanInstallSmoke(installRoot) {
   const version = runCli(installRoot, ['version']).stdout.trim();
   assert.match(version, /^\d+\.\d+\.\d+/, 'version must print semver');
 
-  runCli(installRoot, ['init', '--skip-doctor', '--no-adapters']);
+  installAndConfigurePacked(installRoot, ['--no-adapters']);
   runCli(installRoot, ['doctor']);
   parseJsonStdout(runCli(installRoot, ['validate-config', '--json']), 'validate-config');
   parseJsonStdout(runCli(installRoot, ['help', '--json']), 'help');
@@ -152,7 +161,7 @@ async function assertPublishedUpdateSmoke(tempRoot, npmCache, { localSimulation,
     useLatestTag: useLatestTagOnInstall && !localSimulation
   });
 
-  runCli(migrationRoot, ['init', '--preset', 'manual-only', '--adapters', 'generic', '--skip-doctor']);
+  installAndConfigurePacked(migrationRoot, ['--preset', 'manual-only', '--adapters', 'generic']);
   await overlayOldestSupportedFixture(migrationRoot);
 
   const configBefore = await fs.readFile(path.join(migrationRoot, 'qa-ai.config.yaml'), 'utf8');

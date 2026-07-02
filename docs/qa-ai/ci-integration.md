@@ -10,10 +10,10 @@ QA FlowKit provides a composite GitHub Action to run target validation.
 
 ### Workflow Template
 
-When you initialize a repository using the `--with-ci github` flag:
+When you configure a repository with CI support:
 
 ```bash
-npx qa-flowkit init --with-ci github
+node .qa-ai/scripts/init.mjs --with-ci github
 ```
 
 QA FlowKit generates a ready-to-use workflow template at `.github/workflows/qa-flowkit.yml`:

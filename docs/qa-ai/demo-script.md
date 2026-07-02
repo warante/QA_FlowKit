@@ -28,7 +28,8 @@ correction and a passing target gate — **without** external writes, credential
 
 ```bash
 mkdir /tmp/rf101-demo && cd /tmp/rf101-demo
-npx qa-flowkit@rc init --preset manual-only --qa-track quick --adapters generic
+npx qa-flowkit@rc
+node .qa-ai/scripts/init.mjs --preset manual-only --qa-track quick --adapters generic
 npx qa-flowkit doctor
 ```
 

@@ -21,7 +21,7 @@ testManagementSync:
   rollbackPlanPath: qa-ai-output/test-management-rollback-plan.md
 ```
 
-`npx qa-flowkit init` creates the governed templates when this mode is configured. `doctor` verifies that the required
+`node .qa-ai/scripts/init.mjs` creates the governed templates when this mode is configured. `doctor` verifies that the required
 scripts, agents and templates are present.
 
 ## Pipeline

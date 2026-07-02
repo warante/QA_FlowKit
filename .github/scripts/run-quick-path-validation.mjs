@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { jsonOutput, repoRoot, runSourceCli } from './lib/ci-helpers.mjs';
+import { installAndConfigureSource, jsonOutput, repoRoot, runSourceCli } from './lib/ci-helpers.mjs';
 
 const fixtureRoot = path.join(repoRoot, 'test', 'fixtures', 'quick-path');
 
@@ -23,16 +23,7 @@ async function main() {
   const target = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-flowkit-quick-path-'));
 
   try {
-    runSourceCli(target, [
-      'init',
-      '--preset',
-      'manual-only',
-      '--qa-track',
-      'quick',
-      '--adapters',
-      'generic',
-      '--skip-doctor'
-    ]);
+    installAndConfigureSource(target, ['--preset', 'manual-only', '--qa-track', 'quick', '--adapters', 'generic']);
     runSourceCli(target, ['doctor']);
     await copyFixture('requirements/RF-101-login.md', target);
     console.log('[PASS] clean quick-track target initialized');
