@@ -44,7 +44,7 @@ jobs:
           }
 
       - name: Upload pack artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: qa-flowkit-pack
           path: pack-artifact/
@@ -460,7 +460,7 @@ jobs:
         run: npm run coverage:collect
 
       - name: Upload coverage data
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: qa-flowkit-coverage
           path: coverage/qa-flowkit/
