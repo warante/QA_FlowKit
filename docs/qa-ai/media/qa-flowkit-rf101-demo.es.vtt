@@ -1,0 +1,43 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:06.000
+RF-101 empieza como un requisito de login y termina como evidencia QA validada.
+
+00:00:06.000 --> 00:00:14.000
+Instala una vez, abre OpenCode y ejecuta /qa-init para configurar.
+
+00:00:14.000 --> 00:00:22.000
+/qa-full-flow abre una ejecucion gobernada que se reanuda por fase.
+
+00:00:22.000 --> 00:00:30.000
+El fixture publico RF-101 permanece en el repositorio destino.
+
+00:00:30.000 --> 00:00:38.000
+El agente escribe artefactos y el control determinista devuelve ok true.
+
+00:00:38.000 --> 00:00:46.000
+La aprobacion de diseno queda registrada antes de aceptar Gherkin.
+
+00:00:46.000 --> 00:00:55.000
+El fixture invalido no tiene la etiqueta obligatoria @manual:true.
+
+00:00:55.000 --> 00:01:05.000
+run check sale con codigo distinto de cero y mantiene la fase Gherkin.
+
+00:01:05.000 --> 00:01:14.000
+El fixture corregido agrega @manual:true y el mismo run reintenta.
+
+00:01:14.000 --> 00:01:22.000
+El mismo control de Gherkin ahora pasa con ok true.
+
+00:01:22.000 --> 00:01:31.000
+La trazabilidad enlaza RF-101, TC-001 y el criterio de aceptacion.
+
+00:01:31.000 --> 00:01:39.000
+Se genera el resumen de PR y el estado del run pasa a completed.
+
+00:01:39.000 --> 00:01:48.000
+La validacion final pasa sin credenciales ni escrituras externas.
+
+00:01:48.000 --> 00:01:55.000
+Reproduce la misma ruta con npm run test:e2e-quick desde el repo fuente.

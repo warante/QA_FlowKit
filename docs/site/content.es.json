@@ -22,14 +22,35 @@
     "workflow_pipeline": "Recorrido del flujo QA",
     "track_levels": "Profundidad del flujo al instalar",
     "bands": "Presets y adaptadores soportados",
-    "scroll_top": "Ir arriba"
+    "scroll_top": "Ir arriba",
+    "demo": "Demo grabado RF-101",
+    "demo_links": "Enlaces del demo RF-101"
   },
   "nav": [
-    { "href": "#why", "label": "Por qué" },
-    { "href": "#workflow", "label": "Flujo" },
-    { "href": "#features", "label": "Funciones" },
-    { "href": "#commands", "label": "Comandos" },
-    { "href": "#install", "label": "Instalar" }
+    {
+      "href": "#why",
+      "label": "Por qué"
+    },
+    {
+      "href": "#demo",
+      "label": "Demo"
+    },
+    {
+      "href": "#workflow",
+      "label": "Flujo"
+    },
+    {
+      "href": "#features",
+      "label": "Funciones"
+    },
+    {
+      "href": "#commands",
+      "label": "Comandos"
+    },
+    {
+      "href": "#install",
+      "label": "Instalar"
+    }
   ],
   "lang_switcher": [
     {
@@ -41,23 +62,54 @@
       "data_lang_choice": "en",
       "active": false
     },
-    { "tag": "span", "lang": "es", "label": "Español", "active": true }
+    {
+      "tag": "span",
+      "lang": "es",
+      "label": "Español",
+      "active": true
+    }
   ],
   "hero": {
     "eyebrow": "Starter QA open source",
     "title": "QA FlowKit",
     "lede": "Convierte el trabajo de QA asistido por IA en un flujo repetible y revisable dentro del repositorio, con validaciones deterministas, trazabilidad, instrucciones para agentes y salidas listas para PR.",
     "actions": [
-      { "href": "#install", "label": "Empezar en dos minutos", "variant": "primary" },
-      { "href": "#commands", "label": "Ver comandos", "variant": "secondary" },
-      { "href": "https://www.npmjs.com/package/qa-flowkit", "label": "Ver paquete npm", "variant": "secondary" }
+      {
+        "href": "#install",
+        "label": "Empezar en dos minutos",
+        "variant": "primary"
+      },
+      {
+        "href": "#demo",
+        "label": "Ver demo RF-101",
+        "variant": "secondary"
+      },
+      {
+        "href": "#commands",
+        "label": "Ver comandos",
+        "variant": "secondary"
+      },
+      {
+        "href": "https://www.npmjs.com/package/qa-flowkit",
+        "label": "Ver paquete npm",
+        "variant": "secondary"
+      }
     ],
     "terminal_code": "npx qa-flowkit\n\nabre tu CLI de IA y ejecuta la configuracion guiada:\n\n/qa-init\n/qa-full-flow"
   },
   "signals": [
-    { "strong": "Node.js 20+", "span": "CLI nativo y scripts portables" },
-    { "strong": "RC ready", "span": "Release-please y flujo de publicación npm" },
-    { "strong": "Preparado para agentes", "span": "Claude Code, OpenCode, Codex Desktop y más" }
+    {
+      "strong": "Node.js 20+",
+      "span": "CLI nativo y scripts portables"
+    },
+    {
+      "strong": "RC ready",
+      "span": "Release-please y flujo de publicación npm"
+    },
+    {
+      "strong": "Preparado para agentes",
+      "span": "Claude Code, OpenCode, Codex Desktop y más"
+    }
   ],
   "why": {
     "eyebrow": "Hecho por y para equipos QA",
@@ -109,12 +161,36 @@
     "title": "De requisitos a evidencia de release",
     "intro": "La IA razona y edita archivos. QA FlowKit controla el orden de fases, las salidas requeridas, las aprobaciones y las comprobaciones de éxito o fallo para que el equipo no dependa solo de la disciplina del prompt.",
     "nodes": [
-      { "phase": "Paso 1", "strong": "Requisito", "span": "Ingesta e ID RF" },
-      { "phase": "Pasos 2–3", "strong": "Diseño de pruebas", "span": "Cobertura y plan de sincronización" },
-      { "phase": "Paso 4", "strong": "Gherkin", "span": "Archivos <code>.feature</code>" },
-      { "phase": "Paso 6", "strong": "Trazabilidad", "span": "Matriz RF → prueba" },
-      { "phase": "Pasos 7–8", "strong": "Automatización", "span": "Viabilidad y especificaciones" },
-      { "phase": "Paso 9", "strong": "Release gate", "span": "Evidencia lista para PR" }
+      {
+        "phase": "Paso 1",
+        "strong": "Requisito",
+        "span": "Ingesta e ID RF"
+      },
+      {
+        "phase": "Pasos 2–3",
+        "strong": "Diseño de pruebas",
+        "span": "Cobertura y plan de sincronización"
+      },
+      {
+        "phase": "Paso 4",
+        "strong": "Gherkin",
+        "span": "Archivos <code>.feature</code>"
+      },
+      {
+        "phase": "Paso 6",
+        "strong": "Trazabilidad",
+        "span": "Matriz RF → prueba"
+      },
+      {
+        "phase": "Pasos 7–8",
+        "strong": "Automatización",
+        "span": "Viabilidad y especificaciones"
+      },
+      {
+        "phase": "Paso 9",
+        "strong": "Release gate",
+        "span": "Evidencia lista para PR"
+      }
     ],
     "layers": [
       {
@@ -189,7 +265,11 @@
       }
     ],
     "agent_commands": [
-      { "slug": "qa-help", "code": "/qa-help", "description": "Guía contextual — qué hacer ahora en el flujo QA." },
+      {
+        "slug": "qa-help",
+        "code": "/qa-help",
+        "description": "Guía contextual — qué hacer ahora en el flujo QA."
+      },
       {
         "slug": "qa-init",
         "code": "/qa-init",
@@ -330,8 +410,14 @@
   "footer": {
     "tagline": "Starter QA open source con licencia MIT.",
     "links": [
-      { "href": "https://github.com/warante/QA_FlowKit", "label": "Repositorio en GitHub" },
-      { "href": "https://github.com/warante/QA_FlowKit/blob/main/README.es.md", "label": "README" },
+      {
+        "href": "https://github.com/warante/QA_FlowKit",
+        "label": "Repositorio en GitHub"
+      },
+      {
+        "href": "https://github.com/warante/QA_FlowKit/blob/main/README.es.md",
+        "label": "README"
+      },
       {
         "href": "https://github.com/warante/QA_FlowKit/blob/main/docs/qa-ai/agent-compatibility.md",
         "label": "Comandos de agente"
@@ -344,7 +430,36 @@
         "href": "https://github.com/warante/QA_FlowKit/blob/main/docs/qa-ai/specialist-routing-matrix.md",
         "label": "Enrutado de especialistas"
       },
-      { "href": "https://github.com/warante/QA_FlowKit/blob/main/docs/qa-ai/demo.md", "label": "Demo RF-101" }
+      {
+        "href": "https://github.com/warante/QA_FlowKit/blob/main/docs/qa-ai/demo.md",
+        "label": "Demo RF-101"
+      }
+    ]
+  },
+  "demo": {
+    "eyebrow": "Ruta RF-101 grabada",
+    "title": "Mira el quick track fallar, recuperarse y pasar",
+    "intro": "El demo de dos minutos sigue un requisito de login desde la configuracion con slash commands hasta validacion determinista, un fallo intencionado por tag faltante, correccion sin reiniciar, trazabilidad y un target gate aprobado. No usa credenciales ni escrituras en servicios externos.",
+    "poster": "../qa-ai/media/qa-flowkit-rf101-demo-thumbnail.png",
+    "video_src": "../qa-ai/media/qa-flowkit-rf101-demo.mp4",
+    "captions_en": "../qa-ai/media/qa-flowkit-rf101-demo.en.vtt",
+    "captions_es": "../qa-ai/media/qa-flowkit-rf101-demo.es.vtt",
+    "captions_en_label": "English",
+    "captions_es_label": "Español",
+    "video_fallback": "Descarga el video RF-101 desde docs/qa-ai/media/qa-flowkit-rf101-demo.mp4.",
+    "links": [
+      {
+        "href": "../qa-ai/media/qa-flowkit-rf101-demo.mp4",
+        "label": "Abrir MP4"
+      },
+      {
+        "href": "../qa-ai/demo.md",
+        "label": "Leer notas del demo"
+      },
+      {
+        "href": "../qa-ai/media/qa-flowkit-rf101-demo.gif",
+        "label": "Ver GIF preview"
+      }
     ]
   }
 }

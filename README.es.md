@@ -78,14 +78,20 @@ gate del repositorio.
 
 ## Demo
 
-| Formato                                                     | Descripción                                                       |
-| ----------------------------------------------------------- | ----------------------------------------------------------------- |
-| [Recorrido estático](docs/qa-ai/demo.md)                    | Historia RF-101, fixtures y salida E2E esperada                   |
-| [Guion de grabación](docs/qa-ai/demo-script.md)             | Guion de demo terminal de dos minutos para mantenedores           |
-| [Transcripción y subtítulos](docs/qa-ai/demo-transcript.md) | Texto alternativo, subtítulos y fallback estático                 |
-| `npm run test:e2e-quick`                                    | Repetición automatizada en un repositorio destino temporal limpio |
+| Formato                                                     | Descripción                                                          |
+| ----------------------------------------------------------- | -------------------------------------------------------------------- |
+| [Video grabado](docs/qa-ai/media/qa-flowkit-rf101-demo.mp4) | Demo quick-track RF-101 de dos minutos con audio en inglés y español |
+| [Recorrido estático](docs/qa-ai/demo.md)                    | Historia RF-101, fixtures y salida E2E esperada                      |
+| [Guion de grabación](docs/qa-ai/demo-script.md)             | Guion de demo terminal de dos minutos para mantenedores              |
+| [Transcripción y subtítulos](docs/qa-ai/demo-transcript.md) | Texto alternativo, subtítulos y fallback reproducible                |
+| `npm run test:e2e-quick`                                    | Repetición automatizada en un repositorio destino temporal limpio    |
 
-La captura grabada puede publicarse desde el guion cuando esté lista; hoy el camino estático es el fallback soportado.
+[![Miniatura del demo grabado RF-101](docs/qa-ai/media/qa-flowkit-rf101-demo-thumbnail.png)](docs/qa-ai/media/qa-flowkit-rf101-demo.mp4)
+
+El demo grabado RF-101 muestra el quick track desde la ingesta del requisito hasta un fallo intencionado del validador,
+corrección sin reiniciar, trazabilidad y un target gate aprobado. Las pistas de subtítulos externas están disponibles
+en [inglés](docs/qa-ai/media/qa-flowkit-rf101-demo.en.vtt) y
+[español](docs/qa-ai/media/qa-flowkit-rf101-demo.es.vtt).
 
 El demo determinista RF-101, incluido un fallo intencionado del validador y su corrección, también está documentado en
 [Primeros pasos](docs/qa-ai/getting-started.md#reproduce-the-verified-path). Desde este repositorio fuente puedes

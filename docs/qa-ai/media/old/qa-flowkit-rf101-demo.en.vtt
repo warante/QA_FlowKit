@@ -1,0 +1,43 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:06.000
+RF one-oh-one is a login requirement. QA FlowKit makes the workflow reviewable.
+
+00:00:06.000 --> 00:00:14.000
+One command installs the framework. Init selects the quick track and a manual-only preset, while doctor checks the installation.
+
+00:00:14.000 --> 00:00:22.000
+The requirement identifier opens a resumable run. The active phase packet tells the agent exactly what to produce next.
+
+00:00:22.000 --> 00:00:30.000
+The source requirement stays in the repository, together with its acceptance rule and identifier.
+
+00:00:30.000 --> 00:00:38.000
+The agent creates analysis artifacts. Deterministic scripts verify the phase before the workflow can advance.
+
+00:00:38.000 --> 00:00:46.000
+A human approval point is recorded before test generation. The decision stays with the run evidence.
+
+00:00:46.000 --> 00:00:55.000
+Now the generated feature contains an intentional defect. The required manual tag is missing.
+
+00:00:55.000 --> 00:01:05.000
+The gate rejects the file with a non-zero exit. The run stays on the Gherkin phase, so nothing is skipped or lost.
+
+00:01:05.000 --> 00:01:14.000
+The correction adds manual true. The same run resumes without restarting the workflow.
+
+00:01:14.000 --> 00:01:22.000
+The same deterministic check now passes, and the workflow moves forward to traceability.
+
+00:01:22.000 --> 00:01:31.000
+The traceability matrix links the source requirement, the test case, and the acceptance criterion.
+
+00:01:31.000 --> 00:01:39.000
+The final run status preserves each completed phase and its evidence for repository review.
+
+00:01:39.000 --> 00:01:48.000
+Finally, validate target checks the complete repository state. No external credentials or service writes are required.
+
+00:01:48.000 --> 00:01:55.000
+Replay the verified path from the QA FlowKit repository with npm run test E two E quick.

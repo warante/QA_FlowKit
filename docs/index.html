@@ -25,6 +25,7 @@
       <div class="topbar-end">
         <nav aria-label="Site sections">
           <a href="#why">Why</a>
+          <a href="#demo">Demo</a>
           <a href="#workflow">Workflow</a>
           <a href="#features">Features</a>
           <a href="#commands">Commands</a>
@@ -48,6 +49,7 @@
           </p>
           <div class="actions" aria-label="Primary actions">
             <a class="button primary" href="#install">Start in two minutes</a>
+            <a class="button secondary" href="#demo">Watch RF-101 demo</a>
             <a class="button secondary" href="#commands">View commands</a>
             <a class="button secondary" href="https://www.npmjs.com/package/qa-flowkit">View npm package</a>
           </div>
@@ -64,6 +66,35 @@ open your AI CLI and run guided setup:
 
 /qa-init
 /qa-full-flow</code></pre>
+        </div>
+      </section>
+
+      <section class="section demo-section" id="demo" aria-label="RF-101 recorded demo">
+        <div class="section-heading">
+          <p class="eyebrow">Recorded RF-101 path</p>
+          <h2>Watch the quick track fail, recover and pass</h2>
+          <p>
+            The two-minute demo follows one login requirement through slash-command setup, deterministic validation, an intentional missing-tag failure, correction without restart, traceability and a passing target gate. No credentials or external service writes are used.
+          </p>
+        </div>
+        <div class="demo-media">
+          <video controls preload="metadata" poster="qa-ai/media/qa-flowkit-rf101-demo-thumbnail.png">
+            <source src="qa-ai/media/qa-flowkit-rf101-demo.mp4" type="video/mp4" />
+            <track
+              kind="captions"
+              src="qa-ai/media/qa-flowkit-rf101-demo.en.vtt"
+              srclang="en"
+              label="English"
+              default
+            />
+            <track kind="captions" src="qa-ai/media/qa-flowkit-rf101-demo.es.vtt" srclang="es" label="Español" />
+            Download the RF-101 demo video from docs/qa-ai/media/qa-flowkit-rf101-demo.mp4.
+          </video>
+        </div>
+        <div class="demo-links" aria-label="RF-101 demo links">
+          <a class="button secondary" href="qa-ai/media/qa-flowkit-rf101-demo.mp4">Open MP4</a>
+          <a class="button secondary" href="qa-ai/demo.md">Read demo notes</a>
+          <a class="button secondary" href="qa-ai/media/qa-flowkit-rf101-demo.gif">View GIF preview</a>
         </div>
       </section>
 

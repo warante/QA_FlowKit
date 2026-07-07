@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-06-25",
+  "generatedAt": "2026-07-07",
   "qaFlowKitVersion": "1.0.0-rc.7",
   "task": "TASK-057",
-  "status": "static_ready",
+  "status": "recorded",
   "rfId": "RF-101",
   "fixtureRoot": "test/fixtures/quick-path",
   "e2eRunner": ".github/scripts/run-quick-path-validation.mjs",
@@ -12,8 +12,17 @@
   "recordingScript": "docs/qa-ai/demo-script.md",
   "transcript": "docs/qa-ai/demo-transcript.md",
   "recordedMedia": {
-    "status": "pending",
-    "notes": "Publish a two-minute-or-shorter terminal capture from demo-script.md; update README embed when available."
+    "status": "published",
+    "path": "docs/qa-ai/media/qa-flowkit-rf101-demo.mp4",
+    "thumbnail": "docs/qa-ai/media/qa-flowkit-rf101-demo-thumbnail.png",
+    "gif": "docs/qa-ai/media/qa-flowkit-rf101-demo.gif",
+    "captions": {
+      "en": "docs/qa-ai/media/qa-flowkit-rf101-demo.en.vtt",
+      "es": "docs/qa-ai/media/qa-flowkit-rf101-demo.es.vtt"
+    },
+    "durationSeconds": 115,
+    "resolution": "1920x1080",
+    "notes": "Two-minute-or-shorter RF-101 terminal demo with English and Spanish audio tracks."
   },
   "humanValidation": {
     "productManagerReview": "pending",

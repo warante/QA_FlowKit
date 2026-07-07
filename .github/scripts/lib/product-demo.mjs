@@ -30,6 +30,11 @@ export const DEMO_PUBLIC_PATHS = [
   'docs/qa-ai/demo-script.md',
   'docs/qa-ai/demo-transcript.md',
   'docs/qa-ai/demo.v1.json',
+  'docs/qa-ai/media/qa-flowkit-rf101-demo.mp4',
+  'docs/qa-ai/media/qa-flowkit-rf101-demo.gif',
+  'docs/qa-ai/media/qa-flowkit-rf101-demo-thumbnail.png',
+  'docs/qa-ai/media/qa-flowkit-rf101-demo.en.vtt',
+  'docs/qa-ai/media/qa-flowkit-rf101-demo.es.vtt',
   'test/fixtures/quick-path/requirements/RF-101-login.md',
   '.github/scripts/run-quick-path-validation.mjs'
 ];

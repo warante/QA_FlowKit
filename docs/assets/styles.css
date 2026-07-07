@@ -348,6 +348,37 @@ code {
   border-bottom: 1px solid var(--line);
 }
 
+.demo-section {
+  display: grid;
+  grid-template-columns: minmax(0, 0.86fr) minmax(0, 1.14fr);
+  gap: clamp(28px, 5vw, 72px);
+  align-items: center;
+}
+
+.demo-media {
+  overflow: hidden;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: var(--code);
+  box-shadow:
+    0 24px 60px var(--shadow),
+    0 0 0 1px var(--shadow-soft);
+}
+
+.demo-media video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: var(--code);
+}
+
+.demo-links {
+  display: flex;
+  flex-wrap: wrap;
+  grid-column: 2;
+  gap: 12px;
+}
+
 .signal-strip div {
   padding: 26px clamp(20px, 4vw, 48px);
   border-right: 1px solid var(--line);
@@ -852,6 +883,7 @@ footer a:hover {
 
 @media (max-width: 920px) {
   .hero,
+  .demo-section,
   .split,
   .install,
   .bands {
@@ -868,6 +900,10 @@ footer a:hover {
 
   .split {
     gap: 32px;
+  }
+
+  .demo-links {
+    grid-column: auto;
   }
 
   .feature-grid article {

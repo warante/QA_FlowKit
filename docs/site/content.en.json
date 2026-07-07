@@ -17,6 +17,8 @@
     "lang_switcher": "Language",
     "hero_actions": "Primary actions",
     "hero_terminal": "QA FlowKit command preview",
+    "demo": "RF-101 recorded demo",
+    "demo_links": "RF-101 demo links",
     "signals": "Project signals",
     "compare": "Without harness versus with QA FlowKit",
     "workflow_pipeline": "QA workflow path",
@@ -26,6 +28,7 @@
   },
   "nav": [
     { "href": "#why", "label": "Why" },
+    { "href": "#demo", "label": "Demo" },
     { "href": "#workflow", "label": "Workflow" },
     { "href": "#features", "label": "Features" },
     { "href": "#commands", "label": "Commands" },
@@ -49,10 +52,28 @@
     "lede": "Turn AI-assisted QA work into a repeatable, reviewable repository workflow with deterministic checks, traceability, agent instructions and PR-ready outputs.",
     "actions": [
       { "href": "#install", "label": "Start in two minutes", "variant": "primary" },
+      { "href": "#demo", "label": "Watch RF-101 demo", "variant": "secondary" },
       { "href": "#commands", "label": "View commands", "variant": "secondary" },
       { "href": "https://www.npmjs.com/package/qa-flowkit", "label": "View npm package", "variant": "secondary" }
     ],
     "terminal_code": "npx qa-flowkit\n\nopen your AI CLI and run guided setup:\n\n/qa-init\n/qa-full-flow"
+  },
+  "demo": {
+    "eyebrow": "Recorded RF-101 path",
+    "title": "Watch the quick track fail, recover and pass",
+    "intro": "The two-minute demo follows one login requirement through slash-command setup, deterministic validation, an intentional missing-tag failure, correction without restart, traceability and a passing target gate. No credentials or external service writes are used.",
+    "poster": "qa-ai/media/qa-flowkit-rf101-demo-thumbnail.png",
+    "video_src": "qa-ai/media/qa-flowkit-rf101-demo.mp4",
+    "captions_en": "qa-ai/media/qa-flowkit-rf101-demo.en.vtt",
+    "captions_es": "qa-ai/media/qa-flowkit-rf101-demo.es.vtt",
+    "captions_en_label": "English",
+    "captions_es_label": "Español",
+    "video_fallback": "Download the RF-101 demo video from docs/qa-ai/media/qa-flowkit-rf101-demo.mp4.",
+    "links": [
+      { "href": "qa-ai/media/qa-flowkit-rf101-demo.mp4", "label": "Open MP4" },
+      { "href": "qa-ai/demo.md", "label": "Read demo notes" },
+      { "href": "qa-ai/media/qa-flowkit-rf101-demo.gif", "label": "View GIF preview" }
+    ]
   },
   "signals": [
     { "strong": "Node.js 20+", "span": "Native CLI and portable scripts" },
