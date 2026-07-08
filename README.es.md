@@ -13,8 +13,14 @@ Idioma: [English](README.md) | **Español**
 QA FlowKit coordina un agente de código mientras scripts deterministas controlan el proceso:
 
 ```text
-requisito -> diseño de pruebas -> Gherkin -> trazabilidad -> automatización -> release gate
+requisito -> análisis de riesgo -> diseño de pruebas -> Gherkin -> datos de prueba ->
+entorno -> trazabilidad -> automatización -> ejecución -> análisis de resultados ->
+triage de defectos -> release gate -> aprendizaje
 ```
+
+Las nuevas capacidades (análisis de riesgo, datos de prueba, entornos, ejecución, análisis de resultados,
+triage de defectos, observabilidad y ciclo de aprendizaje) son opt-in y por defecto advisory u off.
+Ver el [ejemplo de flujo funcional completo](examples/full-functional-flow/).
 
 Está dirigido a equipos de QA y automatización que quieren artefactos generados con IA sin depender únicamente de la
 disciplina del prompt. QA FlowKit está actualmente en fase de **candidato a versión estable (RC)**; consulta la

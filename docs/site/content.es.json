@@ -204,11 +204,12 @@
         "text": "Valida salidas, bloquea fases inválidas, registra aprobaciones y mantiene estado resumible en <code>.qa-ai/state/</code>."
       }
     ],
-    "notes": "Las puertas de control clave incluyen confirmación del ID RF oficial, sincronización de gestión de pruebas en modo solo-propuesta (proposal-first) y validación determinista de Gherkin antes de trazabilidad y decisiones de release.",
-    "track_intro": "Al instalar QA FlowKit eliges cuánto del recorrido QA quieres que guíe. En ambos casos las pruebas, la trazabilidad y los validadores quedan en tu repositorio.",
+    "notes": "Las puertas de control clave incluyen confirmación del ID RF oficial, análisis de riesgo, verificación de entorno y validación determinista de Gherkin antes de trazabilidad y decisiones de release.",
+    "track_intro": "Al instalar QA FlowKit eliges cuánto del recorrido QA quieres que guíe. Las nuevas capacidades (análisis de riesgo, datos de prueba, entornos, ejecución, análisis de resultados, triage de defectos y ciclo de aprendizaje) son opt-in y vienen en off o advisory por defecto.",
     "tracks": [
-      "<strong>Quick</strong> — Equipos de QA manual: requisitos → Gherkin → matriz de trazabilidad (routing de estrategia en off)",
-      "<strong>Standard</strong> — Flujo completo con enrutado advisory de especialistas por señales en requisitos"
+      "<strong>Quick</strong> — Equipos de QA manual: requisitos → Gherkin → matriz de trazabilidad (análisis de riesgo opcional, routing de estrategia en off)",
+      "<strong>Standard</strong> — Flujo completo con riesgo, datos de prueba, entornos y enrutado advisory de especialistas por señales en requisitos",
+      "<strong>Enterprise</strong> — Flujo completo más release gate, evidencias de ejecución y ciclo de aprendizaje"
     ]
   },
   "features": {

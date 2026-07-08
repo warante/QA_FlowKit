@@ -20,14 +20,15 @@ The executable implementation plan, owners, dependencies and acceptance criteria
 ## Delivered foundation
 
 - Portable `.qa-ai/` framework and `qa-ai.config.yaml` generation.
-- npm CLI with `init`, `update`, `doctor`, validators, guided help and resumable `run` commands.
+- npm CLI with `init`, `update`, `doctor`, validators, guided help, resumable `run` commands, and `execute`.
 - Agent adapters for Claude Code, OpenCode, Codex, Cline, Continue, Aider, Goose and Gemini CLI.
 - Quick, standard and enterprise workflow tracks.
-- Gherkin, traceability, test-design, sync-plan, Karate, Maestro and release-gate validators.
+- End-to-end QA flow: requirement -> risk analysis -> test design -> test data -> environment readiness -> Gherkin -> traceability -> execution -> result analysis -> defect triage -> release gate -> learning loop.
+- Gherkin, traceability, test-design, sync-plan, Karate, Maestro, release-gate, risk-analysis, test-data, environment-readiness, execution, result-analysis, defect-triage, and learning-log validators.
 - Persistent local run state, approval gates, bounded validation retries and repository path isolation.
 - Linux and Windows CI on Node.js 20 and 22.
 - Golden manual target and Karate target fixtures.
-- Manual, Playwright UI+API, Karate and Maestro+Karate public references in validation for the 1.0 adoption gate.
+- Manual, Playwright UI+API, Karate, Maestro+Karate, and full-functional-flow public references.
 - npm package verification, release-please, CodeQL, Dependabot and secret scanning.
 - First real pilot using WebdriverIO and Playwright API.
 

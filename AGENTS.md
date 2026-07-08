@@ -4,10 +4,10 @@ This file is the generic instruction layer for all AI coding agents working in *
 
 ## Two repositories
 
-| Repository                        | `AGENTS.md`           | Purpose                                            |
-| --------------------------------- | --------------------- | -------------------------------------------------- |
-| **QA FlowKit source** (this repo) | Root `AGENTS.md`      | Maintain `.qa-ai/`, CLI, CI, npm releases          |
-| **Your QA/automation repo**       | Generated `AGENTS.md` | Run requirements → Gherkin → traceability workflow |
+| Repository                        | `AGENTS.md`           | Purpose                                              |
+| --------------------------------- | --------------------- | ---------------------------------------------------- |
+| **QA FlowKit source** (this repo) | Root `AGENTS.md`      | Maintain `.qa-ai/`, CLI, CI, npm releases            |
+| **Your QA/automation repo**       | Generated `AGENTS.md` | Run requirements -> Gherkin -> traceability workflow |
 
 ## Project purpose
 
@@ -23,7 +23,7 @@ Implement and maintain a reusable repo-first workflow that helps QA teams move f
 - Read `qa-ai.config.yaml` (root) or `.qa-ai/qa-ai.config.yaml` (compact default) when present.
 - When `knowledge.enabled` is true, read the configured QA knowledge summary and init decisions artifacts before QA workflow work.
 - When changing **framework** validators or agents in this repo, read `.qa-ai/rules/README.md` and the relevant `.qa-ai/rules/*.rules.md` files so target-repo rules stay consistent.
-- Target repositories use those rules during QA work; this repo’s root `AGENTS.md` focuses on maintaining the starter and npm package (see [npm releases](#npm-releases)).
+- Target repositories use those rules during QA work; this repo's root `AGENTS.md` focuses on maintaining the starter and npm package (see [npm releases](#npm-releases)).
 - Read `.qa-ai/agents/README.md` before QA workflow work; then load the matching phase agent and active specialists listed in `.qa-ai/agents/specialists/active.md`.
 - Present a plan before modifying files.
 - Do not overwrite existing files unless explicitly approved or `--force` behavior is requested by the user.
@@ -40,7 +40,7 @@ Align with `.qa-ai/rules/gherkin.rules.md` and `validate-features.mjs`:
 - Spanish `.feature` files must include `# language: es`.
 - One `.feature` file per test case.
 - Manual tests also have `.feature` files.
-- Every `.feature` must include the configured acceptance criteria label: `Acceptance Criteria:` for English or `Criterios de aceptación:` for Spanish.
+- Every `.feature` must include the configured acceptance criteria label: `Acceptance Criteria:` for English or `Criterios de aceptacion:` for Spanish.
 - **Required tags:** `@priority:`, `@type:`, `@manual:`.
 - **Recommended tags:** `@rf:` (requirement ID), `@id:` (test case ID).
 - RF traceability via `@rf:`, Scenario title and filename; the **Feature title does not need** an embedded RF ID.
@@ -107,7 +107,7 @@ npm run validate:oss-extraction
 node .github/scripts/verify-npm-pack.mjs
 ```
 
-GitHub Actions ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) runs the same checks on Ubuntu and Windows × Node 20/22.
+GitHub Actions ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) runs the same checks on Ubuntu and Windows x Node 20/22.
 
 When changing validators, agents, or packaged files, update tests in `.qa-ai/scripts/test-validators.mjs` and/or `.qa-ai/scripts/smoke-npm-pack.mjs` as appropriate.
 When changing evergreen documentation or CI commands, update
@@ -133,7 +133,7 @@ Releases are **not** done by manually bumping `package.json` and pushing tags. T
 ### Agents MUST
 
 - Use conventional PR titles when summarizing work destined for `main`.
-- Point maintainers to the Release PR when they ask to “release” or “publish to npm”.
+- Point maintainers to the Release PR when they ask to "release" or "publish to npm".
 - Run local validation (including `verify-npm-pack.mjs`) when touching packaged files or release workflows.
 - Read `.release-please-config.json` before changing versioning or prerelease policy.
 
@@ -142,12 +142,12 @@ Releases are **not** done by manually bumping `package.json` and pushing tags. T
 - Bump `package.json` / `.release-please-manifest.json` version for a release unless explicitly asked to edit an open Release PR created by release-please.
 - Run `npm publish` locally or add `NPM_TOKEN` / npm credentials to the repo.
 - Create or push `v*` git tags to trigger publish (tag-based publish was removed).
-- Edit `CHANGELOG.md` release sections by hand for shipping—release-please manages release sections; only edit `## Unreleased` when documenting not-yet-released work if that matches team practice.
-- Configure npm Trusted Publishing (npmjs.com UI)—that is a **human maintainer** one-time setup.
+- Edit `CHANGELOG.md` release sections by hand for shipping; release-please manages release sections; only edit `## Unreleased` when documenting not-yet-released work if that matches team practice.
+- Configure npm Trusted Publishing (npmjs.com UI); that is a **human maintainer** one-time setup.
 
 ### Emergency path
 
-**Actions → Publish npm (manual fallback)** — human-triggered only. See [docs/qa-ai/npm-migration-plan.md](docs/qa-ai/npm-migration-plan.md).
+**Actions -> Publish npm (manual fallback)** - human-triggered only. See [docs/qa-ai/npm-migration-plan.md](docs/qa-ai/npm-migration-plan.md).
 
 ## Documentation map (agents)
 
@@ -169,7 +169,7 @@ Releases are **not** done by manually bumping `package.json` and pushing tags. T
 | Security readiness                   | [docs/qa-ai/security-readiness.md](docs/qa-ai/security-readiness.md)                 |
 | Threat model                         | [docs/qa-ai/threat-model.md](docs/qa-ai/threat-model.md)                             |
 | 1.0 readiness audit (RC gate)        | [docs/qa-ai/readiness-audit.md](docs/qa-ai/readiness-audit.md)                       |
-| Beta → RC release policy             | [docs/qa-ai/beta-to-rc-release.md](docs/qa-ai/beta-to-rc-release.md)                 |
+| Beta -> RC release policy            | [docs/qa-ai/beta-to-rc-release.md](docs/qa-ai/beta-to-rc-release.md)                 |
 | Troubleshooting                      | [docs/qa-ai/troubleshooting.md](docs/qa-ai/troubleshooting.md)                       |
 | Framework rules index (target repos) | [.qa-ai/rules/README.md](.qa-ai/rules/README.md)                                     |
 | Gherkin rules (source of truth)      | [.qa-ai/rules/gherkin.rules.md](.qa-ai/rules/gherkin.rules.md)                       |

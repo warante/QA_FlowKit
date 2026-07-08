@@ -87,6 +87,53 @@ commands:
   lint: npm run lint
   testE2E: npm run test:e2e
   testQA: npm run test:qa
+execution:
+  resultsPaths:
+    - test-results/**/*.xml
+    - test-results/**/*.json
+  evalResultsPaths: []
+  quarantine:
+    mappingField: quarantined
+risk:
+  enabled: false
+  mode: advisory
+  analysisPath: .qa-ai/output/risk-analysis.md
+  registerPath: .qa-ai/output/risk-register.md
+testData:
+  enabled: false
+  mode: advisory
+  planPath: .qa-ai/output/test-data-plan.md
+  inventoryPath: .qa-ai/output/test-data-inventory.md
+  allowSynthetic: true
+  allowProductionCopies: false
+  anonymizationRequired: true
+  resetStrategy: documented
+environments:
+  enabled: false
+  mode: advisory
+  readinessPath: .qa-ai/output/environment-readiness.md
+  healthJsonPath: .qa-ai/output/environment-health.json
+  target: local
+  requiredVariables: []
+  requiredServices: []
+  requiredBrowsers: []
+  requiredMobileHosts: []
+analysis:
+  resultAnalysisPath: .qa-ai/output/result-analysis.md
+  defectTriagePath: .qa-ai/output/defect-triage.md
+  actionPlanPath: .qa-ai/output/qa-action-plan.md
+  requireFailureClassification: true
+observability:
+  enabled: false
+  mode: 'off'
+  sourcePaths: []
+  intakePath: .qa-ai/output/observability-intake.md
+  signalAnalysisPath: .qa-ai/output/production-signal-analysis.md
+learningLoop:
+  enabled: false
+  mode: 'off'
+  logPath: .qa-ai/output/learning-log.md
+  improvementPath: .qa-ai/output/rule-improvement-proposals.md
 testManagementSync:
   mode: proposal-only
   diffPath: .qa-ai/output/test-management-sync-diff.md

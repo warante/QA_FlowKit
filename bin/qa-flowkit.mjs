@@ -17,6 +17,7 @@ const commandMap = {
   bootstrap: 'bootstrap-agent-adapters.mjs',
   doctor: 'doctor.mjs',
   ...cliValidatorCommandMap(),
+  execute: 'execute.mjs',
   'sync-adapters': 'sync-agent-adapters.mjs',
   'export-report': 'export-report.mjs',
   metrics: 'qa-metrics.mjs',

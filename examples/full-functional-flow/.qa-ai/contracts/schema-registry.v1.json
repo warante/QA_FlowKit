@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "surfaces": {
+    "config": {
+      "currentVersion": 1,
+      "supportedVersions": [1],
+      "schemaPath": ".qa-ai/contracts/config.v1.schema.json",
+      "fixtureLabel": "qa-ai.config.yaml",
+      "migrationGuide": "docs/qa-ai/schema-compatibility.md#configuration"
+    },
+    "workflow": {
+      "currentVersion": 1,
+      "supportedVersions": [1],
+      "schemaPath": ".qa-ai/contracts/workflow.v1.schema.json",
+      "fixtureLabel": "workflow.v1.json",
+      "migrationGuide": "docs/qa-ai/schema-compatibility.md#workflow"
+    },
+    "run-state": {
+      "currentVersion": 1,
+      "supportedVersions": [1],
+      "schemaPath": ".qa-ai/contracts/run-state.v1.schema.json",
+      "fixtureLabel": "run.json",
+      "migrationGuide": "docs/qa-ai/schema-compatibility.md#run-state"
+    },
+    "run-event": {
+      "currentVersion": 1,
+      "supportedVersions": [1],
+      "schemaPath": ".qa-ai/contracts/run-event.v1.schema.json",
+      "fixtureLabel": "events.jsonl line",
+      "migrationGuide": "docs/qa-ai/schema-compatibility.md#run-state"
+    },
+    "init-manifest": {
+      "currentVersion": 1,
+      "supportedVersions": [1],
+      "schemaPath": ".qa-ai/contracts/init-manifest.v1.schema.json",
+      "fixtureLabel": "init-manifest.json",
+      "migrationGuide": "docs/qa-ai/schema-compatibility.md#init-manifest"
+    }
+  }
+}

@@ -60,7 +60,25 @@ Requirements:
 - If missing, ask the user.
 - Do not generate final tests without the official ID.
 
-## Step 3 - Test management coverage analysis
+## Step 3 - Risk Analysis (opt-in)
+
+Activated when `risk.enabled` is `true`. Runs after requirement normalization.
+
+Outputs:
+
+- `.qa-ai/output/risk-analysis.md`
+- `.qa-ai/output/risk-register.md` (optional)
+
+Requirements:
+
+- Evaluate business impact, failure probability, complexity, data sensitivity and security/privacy exposure for every ready RF.
+- Calculate a numeric risk score and recommend testing depth: `smoke`, `standard`, `extended` or `enterprise-gate`.
+- Record assumptions explicitly; mark inferred impact as `inferred`.
+- Do not change requirements or acceptance criteria.
+
+See [config-schema.md](config-schema.md#risk-experimental) for risk scoring configuration.
+
+## Step 4 - Test management coverage analysis
 
 Outputs:
 
@@ -200,6 +218,91 @@ Requirements:
 - Do not modify existing tests without approval.
 - Execute tests if possible.
 - If not executable, mark first execution as manual.
+
+## Extended workflow phases (opt-in)
+
+The following phases are available when enabled in configuration. All default to `off` or `advisory`
+mode and do not block existing workflows.
+
+### Test Data Planning
+
+Activated when `testData.enabled` is `true`. Runs after Gherkin generation.
+
+Outputs: `.qa-ai/output/test-data-plan.md`, `.qa-ai/output/test-data-inventory.md`
+
+- Design traceable, safe and reproducible test data.
+- Propose synthetic data. Detect sensitive data and document anonymization.
+- Never access production databases or include real credentials.
+
+See `.qa-ai/agents/test-data-agent.md` and `.qa-ai/workflows/test-data.md`.
+
+### Environment Readiness
+
+Activated when `environments.enabled` is `true`. Runs before execution.
+
+Outputs: `.qa-ai/output/environment-readiness.md`, `.qa-ai/output/environment-health.json`
+
+- Check required variables, services, browsers and mobile hosts.
+- Record pass/fail/warn with evidence. Document remediation for failures.
+- Never print secret values.
+
+See `.qa-ai/agents/environment-readiness-agent.md` and `.qa-ai/workflows/environment-readiness.md`.
+
+### Execution Orchestration
+
+Activated when `execution.mode` is `advisory` or `strict`.
+
+Outputs: `.qa-ai/output/execution-plan.md`, `.qa-ai/output/execution-summary.md`
+
+- Map configured commands to test IDs from traceability.
+- Execute commands with `shell: false`, timeout enforcement and path isolation.
+- Use `npx qa-flowkit execute --dry-run` to preview; `npx qa-flowkit execute --json` to run.
+
+See `.qa-ai/agents/execution-agent.md` and `.qa-ai/workflows/execution.md`.
+
+### Result Analysis
+
+Activated after execution when results are available.
+
+Outputs: `.qa-ai/output/result-analysis.md`
+
+- Classify failures: `product-defect`, `test-defect`, `environment`, `test-data`, `flaky`, `unknown`.
+- Recommend actions and assign confidence levels.
+
+See `.qa-ai/agents/result-analysis-agent.md` and `.qa-ai/workflows/result-analysis.md`.
+
+### Defect Triage
+
+Activated after result analysis.
+
+Outputs: `.qa-ai/output/defect-triage.md`, `.qa-ai/output/qa-action-plan.md`
+
+- Convert classified failures into proposed actions (bug, test-fix, environment-task, data-task, healing, risk-accepted).
+- Never write to external issue trackers without governed approval.
+
+See `.qa-ai/agents/defect-triage-agent.md` and `.qa-ai/workflows/defect-triage.md`.
+
+### Observability Intake
+
+Activated when `observability.enabled` is `true`. Optional phase.
+
+Outputs: `.qa-ai/output/observability-intake.md`
+
+- Read local incident reports, logs and metric exports.
+- Map production signals to RF/test IDs and propose coverage gaps.
+
+See `.qa-ai/agents/observability-agent.md` and `.qa-ai/workflows/observability-intake.md`.
+
+### Learning Loop
+
+Activated when `learningLoop.enabled` is `true`. Runs at the end of the QA cycle.
+
+Outputs: `.qa-ai/output/learning-log.md`, `.qa-ai/output/rule-improvement-proposals.md`
+
+- Review post-execution artifacts for patterns and lessons.
+- Propose improvements to rules, agents or workflows. Never modify them directly.
+
+See `.qa-ai/agents/learning-loop-agent.md` and `.qa-ai/workflows/learning-loop.md`.
 
 ## Step 9 - Issue task and PR
 

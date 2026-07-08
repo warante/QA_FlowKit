@@ -233,18 +233,21 @@ abre tu CLI de IA y ejecuta la configuracion guiada:
           </div>
         </div>
         <p class="workflow-notes">
-          Las puertas de control clave incluyen confirmación del ID RF oficial, sincronización de gestión de pruebas en modo solo-propuesta (proposal-first) y validación determinista de Gherkin antes de trazabilidad y decisiones de release.
+          Las puertas de control clave incluyen confirmación del ID RF oficial, análisis de riesgo, verificación de entorno y validación determinista de Gherkin antes de trazabilidad y decisiones de release.
         </p>
         <div class="track-levels" aria-label="Profundidad del flujo al instalar">
           <p class="track-levels-intro">
-            Al instalar QA FlowKit eliges cuánto del recorrido QA quieres que guíe. En ambos casos las pruebas, la trazabilidad y los validadores quedan en tu repositorio.
+            Al instalar QA FlowKit eliges cuánto del recorrido QA quieres que guíe. Las nuevas capacidades (análisis de riesgo, datos de prueba, entornos, ejecución, análisis de resultados, triage de defectos y ciclo de aprendizaje) son opt-in y vienen en off o advisory por defecto.
           </p>
           <div class="track-pills">
             <span class="track-pill"
-              ><strong>Quick</strong> — Equipos de QA manual: requisitos → Gherkin → matriz de trazabilidad (routing de estrategia en off)</span
+              ><strong>Quick</strong> — Equipos de QA manual: requisitos → Gherkin → matriz de trazabilidad (análisis de riesgo opcional, routing de estrategia en off)</span
             >
             <span class="track-pill"
-              ><strong>Standard</strong> — Flujo completo con enrutado advisory de especialistas por señales en requisitos</span
+              ><strong>Standard</strong> — Flujo completo con riesgo, datos de prueba, entornos y enrutado advisory de especialistas por señales en requisitos</span
+            >
+            <span class="track-pill"
+              ><strong>Enterprise</strong> — Flujo completo más release gate, evidencias de ejecución y ciclo de aprendizaje</span
             >
           </div>
         </div>

@@ -38,6 +38,7 @@
     "test:e2e-karate": "node .github/scripts/run-karate-example-validation.mjs",
     "test:e2e-playwright": "node .github/scripts/run-playwright-example-validation.mjs",
     "test:e2e-mobile": "node .github/scripts/run-mobile-example-validation.mjs",
+    "test:e2e-full-functional-flow": "node .github/scripts/run-full-functional-flow-validation.mjs",
     "test:e2e-adversarial": "node .github/scripts/run-adversarial-failure-validation.mjs",
     "test:adversarial-failure": "node --test .github/scripts/test-adversarial-failure.mjs",
     "test:e2e-update-migration": "node .github/scripts/run-update-migration-validation.mjs",
