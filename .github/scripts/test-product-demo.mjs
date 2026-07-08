@@ -4,10 +4,10 @@ import { test } from 'node:test';
 import { DEMO_RF_ID, DEMO_WORKFLOW_PHASES } from './lib/product-demo.mjs';
 import { verifyProductDemo } from './verify-product-demo.mjs';
 
-test('product demo assets are static_ready with RF-101 fixtures', async () => {
+test('product demo assets are recorded with RF-101 fixtures', async () => {
   const result = await verifyProductDemo();
   assert.equal(result.ok, true, result.errors.join('\n'));
-  assert.equal(result.status, 'static_ready');
+  assert.equal(result.status, 'recorded');
 });
 
 test('demo workflow phases cover the quick track', () => {

@@ -55,6 +55,33 @@
         </div>
       </section>
 
+      <section class="section demo-section" id="demo" aria-label="{{aria_demo}}">
+        <div class="section-heading">
+          <p class="eyebrow">{{demo_eyebrow}}</p>
+          <h2>{{demo_title}}</h2>
+          <p>
+            {{demo_intro}}
+          </p>
+        </div>
+        <div class="demo-media">
+          <video controls preload="metadata" poster="{{demo_poster}}">
+            <source src="{{demo_video_src}}" type="video/mp4" />
+            <track
+              kind="captions"
+              src="{{demo_captions_en}}"
+              srclang="en"
+              label="{{demo_captions_en_label}}"
+              default
+            />
+            <track kind="captions" src="{{demo_captions_es}}" srclang="es" label="{{demo_captions_es_label}}" />
+            {{demo_video_fallback}}
+          </video>
+        </div>
+        <div class="demo-links" aria-label="{{aria_demo_links}}">
+{{demo_links}}
+        </div>
+      </section>
+
       <section class="signal-strip" aria-label="{{aria_signals}}">
 {{signals}}
       </section>

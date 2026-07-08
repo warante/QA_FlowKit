@@ -1,12 +1,17 @@
 # RF-101 Quick-Path Demo
 
-This is the static, reproducible demo for QA FlowKit's five-minute path. It uses no external services, credentials or
-model execution.
+This is the recorded and reproducible demo for QA FlowKit's five-minute path. It uses no external services,
+credentials or model execution in the product workflow.
 
-Machine-readable status: [`demo.v1.json`](demo.v1.json) (`static_ready` until a recording is published).
+Machine-readable status: [`demo.v1.json`](demo.v1.json) (`recorded`).
 
 | Asset                                                           | Purpose                                                   |
 | --------------------------------------------------------------- | --------------------------------------------------------- |
+| [Recorded MP4](media/qa-flowkit-rf101-demo.mp4)                 | Two-minute RF-101 demo with English and Spanish audio     |
+| [Animated GIF](media/qa-flowkit-rf101-demo.gif)                 | Lightweight preview focused on failure and correction     |
+| [Thumbnail](media/qa-flowkit-rf101-demo-thumbnail.png)          | Poster image for README, docs and landing pages           |
+| [English captions](media/qa-flowkit-rf101-demo.en.vtt)          | External WebVTT caption track                             |
+| [Spanish captions](media/qa-flowkit-rf101-demo.es.vtt)          | External WebVTT caption track                             |
 | [Recording script](demo-script.md)                              | Two-minute terminal capture script for maintainers        |
 | [Transcript and captions](demo-transcript.md)                   | Accessible narration, alt text and caption track          |
 | [Getting started](getting-started.md#deterministic-rf-101-demo) | Evaluator-facing walkthrough                              |
@@ -67,5 +72,12 @@ Verification: `npm run test:product-demo`.
 
 ## Recorded demo
 
-A short terminal capture can be published from [`demo-script.md`](demo-script.md). Until then, this static walkthrough
-and `npm run test:e2e-quick` are the supported public demo paths.
+[![RF-101 recorded demo thumbnail](media/qa-flowkit-rf101-demo-thumbnail.png)](media/qa-flowkit-rf101-demo.mp4)
+
+The recorded MP4 is published at [`media/qa-flowkit-rf101-demo.mp4`](media/qa-flowkit-rf101-demo.mp4). It includes
+English and Spanish audio tracks plus external WebVTT captions:
+[`qa-flowkit-rf101-demo.en.vtt`](media/qa-flowkit-rf101-demo.en.vtt) and
+[`qa-flowkit-rf101-demo.es.vtt`](media/qa-flowkit-rf101-demo.es.vtt).
+
+If the recording cannot be played in a documentation viewer, run `npm run test:e2e-quick` to replay the same validated
+failure-and-correction path from the source repository.

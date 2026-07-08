@@ -1,7 +1,7 @@
 # RF-101 Demo Transcript and Captions
 
-Accessible narration for the TASK-057 demo. Pair with [`demo-script.md`](demo-script.md) when recording, or use this
-file as the static fallback when no video is published yet.
+Accessible narration for the TASK-057 recorded demo. Pair with [`demo-script.md`](demo-script.md) when regenerating the
+video, or use this file with [`demo.md`](demo.md) for a text-first walkthrough.
 
 ## Alt text
 
@@ -9,9 +9,12 @@ file as the static fallback when no video is published yet.
 Gherkin design, traceability and PR summary. A validator rejects Gherkin missing the manual tag, the feature is
 corrected, and strict target validation passes. No external tools or network services appear in the diagram.
 
-**Terminal capture (when published):** A dark terminal shows `npx qa-flowkit` quick-track commands, a JSON validator
-failure for a missing `@manual:true` tag, the corrected feature passing `run check`, and `validate-target` exiting
-successfully.
+**Terminal capture:** A dark terminal shows `npx qa-flowkit` quick-track commands, a JSON validator failure for a
+missing `@manual:true` tag, the corrected feature passing `run check`, and `validate-target` exiting successfully.
+
+**Recorded media:** The MP4 is [`media/qa-flowkit-rf101-demo.mp4`](media/qa-flowkit-rf101-demo.mp4), with external
+caption tracks in [`media/qa-flowkit-rf101-demo.en.vtt`](media/qa-flowkit-rf101-demo.en.vtt) and
+[`media/qa-flowkit-rf101-demo.es.vtt`](media/qa-flowkit-rf101-demo.es.vtt).
 
 ## Captions
 
@@ -38,7 +41,7 @@ successfully.
 
 ## Static fallback
 
-Until a recording is published:
+If the recording cannot be played in the current viewer:
 
 1. Read [`demo.md`](demo.md) for the story and expected E2E summary.
 2. Run `npm run test:e2e-quick` from a QA FlowKit checkout.

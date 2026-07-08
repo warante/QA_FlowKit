@@ -39,6 +39,10 @@ export function renderHeroActions(actions) {
     .join('\n');
 }
 
+export function renderDemoLinks(links) {
+  return links.map((link) => `          <a class="button secondary" href="${link.href}">${link.label}</a>`).join('\n');
+}
+
 export function renderWhyCards(cards) {
   return cards
     .map(
@@ -202,6 +206,8 @@ export function buildDocsSiteHtml(content, template) {
     aria_lang_switcher: content.aria.lang_switcher,
     aria_hero_actions: content.aria.hero_actions,
     aria_hero_terminal: content.aria.hero_terminal,
+    aria_demo: content.aria.demo,
+    aria_demo_links: content.aria.demo_links,
     aria_signals: content.aria.signals,
     aria_compare: content.aria.compare,
     aria_workflow_pipeline: content.aria.workflow_pipeline,
@@ -215,6 +221,17 @@ export function buildDocsSiteHtml(content, template) {
     hero_lede: content.hero.lede,
     hero_actions: renderHeroActions(content.hero.actions),
     hero_terminal_code: content.hero.terminal_code,
+    demo_eyebrow: content.demo.eyebrow,
+    demo_title: content.demo.title,
+    demo_intro: content.demo.intro,
+    demo_poster: content.demo.poster,
+    demo_video_src: content.demo.video_src,
+    demo_captions_en: content.demo.captions_en,
+    demo_captions_es: content.demo.captions_es,
+    demo_captions_en_label: content.demo.captions_en_label,
+    demo_captions_es_label: content.demo.captions_es_label,
+    demo_video_fallback: content.demo.video_fallback,
+    demo_links: renderDemoLinks(content.demo.links),
     signals: renderSignals(content.signals),
     why_eyebrow: content.why.eyebrow,
     why_title: content.why.title,

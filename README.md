@@ -75,14 +75,20 @@ After the agent creates or updates QA artifacts, run `npx qa-flowkit validate-ta
 
 ## Demo
 
-| Format                                                   | Description                                                |
-| -------------------------------------------------------- | ---------------------------------------------------------- |
-| [Static walkthrough](docs/qa-ai/demo.md)                 | RF-101 story, fixtures and expected E2E output             |
-| [Recording script](docs/qa-ai/demo-script.md)            | Two-minute terminal demo script for maintainers            |
-| [Transcript and captions](docs/qa-ai/demo-transcript.md) | Alt text, captions and static fallback                     |
-| `npm run test:e2e-quick`                                 | One-command automated replay from a clean temporary target |
+| Format                                                       | Description                                                       |
+| ------------------------------------------------------------ | ----------------------------------------------------------------- |
+| [Recorded video](docs/qa-ai/media/qa-flowkit-rf101-demo.mp4) | Two-minute RF-101 quick-track demo with English and Spanish audio |
+| [Static walkthrough](docs/qa-ai/demo.md)                     | RF-101 story, fixtures and expected E2E output                    |
+| [Recording script](docs/qa-ai/demo-script.md)                | Two-minute terminal demo script for maintainers                   |
+| [Transcript and captions](docs/qa-ai/demo-transcript.md)     | Alt text, captions and replay fallback                            |
+| `npm run test:e2e-quick`                                     | One-command automated replay from a clean temporary target        |
 
-A recorded capture can be published from the script when ready; the static path is the supported fallback today.
+[![RF-101 recorded demo thumbnail](docs/qa-ai/media/qa-flowkit-rf101-demo-thumbnail.png)](docs/qa-ai/media/qa-flowkit-rf101-demo.mp4)
+
+The recorded RF-101 demo shows the quick track from requirement intake through an intentional validator failure,
+correction without restart, traceability and a passing target gate. External caption tracks are available in
+[English](docs/qa-ai/media/qa-flowkit-rf101-demo.en.vtt) and
+[Spanish](docs/qa-ai/media/qa-flowkit-rf101-demo.es.vtt).
 
 The deterministic RF-101 demo, including an intentional validator failure and correction, is also documented in
 [Getting Started](docs/qa-ai/getting-started.md#reproduce-the-verified-path). From this source repository you can
