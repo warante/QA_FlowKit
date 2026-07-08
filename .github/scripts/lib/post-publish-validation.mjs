@@ -3,6 +3,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { setTimeout } from 'node:timers/promises';
 import { parsePackOutput, validatePackFileList } from '../../../.qa-ai/scripts/lib/npm-pack-allowlist.mjs';
 import { resolveNpmDistTag, simulateRegistryVisibilityCheck } from './npm-dist-tag.mjs';
 import { assertRcVersion, parseDistTagsJson } from './rc-version.mjs';
@@ -78,6 +79,7 @@ async function verifyRegistryMetadata(version, npmCache, { distTag, verifyLatest
     const seen = String(result.stdout || '').trim();
     attempts.push(seen);
     if (result.status === 0 && seen === version) break;
+    await setTimeout(15000);
   }
 
   const visibility = simulateRegistryVisibilityCheck(attempts, version);
