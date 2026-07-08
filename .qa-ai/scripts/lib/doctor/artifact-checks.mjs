@@ -113,5 +113,5 @@ export async function checkLegacyArtifactAliases(cwd) {
 export function addConfigArtifactChecks(checks, configExists) {
   if (configExists) checks.push(pathCheck('optional', 'init manifest', '.qa-ai/state/init-manifest.json'));
   if (configExists)
-    checks.push(pathCheck('required', 'active specialists index', '.qa-ai/agents/specialists/active.md'));
+    checks.push(pathCheck('optional', 'active specialists index', '.qa-ai/agents/specialists/active.md'));
 }
