@@ -48,6 +48,18 @@ this feature PR is merged.
 - Cross-platform smoke and npm-pack checks now account for generated adapters and framework-specific example paths.
 - Documentation drift and missing packaged contract files now fail validation before release.
 
+## [1.0.0-rc.8](https://github.com/warante/QA_FlowKit/compare/v1.0.0-rc.7...v1.0.0-rc.8) (2026-07-08)
+
+
+### Added
+
+* flujo QA end-to-end completo - riesgo, datos, entornos, ejecucion, analisis y aprendizaje ([#86](https://github.com/warante/QA_FlowKit/issues/86)) ([b229360](https://github.com/warante/QA_FlowKit/commit/b229360515496ae4c79857d4a713d49791b19c52))
+
+
+### Documentation
+
+* agregar demo grabado RF-101 y actualizar assets del sitio ([#84](https://github.com/warante/QA_FlowKit/issues/84)) ([403b66d](https://github.com/warante/QA_FlowKit/commit/403b66d5a00a76f20e28790a4335df4da3484026))
+
 ## [1.0.0-rc.7](https://github.com/warante/QA_FlowKit/compare/v1.0.0-rc.6...v1.0.0-rc.7) (2026-07-02)
 
 
