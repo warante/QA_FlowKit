@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/warante/QA_FlowKit/.qa-ai/contracts/run-state.v1.schema.json",
+  "title": "QA FlowKit harness run snapshot",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "runId",
+    "workflowVersion",
+    "rfId",
+    "track",
+    "status",
+    "activePhaseId",
+    "phases",
+    "approvals",
+    "createdAt",
+    "updatedAt"
+  ],
+  "properties": {
+    "schemaVersion": { "type": "integer", "enum": [1] },
+    "runId": { "type": "string", "pattern": "^[A-Za-z0-9._-]+$" },
+    "workflowVersion": { "type": "integer", "enum": [1] },
+    "rfId": { "type": ["string", "null"] },
+    "track": { "type": "string", "enum": ["quick", "standard", "enterprise"] },
+    "status": { "type": "string", "enum": ["active", "blocked", "completed"] },
+    "activePhaseId": { "type": ["string", "null"] },
+    "phases": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "status",
+          "attempts",
+          "outputs",
+          "baselineOutputs",
+          "baselineCaptured",
+          "lastValidation",
+          "blockedReason"
+        ],
+        "properties": {
+          "status": { "type": "string", "enum": ["pending", "active", "blocked", "completed", "skipped"] },
+          "attempts": { "type": "integer", "minimum": 0 },
+          "outputs": { "type": "array" },
+          "baselineOutputs": { "type": "array" },
+          "baselineCaptured": { "type": "boolean" },
+          "lastValidation": { "type": ["object", "null"] },
+          "blockedReason": { "type": ["string", "null"] },
+          "skipReason": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "approvals": { "type": "array" },
+    "createdAt": { "type": "string" },
+    "updatedAt": { "type": "string" }
+  }
+}

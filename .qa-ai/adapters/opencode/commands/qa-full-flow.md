@@ -62,14 +62,22 @@ Expected local artifacts:
 
 - `qa-ai-output/requirement-analysis.md`
 - `qa-ai-output/source-analysis.md` when mixed sources are used
+- `qa-ai-output/risk-analysis.md` when `risk.enabled` is true
 - `qa-ai-output/test-management-coverage-analysis.md`
 - `qa-ai-output/test-design-proposal.md`
 - `.feature` files under the configured feature path after approval
+- `qa-ai-output/test-data-plan.md` when `testData.enabled` is true
+- `qa-ai-output/environment-readiness.md` when `environments.enabled` is true
 - `qa-ai-output/test-management-sync-plan.md`
 - `qa-ai-output/traceability-matrix.md`
 - `qa-ai-output/automation-feasibility-report.md`
 - `qa-ai-output/automation-implementation-plan.md`
+- `qa-ai-output/execution-plan.md` when `execution.mode` is not `off`
+- `qa-ai-output/execution-summary.md` after execution
+- `qa-ai-output/result-analysis.md` after execution
+- `qa-ai-output/defect-triage.md` after result analysis
 - `qa-ai-output/pr-summary.md`
+- `qa-ai-output/learning-log.md` when `learningLoop.enabled` is true
 
 After feature and QA artifact changes, run the aggregated target-repository validator:
 

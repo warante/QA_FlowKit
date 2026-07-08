@@ -188,13 +188,108 @@ testDesign:
       - biometric
 ```
 
-## `execution`
+## `execution` (experimental)
 
 | Key                       | Type     | Description                                                         |
 | ------------------------- | -------- | ------------------------------------------------------------------- |
+| `mode`                    | enum     | `off`, `advisory` or `strict` execution phase behavior              |
+| `planPath`                | string   | Path for the execution plan artifact                                |
+| `summaryPath`             | string   | Path for the execution summary artifact                             |
+| `resultsIndexPath`        | string   | Path for the execution results index                                |
 | `resultsPaths`            | string[] | Repo-relative globs to JUnit XML / Cucumber JSON execution results. |
 | `evalResultsPaths`        | string[] | Repo-relative globs to AI eval JSON evidence files.                 |
+| `commands`                | array    | Configured test execution commands (see below)                      |
 | `quarantine.mappingField` | string   | Boolean field name inside the test-management mapping entries.      |
+
+Each command in `execution.commands`:
+
+| Key              | Type     | Description                                       |
+| ---------------- | -------- | ------------------------------------------------- |
+| `id`             | string   | Unique command identifier                         |
+| `label`          | string   | Human-readable label                              |
+| `command`        | string   | Executable (resolved without shell interpolation) |
+| `args`           | string[] | Arguments passed to the command                   |
+| `type`           | string   | `ui`, `api`, `mobile`, `contract`, etc.           |
+| `required`       | boolean  | Whether the command must succeed                  |
+| `timeoutSeconds` | integer  | Maximum execution time in seconds                 |
+| `resultPaths`    | string[] | Glob patterns for result files produced           |
+
+## `risk` (experimental)
+
+| Key                             | Type    | Description                                         |
+| ------------------------------- | ------- | --------------------------------------------------- |
+| `enabled`                       | boolean | Enable risk analysis phase (default `false`)        |
+| `mode`                          | enum    | `off`, `advisory` or `strict`                       |
+| `analysisPath`                  | string  | Risk analysis artifact path                         |
+| `registerPath`                  | string  | Risk register artifact path                         |
+| `scoring.impactWeight`          | integer | Business impact weight in risk score (default `3`)  |
+| `scoring.probabilityWeight`     | integer | Failure probability weight (default `2`)            |
+| `scoring.complexityWeight`      | integer | Technical complexity weight (default `2`)           |
+| `scoring.dataSensitivityWeight` | integer | Data sensitivity weight (default `2`)               |
+| `scoring.securityPrivacyWeight` | integer | Security/privacy impact weight (default `3`)        |
+| `scoring.aiImpactWeight`        | integer | AI component impact weight (default `2`)            |
+| `thresholds.smokeMax`           | integer | Maximum score for smoke-level testing (default `4`) |
+| `thresholds.standardMax`        | integer | Maximum score for standard testing (default `8`)    |
+| `thresholds.extendedMax`        | integer | Maximum score for extended testing (default `12`)   |
+
+Risk analysis runs after requirement normalization. In `advisory` mode it generates a reviewable analysis; in `strict` mode it blocks further phases until risks are scored for every ready RF.
+
+## `testData` (experimental)
+
+| Key                     | Type    | Description                                               |
+| ----------------------- | ------- | --------------------------------------------------------- |
+| `enabled`               | boolean | Enable test data planning phase (default `false`)         |
+| `mode`                  | enum    | `off`, `advisory` or `strict`                             |
+| `planPath`              | string  | Test data plan artifact path                              |
+| `inventoryPath`         | string  | Test data inventory artifact path                         |
+| `allowSynthetic`        | boolean | Allow synthetic test data generation (default `true`)     |
+| `allowProductionCopies` | boolean | Allow production data copies (default `false`)            |
+| `anonymizationRequired` | boolean | Require anonymization for sensitive data (default `true`) |
+| `resetStrategy`         | enum    | `none`, `documented` or `automated`                       |
+
+## `environments` (experimental)
+
+| Key                   | Type     | Description                                                 |
+| --------------------- | -------- | ----------------------------------------------------------- |
+| `enabled`             | boolean  | Enable environment readiness phase (default `false`)        |
+| `mode`                | enum     | `off`, `advisory` or `strict`                               |
+| `readinessPath`       | string   | Environment readiness artifact path                         |
+| `healthJsonPath`      | string   | Optional machine-readable health JSON                       |
+| `target`              | string   | Environment target identifier (e.g. `local`)                |
+| `requiredVariables`   | string[] | Environment variable names required (names only, no values) |
+| `requiredServices`    | string[] | Services expected to be available                           |
+| `requiredBrowsers`    | string[] | Browsers required for UI testing                            |
+| `requiredMobileHosts` | string[] | Mobile emulator/simulator hosts required                    |
+
+## `analysis` (experimental)
+
+| Key                            | Type    | Description                                                    |
+| ------------------------------ | ------- | -------------------------------------------------------------- |
+| `resultAnalysisPath`           | string  | Result analysis artifact path                                  |
+| `defectTriagePath`             | string  | Defect/task triage artifact path                               |
+| `actionPlanPath`               | string  | QA action plan artifact path                                   |
+| `requireFailureClassification` | boolean | Require classification for every test failure (default `true`) |
+
+## `observability` (experimental)
+
+| Key                  | Type     | Description                                         |
+| -------------------- | -------- | --------------------------------------------------- |
+| `enabled`            | boolean  | Enable observability intake phase (default `false`) |
+| `mode`               | enum     | `off`, `advisory` or `strict`                       |
+| `sourcePaths`        | string[] | Repo-relative globs for incident/log/metric sources |
+| `intakePath`         | string   | Observability intake artifact path                  |
+| `signalAnalysisPath` | string   | Production signal analysis artifact path            |
+
+## `learningLoop` (experimental)
+
+| Key               | Type    | Description                                    |
+| ----------------- | ------- | ---------------------------------------------- |
+| `enabled`         | boolean | Enable learning loop phase (default `false`)   |
+| `mode`            | enum    | `off`, `advisory` or `strict`                  |
+| `logPath`         | string  | Learning log artifact path                     |
+| `improvementPath` | string  | Rule/agent improvement proposals artifact path |
+
+The learning loop proposes improvements to rules, agents, or workflows but never modifies them directly. Changes to `.qa-ai/rules/`, `.qa-ai/agents/` or `.qa-ai/workflows/` always require explicit approval.
 
 ## `validators` (experimental)
 

@@ -51,7 +51,7 @@ const PHASE_TOP_LEVEL_KEYS = new Set([
 ]);
 
 const OUTPUT_TOP_LEVEL_KEYS = new Set(['path', 'fallback', 'kind', 'required']);
-const INPUT_TOP_LEVEL_KEYS = new Set(['path', 'fallback', 'required']);
+const INPUT_TOP_LEVEL_KEYS = new Set(['path', 'fallback', 'required', 'kind']);
 const SKIP_CONDITION_KEYS = new Set(['field', 'equals', 'notEquals', 'notConfigured']);
 
 let cachedContract = null;
@@ -164,6 +164,30 @@ function resolveFieldValue(config, field) {
   }
   if (field === 'automation.healing.enabled') {
     return isEnabled(getConfigValue(config, 'automation.healing.enabled', false));
+  }
+  if (field === 'risk.enabled') {
+    return isEnabled(getConfigValue(config, 'risk.enabled', false));
+  }
+  if (field === 'testData.enabled') {
+    return isEnabled(getConfigValue(config, 'testData.enabled', false));
+  }
+  if (field === 'environments.enabled') {
+    return isEnabled(getConfigValue(config, 'environments.enabled', false));
+  }
+  if (field === 'execution.mode') {
+    return String(getConfigValue(config, 'execution.mode', 'off')).toLowerCase();
+  }
+  if (field === 'observability.enabled') {
+    return isEnabled(getConfigValue(config, 'observability.enabled', false));
+  }
+  if (field === 'learningLoop.enabled') {
+    return isEnabled(getConfigValue(config, 'learningLoop.enabled', false));
+  }
+  if (field === 'testManagementSync.mode') {
+    return String(getConfigValue(config, 'testManagementSync.mode', 'proposal-only')).toLowerCase();
+  }
+  if (field === 'automation.mobile.framework') {
+    return isConfiguredFramework(String(getConfigValue(config, 'automation.mobile.framework', 'none')).toLowerCase());
   }
   return getConfigValue(config, field, undefined);
 }

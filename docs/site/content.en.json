@@ -149,11 +149,12 @@
         "text": "Validates outputs, blocks invalid phases, records approvals and keeps resumable run state under <code>.qa-ai/state/</code>."
       }
     ],
-    "notes": "Key control gates include official RF ID confirmation, proposal-first test-management synchronization and deterministic Gherkin validation before traceability and release decisions.",
-    "track_intro": "When you install QA FlowKit, you choose how much of the QA journey it guides. Both options keep tests, traceability and validators inside your repository.",
+    "notes": "Key control gates include official RF ID confirmation, proposal-first test-management synchronization, risk scoring, environment readiness checks and deterministic Gherkin validation before traceability and release decisions.",
+    "track_intro": "When you install QA FlowKit, you choose how much of the QA journey it guides. New capabilities (risk analysis, test data, environments, execution, result analysis, defect triage, and learning loop) are opt-in and ship off or advisory by default.",
     "tracks": [
-      "<strong>Quick</strong> — Manual QA teams: requirements → Gherkin → traceability matrix (strategy routing off)",
-      "<strong>Standard</strong> — Full workflow with advisory specialist routing from requirement signals"
+      "<strong>Quick</strong> — Manual QA teams: requirements → Gherkin → traceability matrix (risk analysis optional, strategy routing off)",
+      "<strong>Standard</strong> — Full workflow with advisory risk, test data, environments and specialist routing from requirement signals",
+      "<strong>Enterprise</strong> — Full workflow plus release gate, execution evidence and learning loop"
     ]
   },
   "features": {

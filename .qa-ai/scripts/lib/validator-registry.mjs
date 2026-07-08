@@ -8,6 +8,7 @@
 /** Stable order for validate-target pipeline (excluding doctor, defined separately). */
 export const TARGET_VALIDATOR_PIPELINE = [
   'validate-features',
+  'validate-risk-analysis',
   'validate-test-coverage',
   'validate-quality-report',
   'validate-karate-features',
@@ -16,9 +17,17 @@ export const TARGET_VALIDATOR_PIPELINE = [
   'validate-sync-diff',
   'validate-sync-result',
   'validate-external-intake',
+  'validate-test-data-plan',
+  'validate-environment-readiness',
+  'validate-execution-plan',
   'validate-execution-evidence',
+  'validate-execution-summary',
   'validate-healing-log',
   'validate-test-impact',
+  'validate-result-analysis',
+  'validate-defect-triage',
+  'validate-observability-intake',
+  'validate-learning-log',
   'validate-traceability',
   'validate-untrusted-content',
   'validate-active-specialists',
@@ -205,6 +214,96 @@ export const VALIDATOR_REGISTRY = {
     targetLabel: 'test impact validation',
     targetKind: 'inProcess',
     targetWhen: { artifactExists: 'testImpactAnalysis' }
+  },
+  'validate-risk-analysis': {
+    script: 'validate-risk-analysis.mjs',
+    cli: true,
+    harness: true,
+    harnessDefaultArgs: ['--allow-missing'],
+    starterCoreArgs: ['--allow-missing'],
+    targetLabel: 'risk analysis validation',
+    targetKind: 'inProcess',
+    targetWhen: { configMode: 'risk.mode', configModeNot: 'off' }
+  },
+  'validate-test-data-plan': {
+    script: 'validate-test-data-plan.mjs',
+    cli: true,
+    harness: true,
+    harnessDefaultArgs: ['--allow-missing'],
+    starterCoreArgs: ['--allow-missing'],
+    targetLabel: 'test data plan validation',
+    targetKind: 'inProcess',
+    targetWhen: { configMode: 'testData.mode', configModeNot: 'off' }
+  },
+  'validate-environment-readiness': {
+    script: 'validate-environment-readiness.mjs',
+    cli: true,
+    harness: true,
+    harnessDefaultArgs: ['--allow-missing'],
+    starterCoreArgs: ['--allow-missing'],
+    targetLabel: 'environment readiness validation',
+    targetKind: 'inProcess',
+    targetWhen: { configMode: 'environments.mode', configModeNot: 'off' }
+  },
+  'validate-execution-plan': {
+    script: 'validate-execution-plan.mjs',
+    cli: true,
+    harness: true,
+    harnessDefaultArgs: ['--allow-missing'],
+    starterCoreArgs: ['--allow-missing'],
+    targetLabel: 'execution plan validation',
+    targetKind: 'inProcess',
+    targetWhen: { configMode: 'execution.mode', configModeNot: 'off' }
+  },
+  'validate-execution-summary': {
+    script: 'validate-execution-summary.mjs',
+    cli: true,
+    harness: true,
+    harnessDefaultArgs: ['--allow-missing'],
+    starterCoreArgs: ['--allow-missing'],
+    targetLabel: 'execution summary validation',
+    targetKind: 'inProcess',
+    targetWhen: { configMode: 'execution.mode', configModeNot: 'off' }
+  },
+  'validate-result-analysis': {
+    script: 'validate-result-analysis.mjs',
+    cli: true,
+    harness: true,
+    harnessDefaultArgs: ['--allow-missing'],
+    starterCoreArgs: ['--allow-missing'],
+    targetLabel: 'result analysis validation',
+    targetKind: 'inProcess',
+    targetWhen: { configMode: 'execution.mode', configModeNot: 'off' }
+  },
+  'validate-defect-triage': {
+    script: 'validate-defect-triage.mjs',
+    cli: true,
+    harness: true,
+    harnessDefaultArgs: ['--allow-missing'],
+    starterCoreArgs: ['--allow-missing'],
+    targetLabel: 'defect triage validation',
+    targetKind: 'inProcess',
+    targetWhen: { configMode: 'execution.mode', configModeNot: 'off' }
+  },
+  'validate-observability-intake': {
+    script: 'validate-observability-intake.mjs',
+    cli: true,
+    harness: true,
+    harnessDefaultArgs: ['--allow-missing'],
+    starterCoreArgs: ['--allow-missing'],
+    targetLabel: 'observability intake validation',
+    targetKind: 'inProcess',
+    targetWhen: { configMode: 'observability.mode', configModeNot: 'off' }
+  },
+  'validate-learning-log': {
+    script: 'validate-learning-log.mjs',
+    cli: true,
+    harness: true,
+    harnessDefaultArgs: ['--allow-missing'],
+    starterCoreArgs: ['--allow-missing'],
+    targetLabel: 'learning log validation',
+    targetKind: 'inProcess',
+    targetWhen: { configMode: 'learningLoop.mode', configModeNot: 'off' }
   }
 };
 
@@ -215,6 +314,7 @@ export const STARTER_CORE_VALIDATOR_ORDER = [
   'validate-external-intake',
   'validate-workflow-contract',
   'validate-features',
+  'validate-risk-analysis',
   'validate-test-coverage',
   'validate-quality-report',
   'validate-karate-features',
@@ -224,9 +324,17 @@ export const STARTER_CORE_VALIDATOR_ORDER = [
   'validate-sync-diff',
   'validate-sync-result',
   'validate-active-specialists',
+  'validate-test-data-plan',
+  'validate-environment-readiness',
+  'validate-execution-plan',
   'validate-execution-evidence',
+  'validate-execution-summary',
   'validate-healing-log',
-  'validate-test-impact'
+  'validate-test-impact',
+  'validate-result-analysis',
+  'validate-defect-triage',
+  'validate-observability-intake',
+  'validate-learning-log'
 ];
 
 export function validatorScriptPath(id) {
