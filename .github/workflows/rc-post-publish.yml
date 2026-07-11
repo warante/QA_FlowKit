@@ -37,4 +37,4 @@ jobs:
       - name: Run RC post-publish validation
         env:
           QA_FLOWKIT_RC_VERSION: ${{ inputs.version }}
-        run: node .github/scripts/run-rc-post-publish-validation.mjs --version "${{ inputs.version }}"
+        run: node .github/scripts/run-rc-post-publish-validation.mjs --version "$QA_FLOWKIT_RC_VERSION"

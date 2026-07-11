@@ -76,10 +76,15 @@ jobs:
       - name: Resolve npm dist-tag
         id: dist_tag
         shell: bash
+        env:
+          INPUT_TAG: ${{ inputs.dist_tag }}
         run: |
           set -euo pipefail
-          INPUT_TAG="${{ github.event.inputs.dist_tag }}"
           if [[ -n "${INPUT_TAG}" ]]; then
+            if ! [[ "${INPUT_TAG}" =~ ^[a-z][a-z0-9._-]{0,127}$ ]]; then
+              echo "::error::Invalid npm dist-tag. Use lowercase letters, digits, dots, underscores, or hyphens (max 128 characters)."
+              exit 1
+            fi
             echo "tag=${INPUT_TAG}" >> "${GITHUB_OUTPUT}"
             echo "Using dist-tag from workflow input: ${INPUT_TAG}"
             exit 0

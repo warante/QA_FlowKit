@@ -37,4 +37,4 @@ jobs:
       - name: Run stable post-publish validation
         env:
           QA_FLOWKIT_STABLE_VERSION: ${{ inputs.version }}
-        run: node .github/scripts/run-stable-post-publish-validation.mjs --version "${{ inputs.version }}"
+        run: node .github/scripts/run-stable-post-publish-validation.mjs --version "$QA_FLOWKIT_STABLE_VERSION"
