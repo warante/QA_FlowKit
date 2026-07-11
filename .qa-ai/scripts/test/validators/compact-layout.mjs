@@ -155,7 +155,7 @@ test('legacy project requires and completes explicit migration', async () => {
   const cwd = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-cl-legacy-'));
   await copyFramework(cwd);
   const legacyPreset = (await fs.readFile(path.join(repoRoot, '.qa-ai/presets/manual-only.yaml'), 'utf8'))
-    .replaceAll('.qa-ai/output/', '.qa-ai/output/')
+    .replaceAll('.qa-ai/output/', 'output/')
     .replaceAll('featurePath: .qa-ai/features', 'featurePath: features');
   const legacyConfig = legacyPreset.replaceAll('CHANGE_ME', 'Legacy');
   await fs.writeFile(path.join(cwd, 'qa-ai.config.yaml'), legacyConfig, 'utf8');
