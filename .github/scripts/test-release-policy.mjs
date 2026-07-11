@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
+import path from 'node:path';
 import { test } from 'node:test';
 import { resolveNpmDistTag, simulateRegistryVisibilityCheck } from './lib/npm-dist-tag.mjs';
+import { repoRoot } from './lib/ci-helpers.mjs';
 import { FIRST_RC_VERSION, firstRcReleaseAsArgs } from './run-release-please.mjs';
 import { verifyReleasePolicy } from './verify-release-policy.mjs';
 
@@ -36,4 +39,19 @@ test('release-please wrapper bridges first beta to rc release', () => {
   assert.deepEqual(firstRcReleaseAsArgs(rcPolicy, '1.0.0-rc.1'), []);
   assert.deepEqual(firstRcReleaseAsArgs({ ...rcPolicy, versioning: undefined }, '0.5.9-beta.0'), []);
   assert.deepEqual(firstRcReleaseAsArgs({ ...rcPolicy, prerelease: false }, '0.5.9-beta.0'), []);
+});
+
+test('manual workflow inputs are passed through environment variables, not interpolated in shell commands', async () => {
+  const workflowRoot = path.join(repoRoot, '.github', 'workflows');
+  const publish = await fs.readFile(path.join(workflowRoot, 'publish-npm.yml'), 'utf8');
+  const rc = await fs.readFile(path.join(workflowRoot, 'rc-post-publish.yml'), 'utf8');
+  const stable = await fs.readFile(path.join(workflowRoot, 'stable-post-publish.yml'), 'utf8');
+
+  assert.match(publish, /INPUT_TAG:\s*\$\{\{\s*inputs\.dist_tag\s*\}\}/);
+  assert.match(publish, /\^\[a-z\]\[a-z0-9\._-\]\{0,127\}\$/);
+  assert.doesNotMatch(publish, /github\.event\.inputs\.dist_tag/);
+  assert.match(rc, /--version "\$QA_FLOWKIT_RC_VERSION"/);
+  assert.match(stable, /--version "\$QA_FLOWKIT_STABLE_VERSION"/);
+  assert.doesNotMatch(rc, /--version "\$\{\{\s*inputs\.version\s*\}\}"/);
+  assert.doesNotMatch(stable, /--version "\$\{\{\s*inputs\.version\s*\}\}"/);
 });
