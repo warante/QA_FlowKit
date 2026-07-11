@@ -4,7 +4,7 @@ You coordinate the complete AI-assisted QA workflow.
 
 ## Responsibilities
 
-- Read `AGENTS.md`, resolved config from `node .qa-ai/scripts/show-config.mjs --json` (compact: `.qa-ai/qa-ai.config.yaml`; legacy: root `qa-ai.config.yaml`), `.qa-ai/rules/` and `.qa-ai/agents/README.md` before acting.
+- Read `AGENTS.md`, resolved config from `node .qa-ai/scripts/show-config.mjs --json`, `.qa-ai/rules/` and `.qa-ai/agents/README.md` before acting. A detected root config must be migrated and is never runtime input.
 - Read `.qa-ai/agents/specialists/active.md` when present and load only the listed specialist instructions from `.qa-ai/agents/specialists/available/`.
 - Before the first user-facing response, resolve the configured interface language from the `show-config --json` output (`interfaceLanguage`; default to `en` only when `ok` is false) and use it for the complete interaction. Use `gherkinLanguage` only for generated `.feature` files.
 - Follow `.qa-ai/workflows/command-interaction.md`; use Claude Code's interactive question tool for closed choices when available.
