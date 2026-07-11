@@ -320,11 +320,12 @@ execution:
     - reports/*.xml
     - reports/*.json
 testrail:
-  mappingFile: qa-ai-output/mapping.json
+  mappingFile: .qa-ai/output/mapping.json
 traceability:
-  matrixPath: qa-ai-output/matrix.md
+  matrixPath: .qa-ai/output/matrix.md
 `;
-    await fs.writeFile(path.join(tmp, 'qa-ai.config.yaml'), configYaml, 'utf8');
+    await fs.mkdir(path.join(tmp, '.qa-ai'), { recursive: true });
+    await fs.writeFile(path.join(tmp, '.qa-ai', 'qa-ai.config.yaml'), configYaml, 'utf8');
 
     // Matrix
     const matrixMd = `
@@ -335,8 +336,8 @@ traceability:
 | reqs/login.md | RF-101 | CA-2 | features/logout.feature | TC-102 | e2e | high | automated | tests/logout.spec.js |
 | reqs/login.md | RF-101 | CA-3 | features/manual.feature | TC-103 | manual | low | manual | |
 `;
-    await fs.mkdir(path.join(tmp, 'qa-ai-output'), { recursive: true });
-    await fs.writeFile(path.join(tmp, 'qa-ai-output', 'matrix.md'), matrixMd, 'utf8');
+    await fs.mkdir(path.join(tmp, '.qa-ai', 'output'), { recursive: true });
+    await fs.writeFile(path.join(tmp, '.qa-ai', 'output', 'matrix.md'), matrixMd, 'utf8');
 
     // Mapping with quarantine
     const mappingJson = JSON.stringify({
@@ -346,7 +347,7 @@ traceability:
         lastReviewedAt: '2026-06-01'
       }
     });
-    await fs.writeFile(path.join(tmp, 'qa-ai-output', 'mapping.json'), mappingJson, 'utf8');
+    await fs.writeFile(path.join(tmp, '.qa-ai', 'output', 'mapping.json'), mappingJson, 'utf8');
 
     // Results: TC-101 passes, TC-102 fails (quarantined)
     await fs.mkdir(path.join(tmp, 'reports'), { recursive: true });
@@ -381,14 +382,14 @@ traceability:
 
     // Test non-quarantined failure
     const mappingJsonNoQuarantine = JSON.stringify({});
-    await fs.writeFile(path.join(tmp, 'qa-ai-output', 'mapping.json'), mappingJsonNoQuarantine, 'utf8');
+    await fs.writeFile(path.join(tmp, '.qa-ai', 'output', 'mapping.json'), mappingJsonNoQuarantine, 'utf8');
     const resultFail = await validateExecutionEvidence(tmp);
     assert.equal(resultFail.ok, false, 'Expected validation to fail without quarantine');
     assert.equal(resultFail.errors.length, 1);
     assert.ok(resultFail.errors[0].includes('TC-102'));
 
     // Test missing results when allow-missing is false
-    await fs.writeFile(path.join(tmp, 'qa-ai-output', 'mapping.json'), mappingJson, 'utf8');
+    await fs.writeFile(path.join(tmp, '.qa-ai', 'output', 'mapping.json'), mappingJson, 'utf8');
     await fs.writeFile(path.join(tmp, 'reports', 'junit.xml'), '<testsuites></testsuites>', 'utf8');
     const resultMissing = await validateExecutionEvidence(tmp, { allowMissing: false });
     assert.equal(resultMissing.ok, false);
@@ -417,10 +418,11 @@ execution:
   evalResultsPaths:
     - reports/evals/*.json
 traceability:
-  matrixPath: qa-ai-output/matrix.md
+  matrixPath: .qa-ai/output/matrix.md
 `;
-    await fs.writeFile(path.join(tmp, 'qa-ai.config.yaml'), configYaml, 'utf8');
-    await fs.mkdir(path.join(tmp, 'qa-ai-output'), { recursive: true });
+    await fs.mkdir(path.join(tmp, '.qa-ai'), { recursive: true });
+    await fs.writeFile(path.join(tmp, '.qa-ai', 'qa-ai.config.yaml'), configYaml, 'utf8');
+    await fs.mkdir(path.join(tmp, '.qa-ai', 'output'), { recursive: true });
     await fs.mkdir(path.join(tmp, 'features', 'functional'), { recursive: true });
     await fs.mkdir(path.join(tmp, 'reports', 'evals'), { recursive: true });
 
@@ -451,7 +453,7 @@ Feature: RF-100 login
 | reqs/ai.md | RF-200 | CA-1 | features/functional/RF-200-TC-001-ai.feature | TC-200 | functional | high | manual | yes |
 | reqs/login.md | RF-100 | CA-1 | features/functional/RF-100-TC-001-login.feature | TC-100 | manual | medium | manual | no |
 `;
-    await fs.writeFile(path.join(tmp, 'qa-ai-output', 'matrix.md'), matrixMd, 'utf8');
+    await fs.writeFile(path.join(tmp, '.qa-ai', 'output', 'matrix.md'), matrixMd, 'utf8');
 
     const missing = await validateExecutionEvidence(tmp);
     assert.equal(missing.ok, false);
@@ -511,11 +513,12 @@ execution:
   resultsPaths:
     - reports/*.xml
 traceability:
-  matrixPath: qa-ai-output/matrix.md
+  matrixPath: .qa-ai/output/matrix.md
 release:
-  gatePath: qa-ai-output/release-gate.yaml
+  gatePath: .qa-ai/output/release-gate.yaml
 `;
-    await fs.writeFile(path.join(tmp, 'qa-ai.config.yaml'), configYaml, 'utf8');
+    await fs.mkdir(path.join(tmp, '.qa-ai'), { recursive: true });
+    await fs.writeFile(path.join(tmp, '.qa-ai', 'qa-ai.config.yaml'), configYaml, 'utf8');
 
     // Matrix (1 automated TC)
     const matrixMd = `
@@ -524,8 +527,8 @@ release:
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | reqs/login.md | RF-101 | CA-1 | features/login.feature | TC-101 | e2e | high | automated | tests/login.spec.js |
 `;
-    await fs.mkdir(path.join(tmp, 'qa-ai-output'), { recursive: true });
-    await fs.writeFile(path.join(tmp, 'qa-ai-output', 'matrix.md'), matrixMd, 'utf8');
+    await fs.mkdir(path.join(tmp, '.qa-ai', 'output'), { recursive: true });
+    await fs.writeFile(path.join(tmp, '.qa-ai', 'output', 'matrix.md'), matrixMd, 'utf8');
 
     // Results: empty/missing
     await fs.mkdir(path.join(tmp, 'reports'), { recursive: true });
@@ -536,16 +539,16 @@ decision: PASS
 approver: Reviewer1
 coverage_summary: Coverage summary content
 evidence_paths:
-  - qa-ai-output/matrix.md
+  - .qa-ai/output/matrix.md
 evidence:
   execution:
     - reports/junit.xml
 `;
-    await fs.writeFile(path.join(tmp, 'qa-ai-output', 'release-gate.yaml'), gateYaml, 'utf8');
+    await fs.writeFile(path.join(tmp, '.qa-ai', 'output', 'release-gate.yaml'), gateYaml, 'utf8');
 
     // 1. Debería fallar el release gate porque falta la evidencia de ejecución para TC-101
     // (el archivo xml está vacío y no hay resultados)
-    const resGate = await validateReleaseGateFile(tmp, 'qa-ai-output/release-gate.yaml');
+    const resGate = await validateReleaseGateFile(tmp, '.qa-ai/output/release-gate.yaml');
     assert.equal(resGate.ok, false);
     assert.ok(resGate.errors.some((e) => e.includes('execution evidence check failed')));
 
@@ -555,7 +558,7 @@ evidence:
   <testcase name="TC-101 passes" classname="Login" time="0.1" />
 </testsuite>`;
     await fs.writeFile(path.join(tmp, 'reports', 'junit.xml'), junitXml, 'utf8');
-    const resGatePass = await validateReleaseGateFile(tmp, 'qa-ai-output/release-gate.yaml');
+    const resGatePass = await validateReleaseGateFile(tmp, '.qa-ai/output/release-gate.yaml');
     assert.equal(resGatePass.ok, true, `Expected gate to pass, errors: ${resGatePass.errors.join('\n')}`);
 
     // 3. Si cambiamos la decisión a WAIVED (con approver y reason), debería pasar aun si la evidencia falla o falta
@@ -565,15 +568,15 @@ approver: Manager1
 waived_reason: Skip execution results checks for fast path
 coverage_summary: Coverage summary content
 evidence_paths:
-  - qa-ai-output/matrix.md
+  - .qa-ai/output/matrix.md
 evidence:
   execution:
     - reports/junit.xml
 `;
     await fs.writeFile(path.join(tmp, 'reports', 'junit.xml'), '<invalid xml>', 'utf8'); // romper xml
-    await fs.writeFile(path.join(tmp, 'qa-ai-output', 'release-gate.yaml'), gateYamlWaived, 'utf8');
+    await fs.writeFile(path.join(tmp, '.qa-ai', 'output', 'release-gate.yaml'), gateYamlWaived, 'utf8');
 
-    const resGateWaived = await validateReleaseGateFile(tmp, 'qa-ai-output/release-gate.yaml');
+    const resGateWaived = await validateReleaseGateFile(tmp, '.qa-ai/output/release-gate.yaml');
     assert.equal(resGateWaived.ok, true);
   } finally {
     await fs.rm(tmp, { recursive: true, force: true });
@@ -594,12 +597,13 @@ execution:
   evalResultsPaths:
     - reports/evals/*.json
 traceability:
-  matrixPath: qa-ai-output/matrix.md
+  matrixPath: .qa-ai/output/matrix.md
 release:
-  gatePath: qa-ai-output/release-gate.yaml
+  gatePath: .qa-ai/output/release-gate.yaml
 `;
-    await fs.writeFile(path.join(tmp, 'qa-ai.config.yaml'), configYaml, 'utf8');
-    await fs.mkdir(path.join(tmp, 'qa-ai-output'), { recursive: true });
+    await fs.mkdir(path.join(tmp, '.qa-ai'), { recursive: true });
+    await fs.writeFile(path.join(tmp, '.qa-ai', 'qa-ai.config.yaml'), configYaml, 'utf8');
+    await fs.mkdir(path.join(tmp, '.qa-ai', 'output'), { recursive: true });
     await fs.mkdir(path.join(tmp, 'features', 'functional'), { recursive: true });
     await fs.mkdir(path.join(tmp, 'reports', 'evals'), { recursive: true });
 
@@ -617,7 +621,7 @@ Feature: RF-300 safety guardrail
     );
 
     await fs.writeFile(
-      path.join(tmp, 'qa-ai-output', 'matrix.md'),
+      path.join(tmp, '.qa-ai', 'output', 'matrix.md'),
       `
 # Matrix
 | Requirement Source | RF | CA | Feature File | Test Management Case ID | Type | Priority | Automation Status |
@@ -632,14 +636,14 @@ decision: PASS
 approver: Reviewer1
 coverage_summary: Coverage summary content
 evidence_paths:
-  - qa-ai-output/matrix.md
+  - .qa-ai/output/matrix.md
 evidence:
   execution: []
   evals: []
 `;
-    await fs.writeFile(path.join(tmp, 'qa-ai-output', 'release-gate.yaml'), gateYaml, 'utf8');
+    await fs.writeFile(path.join(tmp, '.qa-ai', 'output', 'release-gate.yaml'), gateYaml, 'utf8');
 
-    const missing = await validateReleaseGateFile(tmp, 'qa-ai-output/release-gate.yaml');
+    const missing = await validateReleaseGateFile(tmp, '.qa-ai/output/release-gate.yaml');
     assert.equal(missing.ok, false);
     assertIncludes(missing.errors, 'execution evidence check failed: No eval results files found for AI RF evidence');
 
@@ -651,7 +655,7 @@ evidence:
       }),
       'utf8'
     );
-    const failing = await validateReleaseGateFile(tmp, 'qa-ai-output/release-gate.yaml');
+    const failing = await validateReleaseGateFile(tmp, '.qa-ai/output/release-gate.yaml');
     assert.equal(failing.ok, false);
     assertIncludes(
       failing.errors,
@@ -663,7 +667,7 @@ evidence:
       JSON.stringify({ tool: 'generic', cases: [{ id: 'EVAL-300', rfId: 'RF-300', name: 'RF-300 eval', pass: true }] }),
       'utf8'
     );
-    const passing = await validateReleaseGateFile(tmp, 'qa-ai-output/release-gate.yaml');
+    const passing = await validateReleaseGateFile(tmp, '.qa-ai/output/release-gate.yaml');
     assert.equal(passing.ok, true, `Expected AI gate to pass, errors: ${passing.errors.join('\n')}`);
   } finally {
     await fs.rm(tmp, { recursive: true, force: true });
@@ -699,14 +703,15 @@ execution:
   resultsPaths:
     - reports/*.xml
 traceability:
-  matrixPath: qa-ai-output/traceability-matrix.md
+  matrixPath: .qa-ai/output/traceability-matrix.md
 `;
-    await fs.writeFile(path.join(tmp, 'qa-ai.config.yaml'), configYaml, 'utf8');
+    await fs.mkdir(path.join(tmp, '.qa-ai'), { recursive: true });
+    await fs.writeFile(path.join(tmp, '.qa-ai', 'qa-ai.config.yaml'), configYaml, 'utf8');
 
     // Create folders
     await fs.mkdir(path.join(tmp, 'features'), { recursive: true });
     await fs.mkdir(path.join(tmp, 'reports'), { recursive: true });
-    await fs.mkdir(path.join(tmp, 'qa-ai-output'), { recursive: true });
+    await fs.mkdir(path.join(tmp, '.qa-ai', 'output'), { recursive: true });
 
     // Write Gherkin feature file
     const featureContent = `Feature: User Login
@@ -734,7 +739,7 @@ traceability:
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | reqs/login.md | RF-101 | CA-1 | features/login.feature | TC-101 | e2e | high | automated | tests/login.spec.js |
 `;
-    await fs.writeFile(path.join(tmp, 'qa-ai-output', 'traceability-matrix.md'), matrixMd, 'utf8');
+    await fs.writeFile(path.join(tmp, '.qa-ai', 'output', 'traceability-matrix.md'), matrixMd, 'utf8');
 
     // Setup initial manifest file to track it
     await fs.mkdir(path.join(tmp, '.qa-ai', 'state'), { recursive: true });

@@ -1,5 +1,7 @@
 # AI Red Team Specialist
 
+> Inherits .qa-ai/rules/specialist-common.rules.md.
+
 > Authorized AI adversarial test-design guidance mapped to OWASP LLM Top 10. This is not permission to attack systems.
 
 ## Activation
@@ -19,7 +21,7 @@ content.
 
 ## Output
 
-- Propose adversarial and safety-guardrail test cases in `qa-ai-output/test-design-proposal.md`.
+- Propose adversarial and safety-guardrail test cases in `.qa-ai/output/test-design-proposal.md`.
 - Use harmless representative inputs; describe intent without embedding real exploit payloads, secrets or personal data.
 - Mark each proposed case with the relevant AI technique and RF/CA traceability.
 - Add residual risks when deeper security review, policy review or red-team authorization is required.

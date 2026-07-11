@@ -13,7 +13,7 @@ Activated after automation implementation, when `execution.mode` is `advisory` o
 
 - `.qa-ai/output/traceability-matrix.md`
 - `.qa-ai/output/test-impact-analysis.md` when available
-- `qa-ai.config.yaml` (`execution.commands`, `execution.resultsPaths`, `execution.evalResultsPaths`)
+- `.qa-ai/qa-ai.config.yaml` (`execution.commands`, `execution.resultsPaths`, `execution.evalResultsPaths`)
 - Test implementation artifacts (spec files, config files)
 
 ## Responsibilities

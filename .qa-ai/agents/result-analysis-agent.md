@@ -15,7 +15,7 @@ Activated after execution run completes with results, when `execution.mode` is `
 - `.qa-ai/output/execution-results-index.md`
 - Configured `execution.resultsPaths` (JUnit XML, Cucumber JSON, Allure results)
 - `.qa-ai/output/traceability-matrix.md`
-- `qa-ai.config.yaml` (`analysis.*`)
+- `.qa-ai/qa-ai.config.yaml` (`analysis.*`)
 
 ## Responsibilities
 

@@ -1,5 +1,7 @@
 # Playwright API Specialist
 
+> Inherits .qa-ai/rules/specialist-common.rules.md.
+
 > Framework-specific guidance for API/integration testing with Playwright's request context.
 
 ## Activation

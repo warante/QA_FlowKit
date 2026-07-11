@@ -4,11 +4,11 @@
 
 Apply when analyzing coverage or drafting sync plans for TestRail, Zephyr, Xray or other tools configured in `tools.testManagement`.
 
-## Scope (MVP)
+## Scope
 
-- Read and analyze local exports, mapping files and repository artifacts only.
-- Do **not** create, update, delete or archive cases in external test management systems without explicit user approval and tooling outside the MVP scripts.
-- Do not state that cases were synced to TestRail or similar unless the user confirms an external action.
+- `proposal-only` reads and analyzes exports, mappings and repository artifacts without external writes.
+- `governed` may create or update cases only through approved connected tooling after every contract gate passes.
+- Do not state that cases were synchronized unless the apply log and post-apply verification provide evidence.
 
 ## Before proposing cases
 
@@ -18,8 +18,8 @@ Apply when analyzing coverage or drafting sync plans for TestRail, Zephyr, Xray 
 
 ## Artifacts
 
-- Coverage analysis: `qa-ai-output/test-management-coverage-analysis.md` (or path from config).
-- Sync plan: `qa-ai-output/test-management-sync-plan.md` with proposal-first rows and approval status columns.
+- Coverage analysis: `.qa-ai/output/test-management-coverage-analysis.md` (or path from config).
+- Sync plan: `.qa-ai/output/test-management-sync-plan.md` with proposal-first rows and approval status columns.
 - Mapping file: use `.qa-ai/templates/test-management-mapping.template.json` shape when maintaining local mapping.
 
 ## Writes

@@ -12,11 +12,11 @@ Activated after the PR summary phase when `project.qaTrack` is `enterprise`, or 
 
 ## Inputs
 
-- `qa-ai-output/pr-summary.md`
-- `qa-ai-output/traceability-matrix.md`
-- `qa-ai-output/test-management-sync-plan.md` when test management is configured
+- `.qa-ai/output/pr-summary.md`
+- `.qa-ai/output/traceability-matrix.md`
+- `.qa-ai/output/test-management-sync-plan.md` when test management is configured
 - Results from `node .qa-ai/scripts/validate-target.mjs` when available
-- `qa-ai.config.yaml` (`project.qaTrack`, `release.gatePath`)
+- `.qa-ai/qa-ai.config.yaml` (`project.qaTrack`, `release.gatePath`)
 
 ## Responsibilities
 
@@ -55,7 +55,7 @@ Activated after the PR summary phase when `project.qaTrack` is `enterprise`, or 
 
 ## Output
 
-Update `qa-ai-output/release-gate.yaml` (or configured `release.gatePath`) using `.qa-ai/templates/release-gate.template.yaml` as the shape reference.
+Update `.qa-ai/output/release-gate.yaml` (or configured `release.gatePath`) using `.qa-ai/templates/release-gate.template.yaml` as the shape reference.
 
 Minimal example of a finalized gate:
 
@@ -68,8 +68,8 @@ coverage_summary: |
 open_risks:
   - RF-042 manual regression not yet executed; scheduled before release.
 evidence_paths:
-  - qa-ai-output/traceability-matrix.md
-  - qa-ai-output/pr-summary.md
+  - .qa-ai/output/traceability-matrix.md
+  - .qa-ai/output/pr-summary.md
 evidence:
   execution: []
   evals: []

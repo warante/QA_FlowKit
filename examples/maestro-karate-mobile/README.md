@@ -46,7 +46,7 @@ See [host-e2e-checklist.md](host-e2e-checklist.md) for the evidence record.
 ## RF-to-implementation walkthrough
 
 1. `requirements/RF-401-account-balance.md` defines the shared API and mobile behavior.
-2. `qa-ai-output/` records requirement review, test design, feasibility and proposal-first implementation decisions.
+2. `.qa-ai/output/` records requirement review, test design, feasibility and proposal-first implementation decisions.
 3. `features/api/` and `features/mobile/` keep auditable QA design scenarios separate from executable tests.
 4. `tests/karate/features/api/` verifies the local balance endpoint.
 5. `tests/maestro/flows/` defines the mobile journey and reusable `subflows/`.

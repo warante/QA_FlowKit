@@ -12,7 +12,7 @@ steps:
   - name: health-check
     prompt: Run node .qa-ai/scripts/doctor.mjs and summarize required failures or warnings.
   - name: intake
-    prompt: Read the requirement source and produce qa-ai-output/requirement-analysis.md.
+    prompt: Read the requirement source and produce .qa-ai/output/requirement-analysis.md.
   - name: design
     prompt: Produce a test design proposal and generate approved Gherkin feature files. Run node .qa-ai/scripts/validate-features.mjs after feature changes.
   - name: automation

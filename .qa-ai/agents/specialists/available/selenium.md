@@ -1,5 +1,7 @@
 # Selenium Specialist
 
+> Inherits .qa-ai/rules/specialist-common.rules.md.
+
 > Framework-specific guidance for UI/E2E automation with Selenium WebDriver.
 
 ## Activation

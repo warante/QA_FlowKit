@@ -121,7 +121,9 @@ npm run test:e2e-manual-example
 AGENTS.md                  generic agent instructions when no host-specific override is selected
 ```
 
-Legacy repositories may still use root-level `qa-ai.config.yaml`, `qa-ai-output/`, `features/` and `tests/`. QA FlowKit continues to read those paths when configured or when the root config file exists.
+Legacy layouts are detected but never loaded at runtime. Review `qa-flowkit migrate --dry-run`, approve the explicit
+migration, and then continue exclusively with `.qa-ai/qa-ai.config.yaml`, `.qa-ai/output/`, `.qa-ai/features/` and
+configured modern automation paths.
 
 Automation folders are generated only when the selected preset requires them. In an interactive terminal, `init`
 shows an AI CLI adapter selector; in non-interactive environments it detects existing agent host folders and syncs
@@ -146,7 +148,6 @@ The track controls workflow depth; presets configure frameworks and tools.
 | `playwright-full`            | `standard`    | Playwright UI + API         |
 | `maestro-karate-mobile`      | `standard`    | Maestro mobile + Karate API |
 | `karate-full`                | `standard`    | Karate API + UI             |
-| `webdriverio-playwright-api` | `standard`    | Legacy compatibility preset |
 | `selenium-jest-browserstack` | `standard`    | Selenium/Jest               |
 
 Example:

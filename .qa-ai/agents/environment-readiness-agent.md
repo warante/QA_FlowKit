@@ -11,7 +11,7 @@ Activated after test data planning, when `environments.enabled` is `true`.
 
 ## Inputs
 
-- `qa-ai.config.yaml` (`environments.*`, `automation.*`, `commands.*`)
+- `.qa-ai/qa-ai.config.yaml` (`environments.*`, `automation.*`, `commands.*`)
 - `.qa-ai/output/execution-plan.md` when available
 - Local environment state (file system, environment variables, service health)
 

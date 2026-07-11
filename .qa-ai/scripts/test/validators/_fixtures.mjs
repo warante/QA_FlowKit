@@ -54,13 +54,7 @@ export {
 } from '../../lib/semantic-coverage.mjs';
 export { scanText } from '../../lib/injection-patterns.mjs';
 export { scanPathsForSecrets } from '../../lib/secret-patterns.mjs';
-export {
-  legacyInferredAcceptanceCriteria,
-  hashFile,
-  listFilesRecursive,
-  normalizeRequirementsConfig,
-  parseSimpleYaml
-} from '../../lib/utils.mjs';
+export { hashFile, listFilesRecursive, parseSimpleYaml } from '../../lib/utils.mjs';
 export { validateQualityReport } from '../../lib/quality-report.mjs';
 export { parseJUnitXml, parseCucumberJson, extractTestIds } from '../../lib/execution-results.mjs';
 export { parseEvalJson, parseGenericEvalJson, parsePromptfooJson } from '../../lib/eval-results.mjs';

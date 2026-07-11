@@ -44,7 +44,12 @@ const FORBIDDEN_PREFIXES = [
   '.claude-plugin/'
 ];
 
-const FORBIDDEN_EXACT = ['qa-ai.config.yaml', '.qa-ai/state/init-manifest.json', '.qa-ai/agents/specialists/active.md'];
+const FORBIDDEN_EXACT = [
+  'qa-ai.config.yaml',
+  '.qa-ai/qa-ai.config.yaml',
+  '.qa-ai/state/init-manifest.json',
+  '.qa-ai/agents/specialists/active.md'
+];
 
 export function parsePackOutput(stdout) {
   const start = stdout.indexOf('[') >= 0 ? stdout.indexOf('[') : stdout.indexOf('{');

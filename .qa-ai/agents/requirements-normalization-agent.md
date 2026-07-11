@@ -9,12 +9,12 @@ rather than inventing outcomes.
 
 ## Trigger
 
-Activated as Phase 3 of the QA workflow, after requirements intake is complete and reviewed.
+Activated for contract phase `normalize` after requirements intake is complete and reviewed.
 
 ## Inputs
 
-- `qa-ai-output/requirement-analysis.md` (output of Phase 2).
-- `qa-ai.config.yaml` (`gherkin.language`, `project.interfaceLanguage`).
+- The resolved `intake` output.
+- `.qa-ai/qa-ai.config.yaml` (`gherkin.language`, `project.interfaceLanguage`).
 - `.qa-ai/rules/` for normalization conventions.
 
 ## Responsibilities
@@ -35,7 +35,7 @@ Activated as Phase 3 of the QA workflow, after requirements intake is complete a
 
 ## Output
 
-Produce `qa-ai-output/normalized-requirements.md` with this structure:
+Produce `.qa-ai/output/normalized-requirements.md` with this structure:
 
 ```markdown
 # Normalized Requirements
@@ -104,7 +104,7 @@ Phase is complete when:
 
 - **Ambiguous CA that cannot be split**: Keep as single criterion, add note "needs clarification", flag to user.
 - **Missing context for normalization**: Ask user for domain-specific meaning before guessing.
-- **Intake artifact missing**: Report to orchestrator; cannot proceed without Phase 2 output.
+- **Intake artifact missing**: Report to orchestrator; cannot proceed without the required `intake` output.
 
 ## Example (splitting)
 

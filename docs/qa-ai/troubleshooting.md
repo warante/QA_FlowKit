@@ -60,7 +60,7 @@ Use only repository-relative paths. For example:
 node .qa-ai/scripts/init.mjs --set traceability.matrixPath=../traceability.md
 
 # Correct
-node .qa-ai/scripts/init.mjs --set traceability.matrixPath=qa-ai-output/traceability-matrix.md
+node .qa-ai/scripts/init.mjs --set traceability.matrixPath=.qa-ai/output/traceability-matrix.md
 ```
 
 The same restriction applies to `--qa-context`. The context folder must be inside the repository:
@@ -296,7 +296,7 @@ node .qa-ai/scripts/doctor.mjs --strict  # fails
 
 **Cause**
 
-Strict mode promotes optional workflow artifact checks to required. If configured artifacts like `qa-ai-output/traceability-matrix.md` or `qa-ai-output/requirement-analysis.md` do not yet exist, they become failures.
+Strict mode promotes optional workflow artifact checks to required. If configured artifacts like `.qa-ai/output/traceability-matrix.md` or `.qa-ai/output/requirement-analysis.md` do not yet exist, they become failures.
 
 **Fix**
 
@@ -549,7 +549,7 @@ security as `not configured` or omits the `## Non-functional coverage` table.
 
 **Fix**
 
-1. Add one row per source NFR in `qa-ai-output/test-design-proposal.md` under `## Non-functional coverage`.
+1. Add one row per source NFR in `.qa-ai/output/test-design-proposal.md` under `## Non-functional coverage`.
 2. Choose an evidence type (`feature`, `test-plan`, `manual-charter`, `technical-review`, `residual-risk`, …).
 3. Provide threshold/oracle and environment when the attribute requires them.
 4. Re-run:
@@ -571,7 +571,7 @@ obligation for explicit source NFRs.
 **Symptom**
 
 ```
-Traceability matrix not found at qa-ai-output/traceability-matrix.md.
+Traceability matrix not found at .qa-ai/output/traceability-matrix.md.
 FAILED - create the traceability matrix or pass --allow-missing.
 ```
 
@@ -587,7 +587,7 @@ If the matrix does not exist yet, use `--allow-missing`:
 node .qa-ai/scripts/validate-traceability.mjs --allow-missing
 ```
 
-Once the QA flow has generated `qa-ai-output/traceability-matrix.md`, remove the flag so CI catches missing coverage.
+Once the QA flow has generated `.qa-ai/output/traceability-matrix.md`, remove the flag so CI catches missing coverage.
 
 ### `Source NFR ... is missing from ## Non-functional traceability`
 
@@ -671,12 +671,12 @@ Create the feature or set `Automation Status: proposal-only` until generation is
 
 ---
 
-### `identifier RF-101 is missing from qa-ai-output/traceability-matrix.md`
+### `identifier RF-101 is missing from .qa-ai/output/traceability-matrix.md`
 
 **Symptom**
 
 ```
-[FAIL] features/RF-101-TC-001-login.feature identifier RF-101 is missing from qa-ai-output/traceability-matrix.md.
+[FAIL] features/RF-101-TC-001-login.feature identifier RF-101 is missing from .qa-ai/output/traceability-matrix.md.
 ```
 
 **Cause**
@@ -1066,7 +1066,7 @@ To customize a command without risking overwrite, copy it to a different name (e
 
 **Cause**
 
-`gherkin.language` in the active project config does not match the language you want. New projects use compact layout (`.qa-ai/qa-ai.config.yaml`); legacy repos may still use root `qa-ai.config.yaml`. Agents that read only the root file may default to English even after Spanish init.
+`gherkin.language` in `.qa-ai/qa-ai.config.yaml` does not match the language you want. A root config is detected as legacy and must be migrated; agents must never read it as runtime configuration.
 
 **Diagnose**
 

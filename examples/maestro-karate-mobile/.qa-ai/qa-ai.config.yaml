@@ -1,0 +1,92 @@
+version: 1
+project:
+  name: maestro-karate-mobile-reference
+  repoMode: qa-and-automation
+  qaTrack: standard
+  defaultLanguage: en
+  interfaceLanguage: en
+tools:
+  testManagement: none
+  issueTracker: none
+  documentation: markdown
+agents:
+  specialistMode: auto
+sources:
+  main: markdown
+knowledge:
+  enabled: false
+  sourcePath: ''
+  summaryPath: .qa-ai/output/qa-knowledge-summary.md
+  decisionsPath: .qa-ai/output/qa-init-decisions.md
+requirements:
+  requireOfficialRfId: true
+  inferredAcceptanceCriteria: forbid
+gherkin:
+  language: en
+  scenarioLayout: one-per-file
+  requireAcceptanceCriteria: true
+  manualTestsNeedFeatureFile: true
+  featurePath: .qa-ai/features
+  tags:
+    required:
+      - priority
+      - type
+      - manual
+testrail:
+  enabled: false
+  projectName: ''
+  allowCreateSections: false
+  allowCreateCases: false
+  allowUpdateCases: never
+  allowDeleteCases: never
+  mappingFile: ''
+automation:
+  ui:
+    framework: none
+  api:
+    framework: karate
+    specsPath: .qa-ai/tests/karate/.qa-ai/features/api
+  mobile:
+    framework: maestro
+    flowsPath: .qa-ai/tests/maestro/flows
+    appId: com.example.qaflowkit
+  karate:
+    configPath: .qa-ai/tests/karate/karate-config.js
+    mocksPath: .qa-ai/tests/karate/mocks
+    performancePath: .qa-ai/tests/karate/performance
+  strategy:
+    automateAllTechnicallyPossible: true
+    requireProposalBeforeImplementation: true
+    allowModifyExistingTests: approval-only
+testDesign:
+  systemPath: .qa-ai/output/test-design-system.md
+  proposalPath: .qa-ai/output/test-design-proposal.md
+traceability:
+  matrixPath: .qa-ai/output/traceability-matrix.md
+approval:
+  beforeExternalWrite: true
+  beforeExistingFileModification: true
+  beforeTestRailSync: true
+  beforeJiraTaskCreation: true
+  beforePullRequest: true
+commands:
+  testQA: node .qa-ai/scripts/validate-features.mjs
+  testKarate: node .qa-ai/scripts/validate-karate-features.mjs
+  testMobile: maestro test .qa-ai/tests/maestro/flows
+testManagementSync:
+  mode: proposal-only
+  diffPath: .qa-ai/output/test-management-sync-diff.md
+  applyLogPath: .qa-ai/output/test-management-apply-log.md
+  rollbackPath: .qa-ai/output/test-management-rollback-plan.md
+  remoteSnapshotPath: .qa-ai/output/test-management-remote-snapshot.md
+aiTesting:
+  enabled: false
+  requiredTechniques:
+    - adversarial
+    - statistical-consistency
+    - robustness-paraphrase
+    - safety-guardrails
+  optionalTechniques:
+    - fairness-bias
+    - degradation-fallback
+    - pii-leakage

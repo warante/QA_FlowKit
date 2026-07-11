@@ -28,6 +28,8 @@
         "export-report",
         "help",
         "clean",
+        "migrate",
+        "assign-rf",
         "version",
         "run"
       ],
@@ -98,7 +100,7 @@
   },
   "configuration": {
     "stable": [
-      "qa-ai.config.yaml version: 1",
+      ".qa-ai/qa-ai.config.yaml version: 1",
       "project",
       "tools",
       "agents",
@@ -161,15 +163,15 @@
   "paths": {
     "stable": [
       ".qa-ai/",
-      "qa-ai.config.yaml",
+      ".qa-ai/qa-ai.config.yaml",
       ".qa-ai/output/",
-      "features/",
+      ".qa-ai/features/",
       ".qa-ai/config-profiles/",
       ".qa-ai/state/runs/"
     ],
     "experimental": [
       ".qa-ai/output/source-analysis.md",
-      "features/security/",
+      ".qa-ai/features/security/",
       "Framework-specific automation paths selected by presets or config."
     ],
     "internal": [".qa-ai/state/runs/<run-id>/.lock", ".qa-ai/state/**/*.tmp"]
@@ -201,21 +203,5 @@
       "policy": "Required artifact fields remain compatible; explanatory prose may improve."
     }
   },
-  "deprecated": [
-    {
-      "id": "preset.webdriverio-playwright-api",
-      "replacement": "playwright-full",
-      "removal": "No earlier than the first documented post-1.0 major release."
-    },
-    {
-      "id": "rules.webdriverio.rules.md",
-      "replacement": "rules/ui-automation.rules.md",
-      "removal": "Compatibility alias retained through 1.x."
-    },
-    {
-      "id": "rules.testrail.rules.md",
-      "replacement": "rules/test-management.rules.md",
-      "removal": "Compatibility alias retained through 1.x."
-    }
-  ]
+  "deprecated": []
 }

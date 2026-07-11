@@ -9,14 +9,14 @@ never embed environment data or credentials.
 
 ## Trigger
 
-Activated for the **UI/E2E and mobile implementation** phase (phase 11 in `qa-workflow-orchestrator.md`), when the feasibility report contains tests classified as "Automatable — UI/E2E" (or mobile, using the active mobile specialist).
+Activated for contract phases `ui-impl` and `mobile-impl` when the feasibility report contains approved automatable tests.
 
-When `automation.ui.framework` is `karate`, treat this as **UI implementation via Karate**: follow [karate.md](specialists/available/karate.md), write under `automation.ui.specsPath` (default `tests/karate/features/ui/`), and validate with `validate-karate-features.mjs` instead of WebdriverIO/Playwright page objects.
+When `automation.ui.framework` is `karate`, treat this as **UI implementation via Karate**: follow [karate.md](specialists/available/karate.md), write under `automation.ui.specsPath` (default `.qa-ai/tests/karate/features/ui/`), and validate with `validate-karate-features.mjs` instead of WebdriverIO/Playwright page objects.
 
 ## Inputs
 
-- `qa-ai-output/automation-feasibility-report.md` (tests classified as UI automatable).
-- `qa-ai.config.yaml` (`automation.ui.framework`, `automation.ui.specsPath`, `automation.ui.pageObjectsPath`).
+- `.qa-ai/output/automation-feasibility-report.md` (tests classified as UI automatable).
+- `.qa-ai/qa-ai.config.yaml` (`automation.ui.framework`, `automation.ui.specsPath`, `automation.ui.pageObjectsPath`).
 - Existing UI test code in the repository for pattern detection.
 - `.qa-ai/agents/specialists/active.md` to load the relevant UI specialist.
 - Generated `.feature` files for step-by-step test flow reference.
@@ -34,7 +34,7 @@ When `automation.ui.framework` is `karate`, treat this as **UI implementation vi
 
 ## Output Structure
 
-Use paths from `qa-ai.config.yaml` (`automation.ui.specsPath`, `automation.ui.pageObjectsPath`). `init.mjs` creates sibling folders under the UI test base (for example `tests/wdio/`):
+Use paths from `.qa-ai/qa-ai.config.yaml` (`automation.ui.specsPath`, `automation.ui.pageObjectsPath`). `init.mjs` creates sibling folders under the configured UI test base.
 
 ```
 tests/wdio/                    # example base when framework is webdriverio

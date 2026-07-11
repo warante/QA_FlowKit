@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { validateConfigData, loadConfigSchema } from './config-schema.mjs';
 import { validateAgainstSchema } from './json-schema-lite.mjs';
-import { normalizeRequirementsConfig, parseSimpleYaml, pathExists } from './utils.mjs';
+import { parseSimpleYaml, pathExists } from './utils.mjs';
 
 const registryRelPath = path.join('.qa-ai', 'contracts', 'schema-registry.v1.json');
 
@@ -47,9 +47,9 @@ function withVersionGate(surfaceKey, versionField, version, supportedVersions, r
   return result;
 }
 
-export async function validateConfigContract(data, { normalizeLegacy = true, root = process.cwd() } = {}) {
+export async function validateConfigContract(data, { root = process.cwd() } = {}) {
   const { surface, schema } = await loadSurfaceSchema(root, 'config');
-  const normalized = normalizeLegacy ? normalizeRequirementsConfig(JSON.parse(JSON.stringify(data))) : data;
+  const normalized = data;
   const version = normalized?.version;
   const result = validateConfigData(normalized, schema);
   return withVersionGate('config', 'version', version, surface.supportedVersions, result);

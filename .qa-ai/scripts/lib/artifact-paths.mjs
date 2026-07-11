@@ -10,7 +10,7 @@ import {
 /** Default root directory for generated QA workflow artifacts in new target repositories. */
 export const QA_OUTPUT_DIR = COMPACT_OUTPUT_DIR;
 
-/** Legacy output directory kept for backward-compatible alias resolution. */
+/** Legacy output directory used only for detection and explicit migration planning. */
 export const LEGACY_QA_OUTPUT_DIR = LEGACY_OUTPUT_DIR;
 
 /** Default relative artifact paths under {@link QA_OUTPUT_DIR}. */
@@ -67,12 +67,12 @@ function legacyArtifactAliases() {
   return aliases;
 }
 
-/** Backward-compatible artifact path aliases (legacy qa-ai-output/* and old testrail-* names). */
+/** Legacy-to-modern mappings used only by detection and migration; runtime resolution never falls back to them. */
 export const LEGACY_ARTIFACT_ALIASES = legacyArtifactAliases();
 
 /**
  * Resolve an artifact path in the same directory as a configured reference path.
- * Keeps legacy and compact output roots aligned when only one artifact path is configured.
+ * Keeps related modern artifact paths in the configured output directory.
  */
 export function siblingArtifactPath(referencePath, fileName) {
   const normalized = String(referencePath || '').replaceAll('\\', '/');

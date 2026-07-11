@@ -32,7 +32,7 @@ npx qa-flowkit validate-test-coverage --mode strict --json
 ```
 
 The validator groups `.feature` files by RF and combines their tags with
-`qa-ai-output/test-design-proposal.md`. Declare conditional obligations in:
+`.qa-ai/output/test-design-proposal.md`. Declare conditional obligations in:
 
 ```markdown
 ## Coverage obligations
@@ -70,7 +70,7 @@ Techniques describe how a test was derived. They do not replace `@type:`, which 
 ## Functional security
 
 Use `@type:security` for user-visible security behavior and place those files under `features/security/`. Load
-`.qa-ai/agents/specialists/available/security.md` during design.
+`.qa-ai/agents/specialists/available/functional-security.md` during design.
 
 The baseline covers authentication, authorization, user-resource isolation, sensitive-data exposure, rendered input,
 file uploads, error disclosure, sessions and abuse limits. It is not penetration testing and does not establish
@@ -84,7 +84,7 @@ sources. When several source types are used, write `sources.analysisPath`:
 ```yaml
 sources:
   main: markdown
-  analysisPath: qa-ai-output/source-analysis.md
+  analysisPath: .qa-ai/output/source-analysis.md
 ```
 
 The source analysis records extraction status, method, authority, agreements, contradictions and limitations. The

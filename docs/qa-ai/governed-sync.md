@@ -14,11 +14,11 @@ tools:
 
 testManagementSync:
   mode: governed
-  syncPlanPath: qa-ai-output/test-management-sync-plan.md
-  diffPath: qa-ai-output/test-management-sync-diff.md
-  remoteSnapshotPath: qa-ai-output/test-management-remote-snapshot.md
-  applyLogPath: qa-ai-output/test-management-apply-log.md
-  rollbackPlanPath: qa-ai-output/test-management-rollback-plan.md
+  syncPlanPath: .qa-ai/output/test-management-sync-plan.md
+  diffPath: .qa-ai/output/test-management-sync-diff.md
+  remoteSnapshotPath: .qa-ai/output/test-management-remote-snapshot.md
+  applyLogPath: .qa-ai/output/test-management-apply-log.md
+  rollbackPlanPath: .qa-ai/output/test-management-rollback-plan.md
 ```
 
 `node .qa-ai/scripts/init.mjs` creates the governed templates when this mode is configured. `doctor` verifies that the required
@@ -32,18 +32,18 @@ The governed pipeline is:
 coverage analysis -> sync plan -> sync-diff -> approval gate -> sync-apply -> sync-verify
 ```
 
-1. `test-management-sync-agent` writes `qa-ai-output/test-management-sync-plan.md` with proposed creates, updates and
+1. `test-management-sync-agent` writes `.qa-ai/output/test-management-sync-plan.md` with proposed creates, updates and
    skips. It must not perform external writes.
 2. A human approves the sync plan through the harness approval gate.
 3. `test-management-diff-agent` reads the external system through read-only MCP/tooling, captures
-   `qa-ai-output/test-management-remote-snapshot.md`, then writes `qa-ai-output/test-management-sync-diff.md`.
+   `.qa-ai/output/test-management-remote-snapshot.md`, then writes `.qa-ai/output/test-management-sync-diff.md`.
 4. `validate-sync-diff.mjs` checks that every diff row is traceable to the approved plan, deletes are absent,
    `create` rows have fresh idempotency keys, `update` rows reference mapped external IDs and the snapshot is newer
    than the sync-plan approval event.
-5. Before any write, the agent prepares `qa-ai-output/test-management-rollback-plan.md` from the approved diff and the
+5. Before any write, the agent prepares `.qa-ai/output/test-management-rollback-plan.md` from the approved diff and the
    pre-apply snapshot. `sync-apply` stays blocked until this file exists.
 6. A scoped `external-write:test-management` approval unblocks `sync-apply`.
-7. `test-management-apply-agent` applies only the approved diff and records `qa-ai-output/test-management-apply-log.md`
+7. `test-management-apply-agent` applies only the approved diff and records `.qa-ai/output/test-management-apply-log.md`
    after every action.
 8. `test-management-verify-agent` captures post-apply evidence and `validate-sync-result.mjs` compares the apply log,
    rollback plan, mapping file and snapshots.

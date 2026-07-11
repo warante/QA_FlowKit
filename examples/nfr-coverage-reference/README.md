@@ -10,9 +10,9 @@ Related automated regression fixture: `test/fixtures/nfr-coverage/` (RF-004 secu
 | NFR attribute   | Evidence type      | Artifact                                            |
 | --------------- | ------------------ | --------------------------------------------------- |
 | `security`      | `feature`          | Gherkin scenario for non-exposure of sensitive data |
-| `performance`   | `test-plan`        | `qa-ai-output/nfr/RF-020-performance-plan.md`       |
-| `usability`     | `manual-charter`   | `qa-ai-output/nfr/RF-020-usability-charter.md`      |
-| `compatibility` | `technical-review` | `qa-ai-output/nfr/RF-020-compatibility-matrix.md`   |
+| `performance`   | `test-plan`        | `.qa-ai/output/nfr/RF-020-performance-plan.md`      |
+| `usability`     | `manual-charter`   | `.qa-ai/output/nfr/RF-020-usability-charter.md`     |
+| `compatibility` | `technical-review` | `.qa-ai/output/nfr/RF-020-compatibility-matrix.md`  |
 
 ## Gradual adoption
 

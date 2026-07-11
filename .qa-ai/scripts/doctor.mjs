@@ -42,10 +42,11 @@ async function main() {
   const contractResults = await runWorkflowContractCheck(cwd);
   failed += contractResults.failed;
 
-  if (configInfo.exists) {
-    const layoutResults = await runLayoutChecks(cwd, configInfo);
-    warned += layoutResults.warned;
+  const layoutResults = await runLayoutChecks(cwd, configInfo, { sourceRepository: isFrameworkSourceRepo });
+  warned += layoutResults.warned;
+  failed += layoutResults.failed;
 
+  if (configInfo.exists) {
     const configResults = await runConfigChecks(cwd, configInfo);
     failed += configResults.failed;
     warned += configResults.warned;

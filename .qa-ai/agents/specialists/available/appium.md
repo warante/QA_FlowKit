@@ -1,5 +1,7 @@
 # Appium Specialist
 
+> Inherits .qa-ai/rules/specialist-common.rules.md.
+
 > Framework-specific guidance for mobile UI automation with Appium.
 
 ## Activation

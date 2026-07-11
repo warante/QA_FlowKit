@@ -165,15 +165,18 @@ export async function writeValidGherkinFeature(
   relativePath = `${DEFAULT_FEATURE_PATH}/RF-9-TC-001-sample.feature`
 ) {
   const featurePath = path.join(cwd, relativePath);
+  const filename = path.basename(relativePath);
+  const rfId = filename.match(/RF-[A-Z0-9]+/i)?.[0].toUpperCase() || 'RF-9';
+  const testId = filename.match(/TC-[A-Z0-9]+/i)?.[0].toUpperCase() || 'TC-001';
   await fs.mkdir(path.dirname(featurePath), { recursive: true });
   await fs.writeFile(
     featurePath,
-    `@priority:high @type:functional @manual:true @rf:RF-9 @id:TC-001
+    `@priority:high @type:functional @manual:true @rf:${rfId} @id:${testId}
 Feature: Sample
   Acceptance Criteria:
     - Sample passes validation
 
-  Scenario: RF-9 TC-001 Sample scenario
+  Scenario: ${rfId} ${testId} Sample scenario
     Given a precondition
     When an action happens
     Then the outcome is visible

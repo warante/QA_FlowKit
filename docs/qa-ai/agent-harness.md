@@ -137,7 +137,7 @@ The harness enforces approvals inside the QA FlowKit run:
 - External writes: denied by default.
 - Governed test-management sync is the only exception: when `testManagementSync.mode` is `governed`, the `sync-apply`
   phase requires `npx qa-flowkit run approve external-write:test-management`. The approval records the current
-  `qa-ai-output/test-management-sync-plan.md` hash.
+  `.qa-ai/output/test-management-sync-plan.md` hash.
 - Deletes: denied.
 
 If the approved sync plan changes before or during `sync-apply`, the harness removes the approval, emits an

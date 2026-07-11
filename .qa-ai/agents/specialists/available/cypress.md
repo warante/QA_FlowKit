@@ -1,5 +1,7 @@
 # Cypress Specialist
 
+> Inherits .qa-ai/rules/specialist-common.rules.md.
+
 > Framework-specific guidance for UI/E2E automation with Cypress.
 
 ## Activation

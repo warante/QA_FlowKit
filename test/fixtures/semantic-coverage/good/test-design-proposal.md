@@ -24,7 +24,7 @@ Automated delay refund processing for eligible premium bookings.
 | RF-004 | CA-1            | CR-RF-004-05  | TC-012  | 180 minute threshold pending    | boundary    | boundary-value-analysis  | feature       |                                                               | pending user decision on inclusive bound | medium   | no     | pending-decision |
 | RF-004 | CA-5            | CR-RF-004-11  | TC-011  | Original currency refund        | functional  | use-case-testing         | feature       | features/functional/RF-004-TC-011-original-currency.feature   | refund in purchase currency              | medium   | no     | create           |
 | RF-004 | RFN-004-SEC-01  |               | TC-010  | Token not exposed in logs       | security    | error-guessing           | feature       | features/functional/RF-004-TC-010-token-not-exposed.feature   | no token in logs or notifications        | high     | no     | create           |
-| RF-004 | RFN-004-PERF-01 |               | TC-013  | Performance plan                | performance | use-case-testing         | test-plan     | qa-ai-output/nfr/RF-004-performance-plan.md                   | trigger-to-result <= 5 s                 | medium   | yes    | create           |
+| RF-004 | RFN-004-PERF-01 |               | TC-013  | Performance plan                | performance | use-case-testing         | test-plan     | .qa-ai/output/nfr/RF-004-performance-plan.md                  | trigger-to-result <= 5 s                 | medium   | yes    | create           |
 
 ## Coverage obligations
 
@@ -42,7 +42,7 @@ Automated delay refund processing for eligible premium bookings.
 | RF     | NFR ID          | Attribute   | Applicable | Evidence type | Evidence reference                                          | Threshold / oracle              | Environment or precondition | Status  | Rationale                    |
 | ------ | --------------- | ----------- | ---------- | ------------- | ----------------------------------------------------------- | ------------------------------- | --------------------------- | ------- | ---------------------------- |
 | RF-004 | RFN-004-SEC-01  | security    | yes        | feature       | features/functional/RF-004-TC-010-token-not-exposed.feature | No tokens in logs or email body | Staging with log capture    | planned | Source RFN requires oracle   |
-| RF-004 | RFN-004-PERF-01 | performance | yes        | test-plan     | qa-ai-output/nfr/RF-004-performance-plan.md                 | <= 5 s per transaction          | Staging gateway stub        | planned | Source RFN defines threshold |
+| RF-004 | RFN-004-PERF-01 | performance | yes        | test-plan     | .qa-ai/output/nfr/RF-004-performance-plan.md                | <= 5 s per transaction          | Staging gateway stub        | planned | Source RFN defines threshold |
 
 ## Existing tests to reuse
 

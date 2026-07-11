@@ -5,14 +5,14 @@ Run after automation implementation when `execution.mode` is `advisory` or `stri
 ## Prerequisites
 
 - `.qa-ai/output/traceability-matrix.md` exists.
-- `qa-ai.config.yaml` has `execution.commands` configured.
+- `.qa-ai/qa-ai.config.yaml` has `execution.commands` configured.
 - Automation test files exist in configured paths.
 
 ## Steps
 
 ### Planning
 
-1. Read `AGENTS.md`, `qa-ai.config.yaml` and `.qa-ai/agents/execution-agent.md`.
+1. Read `AGENTS.md`, `.qa-ai/qa-ai.config.yaml` and `.qa-ai/agents/execution-agent.md`.
 2. Load the traceability matrix and test impact analysis when available.
 3. Map configured commands to test IDs from traceability.
 4. Write `.qa-ai/output/execution-plan.md` with the plan table.

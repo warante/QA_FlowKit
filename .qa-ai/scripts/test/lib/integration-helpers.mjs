@@ -10,6 +10,9 @@ const node = process.execPath;
 
 export async function copyFramework(targetDir) {
   await fs.cp(path.join(sourceRoot, '.qa-ai'), path.join(targetDir, '.qa-ai'), { recursive: true, force: true });
+  await fs.rm(path.join(targetDir, '.qa-ai', 'qa-ai.config.yaml'), { force: true });
+  await fs.rm(path.join(targetDir, '.qa-ai', 'features'), { recursive: true, force: true });
+  await fs.rm(path.join(targetDir, '.qa-ai', 'output'), { recursive: true, force: true });
   await fs.rm(path.join(targetDir, '.qa-ai', 'state', 'init-manifest.json'), { force: true });
 }
 

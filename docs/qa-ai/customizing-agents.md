@@ -184,8 +184,8 @@ node .qa-ai/scripts/init.mjs --qa-context qa-ai-knowledge
 Agents should summarize approved team context into:
 
 ```text
-qa-ai-output/qa-knowledge-summary.md
-qa-ai-output/qa-init-decisions.md
+.qa-ai/output/qa-knowledge-summary.md
+.qa-ai/output/qa-init-decisions.md
 ```
 
 This keeps the framework open-source ready while still allowing private teams to adapt behavior.

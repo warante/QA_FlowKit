@@ -576,7 +576,7 @@
       "id": "test-data",
       "name": "Test data planning",
       "slashCommand": "/qa-full-flow",
-      "guidance": [".qa-ai/agents/test-data-agent.md", ".qa-ai/workflows/test-data.md"],
+      "guidance": [".qa-ai/agents/test-data-planning-agent.md", ".qa-ai/workflows/test-data.md"],
       "inputs": [
         {
           "path": "$config.traceability.matrixPath",
@@ -777,7 +777,10 @@
       "id": "observability-intake",
       "name": "Observability intake",
       "slashCommand": "/qa-full-flow",
-      "guidance": [".qa-ai/agents/observability-agent.md", ".qa-ai/workflows/observability-intake.md"],
+      "guidance": [
+        ".qa-ai/agents/production-observability-intake-agent.md",
+        ".qa-ai/workflows/observability-intake.md"
+      ],
       "inputs": [],
       "outputs": [
         {

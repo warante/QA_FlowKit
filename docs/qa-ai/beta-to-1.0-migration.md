@@ -1,7 +1,7 @@
 # Beta to 1.0 migration guide
 
-This guide covers upgrading a target repository from the oldest supported beta line (`0.5.0-beta.0`) to the current
-QA FlowKit package while preserving configuration, harness state, generated artifacts and adapter customizations.
+This guide covers the explicit, breaking migration from pre-1.0 layouts. Legacy state is detected but never loaded by
+the runtime. Migration always presents a preview and requires confirmation.
 
 ## Scope
 
@@ -27,7 +27,12 @@ npx qa-flowkit@rc update --dry-run --json
 # 3. Apply the update from the installed package
 npx qa-flowkit@rc update
 
-# 4. Verify the target repository
+# 4. If update detects legacy state, review and approve the migration prompt.
+#    Or run the migration explicitly:
+npx qa-flowkit migrate --dry-run
+npx qa-flowkit migrate
+
+# 5. Verify the target repository
 npx qa-flowkit doctor --strict
 npx qa-flowkit validate-config
 npx qa-flowkit validate-target
@@ -64,8 +69,8 @@ requirements:
   requireApprovalForInferredCriteria: true
 ```
 
-The runtime normalizes those keys to `requirements.inferredAcceptanceCriteria` when they agree. `update` does **not**
-rewrite `qa-ai.config.yaml` automatically. When convenient, replace the legacy pair with the modern enum:
+The runtime does not accept these keys. The explicit migration converts them to the modern enum before normal
+execution:
 
 | Legacy pair                                                                           | Modern value                                   |
 | ------------------------------------------------------------------------------------- | ---------------------------------------------- |
@@ -73,8 +78,7 @@ rewrite `qa-ai.config.yaml` automatically. When convenient, replace the legacy p
 | `allowInferredAcceptanceCriteria: true` + `requireApprovalForInferredCriteria: true`  | `inferredAcceptanceCriteria: require-approval` |
 | `allowInferredAcceptanceCriteria: true` + `requireApprovalForInferredCriteria: false` | `inferredAcceptanceCriteria: allow`            |
 
-If both legacy and modern keys are present with conflicting values, `doctor` and `validate-config` fail until you resolve
-the mismatch.
+If both legacy and modern keys are present with conflicting values, migration stops and requires manual resolution.
 
 ### Unsupported schema versions
 

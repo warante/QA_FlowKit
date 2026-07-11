@@ -8,16 +8,16 @@ external write happened.
 
 ## Trigger
 
-Activated for the **Test management coverage** phase (phase 8 in `qa-workflow-orchestrator.md`), after Gherkin quality evaluation. Skipped if `tools.testManagement` is `none` or missing.
+Activated for contract phase `tm-coverage` after Gherkin quality evaluation. Skipped if `tools.testManagement` is `none` or missing.
 
 ## Inputs
 
 - [.qa-ai/rules/test-management.rules.md](../rules/test-management.rules.md) (proposal-first sync).
-- Generated `.feature` files in `features/` (output of Phase 6).
-- `qa-ai.config.yaml` (`tools.testManagement`, `tools.testManagementProject`).
+- Generated `.feature` files from the resolved `gherkin` phase output.
+- `.qa-ai/qa-ai.config.yaml` (`tools.testManagement`, `tools.testManagementProject`).
 - `.qa-ai/agents/specialists/active.md` to load test management specialist.
 - Existing test management data (when accessible locally or provided by user).
-- `qa-ai-output/imported-cases.md` when `sources.external.enabled` is true — check this file first
+- `.qa-ai/output/imported-cases.md` when `sources.external.enabled` is true — check this file first
   to avoid proposing new cases that already exist in the remote test management tool. Cases listed
   there are already tracked externally.
 
@@ -36,7 +36,7 @@ Activated for the **Test management coverage** phase (phase 8 in `qa-workflow-or
 
 ## Output
 
-Produce the configured coverage analysis artifact (default: `qa-ai-output/test-management-coverage-analysis.md`):
+Produce the configured coverage analysis artifact (default: `.qa-ai/output/test-management-coverage-analysis.md`):
 
 ```markdown
 # Test Management Coverage Analysis

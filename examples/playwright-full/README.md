@@ -23,7 +23,7 @@ npm run test:e2e-playwright
 ## RF-to-PR walkthrough
 
 1. `requirements/RF-301-orders.md` defines the source requirement and acceptance criteria.
-2. `qa-ai-output/requirement-analysis.md` and `normalized-requirements.md` record reviewed interpretation.
+2. `.qa-ai/output/requirement-analysis.md` and `normalized-requirements.md` record reviewed interpretation.
 3. `test-design-system.md` and `test-design-proposal.md` establish the reusable strategy and RF-specific cases.
 4. `features/` holds one QA design scenario per test case with RF and TC tags.
 5. `automation-feasibility-report.md` and `automation-implementation-plan.md` approve Playwright for both surfaces.
@@ -37,6 +37,6 @@ npm run test:e2e-playwright
 - `tests/playwright/ui/`: browser tests.
 - `tests/playwright/api/`: request-context tests.
 - `playwright.config.mjs`: shared projects and local web server.
-- `features/` and `qa-ai-output/`: reviewed QA design and traceability.
+- `features/` and `.qa-ai/output/`: reviewed QA design and traceability.
 
 No external application, credentials or test-management write is required.

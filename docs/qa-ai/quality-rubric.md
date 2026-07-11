@@ -33,7 +33,7 @@ Quality evaluation is off by default:
 testDesign:
   quality:
     mode: off # off | advisory | gate
-    reportPath: qa-ai-output/gherkin-quality-report.md
+    reportPath: .qa-ai/output/gherkin-quality-report.md
     minDimensionsPassed: 7
 ```
 

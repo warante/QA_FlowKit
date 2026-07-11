@@ -172,15 +172,16 @@ async function assertPublishedUpdateSmoke(tempRoot, npmCache, { localSimulation,
 
   const dryRun = parseJsonStdout(runCli(migrationRoot, ['update', '--dry-run', '--json']), 'update dry-run');
   assert.equal(dryRun.schemaVersion, 1);
-  assert.ok(dryRun.legacyConfigKeys.length > 0);
+  assert.equal(dryRun.legacyLayoutDetected, true);
 
-  runCli(migrationRoot, ['update', '--skip-doctor']);
-  assert.equal(await fs.readFile(path.join(migrationRoot, 'qa-ai.config.yaml'), 'utf8'), configBefore);
+  runCli(migrationRoot, ['update', '--skip-doctor', '--yes']);
+  await assert.rejects(fs.access(path.join(migrationRoot, 'qa-ai.config.yaml')));
+  assert.notEqual(await fs.readFile(path.join(migrationRoot, '.qa-ai', 'qa-ai.config.yaml'), 'utf8'), configBefore);
   assert.equal(
     await fs.readFile(path.join(migrationRoot, '.qa-ai', 'state', 'runs', 'active.json'), 'utf8'),
     activeBefore
   );
-  await fs.access(path.join(migrationRoot, 'qa-ai-output', 'user-preserved-artifact.md'));
+  await fs.access(path.join(migrationRoot, '.qa-ai', 'output', 'user-preserved-artifact.md'));
 }
 
 export async function runPostPublishValidation(channel, options = {}) {

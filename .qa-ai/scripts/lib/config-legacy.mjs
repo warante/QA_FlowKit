@@ -7,6 +7,9 @@ export function collectLegacyConfigSignals(config) {
   if (requirements.requireApprovalForInferredCriteria !== undefined) {
     legacyKeys.push('requirements.requireApprovalForInferredCriteria');
   }
+  if (config?.gherkin?.oneScenarioPerFile !== undefined) {
+    legacyKeys.push('gherkin.oneScenarioPerFile');
+  }
   return legacyKeys;
 }
 

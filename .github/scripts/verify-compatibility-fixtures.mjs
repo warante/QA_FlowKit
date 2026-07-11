@@ -34,8 +34,7 @@ async function validateFixture(root, fixture) {
 
   switch (fixture.surface) {
     case 'config': {
-      const normalizeLegacy = fixture.expect === 'valid-after-normalize' || fixture.expect === 'valid';
-      return validateConfigContractContent(content, root, filePath, { normalizeLegacy });
+      return validateConfigContractContent(content, root, filePath);
     }
     case 'workflow': {
       return validateWorkflowContractSchema(JSON.parse(content), { root });
@@ -76,7 +75,7 @@ export async function verifyCompatibilityFixtures({ root = repoRoot } = {}) {
       continue;
     }
 
-    if (fixture.expect === 'valid' || fixture.expect === 'valid-after-normalize') {
+    if (fixture.expect === 'valid') {
       if (!result.ok) {
         errors.push(`${fixture.id}: expected valid fixture but validation failed:\n  ${result.errors.join('\n  ')}`);
       }

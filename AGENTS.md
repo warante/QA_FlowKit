@@ -20,7 +20,7 @@ Implement and maintain a reusable repo-first workflow that helps QA teams move f
 ## Mandatory behavior
 
 - Read this file before making changes.
-- Read `qa-ai.config.yaml` (root) or `.qa-ai/qa-ai.config.yaml` (compact default) when present.
+- Read `.qa-ai/qa-ai.config.yaml`. A root `qa-ai.config.yaml` is legacy input for the explicit migration command only and must never be used at runtime.
 - When `knowledge.enabled` is true, read the configured QA knowledge summary and init decisions artifacts before QA workflow work.
 - When changing **framework** validators or agents in this repo, read `.qa-ai/rules/README.md` and the relevant `.qa-ai/rules/*.rules.md` files so target-repo rules stay consistent.
 - Target repositories use those rules during QA work; this repo's root `AGENTS.md` focuses on maintaining the starter and npm package (see [npm releases](#npm-releases)).
@@ -36,9 +36,10 @@ Implement and maintain a reusable repo-first workflow that helps QA teams move f
 
 Align with `.qa-ai/rules/gherkin.rules.md` and `validate-features.mjs`:
 
-- Tests use the configured Gherkin language from `qa-ai.config.yaml` (`gherkin.language`): English (`en`) or Spanish (`es`).
+- Tests use the configured Gherkin language from `.qa-ai/qa-ai.config.yaml` (`gherkin.language`): English (`en`) or Spanish (`es`).
 - Spanish `.feature` files must include `# language: es`.
-- One `.feature` file per test case.
+- `gherkin.scenarioLayout: multiple-per-file` permits cohesive scenarios in one feature and requires a unique scenario-level `@id:` when more than one scenario exists.
+- `gherkin.scenarioLayout: one-per-file` enforces one scenario per feature for TestRail-friendly operation.
 - Manual tests also have `.feature` files.
 - Every `.feature` must include the configured acceptance criteria label: `Acceptance Criteria:` for English or `Criterios de aceptacion:` for Spanish.
 - **Required tags:** `@priority:`, `@type:`, `@manual:`.
@@ -71,8 +72,7 @@ README.md / README.es.md   public documentation
 ## Target repository structure (after `init`)
 
 ```text
-qa-ai.config.yaml          # legacy root config (still supported)
-.qa-ai/qa-ai.config.yaml  # compact default for new projects
+.qa-ai/qa-ai.config.yaml  # only runtime project configuration
 .opencode/
 .opencode/commands/qa-init.md
 .qa-ai/output/

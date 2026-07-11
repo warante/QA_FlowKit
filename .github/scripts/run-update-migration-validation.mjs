@@ -61,7 +61,7 @@ async function main() {
     assert.ok(dryRunPlan.legacyConfigKeys.length > 0, 'expected legacy config keys in dry-run plan');
     assert.ok(dryRunPlan.preservedPaths.some((item) => item.includes('state')));
 
-    runCli(targetRoot, ['update', '--skip-doctor']);
+    runCli(targetRoot, ['update', '--skip-doctor', '--yes']);
     await assertMissing(path.join(targetRoot, '.qa-ai', 'obsolete-framework-marker.txt'), 'obsolete framework marker');
     assert.equal(await fs.readFile(activePointerPath, 'utf8'), activeBefore, 'active run pointer changed after update');
     assert.equal(
@@ -70,44 +70,55 @@ async function main() {
     );
 
     for (const [label, hash] of Object.entries(before)) {
+      if (label === 'config') continue;
       const currentPath =
-        label === 'config'
-          ? 'qa-ai.config.yaml'
-          : label === 'artifact'
-            ? 'qa-ai-output/user-preserved-artifact.md'
-            : label === 'feature'
-              ? 'features/functional/RF-101-TC-001-login.feature'
-              : label === 'profile'
-                ? '.qa-ai/config-profiles/team-profile.yaml'
-                : label === 'stateMarker'
-                  ? '.qa-ai/state/preserved-marker.json'
-                  : 'AGENTS.md';
+        label === 'artifact'
+          ? '.qa-ai/output/user-preserved-artifact.md'
+          : label === 'feature'
+            ? '.qa-ai/features/functional/RF-101-TC-001-login.feature'
+            : label === 'profile'
+              ? '.qa-ai/config-profiles/team-profile.yaml'
+              : label === 'stateMarker'
+                ? '.qa-ai/state/preserved-marker.json'
+                : 'AGENTS.md';
       assert.equal(await sha256File(path.join(targetRoot, currentPath)), hash, `${label} changed after first update`);
     }
 
-    const configText = await fs.readFile(path.join(targetRoot, 'qa-ai.config.yaml'), 'utf8');
-    assert.match(configText, /allowInferredAcceptanceCriteria:\s*true/);
+    await assertMissing(path.join(targetRoot, 'qa-ai.config.yaml'), 'legacy root config');
+    await assertMissing(path.join(targetRoot, 'qa-ai-output'), 'legacy output root');
+    await assertMissing(path.join(targetRoot, 'features'), 'legacy feature root');
+    const configText = await fs.readFile(path.join(targetRoot, '.qa-ai', 'qa-ai.config.yaml'), 'utf8');
+    assert.match(configText, /inferredAcceptanceCriteria:\s*require-approval/);
+    assert.doesNotMatch(configText, /allowInferredAcceptanceCriteria/);
     runCli(targetRoot, ['validate-config']);
 
     const status = parseJsonStdout(runCli(targetRoot, ['run', 'status', '--json']), 'run status after update');
     assert.equal(status.active, true);
     assert.equal(status.runId, activeRunId);
 
+    const modernPaths = {
+      config: '.qa-ai/qa-ai.config.yaml',
+      artifact: '.qa-ai/output/user-preserved-artifact.md',
+      feature: '.qa-ai/features/functional/RF-101-TC-001-login.feature',
+      profile: '.qa-ai/config-profiles/team-profile.yaml',
+      stateMarker: '.qa-ai/state/preserved-marker.json',
+      agents: 'AGENTS.md'
+    };
+    const afterFirst = Object.fromEntries(
+      await Promise.all(
+        Object.entries(modernPaths).map(async ([label, relativePath]) => [
+          label,
+          await sha256File(path.join(targetRoot, relativePath))
+        ])
+      )
+    );
     runCli(targetRoot, ['update', '--skip-doctor']);
-    for (const [label, hash] of Object.entries(before)) {
-      const currentPath =
-        label === 'config'
-          ? 'qa-ai.config.yaml'
-          : label === 'artifact'
-            ? 'qa-ai-output/user-preserved-artifact.md'
-            : label === 'feature'
-              ? 'features/functional/RF-101-TC-001-login.feature'
-              : label === 'profile'
-                ? '.qa-ai/config-profiles/team-profile.yaml'
-                : label === 'stateMarker'
-                  ? '.qa-ai/state/preserved-marker.json'
-                  : 'AGENTS.md';
-      assert.equal(await sha256File(path.join(targetRoot, currentPath)), hash, `${label} changed after second update`);
+    for (const [label, hash] of Object.entries(afterFirst)) {
+      assert.equal(
+        await sha256File(path.join(targetRoot, modernPaths[label])),
+        hash,
+        `${label} changed after second update`
+      );
     }
 
     console.log('Update migration validation passed (E2E-05).');

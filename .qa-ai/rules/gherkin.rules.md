@@ -8,21 +8,21 @@ Apply to every `.feature` file under the configured `gherkin.featurePath`.
 
 When Karate is the automation framework (`automation.api.framework` and/or `automation.ui.framework` is `karate`):
 
-- **This file** applies only to **QA design** features under `gherkin.featurePath` (default `features/`).
-- **Executable** Karate tests live under `automation.api.specsPath` / `automation.ui.specsPath` (default `tests/karate/features/...`) and follow [karate.rules.md](karate.rules.md) with `validate-karate-features.mjs`.
+- **This file** applies only to **QA design** features under `gherkin.featurePath` (default `.qa-ai/features/`).
+- **Executable** Karate tests live under `automation.api.specsPath` / `automation.ui.specsPath` (default `.qa-ai/tests/karate/features/...`) and follow [karate.rules.md](karate.rules.md) with `validate-karate-features.mjs`.
 
 Do not mix Karate `* method` steps into design features or QA acceptance blocks into Karate execution features.
 
 ## Language
 
-- Use the configured Gherkin language from `qa-ai.config.yaml` (`gherkin.language`): English (`en`) or Spanish (`es`).
+- Use the configured Gherkin language from `.qa-ai/qa-ai.config.yaml` (`gherkin.language`): English (`en`) or Spanish (`es`).
 - Use English Gherkin keywords and `Acceptance Criteria:` for `en`.
 - Use Spanish Gherkin keywords and `Criterios de aceptación:` for `es`.
 - Spanish `.feature` files must include `# language: es`.
 
 ## Folder layout
 
-- Do **not** place `.feature` files directly in the feature root (e.g. `features/RF-004-TC-001-….feature`).
+- Do **not** place `.feature` files directly in the feature root (e.g. `.qa-ai/features/RF-004-TC-001-….feature`).
 - Use exactly one type subfolder under `gherkin.featurePath`:
 
 | Subfolder        | When to use                                                                                |
@@ -39,12 +39,17 @@ Do not mix Karate `* method` steps into design features or QA acceptance blocks 
   `--no-feature-folders` only when a target repository intentionally manages this layout itself.
 - Misplaced root files: `node .qa-ai/scripts/organize-features.mjs` (or `--dry-run` first).
 
-**Path pattern:** `features/<subfolder>/<RF-ID>-TC-<N>-<short-description>.feature`
+**Path pattern:** `.qa-ai/features/<subfolder>/<RF-ID>-TC-<N>-<short-description>.feature`
 
 ## Structure
 
-- One `.feature` file per test case.
-- One configured scenario keyword per `.feature` file: `Scenario:` / `Scenario Outline:` for English or `Escenario:` / `Esquema del escenario:` for Spanish.
+- Follow `gherkin.scenarioLayout`:
+  - `one-per-file`: one Scenario or Scenario Outline per `.feature` file; recommended for TestRail case mapping.
+  - `multiple-per-file`: one or more cohesive Scenarios/Scenario Outlines per Feature; this is standard Gherkin layout.
+- Every scenario needs a unique `@id:` and scenario-level traceability. Feature-level tags may be inherited only where
+  the parser and target export preserve that meaning.
+- `Background` is allowed only in `multiple-per-file` layout when at least two scenarios genuinely share the same
+  preconditions.
 - Include the configured acceptance criteria section after the Feature narrative.
 - Manual tests also require `.feature` files.
 - Unit tests are excluded.
@@ -64,17 +69,18 @@ Do not mix Karate `* method` steps into design features or QA acceptance blocks 
 
 - RF traceability: use `@rf:RF-xxx` and/or an RF-like ID in the filename and Scenario title.
 - The **Feature title** may be a clean, human-readable name without embedding the RF ID.
-- Do not generate final features until the official RF ID is confirmed ([requirements.rules.md](requirements.rules.md)).
+- A missing official RF may be represented as `RF-PENDING*` only in a draft feature carrying `@wip`. Draft features
+  cannot advance to automation, external synchronization or a PASS release gate.
 
 ## Scenario types and specialists
 
 When `@type:` indicates specialized testing, also read the matching specialist under `.qa-ai/agents/specialists/available/` even if it is not listed in `active.md`:
 
-| `@type:` value (examples)       | Specialist file    |
-| ------------------------------- | ------------------ |
-| `accessibility`, `a11y`         | `accessibility.md` |
-| `performance`, `load`, `stress` | `performance.md`   |
-| `security`                      | `security.md`      |
+| `@type:` value (examples)       | Specialist file          |
+| ------------------------------- | ------------------------ |
+| `accessibility`, `a11y`         | `accessibility.md`       |
+| `performance`, `load`, `stress` | `performance-design.md`  |
+| `security`                      | `functional-security.md` |
 
 When `normalized-requirements.md` lists source NFR attributes without a matching Gherkin `@type:`, load the on-demand
 specialist mapped in `project-config.mjs` (`availability-reliability`, `scalability`, `usability`,

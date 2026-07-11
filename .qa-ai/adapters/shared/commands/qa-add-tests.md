@@ -13,7 +13,7 @@ Add new QA tests to a repository that may already contain `.feature` files and a
 Read these files first:
 
 - `AGENTS.md`
-- Resolved config from the injected `show-config --json` output when present; otherwise run `node .qa-ai/scripts/show-config.mjs --json`. Compact init uses `.qa-ai/qa-ai.config.yaml`; legacy repos may use root `qa-ai.config.yaml`.
+- Resolved config from the injected `show-config --json` output when present; otherwise run `node .qa-ai/scripts/show-config.mjs --json`. `.qa-ai/qa-ai.config.yaml` is the only runtime config; migrate a detected root config before continuing.
 - `.qa-ai/rules/`
 - `.qa-ai/agents/README.md`
 - `.qa-ai/agents/qa-workflow-orchestrator.md`
@@ -29,7 +29,7 @@ After normalizing requirements, load on-demand specialists for detected source N
 `specialists/active.md` during this command.
 
 On `standard` and `enterprise` tracks, also read `.qa-ai/agents/test-design-system-agent.md` and produce or update
-`qa-ai-output/test-design-system.md` before the per-RF proposal. On `quick`, perform a reduced NFR analysis and note
+`.qa-ai/output/test-design-system.md` before the per-RF proposal. On `quick`, perform a reduced NFR analysis and note
 that system test design was omitted unless the user requests it.
 
 Before asking anything, use `interfaceLanguage` from the resolved `show-config --json` output and keep that language for the complete interaction. Use `gherkinLanguage` only for generated `.feature` files.
@@ -57,19 +57,19 @@ Then present a concise plan before modifying files.
 Workflow:
 
 1. Inspect existing `.feature` files and configured automation paths to avoid duplicates.
-2. Analyze the new RF and acceptance criteria; produce or update `qa-ai-output/requirement-analysis.md`.
-3. Normalize functional criteria and explicit source NFRs into `qa-ai-output/normalized-requirements.md` (canonical NFR
+2. Analyze the new RF and acceptance criteria; produce or update `.qa-ai/output/requirement-analysis.md`.
+3. Normalize functional criteria and explicit source NFRs into `.qa-ai/output/normalized-requirements.md` (canonical NFR
    table and atomic `Criterion ID` inventory). Ask open questions when a measurable threshold, environment or success
    criterion is missing but required. Block feature generation for criteria with `Status: pending-decision` until the
    user resolves the ambiguity.
 4. Detect NFR attributes from the normalized table and load matching specialists before design.
-5. On `standard` / `enterprise`, produce or update `qa-ai-output/test-design-system.md` with applicable NFR focus.
-6. Produce or update `qa-ai-output/test-design-proposal.md` with functional tests using `Criterion IDs`, `Evidence type`,
+5. On `standard` / `enterprise`, produce or update `.qa-ai/output/test-design-system.md` with applicable NFR focus.
+6. Produce or update `.qa-ai/output/test-design-proposal.md` with functional tests using `Criterion IDs`, `Evidence type`,
    `Artifact path` and `Action` columns plus a `## Non-functional coverage` row per source NFR. Do not mark source NFRs
    as `not configured`; use applicable evidence types or justified `not-applicable` / `residual-risk`.
 7. Request approval before writing new `.feature` files or other approved evidence artifacts.
 8. After approval, create only approved artifacts (one `.feature` per test case when Gherkin is the chosen evidence).
-9. Update `qa-ai-output/traceability-matrix.md` when useful. Use `Automation Status: proposal-only` for deferred tests.
+9. Update `.qa-ai/output/traceability-matrix.md` when useful. Use `Automation Status: proposal-only` for deferred tests.
 10. Run `node .qa-ai/scripts/validate-test-design.mjs`, `node .qa-ai/scripts/validate-features.mjs`,
     `node .qa-ai/scripts/validate-test-coverage.mjs`, `node .qa-ai/scripts/validate-traceability.mjs` and
     `node .qa-ai/scripts/validate-sync-plan.mjs` after changes. When `testDesign.quality.mode` is not `off`, also run

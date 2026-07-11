@@ -13,15 +13,16 @@ Apply before any file change, external action or destructive operation.
 - Ask the user when ambiguity exists and offer options.
 - Never overwrite existing files unless explicitly approved or `--force` is requested.
 
-## MVP boundaries
+## External-tool boundary
 
-- Do not perform external writes to configured tools from automated scripts in the MVP; produce local drafts and proposals only.
-- Do not claim that tests, cases or issues were created, updated, deleted or synced in external systems unless the user confirms that action happened outside the agent session.
+- QA FlowKit scripts do not contain credentials or directly write to configured external tools.
+- Approved connected tooling may write only in an opt-in governed contract phase after its explicit gate passes.
+- Do not claim an external effect without apply-log and verification evidence.
 
 ## Secrets and sensitive data
 
-- Never store secrets, API tokens, passwords or private keys in repository files, `.qa-ai/`, `qa-ai-output/`, `.feature` files, automation code or examples.
-- `validate-target` scans `qa-ai-output/` and `features/` for secret-like values when `--scan-secrets` is set (default with `doctor --strict`). Patterns live in `.qa-ai/scripts/lib/secret-patterns.mjs`.
+- Never store secrets, API tokens, passwords or private keys in repository files, `.qa-ai/`, `.qa-ai/output/`, `.feature` files, automation code or examples.
+- `validate-target` scans `.qa-ai/output/` and `.qa-ai/features/` for secret-like values when `--scan-secrets` is set (default with `doctor --strict`). Patterns live in `.qa-ai/scripts/lib/secret-patterns.mjs`.
 - Redact or reference environment variables instead of literal credentials in generated artifacts.
 - Do not read or copy secret files from the QA context folder; treat context intake as read-only for source material.
 

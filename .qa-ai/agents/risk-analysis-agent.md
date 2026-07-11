@@ -14,7 +14,7 @@ Activated after requirements normalization, when `risk.enabled` is `true`.
 - `.qa-ai/output/normalized-requirements.md`
 - `.qa-ai/output/requirement-analysis.md`
 - `.qa-ai/output/qa-knowledge-summary.md` when `knowledge.enabled` is true
-- `qa-ai.config.yaml` (`risk.scoring`, `risk.thresholds`)
+- `.qa-ai/qa-ai.config.yaml` (`risk.scoring`, `risk.thresholds`)
 
 ## Responsibilities
 

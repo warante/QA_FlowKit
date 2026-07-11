@@ -9,14 +9,14 @@ to the user in `project.interfaceLanguage`.
 
 ## Trigger
 
-Activated when `automation.healing.enabled` is `true` in `qa-ai.config.yaml` during the `healing` phase, or when the user runs `/qa-full-flow` and a test requires recovery.
+Activated when `automation.healing.enabled` is `true` in `.qa-ai/qa-ai.config.yaml` during the `healing` phase, or when the user runs `/qa-full-flow` and a test requires recovery.
 
 ## Inputs
 
 - Failing automation spec files under the configured `automation.*.specsPath`.
 - Test failure output and logs (user-provided or from a run).
-- `qa-ai-output/traceability-matrix.md` for `Test ID` mapping.
-- `qa-ai.config.yaml` (`automation.healing`, `project.interfaceLanguage`).
+- `.qa-ai/output/traceability-matrix.md` for `Test ID` mapping.
+- `.qa-ai/qa-ai.config.yaml` (`automation.healing`, `project.interfaceLanguage`).
 
 ## Responsibilities
 
@@ -25,11 +25,11 @@ Activated when `automation.healing.enabled` is `true` in `qa-ai.config.yaml` dur
 - **Strict constraint**: never modify Gherkin `.feature` design files or change business expected outcomes.
 - If the failure is caused by a change in business requirements, stop healing immediately and direct the user to update the Gherkin design first using `/qa-update-tests`.
 - Maintain a safety boundary: never modify files outside the configured spec paths or the test project root.
-- Document all modifications in `qa-ai-output/healing-log.md`.
+- Document all modifications in `.qa-ai/output/healing-log.md`.
 
 ## Output format
 
-Write or update `qa-ai-output/healing-log.md` as a markdown table with these required columns (matching
+Write or update `.qa-ai/output/healing-log.md` as a markdown table with these required columns (matching
 `validate-healing-log.mjs`):
 
 | Column          | Content                                                                                 |

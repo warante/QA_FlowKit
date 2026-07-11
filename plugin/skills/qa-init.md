@@ -22,7 +22,7 @@ Ask question 1 in both English and Spanish. After the user chooses an interface 
 2. Do you have a repository-local folder that documents how the QA team works?
    - `1. No` -> continue with standard guided init.
    - `2. Yes` -> localize the label, then ask for the path as a separate free-text question, for example `qa-ai-knowledge`, and run the QA context intake workflow before continuing.
-3. What project name should QA FlowKit write to the project config (`.qa-ai/qa-ai.config.yaml` on compact layout, or `qa-ai.config.yaml` on legacy layout)?
+3. What project name should QA FlowKit write to `.qa-ai/qa-ai.config.yaml`?
    - Ask as free text in the selected interface language. If the user is unsure, recommend the repository or product name; pass the answer as `--project-name`.
 4. Which Gherkin language should generated `.feature` files use?
    - `1. English` -> `en`, English Gherkin keywords and `Acceptance Criteria:`.
@@ -33,7 +33,6 @@ Ask question 1 in both English and Spanish. After the user chooses an interface 
    - `3. Maestro + Karate mobile` -> `maestro-karate-mobile`.
    - `4. Karate full` -> `karate-full`.
    - `5. Selenium + Jest + BrowserStack` -> `selenium-jest-browserstack`.
-   - `6. WebdriverIO + Playwright API (legacy)` -> `webdriverio-playwright-api`.
 6. What is the primary requirements source?
    - `1. Markdown` -> `markdown`.
    - `2. Jira` -> `jira`.
@@ -46,32 +45,37 @@ Ask question 1 in both English and Spanish. After the user chooses an interface 
    - `3. Zephyr` -> `zephyr`.
    - `4. Xray` -> `xray`.
    - `5. Other` -> localize the label and ask for a custom value.
-8. Which issue tracker should be configured?
+8. How should Gherkin scenarios be organized?
+   - `1. Multiple scenarios per feature` -> `multiple-per-file`; standard Gherkin layout.
+   - `2. One scenario per file` -> `one-per-file`; recommended when TestRail is selected.
+9. Which issue tracker should be configured?
    - `1. None` -> `none`; localize the label.
    - `2. Jira` -> `jira`.
    - `3. GitHub` -> `github`.
    - `4. Other` -> localize the label and ask for a custom value.
-9. Should the base template UI/E2E framework be overridden?
-   - Offer the numbered values `none`, `undecided`, `webdriverio`, `playwright`, `cypress`, `selenium`, followed by a localized `Other` option.
-10. Should the base template API/integration framework be overridden?
+10. Should the base template UI/E2E framework be overridden?
+
+- Offer the numbered values `none`, `undecided`, `webdriverio`, `playwright`, `cypress`, `selenium`, followed by a localized `Other` option.
+
+11. Should the base template API/integration framework be overridden?
 
 - Offer the numbered values `none`, `undecided`, `playwright`, `postman`, `rest-assured`, `karate`, followed by a localized `Other` option.
 
-11. Should the base template mobile framework be overridden?
+12. Should the base template mobile framework be overridden?
 
 - Offer the numbered values `none`, `undecided`, `maestro`, `appium`, followed by a localized `Other` option.
 
-12. Should any generated paths be customized?
+13. Should any generated paths be customized?
 
 - `1. Keep defaults` -> localize the label.
 - `2. Customize paths` -> localize the label, then ask only for the paths to change as free text: `--ui-specs-path`, `--ui-page-objects-path`, `--api-specs-path`, `--mobile-flows-path`.
 
-13. Which agent adapters should be generated?
+14. Which agent adapters should be generated?
 
 - Offer numbered options for `claude`, `claude,opencode`, `all` and `none`.
 - Recommend `claude,opencode` when the user wants both.
 
-14. Should existing generated files be overwritten?
+15. Should existing generated files be overwritten?
 
 - `1. No` -> do not use `--force` (recommended).
 - `2. Yes` -> localize the label and use `--force` only after this explicit selection.
@@ -79,7 +83,7 @@ Ask question 1 in both English and Spanish. After the user chooses an interface 
 After the user answers, build and run:
 
 ```bash
-node .qa-ai/scripts/init.mjs --preset <base-template> --project-name "<project-name>" --interface-language <en|es> --gherkin-language <en|es> --requirements-source <source> --test-management-tool <tool> --issue-tracker <tool> --adapters <adapters>
+node .qa-ai/scripts/init.mjs --preset <base-template> --project-name "<project-name>" --interface-language <en|es> --gherkin-language <en|es> --scenario-layout <one-per-file|multiple-per-file> --requirements-source <source> --test-management-tool <tool> --issue-tracker <tool> --adapters <adapters>
 ```
 
 Add `--qa-context <path>` when a QA context folder was approved. Only add `--ui-framework`, `--api-framework`,
@@ -107,7 +111,7 @@ After the command finishes:
    - `/qa-doctor` — setup health checks (skip if already covered in step 2).
    - `/qa-status` — repository health and validation summary once real QA artifacts exist.
      Mention `npm run validate:oss-extraction` only when this repository is the QA FlowKit framework **source** repo (root `package.json` includes that script). Do not present maintainer-only commands to typical target-repository users. Mention `npx qa-flowkit validate-target` only as a CI/terminal alternative, not as the primary agent-session step.
-5. If QA context was used, write or update `qa-ai-output/qa-knowledge-summary.md` and `qa-ai-output/qa-init-decisions.md` unless the user declined artifact writes.
+5. If QA context was used, write or update `.qa-ai/output/qa-knowledge-summary.md` and `.qa-ai/output/qa-init-decisions.md` unless the user declined artifact writes.
 6. Tell the user in the selected interface language that QA agents are loaded from `.qa-ai/agents/README.md`, active specialists from `.qa-ai/agents/specialists/active.md`, and QA context artifacts from `knowledge.summaryPath` / `knowledge.decisionsPath` when enabled.
 7. Tell the user in the selected interface language to restart Claude Code if newly generated slash commands do not appear immediately.
 8. Do not write to configured external tools.

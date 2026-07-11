@@ -9,16 +9,16 @@ contradictions and gaps instead of resolving them silently.
 
 ## Trigger
 
-Activated as Phase 2 of the QA workflow, after context intake is complete.
+Activated for contract phase `intake` after its declared prerequisites.
 
 ## Inputs
 
-- `qa-ai.config.yaml` (`sources.main`, `sources.attachments`).
+- `.qa-ai/qa-ai.config.yaml` (`sources.main`, `sources.attachments`).
 - Requirement source files (Jira export, markdown, PDF, user story documents, spreadsheets).
 - Optional mixed supporting inputs: images/screenshots, HTML, local document exports, design references and URLs.
 - `.qa-ai/rules/` for project-specific extraction rules.
 - `.qa-ai/rules/untrusted-content.rules.md` for prompt-injection handling.
-- `qa-ai-output/qa-knowledge-summary.md` when `knowledge.enabled` is true.
+- `.qa-ai/output/qa-knowledge-summary.md` when `knowledge.enabled` is true.
 
 ## Responsibilities
 
@@ -55,8 +55,8 @@ Activated as Phase 2 of the QA workflow, after context intake is complete.
 
 ## Output
 
-Produce `qa-ai-output/requirement-analysis.md`. When mixed sources are supplied, also produce
-`sources.analysisPath` (default `qa-ai-output/source-analysis.md`) using
+Produce `.qa-ai/output/requirement-analysis.md`. When mixed sources are supplied, also produce
+`sources.analysisPath` (default `.qa-ai/output/source-analysis.md`) using
 `.qa-ai/templates/source-analysis.template.md`.
 
 ```markdown

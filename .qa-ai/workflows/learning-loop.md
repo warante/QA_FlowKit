@@ -5,11 +5,11 @@ Run at the end of the QA cycle when `learningLoop.enabled` is `true`. Optional p
 ## Prerequisites
 
 - At least one source artifact exists: defect triage, healing log, observability intake, or pilot records.
-- `qa-ai.config.yaml` has `learningLoop.logPath` configured.
+- `.qa-ai/qa-ai.config.yaml` has `learningLoop.logPath` configured.
 
 ## Steps
 
-1. Read `AGENTS.md`, `qa-ai.config.yaml` and `.qa-ai/agents/learning-loop-agent.md`.
+1. Read `AGENTS.md`, `.qa-ai/qa-ai.config.yaml` and `.qa-ai/agents/learning-loop-agent.md`.
 2. Review available source artifacts for patterns:
    - Defect triage: recurring failure classes or missing test types.
    - Healing log: common repair patterns that could become rules.

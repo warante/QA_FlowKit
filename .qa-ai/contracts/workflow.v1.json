@@ -1,9 +1,20 @@
 {
   "schemaVersion": 1,
   "trackOrder": {
-    "quick": ["context", "intake", "normalize", "risk-analysis", "gherkin", "traceability", "pr", "learning-loop"],
+    "quick": [
+      "context",
+      "external-intake",
+      "intake",
+      "normalize",
+      "risk-analysis",
+      "gherkin",
+      "traceability",
+      "pr",
+      "learning-loop"
+    ],
     "standard": [
       "context",
+      "external-intake",
       "intake",
       "normalize",
       "risk-analysis",
@@ -11,7 +22,7 @@
       "test-design-rf",
       "gherkin",
       "gherkin-quality",
-      "external-intake",
+      "traceability",
       "tm-coverage",
       "tm-sync",
       "sync-diff",
@@ -19,7 +30,6 @@
       "sync-verify",
       "test-data",
       "environment-readiness",
-      "traceability",
       "feasibility",
       "ui-impl",
       "mobile-impl",
@@ -36,6 +46,7 @@
     ],
     "enterprise": [
       "context",
+      "external-intake",
       "intake",
       "normalize",
       "risk-analysis",
@@ -43,7 +54,7 @@
       "test-design-rf",
       "gherkin",
       "gherkin-quality",
-      "external-intake",
+      "traceability",
       "tm-coverage",
       "tm-sync",
       "sync-diff",
@@ -51,7 +62,6 @@
       "sync-verify",
       "test-data",
       "environment-readiness",
-      "traceability",
       "feasibility",
       "ui-impl",
       "mobile-impl",
@@ -173,7 +183,7 @@
       ],
       "outputs": [{ "path": "$config.gherkin.featurePath", "fallback": "features", "kind": "featureFiles" }],
       "entryApprovals": ["test-design"],
-      "requiresRfId": true,
+      "requiresRfId": false,
       "validators": ["validate-features"],
       "skipConditions": [],
       "permissions": {
@@ -576,7 +586,7 @@
       "id": "test-data",
       "name": "Test data planning",
       "slashCommand": "/qa-full-flow",
-      "guidance": [".qa-ai/agents/test-data-agent.md", ".qa-ai/workflows/test-data.md"],
+      "guidance": [".qa-ai/agents/test-data-planning-agent.md", ".qa-ai/workflows/test-data.md"],
       "inputs": [
         {
           "path": "$config.traceability.matrixPath",
@@ -777,7 +787,10 @@
       "id": "observability-intake",
       "name": "Observability intake",
       "slashCommand": "/qa-full-flow",
-      "guidance": [".qa-ai/agents/observability-agent.md", ".qa-ai/workflows/observability-intake.md"],
+      "guidance": [
+        ".qa-ai/agents/production-observability-intake-agent.md",
+        ".qa-ai/workflows/observability-intake.md"
+      ],
       "inputs": [],
       "outputs": [
         {

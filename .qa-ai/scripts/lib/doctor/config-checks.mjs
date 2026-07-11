@@ -1,7 +1,7 @@
 import { validateConfigContent } from '../config-schema.mjs';
 import { loadWorkflowContract } from '../harness-contract.mjs';
 import { customValidatorsFromConfig, validateCustomValidatorConfig } from '../custom-validators.mjs';
-import { findChangeMeKeys, inferredAcceptanceCriteriaConflicts, parseSimpleYaml } from '../utils.mjs';
+import { findChangeMeKeys, parseSimpleYaml } from '../utils.mjs';
 import { collectLegacyConfigSignals, LEGACY_CONFIG_MIGRATION_DOC } from '../config-legacy.mjs';
 
 export async function runConfigChecks(cwd, configInfo) {
@@ -15,16 +15,6 @@ export async function runConfigChecks(cwd, configInfo) {
     failed += 1;
     for (const error of schemaResult.errors) {
       console.log(`[FAIL] config schema: ${error}`);
-    }
-  }
-
-  const inferredConflicts = inferredAcceptanceCriteriaConflicts(configInfo.data);
-  if (inferredConflicts.length === 0) {
-    console.log('[PASS] inferred acceptance criteria policy: compatible');
-  } else {
-    failed += 1;
-    for (const conflict of inferredConflicts) {
-      console.log(`[FAIL] inferred acceptance criteria policy: conflicting values at ${conflict}`);
     }
   }
 

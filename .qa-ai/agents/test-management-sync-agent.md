@@ -9,14 +9,14 @@ idempotent.
 
 ## Trigger
 
-Activated for the **Test management sync planning** phase (phase 9 in `qa-workflow-orchestrator.md`), after coverage analysis is complete. Skipped if `tools.testManagement` is `none` or missing.
+Activated for contract phase `tm-sync` after coverage analysis. Skipped if `tools.testManagement` is `none` or missing.
 
 ## Inputs
 
 - [.qa-ai/rules/test-management.rules.md](../rules/test-management.rules.md) (proposal-first sync).
-- `qa-ai-output/test-management-coverage-analysis.md` (output of Phase 7).
-- Generated `.feature` files in `features/`.
-- `qa-ai.config.yaml` (`tools.testManagement`, `tools.testManagementProject`).
+- The resolved `tm-coverage` output from the current phase context packet.
+- Generated `.feature` files in `.qa-ai/features/`.
+- `.qa-ai/qa-ai.config.yaml` (`tools.testManagement`, `tools.testManagementProject`).
 - `.qa-ai/agents/specialists/active.md` to load test management specialist.
 
 ## Responsibilities
@@ -30,7 +30,7 @@ Activated for the **Test management sync planning** phase (phase 9 in `qa-workfl
 
 ## Output
 
-Produce the configured sync plan artifact (default: `qa-ai-output/test-management-sync-plan.md`):
+Produce the configured sync plan artifact (default: `.qa-ai/output/test-management-sync-plan.md`):
 
 ```markdown
 # Test Management Sync Plan
@@ -94,13 +94,13 @@ Phase is complete when:
 
 ## Error Handling
 
-- **Coverage analysis missing**: Cannot proceed without Phase 7 output. Report to orchestrator.
+- **Coverage analysis missing**: Cannot proceed without the required `tm-coverage` output. Report to the orchestrator.
 - **Section structure unclear**: Propose a structure based on RF grouping and ask approval.
 - **Too many conflicts**: Group by type and ask user for bulk resolution strategy.
 
 ## Constraints
 
-- Do not write to external test management tools in the MVP.
-- Produce the plan only; execution requires explicit user approval and future integration.
+- This planning phase never writes externally. In `proposal-only` the flow ends at the reviewed plan; in `governed`
+  the separate diff/apply/verify phases require explicit gates and connected tooling.
 - Do not delete or archive remote cases without explicit request.
 - Ask approval before marking any planned external writes.

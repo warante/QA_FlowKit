@@ -6,11 +6,11 @@ Run after traceability matrix is complete when `testData.enabled` is `true`. Ski
 
 - `.qa-ai/output/traceability-matrix.md` exists.
 - `.qa-ai/features/` contains Gherkin feature files.
-- `qa-ai.config.yaml` has `testData.*` configured.
+- `.qa-ai/qa-ai.config.yaml` has `testData.*` configured.
 
 ## Steps
 
-1. Read `AGENTS.md`, `qa-ai.config.yaml` and `.qa-ai/agents/test-data-agent.md`.
+1. Read `AGENTS.md`, `.qa-ai/qa-ai.config.yaml` and `.qa-ai/agents/test-data-planning-agent.md`.
 2. Load the traceability matrix and Gherkin features.
 3. Create a data inventory: list every test ID and its data requirements.
 4. For each data requirement, determine type, source and sensitivity.

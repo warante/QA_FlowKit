@@ -1,91 +1,71 @@
 # QA AI Agent Loading Protocol
 
-This directory contains Markdown role instructions for the QA AI workflow. Some tools expose these files as callable subagents; others only read them as project documentation. In both cases, load the relevant files before starting a workflow phase.
+Agent instructions are internal English contracts. User-facing communication uses `project.interfaceLanguage`; Gherkin
+uses `gherkin.language`.
 
-Related docs: [main README](../../README.md) | [workflow](../../docs/qa-ai/workflow.md) | [agent compatibility](../../docs/qa-ai/agent-compatibility.md) | [customizing agents](../../docs/qa-ai/customizing-agents.md)
+## Canonical workflow
 
-Reusable repository configuration profiles can be imported or exported with `node .qa-ai/scripts/config.mjs`; after import, reload `qa-ai.config.yaml` and `.qa-ai/agents/specialists/active.md`.
+`.qa-ai/contracts/workflow.v1.json` is the only source of truth for phase order, inclusion, dependencies, approvals,
+permissions, outputs and validators. Never maintain a separate numbered phase sequence in agents or rules.
 
-## Load Order
+For a workflow run:
 
-| Order | File                                                                                 | Purpose                                                                |
-| ----- | ------------------------------------------------------------------------------------ | ---------------------------------------------------------------------- |
-| 1     | `.qa-ai/agents/qa-workflow-orchestrator.md`                                          | Coordinates the full QA flow (15 numbered phases plus optional agents) |
-| 2     | `knowledge.summaryPath` / `knowledge.decisionsPath` when `knowledge.enabled` is true | Adds team QA working-practice guidance                                 |
-| 3     | `.qa-ai/agents/specialists/active.md` when present                                   | Lists active specialists for the current config                        |
-| 4     | Files listed in `active.md`                                                          | Adds tool/framework-specific guidance                                  |
-| 5     | Matching phase agent                                                                 | Applies phase-specific rules                                           |
+1. Read `AGENTS.md` and `.qa-ai/qa-ai.config.yaml`.
+2. Stop and offer `qa-flowkit migrate` if root config or legacy artifact roots are detected.
+3. Read `.qa-ai/contracts/workflow.v1.json` and resolve `trackOrder[project.qaTrack]`.
+4. Read `.qa-ai/rules/README.md` and relevant `*.rules.md` files.
+5. Read the phase `guidance` files declared by the contract.
+6. Read configured knowledge artifacts when enabled.
+7. Resolve specialists at runtime. Use `specialists/active.md` only as a generated cache for Markdown-only hosts.
+8. Consume the harness phase context packet when available.
 
-## Phase Agents (orchestrator sequence)
+## Agent categories
 
-This table mirrors the 15-phase sequence in `qa-workflow-orchestrator.md`, which is the single source of truth for phase numbering. Mobile implementation is part of phase 11 (UI/E2E implementation): it uses the UI implementation agent plus the active mobile specialist.
+### Contract phase agents
 
-| #   | Phase                            | Agent File                                          |
-| --- | -------------------------------- | --------------------------------------------------- |
-| 1   | QA context intake                | `.qa-ai/agents/qa-context-intake-agent.md`          |
-| 2   | Requirements intake              | `.qa-ai/agents/requirements-intake-agent.md`        |
-| 3   | Requirements normalization       | `.qa-ai/agents/requirements-normalization-agent.md` |
-| 4   | System test design               | `.qa-ai/agents/test-design-system-agent.md`         |
-| 5   | Per-RF test design               | `.qa-ai/agents/gherkin-test-design-agent.md`        |
-| 6   | Gherkin feature generation       | `.qa-ai/agents/gherkin-test-design-agent.md`        |
-| 7   | Gherkin quality evaluation       | `.qa-ai/agents/gherkin-quality-agent.md`            |
-| 8   | Test management coverage         | `.qa-ai/agents/test-management-coverage-agent.md`   |
-| 9   | Test management sync planning    | `.qa-ai/agents/test-management-sync-agent.md`       |
-| 10  | Automation feasibility           | `.qa-ai/agents/automation-feasibility-agent.md`     |
-| 11  | UI/E2E and mobile implementation | `.qa-ai/agents/ui-implementation-agent.md`          |
-| 12  | API/integration implementation   | `.qa-ai/agents/api-testing-agent.md`                |
-| 13  | Issue task draft                 | `.qa-ai/agents/jira-task-agent.md`                  |
-| 14  | PR summary                       | `.qa-ai/agents/pr-agent.md`                         |
-| 15  | Release quality gate             | `.qa-ai/agents/release-gate-agent.md`               |
+Every `*-agent.md` in this directory represents a workflow phase or an executable/reactive actor. Contract phases map
+to agents through each phase's `guidance` array. The contract-to-index consistency test must fail when a referenced
+agent is missing.
 
-## Optional and parallel agents
+### Governed sub-step agents
 
-These agents are not part of the numbered sequence. Load them on demand when their trigger applies.
+- `test-management-diff-agent.md`
+- `test-management-apply-agent.md`
+- `test-healing-agent.md`
 
-| Agent                            | File                                           | When to load                                                         |
-| -------------------------------- | ---------------------------------------------- | -------------------------------------------------------------------- |
-| Gherkin quality                  | `.qa-ai/agents/gherkin-quality-agent.md`       | After Gherkin generation when `testDesign.quality.mode` is not `off` |
-| External requirements intake     | `.qa-ai/agents/external-intake-agent.md`       | Before normalization when `sources.external.enabled` is true         |
-| Test management diff (governed)  | `.qa-ai/agents/test-management-diff-agent.md`  | Governed sync mode, after the sync plan is approved                  |
-| Test management apply (governed) | `.qa-ai/agents/test-management-apply-agent.md` | Governed sync mode, after the diff is reviewed and approved          |
-| Test healing                     | `.qa-ai/agents/test-healing-agent.md`          | When `automation.healing.enabled` is true and automated specs fail   |
-| Test impact analysis             | `.qa-ai/agents/test-impact-agent.md`           | Change-scoped runs to select affected tests from the matrix          |
-| Defect report                    | `.qa-ai/agents/defect-report-agent.md`         | After failures or exploratory findings                               |
+These act only when their contract mode and approval gates permit them.
 
-## Specialists
+### Reactive agents
 
-Auto-activated specialists are listed in `.qa-ai/agents/specialists/active.md` (generated from `qa-ai.config.yaml`).
-Available sources live under `.qa-ai/agents/specialists/available/`. On-demand specialists are also loaded from
-explicit NFR attributes, RF/CA keyword signals, and project configuration — see
-[specialist-routing-matrix.md](../../docs/qa-ai/specialist-routing-matrix.md) and `test-strategy-router.mjs`.
+- `defect-report-agent.md`
+- `test-impact-agent.md`
 
-- **UI/E2E**: WebdriverIO, Playwright UI, Cypress, Selenium.
-- **Mobile**: Maestro and Appium via `automation.mobile.framework`. The mobile implementation phase uses the generic
-  UI implementation agent plus the active mobile specialist. Advanced mobile strategy (`permissions`, `offline`, `push notification`, `deep link`, biometrics, etc.) routes to `mobile-advanced-agent.md` by requirement signals, not by framework alone.
-- **API**: Playwright API, Postman, REST Assured, Karate.
-- **Test management / issue tracker**: TestRail, Jira.
-- **AI system testing**: AI eval suites and authorized AI red-team design when `aiTesting.enabled: true`.
-- **Cross-cutting NFR** (load on demand): `accessibility.md`, `performance.md`, `security.md`, `scalability.md`,
-  `availability-reliability.md`, `usability.md`, `compatibility-portability.md`, `maintainability.md`.
-- **Exploratory and test data**: `exploratory-testing-agent.md`, `test-data-agent.md`.
-- **Contracts and data**: `contract-testing-agent.md`, `data-quality-agent.md`, `database-migration-agent.md`.
-- **UI/product quality**: `visual-regression-agent.md`, `cross-browser-device-agent.md`, `i18n-l10n-agent.md`,
-  `analytics-tracking-agent.md`.
-- **Operations**: `observability-testing-agent.md`, `post-deploy-validation-agent.md`, `browserstack-strategy-agent.md`, `mobile-advanced-agent.md`.
-- **Security, privacy and compliance**: `security-advanced-agent.md`, `threat-modeling-agent.md`, `privacy-testing-agent.md`,
-  `compliance-testing-agent.md`.
-- **Performance and resilience**: `performance-execution-agent.md`, `resilience-chaos-agent.md`.
+They are loaded on an explicit request or applicable event and do not alter track order.
 
-On-demand specialists are not mandatory phases. Load them when NFR attributes, requirement/criterion signals, configured
-tools or explicit user instructions apply. `generic-test-design` remains the baseline specialist.
+### Specialists
 
-## Usage Rule
+Specialists live under `specialists/available/`. Their filenames describe capabilities and do not use the `-agent`
+suffix. Runtime routing is defined by `project-config.mjs`, `test-strategy-router.mjs` and the specialist routing matrix.
+Framework/tool specialists and the generic test-design specialist can be activated from config; strategy specialists
+are loaded from NFR attributes, requirement signals or explicit user instructions.
 
-Before starting a QA workflow phase, read the matching phase agent and any active specialists. Apply those instructions as role context for the work. Do not skip this just because the current tool cannot call subagents directly.
+Related capability families include UI, API, mobile, test management, accessibility, functional/advanced security,
+privacy, AI evaluation, performance design/execution, scalability, resilience, observability, data, contracts,
+compatibility, localization, analytics and exploratory testing.
 
-When generating Gherkin with `@type:accessibility` or `@type:performance`, also read the matching specialist file even if it is not listed in `active.md`.
-Load `security.md` for `@type:security` scenarios or when the configured coverage policy requires a security review.
-When `normalized-requirements.md` lists source NFR attributes, load the matching specialists from
-`.qa-ai/agents/specialists/available/` on demand (see `NFR_ATTRIBUTE_SPECIALIST_MAP` in `project-config.mjs`) even if they
-are not listed in `active.md`.
-When `aiTesting.enabled: true`, load `ai-evals.md` and `ai-red-team.md` through the generated active specialists list.
+## Shared specialist contract
+
+All specialists inherit `.qa-ai/rules/specialist-common.rules.md`. Specialist files should contain only distinctive
+activation signals, domain reasoning, outputs and domain-specific safety boundaries. Do not duplicate global language,
+approval, traceability, secret-handling or handoff instructions.
+
+## Generated active cache
+
+`specialists/active.md` is generated by init/config operations for hosts that can only load Markdown. It is not the
+runtime source of truth. If missing or stale, regenerate it and continue from runtime routing; source-repository checks
+may validate the catalog without requiring a generated cache.
+
+## Stable references
+
+Refer to workflow phases by contract ID, never by a hardcoded number. User-facing progress numbering is calculated from
+the resolved track at runtime.

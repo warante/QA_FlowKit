@@ -6,11 +6,11 @@ Run after requirements normalization when `risk.enabled` is `true`.
 
 - `.qa-ai/output/normalized-requirements.md` exists.
 - `.qa-ai/output/requirement-analysis.md` exists.
-- `qa-ai.config.yaml` has `risk.scoring` and `risk.thresholds` configured.
+- `.qa-ai/qa-ai.config.yaml` has `risk.scoring` and `risk.thresholds` configured.
 
 ## Steps
 
-1. Read `AGENTS.md`, `qa-ai.config.yaml` and `.qa-ai/agents/risk-analysis-agent.md`.
+1. Read `AGENTS.md`, `.qa-ai/qa-ai.config.yaml` and `.qa-ai/agents/risk-analysis-agent.md`.
 2. Load normalized requirements and requirement analysis artifacts.
 3. For each ready RF, evaluate business impact, failure probability, complexity, data sensitivity, security/privacy exposure and AI impact.
 4. Calculate the risk score using configured scoring weights.

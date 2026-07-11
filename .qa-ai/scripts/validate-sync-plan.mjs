@@ -36,10 +36,6 @@ async function main() {
     allowMissing: Boolean(args['allow-missing'])
   });
 
-  if (!jsonMode && result.legacyWarning) {
-    console.warn(`[WARN] ${result.legacyWarning}`);
-  }
-
   if (result.ok && args['allow-empty'] && result.errors.length === 0 && !jsonMode) {
     console.log('No .feature files found under configured feature root.');
     return;

@@ -5,11 +5,11 @@ Run after execution when results are available. Skipped on quick track.
 ## Prerequisites
 
 - `.qa-ai/output/execution-summary.md` exists with non-empty results.
-- `qa-ai.config.yaml` has `execution.resultsPaths` or result files generated during execution.
+- `.qa-ai/qa-ai.config.yaml` has `execution.resultsPaths` or result files generated during execution.
 
 ## Steps
 
-1. Read `AGENTS.md`, `qa-ai.config.yaml` and `.qa-ai/agents/result-analysis-agent.md`.
+1. Read `AGENTS.md`, `.qa-ai/qa-ai.config.yaml` and `.qa-ai/agents/result-analysis-agent.md`.
 2. Read the execution summary and results index.
 3. Parse result files from configured `execution.resultsPaths`.
 4. Map each result entry to Test IDs and RFs via the traceability matrix.

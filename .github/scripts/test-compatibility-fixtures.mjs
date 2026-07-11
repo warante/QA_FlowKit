@@ -8,7 +8,6 @@ import {
   assertSupportedVersion,
   loadSchemaRegistry,
   unsupportedVersionMessage,
-  validateConfigContract,
   validateInitManifestContract,
   validateRunStateContract,
   validateWorkflowContractSchema
@@ -31,18 +30,6 @@ test('unsupported version messages point to the migration guide', () => {
   assert.match(message, /docs\/qa-ai\/schema-compatibility\.md/);
   assert.equal(assertSupportedVersion('workflow', 1, [1]), null);
   assert.match(assertSupportedVersion('workflow', 9, [1]), /workflow schema version 9 is unsupported/);
-});
-
-test('oldest supported beta config normalizes legacy requirement keys', async () => {
-  const content = await fs.readFile(
-    path.join(repoRoot, 'test/fixtures/compatibility/config/oldest-supported-beta/qa-ai.config.yaml'),
-    'utf8'
-  );
-  const { parseSimpleYaml } = await import('../../.qa-ai/scripts/lib/utils.mjs');
-  const parsed = parseSimpleYaml(content);
-  const result = await validateConfigContract(parsed, { normalizeLegacy: true, root: repoRoot });
-  assert.equal(result.ok, true, result.errors.join('; '));
-  assert.equal(result.errors.length, 0);
 });
 
 test('shipped workflow contract matches workflow schema version 1', async () => {

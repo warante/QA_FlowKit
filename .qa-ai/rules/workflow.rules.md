@@ -6,7 +6,8 @@ Apply to every QA workflow phase and every generated artifact.
 
 ## Languages
 
-- Use `project.interfaceLanguage` / `project.defaultLanguage` from `qa-ai.config.yaml` for user-facing questions, summaries and markdown artifacts under `qa-ai-output/`.
+- Use `project.interfaceLanguage` / `project.defaultLanguage` from `.qa-ai/qa-ai.config.yaml` for user-facing questions, summaries and markdown artifacts under `.qa-ai/output/`.
+- Use concise English for agent instructions, workflow contracts, context packets and inter-agent coordination.
 - Use `gherkin.language` (`en` or `es`) **only** for `.feature` file content, Gherkin keywords and acceptance-criteria labels.
 - Do not mix languages inside a single `.feature` file.
 - Resolve the interface language before the first user-facing response and keep it for the complete command interaction.
@@ -22,16 +23,16 @@ Apply to every QA workflow phase and every generated artifact.
 
 Respect minimum artifacts per track (`quick`, `standard`, `enterprise`). When unsure, read `.qa-ai/agents/qa-workflow-orchestrator.md` § Output Expectation.
 
-| Artifact                                        | `quick`     | `standard` | `enterprise` |
-| ----------------------------------------------- | ----------- | ---------- | ------------ |
-| `qa-ai-output/requirement-analysis.md`          | required    | required   | required     |
-| `qa-ai-output/normalized-requirements.md`       | required    | required   | required     |
-| `features/*.feature`                            | required    | required   | required     |
-| `qa-ai-output/traceability-matrix.md`           | recommended | required   | required     |
-| `qa-ai-output/test-design-system.md`            | skip        | required   | required     |
-| `qa-ai-output/automation-feasibility-report.md` | skip        | required   | required     |
-| `qa-ai-output/pr-summary.md`                    | required    | required   | required     |
-| `qa-ai-output/release-gate.yaml`                | skip        | skip       | required     |
+| Artifact                                         | `quick`     | `standard` | `enterprise` |
+| ------------------------------------------------ | ----------- | ---------- | ------------ |
+| `.qa-ai/output/requirement-analysis.md`          | required    | required   | required     |
+| `.qa-ai/output/normalized-requirements.md`       | required    | required   | required     |
+| `.qa-ai/features/*.feature`                      | required    | required   | required     |
+| `.qa-ai/output/traceability-matrix.md`           | recommended | required   | required     |
+| `.qa-ai/output/test-design-system.md`            | skip        | required   | required     |
+| `.qa-ai/output/automation-feasibility-report.md` | skip        | required   | required     |
+| `.qa-ai/output/pr-summary.md`                    | required    | required   | required     |
+| `.qa-ai/output/release-gate.yaml`                | skip        | skip       | required     |
 
 When test management or issue tracker tools are configured, produce their phase artifacts as applicable.
 
@@ -43,8 +44,8 @@ When test management or issue tracker tools are configured, produce their phase 
 
 ## Output locations
 
-- Workflow artifacts: `qa-ai-output/` (unless `qa-ai.config.yaml` overrides a path).
-- Gherkin tests: configured `gherkin.featurePath` (usually `features/`).
+- Workflow artifacts: `.qa-ai/output/` (unless `.qa-ai/qa-ai.config.yaml` overrides a path).
+- Gherkin tests: configured `gherkin.featurePath` (usually `.qa-ai/features/`).
 - Automation code: paths from `automation.ui.*` and `automation.api.*` in config.
 - Do not store secrets, tokens or private URLs in any generated file.
 
@@ -61,5 +62,6 @@ When test management or issue tracker tools are configured, produce their phase 
 
 ## Orchestration
 
-- Follow the 14-phase sequence in `.qa-ai/agents/README.md` unless the user scopes a subset.
+- Resolve phase order, dependencies and skip conditions from `.qa-ai/contracts/workflow.v1.json`. Refer to phases by
+  stable ID; calculate user-facing progress numbers dynamically from the active track.
 - Load the matching phase agent and active specialists before producing phase output.

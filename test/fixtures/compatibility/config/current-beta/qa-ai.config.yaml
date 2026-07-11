@@ -16,17 +16,17 @@ sources:
 knowledge:
   enabled: false
   sourcePath: ''
-  summaryPath: qa-ai-output/qa-knowledge-summary.md
-  decisionsPath: qa-ai-output/qa-init-decisions.md
+  summaryPath: .qa-ai/output/qa-knowledge-summary.md
+  decisionsPath: .qa-ai/output/qa-init-decisions.md
 requirements:
   requireOfficialRfId: true
   inferredAcceptanceCriteria: require-approval
 gherkin:
   language: en
-  oneScenarioPerFile: true
+  scenarioLayout: one-per-file
   requireAcceptanceCriteria: true
   manualTestsNeedFeatureFile: true
-  featurePath: features
+  featurePath: .qa-ai/features
   tags:
     required:
       - priority
@@ -39,7 +39,7 @@ testrail:
   allowCreateCases: true
   allowUpdateCases: approval-only
   allowDeleteCases: never
-  mappingFile: qa-ai-output/test-management-mapping.json
+  mappingFile: .qa-ai/output/test-management-mapping.json
 automation:
   ui:
     framework: none
@@ -50,10 +50,10 @@ automation:
     requireProposalBeforeImplementation: true
     allowModifyExistingTests: approval-only
 testDesign:
-  systemPath: qa-ai-output/test-design-system.md
-  proposalPath: qa-ai-output/test-design-proposal.md
+  systemPath: .qa-ai/output/test-design-system.md
+  proposalPath: .qa-ai/output/test-design-proposal.md
 traceability:
-  matrixPath: qa-ai-output/traceability-matrix.md
+  matrixPath: .qa-ai/output/traceability-matrix.md
 approval:
   beforeExternalWrite: true
   beforeExistingFileModification: true
@@ -69,13 +69,13 @@ execution:
 risk:
   enabled: false
   mode: 'off'
-  analysisPath: qa-ai-output/risk-analysis.md
-  registerPath: qa-ai-output/risk-register.md
+  analysisPath: .qa-ai/output/risk-analysis.md
+  registerPath: .qa-ai/output/risk-register.md
 testData:
   enabled: false
   mode: 'off'
-  planPath: qa-ai-output/test-data-plan.md
-  inventoryPath: qa-ai-output/test-data-inventory.md
+  planPath: .qa-ai/output/test-data-plan.md
+  inventoryPath: .qa-ai/output/test-data-inventory.md
   allowSynthetic: true
   allowProductionCopies: false
   anonymizationRequired: true
@@ -83,32 +83,32 @@ testData:
 environments:
   enabled: false
   mode: 'off'
-  readinessPath: qa-ai-output/environment-readiness.md
-  healthJsonPath: qa-ai-output/environment-health.json
+  readinessPath: .qa-ai/output/environment-readiness.md
+  healthJsonPath: .qa-ai/output/environment-health.json
   target: local
   requiredVariables: []
   requiredServices: []
   requiredBrowsers: []
   requiredMobileHosts: []
 analysis:
-  resultAnalysisPath: qa-ai-output/result-analysis.md
-  defectTriagePath: qa-ai-output/defect-triage.md
-  actionPlanPath: qa-ai-output/qa-action-plan.md
+  resultAnalysisPath: .qa-ai/output/result-analysis.md
+  defectTriagePath: .qa-ai/output/defect-triage.md
+  actionPlanPath: .qa-ai/output/qa-action-plan.md
   requireFailureClassification: true
 observability:
   enabled: false
   mode: 'off'
   sourcePaths: []
-  intakePath: qa-ai-output/observability-intake.md
-  signalAnalysisPath: qa-ai-output/production-signal-analysis.md
+  intakePath: .qa-ai/output/observability-intake.md
+  signalAnalysisPath: .qa-ai/output/production-signal-analysis.md
 learningLoop:
   enabled: false
   mode: 'off'
-  logPath: qa-ai-output/learning-log.md
-  improvementPath: qa-ai-output/rule-improvement-proposals.md
+  logPath: .qa-ai/output/learning-log.md
+  improvementPath: .qa-ai/output/rule-improvement-proposals.md
 testManagementSync:
   mode: proposal-only
-  diffPath: qa-ai-output/test-management-sync-diff.md
-  applyLogPath: qa-ai-output/test-management-apply-log.md
-  rollbackPath: qa-ai-output/test-management-rollback-plan.md
-  remoteSnapshotPath: qa-ai-output/test-management-remote-snapshot.md
+  diffPath: .qa-ai/output/test-management-sync-diff.md
+  applyLogPath: .qa-ai/output/test-management-apply-log.md
+  rollbackPath: .qa-ai/output/test-management-rollback-plan.md
+  remoteSnapshotPath: .qa-ai/output/test-management-remote-snapshot.md

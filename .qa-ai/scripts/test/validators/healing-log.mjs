@@ -8,7 +8,7 @@ import { validateHealingLog } from './_fixtures.mjs';
 
 async function setupHealingFixture({ matrixContent = '', logContent = '', createSpecFile = true } = {}) {
   const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-healing-'));
-  await fs.mkdir(path.join(tmp, 'qa-ai-output'), { recursive: true });
+  await fs.mkdir(path.join(tmp, '.qa-ai', 'output'), { recursive: true });
   await fs.mkdir(path.join(tmp, 'features'), { recursive: true });
   await fs.mkdir(path.join(tmp, 'tests'), { recursive: true });
 
@@ -18,9 +18,9 @@ async function setupHealingFixture({ matrixContent = '', logContent = '', create
     'gherkin:',
     '  featurePath: features',
     'traceability:',
-    '  matrixPath: qa-ai-output/traceability-matrix.md',
+    '  matrixPath: .qa-ai/output/traceability-matrix.md',
     'healing:',
-    '  logPath: qa-ai-output/healing-log.md',
+    '  logPath: .qa-ai/output/healing-log.md',
     'automation:',
     '  ui:',
     '    framework: playwright',
@@ -28,7 +28,8 @@ async function setupHealingFixture({ matrixContent = '', logContent = '', create
     ''
   ].join('\n');
 
-  await fs.writeFile(path.join(tmp, 'qa-ai.config.yaml'), yamlContent, 'utf8');
+  await fs.mkdir(path.join(tmp, '.qa-ai'), { recursive: true });
+  await fs.writeFile(path.join(tmp, '.qa-ai', 'qa-ai.config.yaml'), yamlContent, 'utf8');
 
   const defaultMatrix =
     matrixContent ||
@@ -38,10 +39,10 @@ async function setupHealingFixture({ matrixContent = '', logContent = '', create
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | reqs/login.md | RF-101 | CA-1 | features/login.feature | TC-101 | e2e | high | automated | tests/login.spec.js |
 `;
-  await fs.writeFile(path.join(tmp, 'qa-ai-output/traceability-matrix.md'), defaultMatrix, 'utf8');
+  await fs.writeFile(path.join(tmp, '.qa-ai/output/traceability-matrix.md'), defaultMatrix, 'utf8');
 
   if (logContent) {
-    await fs.writeFile(path.join(tmp, 'qa-ai-output/healing-log.md'), logContent, 'utf8');
+    await fs.writeFile(path.join(tmp, '.qa-ai/output/healing-log.md'), logContent, 'utf8');
   }
 
   if (createSpecFile) {

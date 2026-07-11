@@ -17,7 +17,7 @@ Activated at the end of the QA cycle, when `learningLoop.enabled` is `true`.
 - `.qa-ai/output/observability-intake.md` when available
 - `.qa-ai/output/production-signal-analysis.md` when available
 - Pilot records when available
-- `qa-ai.config.yaml` (`learningLoop.logPath`, `learningLoop.improvementPath`)
+- `.qa-ai/qa-ai.config.yaml` (`learningLoop.logPath`, `learningLoop.improvementPath`)
 
 ## Responsibilities
 

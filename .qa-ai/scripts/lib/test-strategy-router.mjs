@@ -8,7 +8,7 @@ export const STRATEGY_ROUTING_MODES = ['off', 'advisory', 'strict'];
 export const STRATEGY_ROUTING_RULES = [
   {
     id: 'exploratory',
-    specialists: ['exploratory-testing-agent'],
+    specialists: ['exploratory-testing'],
     evidenceTypes: ['manual-charter'],
     signals: [
       'unknown behavior',
@@ -24,7 +24,7 @@ export const STRATEGY_ROUTING_RULES = [
   },
   {
     id: 'test-data',
-    specialists: ['test-data-agent'],
+    specialists: ['test-data-strategy'],
     evidenceTypes: ['test-plan', 'automation-script'],
     signals: [
       'fixture',
@@ -39,7 +39,7 @@ export const STRATEGY_ROUTING_RULES = [
   },
   {
     id: 'contract',
-    specialists: ['contract-testing-agent'],
+    specialists: ['contract-testing'],
     evidenceTypes: ['automation-script', 'test-plan'],
     signals: [
       'openapi',
@@ -55,7 +55,7 @@ export const STRATEGY_ROUTING_RULES = [
   },
   {
     id: 'visual-regression',
-    specialists: ['visual-regression-agent'],
+    specialists: ['visual-regression'],
     evidenceTypes: ['automation-script', 'manual-charter'],
     signals: [
       'figma',
@@ -70,7 +70,7 @@ export const STRATEGY_ROUTING_RULES = [
   },
   {
     id: 'data-quality',
-    specialists: ['data-quality-agent'],
+    specialists: ['data-quality'],
     evidenceTypes: ['automation-script', 'test-plan'],
     signals: [
       'reconciliation',
@@ -85,7 +85,7 @@ export const STRATEGY_ROUTING_RULES = [
   },
   {
     id: 'database-migration',
-    specialists: ['database-migration-agent'],
+    specialists: ['database-migration'],
     evidenceTypes: ['test-plan', 'automation-script', 'residual-risk'],
     signals: [
       'schema change',
@@ -98,13 +98,13 @@ export const STRATEGY_ROUTING_RULES = [
   },
   {
     id: 'observability',
-    specialists: ['observability-testing-agent'],
+    specialists: ['observability-testing'],
     evidenceTypes: ['technical-review', 'automation-script'],
     signals: ['metrics', 'tracing', 'trace', 'alert', 'audit event', 'monitoring', 'observability', 'structured log']
   },
   {
     id: 'post-deploy',
-    specialists: ['post-deploy-validation-agent'],
+    specialists: ['post-deploy-validation'],
     evidenceTypes: ['test-plan', 'technical-review'],
     signals: [
       'post deploy',
@@ -118,7 +118,7 @@ export const STRATEGY_ROUTING_RULES = [
   },
   {
     id: 'security-advanced',
-    specialists: ['security-advanced-agent'],
+    specialists: ['advanced-security'],
     evidenceTypes: ['technical-review', 'automation-script', 'residual-risk'],
     signals: [
       'sast',
@@ -134,25 +134,25 @@ export const STRATEGY_ROUTING_RULES = [
   },
   {
     id: 'threat-model',
-    specialists: ['threat-modeling-agent'],
+    specialists: ['threat-modeling'],
     evidenceTypes: ['technical-review'],
     signals: ['threat model', 'threat-model', 'stride', 'abuse case', 'misuse case', 'trust boundary', 'attacker']
   },
   {
     id: 'performance-execution',
-    specialists: ['performance-execution-agent'],
+    specialists: ['performance-execution'],
     evidenceTypes: ['automation-script'],
     signals: ['k6', 'jmeter', 'gatling', 'load test execution', 'stress test execution', 'soak test', 'p95', 'sla run']
   },
   {
     id: 'resilience-chaos',
-    specialists: ['resilience-chaos-agent'],
+    specialists: ['resilience-chaos'],
     evidenceTypes: ['test-plan', 'residual-risk'],
     signals: ['chaos', 'failover', 'disaster recovery', 'circuit breaker', 'timeout injection', 'retry storm']
   },
   {
     id: 'cross-browser-device',
-    specialists: ['cross-browser-device-agent'],
+    specialists: ['cross-browser-device'],
     evidenceTypes: ['test-plan', 'manual-charter', 'automation-script'],
     signals: [
       'browser matrix',
@@ -166,31 +166,31 @@ export const STRATEGY_ROUTING_RULES = [
   },
   {
     id: 'browserstack',
-    specialists: ['browserstack-strategy-agent'],
+    specialists: ['browserstack-strategy'],
     evidenceTypes: ['automation-script', 'manual-charter'],
     signals: ['browserstack', 'sauce labs', 'lambdatest', 'device cloud', 'app automate', 'appium cloud']
   },
   {
     id: 'i18n-l10n',
-    specialists: ['i18n-l10n-agent'],
+    specialists: ['i18n-l10n'],
     evidenceTypes: ['feature', 'manual-charter'],
     signals: ['localization', 'internationalization', 'locale', 'timezone', 'currency format', 'rtl', 'i18n', 'l10n']
   },
   {
     id: 'analytics',
-    specialists: ['analytics-tracking-agent'],
+    specialists: ['analytics-tracking'],
     evidenceTypes: ['automation-script', 'feature'],
     signals: ['tracking', 'telemetry', 'funnel', 'posthog', 'plausible', 'segment', 'amplitude', 'analytics event']
   },
   {
     id: 'compliance',
-    specialists: ['compliance-testing-agent'],
+    specialists: ['compliance-testing'],
     evidenceTypes: ['technical-review'],
     signals: ['regulatory', 'soc2', 'iso27001', 'pci', 'eidas', 'compliance audit', 'legal control']
   },
   {
     id: 'privacy',
-    specialists: ['privacy-testing-agent'],
+    specialists: ['privacy-testing'],
     evidenceTypes: ['feature', 'technical-review', 'automation-script'],
     signals: [
       'gdpr',
@@ -206,7 +206,7 @@ export const STRATEGY_ROUTING_RULES = [
   },
   {
     id: 'mobile-advanced',
-    specialists: ['mobile-advanced-agent'],
+    specialists: ['mobile-advanced'],
     evidenceTypes: ['feature', 'automation-script', 'manual-charter', 'test-plan', 'technical-review', 'residual-risk'],
     signals: [
       'permission',
@@ -306,10 +306,10 @@ export function routeStrategiesForText(text, options = {}) {
 
   // BrowserStack also suggests cross-browser/device when cloud execution is explicit.
   if (matchSignal(text, 'browserstack') || matchSignal(text, 'device cloud')) {
-    const crossBrowser = specialistCatalog['cross-browser-device-agent'];
+    const crossBrowser = specialistCatalog['cross-browser-device'];
     if (crossBrowser) {
       routes.push({
-        specialistId: 'cross-browser-device-agent',
+        specialistId: 'cross-browser-device',
         signal: 'device cloud',
         evidenceTypes: ['test-plan', 'automation-script'],
         rationale: 'Cloud device/browser execution implies a compatibility matrix.',
@@ -359,8 +359,8 @@ export function specialistsFromConfig(config = {}) {
   const mobileFramework = slug(getConfigValue(config, 'automation.mobile.framework', ''));
 
   if (uiFramework.includes('browserstack') || mobileFramework.includes('browserstack')) {
-    active.set('browserstack-strategy-agent', specialistCatalog['browserstack-strategy-agent']);
-    active.set('cross-browser-device-agent', specialistCatalog['cross-browser-device-agent']);
+    active.set('browserstack-strategy', specialistCatalog['browserstack-strategy']);
+    active.set('cross-browser-device', specialistCatalog['cross-browser-device']);
   }
 
   return [...active.entries()].sort(([a], [b]) => a.localeCompare(b));

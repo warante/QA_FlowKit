@@ -16,4 +16,4 @@ You coordinate the complete AI-assisted QA workflow.
 
 ## Output expectation
 
-Every workflow must produce or update the expected docs under `qa-ai-output/`.
+Every workflow must produce or update the expected docs under `.qa-ai/output/`.

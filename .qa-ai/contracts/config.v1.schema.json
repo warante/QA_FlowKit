@@ -110,9 +110,7 @@
       "required": ["requireOfficialRfId"],
       "properties": {
         "requireOfficialRfId": { "type": "boolean" },
-        "inferredAcceptanceCriteria": { "type": "string", "enum": ["forbid", "require-approval", "allow"] },
-        "allowInferredAcceptanceCriteria": { "type": "boolean", "x-stability": "deprecated" },
-        "requireApprovalForInferredCriteria": { "type": "boolean", "x-stability": "deprecated" }
+        "inferredAcceptanceCriteria": { "type": "string", "enum": ["forbid", "require-approval", "allow"] }
       }
     },
     "gherkin": {
@@ -120,7 +118,7 @@
       "additionalProperties": false,
       "required": [
         "language",
-        "oneScenarioPerFile",
+        "scenarioLayout",
         "requireAcceptanceCriteria",
         "manualTestsNeedFeatureFile",
         "featurePath",
@@ -128,7 +126,7 @@
       ],
       "properties": {
         "language": { "type": "string", "enum": ["en", "es"] },
-        "oneScenarioPerFile": { "type": "boolean" },
+        "scenarioLayout": { "type": "string", "enum": ["one-per-file", "multiple-per-file"] },
         "requireAcceptanceCriteria": { "type": "boolean" },
         "manualTestsNeedFeatureFile": { "type": "boolean" },
         "featurePath": { "type": "string" },

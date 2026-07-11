@@ -19,6 +19,7 @@ export async function validateDesignFeatures(cwd, options = {}) {
   const featureRootPath = resolveRepoPath(cwd, featureRoot, { label: 'feature root' });
   const strictTags = Boolean(options.strictTags);
   const strictLayout = Boolean(options.strictLayout);
+  const scenarioLayout = getConfigValue(configInfo.data, 'gherkin.scenarioLayout', 'multiple-per-file');
   const aiTestingConfig = {
     enabled: Boolean(getConfigValue(configInfo.data, 'aiTesting.enabled', false)),
     requiredTechniques: getConfigValue(configInfo.data, 'aiTesting.requiredTechniques', []),
@@ -43,12 +44,18 @@ export async function validateDesignFeatures(cwd, options = {}) {
     validateFile: async (file, content) => {
       const parsed = {
         file,
-        ...validateFeatureContent(content, file, tagNames, language, { strictTags, aiTestingConfig, repoRoot: cwd })
+        ...validateFeatureContent(content, file, tagNames, language, {
+          strictTags,
+          strictProvisionalRf: strictTags,
+          scenarioLayout,
+          aiTestingConfig,
+          repoRoot: cwd
+        })
       };
       const placement = validateFeatureFilePlacement(file, featureRootPath, content);
       const rel = relativeTo(cwd, file);
       const errors = parsed.errors.map((error) => `${rel}: ${error}`);
-      const warnings = [];
+      const warnings = parsed.warnings.map((warning) => `${rel}: ${warning}`);
       if (strictLayout) {
         errors.push(...placement.warnings.map((warning) => `${rel}: ${warning}`));
       } else {

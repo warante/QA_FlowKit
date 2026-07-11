@@ -16,7 +16,7 @@ test('validateReleaseGateData: accepts PASS decision', () => {
     approver: 'QA Lead',
     coverage_summary: 'All validators passed.',
     open_risks: ['None documented'],
-    evidence_paths: ['qa-ai-output/traceability-matrix.md', 'qa-ai-output/pr-summary.md']
+    evidence_paths: ['.qa-ai/output/traceability-matrix.md', '.qa-ai/output/pr-summary.md']
   });
   assert.deepEqual(result.errors, []);
   assert.equal(result.decision, 'PASS');
@@ -27,7 +27,7 @@ test('validateReleaseGateData: PENDING is invalid by default but accepted with a
     decision: 'PENDING',
     coverage_summary: 'Draft review in progress.',
     open_risks: ['Pending QA lead review'],
-    evidence_paths: ['qa-ai-output/pr-summary.md']
+    evidence_paths: ['.qa-ai/output/pr-summary.md']
   };
   assert.notEqual(validateReleaseGateData(draft).errors.length, 0);
   assert.deepEqual(validateReleaseGateData(draft, { allowPending: true }).errors, []);
@@ -38,7 +38,7 @@ test('validateReleaseGateData: WAIVED requires approver and waived_reason', () =
     decision: 'WAIVED',
     coverage_summary: 'Partial coverage accepted.',
     open_risks: ['Known gap in API tests'],
-    evidence_paths: ['qa-ai-output/pr-summary.md']
+    evidence_paths: ['.qa-ai/output/pr-summary.md']
   });
   assert.ok(result.errors.some((e) => e.includes('approver')));
   assert.ok(result.errors.some((e) => e.includes('waived_reason')));

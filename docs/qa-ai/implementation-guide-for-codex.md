@@ -86,7 +86,7 @@ The script must:
 1. Run from the target repository root.
 2. Read a preset from `.qa-ai/presets/`.
 3. Generate `qa-ai.config.yaml` if it does not exist.
-4. Create `qa-ai-output/`.
+4. Create `.qa-ai/output/`.
 5. Create `features/` subfolders.
 6. Create configured UI test folders when `automation.ui.framework` is not `none` or `undecided`.
 7. Create configured API test folders when `automation.api.framework` is not `none` or `undecided`.
@@ -95,7 +95,7 @@ The script must:
 10. Never overwrite existing files unless `--force` is passed.
 11. Support agent-first bootstrapping through `/qa-init`, which delegates to this script.
 12. Reject configured output paths that are absolute or resolve outside the target repository.
-13. Generate starter `qa-ai-output/*.md` artifacts only when `--with-doc-templates` is passed.
+13. Generate starter `.qa-ai/output/*.md` artifacts only when `--with-doc-templates` is passed.
 14. Generate the configured test management mapping file only when `--with-test-management-mapping` is passed.
 15. Accept `--qa-context <path>` for one repo-local QA knowledge folder, validate that it exists as a directory, and record it under `knowledge`.
 

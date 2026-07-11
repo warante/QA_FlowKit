@@ -14,9 +14,9 @@ Activated when `testDesign.quality.mode` is `advisory` or `gate`, after Gherkin 
 ## Inputs
 
 - Generated `.feature` files under `gherkin.featurePath`.
-- `qa-ai-output/normalized-requirements.md` and `qa-ai-output/test-design-proposal.md` when evaluating source alignment.
+- `.qa-ai/output/normalized-requirements.md` and `.qa-ai/output/test-design-proposal.md` when evaluating source alignment.
 - `.qa-ai/rules/gherkin-quality.rubric.md`.
-- `qa-ai.config.yaml` (`project.interfaceLanguage`, `gherkin.language`, `testDesign.quality`).
+- `.qa-ai/qa-ai.config.yaml` (`project.interfaceLanguage`, `gherkin.language`, `testDesign.quality`).
 - Active run metadata when available.
 
 ## Responsibilities
@@ -30,7 +30,7 @@ Activated when `testDesign.quality.mode` is `advisory` or `gate`, after Gherkin 
 
 ## Output
 
-Default path: `qa-ai-output/gherkin-quality-report.md`.
+Default path: `.qa-ai/output/gherkin-quality-report.md`.
 
 Use `.qa-ai/templates/gherkin-quality-report.template.md` and include:
 

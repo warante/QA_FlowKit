@@ -18,7 +18,7 @@ Automated delay refund processing.
 | RF-004 | CA-4      | CR-RF-004-10  | TC-005  | Expired token                 | negative   | error-guessing           | feature           | features/functional/RF-004-TC-005-expired-token.feature       | REFUND_FAILED_MANUAL_REVIEW | high     | no     | create |
 | RF-004 | CA-1      | CR-RF-004-03  | TC-008  | Mid-range delay               | functional | equivalence-partitioning | feature           | features/functional/RF-004-TC-008-mid-range.feature           | no refund                   | medium   | no     | create |
 | RF-004 | CA-1      | CR-RF-004-05  | TC-015  | Missing feature planned       | boundary   | technical-review         | feature           | features/functional/RF-004-TC-015-missing.feature             | should exist but does not   | medium   | no     | create |
-| RF-004 | CA-1      | CR-RF-004-06  | TC-016  | Invalid technique as evidence | functional | automation-script        | automation-script | qa-ai-output/scripts/refund-check.mjs                         | script only                 | low      | yes    | create |
+| RF-004 | CA-1      | CR-RF-004-06  | TC-016  | Invalid technique as evidence | functional | automation-script        | automation-script | .qa-ai/output/scripts/refund-check.mjs                        | script only                 | low      | yes    | create |
 
 ## Coverage obligations
 

@@ -22,8 +22,8 @@ Enable external intake when:
 sources:
   external:
     enabled: true # default: false
-    requirementsImportPath: qa-ai-output/imported-requirements.md # default
-    casesImportPath: qa-ai-output/imported-cases.md # default
+    requirementsImportPath: .qa-ai/output/imported-requirements.md # default
+    casesImportPath: .qa-ai/output/imported-cases.md # default
 ```
 
 When `enabled: true`:

@@ -1,6 +1,5 @@
 {
   "schemaVersion": 1,
-  "oldestSupportedBeta": "0.5.0-beta.0",
   "currentBeta": "0.5.8-beta.0",
   "fixtures": [
     {
@@ -8,12 +7,6 @@
       "surface": "config",
       "path": "config/current-beta/qa-ai.config.yaml",
       "expect": "valid"
-    },
-    {
-      "id": "config-oldest-supported-beta",
-      "surface": "config",
-      "path": "config/oldest-supported-beta/qa-ai.config.yaml",
-      "expect": "valid-after-normalize"
     },
     {
       "id": "config-unsupported-version",

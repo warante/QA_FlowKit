@@ -14,14 +14,14 @@ enumerating individual cases. Plan the strategy and confirm scope before writing
 
 ## Inputs
 
-- `AGENTS.md`, `qa-ai.config.yaml`, `.qa-ai/rules/`.
-- `qa-ai-output/normalized-requirements.md` (required).
-- `qa-ai-output/requirement-analysis.md` when present.
+- `AGENTS.md`, `.qa-ai/qa-ai.config.yaml`, `.qa-ai/rules/`.
+- `.qa-ai/output/normalized-requirements.md` (required).
+- `.qa-ai/output/requirement-analysis.md` when present.
 - `knowledge.summaryPath` and `knowledge.decisionsPath` when `knowledge.enabled` is true.
 
 ## Output
 
-- `qa-ai-output/test-design-system.md` using `.qa-ai/templates/test-design-system.template.md`.
+- `.qa-ai/output/test-design-system.md` using `.qa-ai/templates/test-design-system.template.md`.
 - Do not generate `.feature` files in this phase.
 
 ## Procedure (plan before writing)
@@ -34,7 +34,7 @@ enumerating individual cases. Plan the strategy and confirm scope before writing
 3. Draft the system-wide strategy (scope, architecture alignment, testability risks, cross-RF coverage) and the
    `## Non-functional focus` section before writing the artifact.
 4. Present the plan and resolve scope ambiguities or AI-component questions with the user.
-5. Write `qa-ai-output/test-design-system.md` from the template.
+5. Write `.qa-ai/output/test-design-system.md` from the template.
 6. Run `node .qa-ai/scripts/validate-test-design.mjs` and report open questions that block per-RF design.
 
 ## Responsibilities

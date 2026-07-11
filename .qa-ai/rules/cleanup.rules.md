@@ -13,7 +13,7 @@ Apply when using `node .qa-ai/scripts/clean.mjs` or `npx qa-flowkit clean` in a 
 ## Scopes
 
 - Use documented flags (`--generated`, `--adapters`, etc.) as described in `docs/qa-ai/cleanup.md` when present in the repo.
-- Do not remove user-edited `qa-ai-output/` analysis, custom `AGENTS.md` content outside the manifest, or unrelated project files.
+- Do not remove user-edited `.qa-ai/output/` analysis, custom `AGENTS.md` content outside the manifest, or unrelated project files.
 
 ## Agent behavior
 

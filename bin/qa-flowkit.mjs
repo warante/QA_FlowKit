@@ -23,6 +23,8 @@ const commandMap = {
   metrics: 'qa-metrics.mjs',
   help: 'qa-help.mjs',
   clean: 'clean.mjs',
+  migrate: 'migrate.mjs',
+  'assign-rf': 'assign-rf.mjs',
   'show-config': 'show-config.mjs'
 };
 
@@ -64,6 +66,8 @@ Commands:
   help [options]                   Show context-aware next-step guidance for the QA workflow
   show-config [options]            Print resolved interface/Gherkin language and track from config
   clean [options]                  Remove generated files tracked in the init manifest
+  migrate [--dry-run|--yes]       Migrate legacy layout after explicit approval
+  assign-rf <pending> <official>  Replace a provisional RF ID safely across QA artifacts
   version, -v, --version           Print the installed QA FlowKit version
 
 Examples:
@@ -119,12 +123,16 @@ async function frameworkIsInstalled() {
 }
 
 async function copyPackagedFramework(target, { merge = false } = {}) {
+  const targetConfig = path.join(target, 'qa-ai.config.yaml');
+  const existingConfig = (await pathExists(targetConfig)) ? await fs.readFile(targetConfig) : null;
   await fs.cp(packagedFramework, target, {
     recursive: true,
     force: merge,
     errorOnExist: !merge
   });
   await fs.rm(path.join(target, 'state', 'init-manifest.json'), { force: true });
+  if (existingConfig) await fs.writeFile(targetConfig, existingConfig);
+  else await fs.rm(targetConfig, { force: true });
 }
 
 async function copyIfExists(source, target) {
@@ -264,6 +272,14 @@ async function update(args) {
       console.log(formatUpdatePlan(plan));
     }
     return;
+  }
+
+  if (plan.legacyLayoutDetected) {
+    console.log('Legacy QA FlowKit state detected. Runtime fallback is disabled; migration approval is required.');
+    const migrationArgs = [path.join(packagedFramework, 'scripts', 'migrate.mjs')];
+    if (hasFlag(args, 'yes')) migrationArgs.push('--yes');
+    const migration = spawnSync(process.execPath, migrationArgs, { cwd, stdio: 'inherit', shell: false });
+    if (migration.status !== 0) process.exit(migration.status ?? 1);
   }
 
   const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-flowkit-update-'));

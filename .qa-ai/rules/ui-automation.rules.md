@@ -6,7 +6,7 @@ Apply to UI and E2E automation regardless of framework (WebdriverIO, Playwright,
 
 ## Framework
 
-- Use the UI/E2E framework configured in `qa-ai.config.yaml` (`automation.ui.framework`).
+- Use the UI/E2E framework configured in `.qa-ai/qa-ai.config.yaml` (`automation.ui.framework`).
 - For mobile UI, follow `automation.mobile.framework`, [mobile-automation.rules.md](mobile-automation.rules.md) and
   the active mobile specialist.
 - If the framework is `none`, `undecided` or missing, produce an implementation plan and keep tests manual or blocked until decided.

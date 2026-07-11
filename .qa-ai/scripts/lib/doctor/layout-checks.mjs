@@ -5,35 +5,38 @@ export const LEGACY_LAYOUT_MIGRATION_DOC = 'docs/qa-ai/beta-to-1.0-migration.md'
 
 const LEGACY_LAYOUT_MESSAGE =
   'Legacy QA FlowKit layout detected: root qa-ai.config.yaml, qa-ai-output/, features/ or tests/ were found. ' +
-  'No files were moved automatically. QA FlowKit remains compatible. New projects use compact layout under .qa-ai/. ' +
-  'Consider migrating manually when convenient.';
+  'Runtime fallback is disabled. Review the migration preview and approve `qa-flowkit migrate` before continuing.';
 
 /**
  * @param {string} cwd
  * @param {{ exists?: boolean, dualConfig?: boolean, source?: string, data?: object, relPath?: string }} configInfo
  */
-export async function runLayoutChecks(cwd, configInfo) {
+export async function runLayoutChecks(cwd, configInfo, { sourceRepository = false } = {}) {
   let warned = 0;
+  let failed = 0;
 
-  if (configInfo.dualConfig) {
+  if (configInfo.legacyConfigPresent && configInfo.exists) {
     warned += 1;
     console.log(
-      `[WARN] duplicate config: both qa-ai.config.yaml and .qa-ai/qa-ai.config.yaml exist; root config takes precedence (${configInfo.relPath || 'qa-ai.config.yaml'}).`
+      '[WARN] duplicate config: both root legacy config and modern config exist; runtime uses only .qa-ai/qa-ai.config.yaml and migration is required.'
     );
   }
 
-  if (configInfo.exists && (await detectLegacyLayout(cwd, configInfo))) {
-    warned += 1;
-    console.log(`[WARN] legacy layout: ${LEGACY_LAYOUT_MESSAGE}`);
-    console.log(`[WARN] legacy layout: see ${LEGACY_LAYOUT_MIGRATION_DOC} for manual migration guidance.`);
+  const legacyDetected = sourceRepository
+    ? Boolean(configInfo.legacyConfigPresent)
+    : await detectLegacyLayout(cwd, configInfo);
+  if (legacyDetected) {
+    failed += 1;
+    console.log(`[FAIL] legacy layout: ${LEGACY_LAYOUT_MESSAGE}`);
+    console.log(`[INFO] legacy layout: run qa-flowkit migrate --dry-run, then qa-flowkit migrate after review.`);
   }
 
-  return { warned };
+  return { warned, failed };
 }
 
 export function collectLegacyLayoutSignals(cwd, configInfo) {
   const signals = [];
-  if (configInfo.dualConfig) signals.push('duplicate-config');
+  if (configInfo.legacyConfigPresent && configInfo.exists) signals.push('duplicate-config');
   if (configInfo.source === 'root') signals.push('root-config');
   return signals;
 }
@@ -46,7 +49,7 @@ export function formatLegacyLayoutRecommendation(cwd, configInfo) {
     );
   }
   lines.push(LEGACY_LAYOUT_MESSAGE);
-  lines.push(`Manual migration guide: ${LEGACY_LAYOUT_MIGRATION_DOC}`);
+  lines.push('Preview migration: qa-flowkit migrate --dry-run');
   if (configInfo.relPath) {
     lines.push(`Active config: ${relativeTo(cwd, configInfo.path)}`);
   }

@@ -1,5 +1,7 @@
 # Usability Specialist
 
+> Inherits .qa-ai/rules/specialist-common.rules.md.
+
 > Guidance for task success, learnability and error-prevention design. Not a substitute for formal UX research sign-off.
 
 ## Role

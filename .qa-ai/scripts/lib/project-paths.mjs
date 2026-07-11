@@ -4,7 +4,7 @@ import path from 'node:path';
 export const QA_AI_DIR = '.qa-ai';
 export const COMPACT_CONFIG_PATH = `${QA_AI_DIR}/qa-ai.config.yaml`;
 export const LEGACY_CONFIG_PATH = 'qa-ai.config.yaml';
-export const CONFIG_CANDIDATES = [LEGACY_CONFIG_PATH, COMPACT_CONFIG_PATH];
+export const CONFIG_CANDIDATES = [COMPACT_CONFIG_PATH];
 export const COMPACT_OUTPUT_DIR = `${QA_AI_DIR}/output`;
 export const COMPACT_FEATURES_DIR = `${QA_AI_DIR}/features`;
 export const COMPACT_TESTS_DIR = `${QA_AI_DIR}/tests`;
@@ -31,7 +31,9 @@ export function recommendedConfigPath() {
 
 /**
  * @param {string} cwd
- * @returns {Promise<{ path: string, absPath: string, source: 'root'|'compact'|'missing', dualConfig: boolean }>}
+ * Runtime config resolution is intentionally modern-only. Legacy detection is
+ * handled by the explicit migration workflow and never acts as a fallback.
+ * @returns {Promise<{ path: string, absPath: string, source: 'compact'|'missing', dualConfig: boolean, legacyConfigPresent: boolean }>}
  */
 export async function resolveQaAiConfigPath(cwd) {
   const rootAbs = path.join(cwd, LEGACY_CONFIG_PATH);
@@ -39,27 +41,21 @@ export async function resolveQaAiConfigPath(cwd) {
   const rootExists = await pathExists(rootAbs);
   const compactExists = await pathExists(compactAbs);
 
-  if (rootExists) {
-    return {
-      path: LEGACY_CONFIG_PATH,
-      absPath: rootAbs,
-      source: 'root',
-      dualConfig: compactExists
-    };
-  }
   if (compactExists) {
     return {
       path: COMPACT_CONFIG_PATH,
       absPath: compactAbs,
       source: 'compact',
-      dualConfig: false
+      dualConfig: false,
+      legacyConfigPresent: rootExists
     };
   }
   return {
     path: COMPACT_CONFIG_PATH,
     absPath: compactAbs,
     source: 'missing',
-    dualConfig: false
+    dualConfig: false,
+    legacyConfigPresent: rootExists
   };
 }
 
@@ -100,9 +96,9 @@ function collectConfiguredPathValues(config, prefix = '', values = []) {
  * @param {{ exists?: boolean, source?: string, data?: object }} [configInfo]
  */
 export async function detectLegacyLayout(cwd, configInfo = {}) {
-  if (configInfo.source === 'root') return true;
+  if (configInfo.source === 'root' || configInfo.legacyConfigPresent) return true;
 
-  const legacyDirs = [LEGACY_OUTPUT_DIR, LEGACY_FEATURES_DIR, LEGACY_TESTS_DIR];
+  const legacyDirs = [LEGACY_OUTPUT_DIR, LEGACY_FEATURES_DIR];
   for (const rel of legacyDirs) {
     if (await pathExists(path.join(cwd, rel))) return true;
   }
@@ -118,5 +114,5 @@ export async function detectLegacyLayout(cwd, configInfo = {}) {
 
 export function formatMissingConfigMessage(cwd) {
   const rel = relativeTo(cwd, path.join(cwd, COMPACT_CONFIG_PATH));
-  return `Missing QA FlowKit config. Run init first or create ${rel} (legacy root qa-ai.config.yaml is also supported).`;
+  return `Missing QA FlowKit config. Run init first or create ${rel}. Root qa-ai.config.yaml is legacy and must be migrated explicitly.`;
 }

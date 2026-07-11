@@ -428,8 +428,8 @@ test('validateSourceNfrCoverage: missing feature evidence fails strict', async (
 test('validateSourceNfrCoverage: residual-risk advisory warns without failing', async () => {
   const normalizedContent = await loadNfrFixture('normalized-requirements.md');
   const proposalContent = (await loadNfrFixture('good', 'test-design-proposal.md')).replace(
-    '| RF-004 | RFN-004-PERF-01 | performance | yes        | test-plan     | qa-ai-output/nfr/RF-004-performance-plan.md                 | Trigger-to-result <= 5 s per transaction                           | Staging gateway stub with controlled latency      | planned | Source RFN defines measurable threshold     |',
-    '| RF-004 | RFN-004-PERF-01 | performance | yes        | residual-risk | qa-ai-output/nfr/RF-004-performance-plan.md                 | Trigger-to-result <= 5 s per transaction                           | Staging gateway stub with controlled latency      | residual-risk | Blocked: no staging access. Owner: QA lead. Next: provision gateway stub. Closure: plan executed in staging. |'
+    '| RF-004 | RFN-004-PERF-01 | performance | yes        | test-plan     | .qa-ai/output/nfr/RF-004-performance-plan.md                | Trigger-to-result <= 5 s per transaction                           | Staging gateway stub with controlled latency      | planned | Source RFN defines measurable threshold     |',
+    '| RF-004 | RFN-004-PERF-01 | performance | yes        | residual-risk | .qa-ai/output/nfr/RF-004-performance-plan.md                 | Trigger-to-result <= 5 s per transaction                           | Staging gateway stub with controlled latency      | residual-risk | Blocked: no staging access. Owner: QA lead. Next: provision gateway stub. Closure: plan executed in staging. |'
   );
   const result = validateSourceNfrCoverage({
     normalizedContent,
@@ -445,8 +445,8 @@ test('validateSourceNfrCoverage: residual-risk advisory warns without failing', 
 test('validateSourceNfrCoverage: residual-risk strict fails', async () => {
   const normalizedContent = await loadNfrFixture('normalized-requirements.md');
   const proposalContent = (await loadNfrFixture('good', 'test-design-proposal.md')).replace(
-    '| RF-004 | RFN-004-PERF-01 | performance | yes        | test-plan     | qa-ai-output/nfr/RF-004-performance-plan.md                 | Trigger-to-result <= 5 s per transaction                           | Staging gateway stub with controlled latency      | planned | Source RFN defines measurable threshold     |',
-    '| RF-004 | RFN-004-PERF-01 | performance | yes        | residual-risk | qa-ai-output/nfr/RF-004-performance-plan.md                 | Trigger-to-result <= 5 s per transaction                           | Staging gateway stub with controlled latency      | residual-risk | Blocked: no staging access. Owner: QA lead. Next: provision gateway stub. Closure: plan executed in staging. |'
+    '| RF-004 | RFN-004-PERF-01 | performance | yes        | test-plan     | .qa-ai/output/nfr/RF-004-performance-plan.md                | Trigger-to-result <= 5 s per transaction                           | Staging gateway stub with controlled latency      | planned | Source RFN defines measurable threshold     |',
+    '| RF-004 | RFN-004-PERF-01 | performance | yes        | residual-risk | .qa-ai/output/nfr/RF-004-performance-plan.md                 | Trigger-to-result <= 5 s per transaction                           | Staging gateway stub with controlled latency      | residual-risk | Blocked: no staging access. Owner: QA lead. Next: provision gateway stub. Closure: plan executed in staging. |'
   );
   const result = validateSourceNfrCoverage({
     normalizedContent,
@@ -461,11 +461,7 @@ test('validateSourceNfrCoverage: residual-risk strict fails', async () => {
 
 test('specialistsForNfrAttributes: maps usability and maintainability families', () => {
   const specialists = specialistsForNfrAttributes(['usability', 'maintainability']);
-  assert.deepEqual(specialists.map(([id]) => id).sort(), [
-    'maintainability',
-    'observability-testing-agent',
-    'usability'
-  ]);
+  assert.deepEqual(specialists.map(([id]) => id).sort(), ['maintainability', 'observability-testing', 'usability']);
 });
 
 test('NFR contract constants cover taxonomy and evidence types', () => {
@@ -478,11 +474,14 @@ test('NFR contract constants cover taxonomy and evidence types', () => {
 test('nfr-coverage-reference example: artifacts pass strict source NFR validation', async () => {
   const exampleRoot = path.join(repoRoot, 'examples', 'nfr-coverage-reference');
   const normalizedContent = await fs.readFile(
-    path.join(exampleRoot, 'qa-ai-output', 'normalized-requirements.md'),
+    path.join(exampleRoot, '.qa-ai', 'output', 'normalized-requirements.md'),
     'utf8'
   );
-  const proposalContent = await fs.readFile(path.join(exampleRoot, 'qa-ai-output', 'test-design-proposal.md'), 'utf8');
-  const matrixContent = await fs.readFile(path.join(exampleRoot, 'qa-ai-output', 'traceability-matrix.md'), 'utf8');
+  const proposalContent = await fs.readFile(
+    path.join(exampleRoot, '.qa-ai', 'output', 'test-design-proposal.md'),
+    'utf8'
+  );
+  const matrixContent = await fs.readFile(path.join(exampleRoot, '.qa-ai', 'output', 'traceability-matrix.md'), 'utf8');
   const coverage = validateSourceNfrCoverage({
     normalizedContent,
     proposalContent,

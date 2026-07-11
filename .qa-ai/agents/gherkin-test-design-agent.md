@@ -9,18 +9,18 @@ scenarios over volume. Always plan the proposal before writing any `.feature` fi
 
 ## Trigger
 
-Activated for per-RF test design and Gherkin feature generation after requirements normalization (and after `qa-ai-output/test-design-system.md` on `standard` / `enterprise` tracks).
+Activated for per-RF test design and Gherkin feature generation after requirements normalization (and after `.qa-ai/output/test-design-system.md` on `standard` / `enterprise` tracks).
 
 ## Inputs
 
-- `qa-ai-output/normalized-requirements.md` (output of normalization).
-- `qa-ai-output/test-design-system.md` when present (`standard` / `enterprise`).
-- `qa-ai.config.yaml` (`gherkin.language`, `gherkin.tags.required`, `gherkin.featurePath`, `testDesign.proposalPath`).
+- `.qa-ai/output/normalized-requirements.md` (output of normalization).
+- `.qa-ai/output/test-design-system.md` when present (`standard` / `enterprise`).
+- `.qa-ai/qa-ai.config.yaml` (`gherkin.language`, `gherkin.tags.required`, `gherkin.featurePath`, `testDesign.proposalPath`).
 - `.qa-ai/rules/gherkin.rules.md` and `.qa-ai/rules/test-design.rules.md` for naming, structure and proposal conventions.
 - `.qa-ai/scripts/lib/gherkin-constants.mjs` for required tag keys, supported `@type:` values, feature subfolders and acceptance-criteria labels (keep rules and generated features aligned with this module).
 - `.qa-ai/rules/ai-testing.rules.md` when `aiTesting.enabled` is true or an RF is marked as an AI component.
 - `.qa-ai/templates/test-design-proposal.template.md` as the shape reference for the proposal artifact.
-- Existing `features/` directory to detect duplicates and maintain consistency.
+- Existing `.qa-ai/features/` directory to detect duplicates and maintain consistency.
 
 ## Order of work (plan before writing)
 
@@ -28,36 +28,37 @@ This agent covers both the per-RF test design phase (proposal) and the Gherkin f
 `quick` track these may be combined; on `standard` / `enterprise` always produce and get approval for the proposal
 first.
 
-1. Write or update the proposal at `testDesign.proposalPath` (default `qa-ai-output/test-design-proposal.md`) using
+1. Write or update the proposal at `testDesign.proposalPath` (default `.qa-ai/output/test-design-proposal.md`) using
    `.qa-ai/templates/test-design-proposal.template.md`. Include functional rows with `Criterion ID`, `Evidence type`,
    `Artifact path`, `Action` and `Technique`, plus one `## Non-functional coverage` row per source NFR.
 2. Request approval before writing `.feature` files (skip the explicit gate only when combined on `quick`).
 3. Generate the `.feature` files (one scenario per file, see Constraints).
-4. Update `qa-ai-output/traceability-matrix.md` so every feature traces back to its RF/CA and `Criterion ID`
+4. Update `.qa-ai/output/traceability-matrix.md` so every feature traces back to its RF/CA and `Criterion ID`
    (functional rows and `## Non-functional traceability` rows). Use `Automation Status: proposal-only` for deferred tests.
 5. Run the validators listed in Done Criteria.
 
 ## Responsibilities
 
 - Generate one `.feature` file per test scenario.
-- Use the configured Gherkin language from `qa-ai.config.yaml` (`gherkin.language`): English (`en`) or Spanish (`es`).
+- Use the configured Gherkin language from `.qa-ai/qa-ai.config.yaml` (`gherkin.language`): English (`en`) or Spanish (`es`).
 - Include `# language: es` header in Spanish `.feature` files.
 - Apply required tags to every scenario.
 - Include the configured acceptance criteria section: `Acceptance Criteria:` (en) or `Criterios de aceptación:` (es).
 - Generate manual test features for criteria marked as `manual only`.
 - Maintain traceability from each feature back to RF/CA via `@rf:`, `@id:`, filename and Scenario title.
-- Use Background for shared preconditions within a feature only when 3+ scenarios share the same Given steps.
+- When `gherkin.scenarioLayout` is `multiple-per-file`, use Background only for genuinely shared preconditions across
+  multiple scenarios. Do not use Background in `one-per-file` layout.
 - Detect and avoid duplicate scenarios against existing features in the repo.
-- When `@type:accessibility` or `@type:performance`, also read `.qa-ai/agents/specialists/available/accessibility.md` or `performance.md`.
+- When `@type:accessibility` or `@type:performance`, also read `.qa-ai/agents/specialists/available/accessibility.md` or `performance-design.md`.
 - When `@type:security` or a functional security review is configured, also read
-  `.qa-ai/agents/specialists/available/security.md`.
+  `.qa-ai/agents/specialists/available/functional-security.md`.
 - When `normalized-requirements.md` lists source NFR attributes, load the matching on-demand specialists (see
   `specialistsForNfrAttributes` in `project-config.mjs`) before finalizing `## Non-functional coverage`.
 - For each RF/CA, apply strategy routing (`test-strategy-router.mjs` and
   [specialist-routing-matrix.md](../../docs/qa-ai/specialist-routing-matrix.md)) and record `## Strategy routing decisions`
   before generating `.feature` files. Use Gherkin only for observable behavior. Use non-Gherkin evidence rows for strategy
   outputs such as charters, test plans, technical reviews or residual risks. Advanced mobile scenarios may use
-  `mobile-advanced-agent` guidance with `manual-charter`, `test-plan` or `residual-risk` when Gherkin is not sufficient.
+  `mobile-advanced` guidance with `manual-charter`, `test-plan` or `residual-risk` when Gherkin is not sufficient.
 - Record one `## Non-functional coverage` row per source NFR. Use Gherkin (`@type:` + `.feature`) only when the
   attribute is observable through scenarios; otherwise choose `test-plan`, `manual-charter`, `technical-review` or
   `residual-risk`.
@@ -112,17 +113,17 @@ Additional optional tags: `@api`, `@ui`, `@mobile`, `@blocked`, `@wip`.
 | `@type:functional`, `regression`, `smoke`, `negative`, `edge-case`, `performance` (default) | `functional/`    |
 
 ```
-features/<subfolder>/[RF-ID]-TC-[N]-[short-description].feature
+.qa-ai/features/<subfolder>/[RF-ID]-TC-[N]-[short-description].feature
 ```
 
 - Create the subfolder if it does not exist (do not pre-create unused sibling folders).
 - Use lowercase and hyphens for the description portion (3–5 words).
 - Include RF and test case ID in the filename for traceability matrix linking.
-- Examples: `features/functional/RF-042-TC-003-login-invalid-credentials.feature`, `features/e2e/RF-015-TC-001-checkout-happy-path.feature`.
+- Examples: `.qa-ai/features/functional/RF-042-TC-003-login-invalid-credentials.feature`, `.qa-ai/features/e2e/RF-015-TC-001-checkout-happy-path.feature`.
 
 ## Output
 
-Write `.feature` files under `gherkin.featurePath/<type-subfolder>/` (default root: `features/`)—never in the bare feature root. QA design Gherkin with acceptance criteria and required tags. Executable Karate tests are created later under `tests/karate/features/` by the API/UI implementation agents when Karate is configured.
+Write `.feature` files under `gherkin.featurePath/<type-subfolder>/` (default root: `.qa-ai/features/`)—never in the bare feature root. QA design Gherkin with acceptance criteria and required tags. Executable Karate tests are created later under `.qa-ai/tests/karate/features/` by the API/UI implementation agents when Karate is configured.
 
 ### Example (English)
 
@@ -164,7 +165,7 @@ Phase is complete when:
 - The proposal at `testDesign.proposalPath` is written/updated and (on `standard` / `enterprise`) approved before features.
 - Every normalized criterion has a corresponding `.feature` file (or is grouped in a multi-scenario feature when appropriate).
 - All required tags are present and have valid values.
-- `qa-ai-output/traceability-matrix.md` is updated and every feature traces back to RF/CA via `@rf:`, `@id:`, filename and Scenario title.
+- `.qa-ai/output/traceability-matrix.md` is updated and every feature traces back to RF/CA via `@rf:`, `@id:`, filename and Scenario title.
 - No duplicate scenarios exist against the existing feature set.
 - Files follow the naming convention.
 - These validators pass after changes:
@@ -177,13 +178,15 @@ Phase is complete when:
 ## Error Handling
 
 - **Criterion too vague for Gherkin**: Write a skeleton feature with `@wip` tag and note what is missing in a comment.
-- **Missing RF ID**: Use `@rf:RF-PENDING-[N]` and flag to orchestrator.
+- **Missing RF ID**: Draft features may use `@rf:RF-PENDING-[N]` only with `@wip`. They cannot advance to automation,
+  external sync or a PASS release gate. Replace the ID with `qa-flowkit assign-rf` when confirmed.
 - **Duplicate detected**: Report to user with existing file path; do not overwrite.
 - **Language mismatch**: Always check `gherkin.language` config; never mix languages in a single file.
 
 ## Constraints
 
-- One scenario per `.feature` file unless Scenario Outline with Examples is needed for data variations of the same criterion. (This is about file structure: combining the per-RF design and feature-generation phases on the `quick` track does not change the one-scenario-per-file rule.)
+- Follow `gherkin.scenarioLayout`: `one-per-file` emits one Scenario or Scenario Outline per file;
+  `multiple-per-file` groups cohesive scenarios under one Feature while preserving scenario-level IDs and tags.
 - Do not include unit-test-level scenarios.
 - Do not modify existing `.feature` files without approval.
 - Exclude implementation details (CSS selectors, API endpoints) from Gherkin steps.

@@ -4,7 +4,7 @@ import { pathToFileURL } from 'node:url';
 import { collectLegacyConfigSignals } from './config-legacy.mjs';
 import { detectLegacyLayout } from './project-paths.mjs';
 import { formatLegacyLayoutRecommendation } from './doctor/layout-checks.mjs';
-import { inferredAcceptanceCriteriaConflicts, loadQaAiConfig, parseSimpleYaml, pathExists } from './utils.mjs';
+import { loadQaAiConfig, parseSimpleYaml, pathExists } from './utils.mjs';
 
 export { collectLegacyConfigSignals } from './config-legacy.mjs';
 
@@ -43,12 +43,17 @@ export async function buildUpdatePlan({ cwd = process.cwd(), packageRoot }) {
   const packageJson = JSON.parse(await fs.readFile(path.join(packageRoot, 'package.json'), 'utf8'));
   const configInfo = await loadQaAiConfig(cwd);
   const adaptersToSync = await loadDetectAdapters(cwd);
+  const legacyConfigPath = path.join(cwd, 'qa-ai.config.yaml');
+  const legacyConfigContent = configInfo.legacyConfigPresent ? await fs.readFile(legacyConfigPath, 'utf8') : '';
   const rawConfig = configInfo.exists ? parseSimpleYaml(configInfo.content, configInfo.relPath) : {};
-  const legacyConfigKeys = configInfo.exists ? collectLegacyConfigSignals(rawConfig) : [];
-  const configConflicts = configInfo.exists ? inferredAcceptanceCriteriaConflicts(configInfo.data) : [];
-  const legacyLayoutDetected = configInfo.exists ? await detectLegacyLayout(cwd, configInfo) : false;
+  const legacyRawConfig = legacyConfigContent ? parseSimpleYaml(legacyConfigContent, 'qa-ai.config.yaml') : {};
+  const legacyConfigKeys = [
+    ...new Set([...collectLegacyConfigSignals(rawConfig), ...collectLegacyConfigSignals(legacyRawConfig)])
+  ];
+  const configConflicts = [];
+  const legacyLayoutDetected = await detectLegacyLayout(cwd, configInfo);
   const dualConfigDetected = Boolean(configInfo.dualConfig);
-  const legacyLayoutRecommendations = configInfo.exists ? formatLegacyLayoutRecommendation(cwd, configInfo) : [];
+  const legacyLayoutRecommendations = legacyLayoutDetected ? formatLegacyLayoutRecommendation(cwd, configInfo) : [];
 
   return {
     schemaVersion: 1,

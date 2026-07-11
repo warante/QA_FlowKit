@@ -8,14 +8,14 @@ passed; do not overstate coverage.
 
 ## Trigger
 
-Activated for the **PR summary** phase (phase 14 in `qa-workflow-orchestrator.md`), after all implementation and planning phases are complete (before the enterprise release gate, phase 15).
+Activated for contract phase `pr` after preceding included phases complete and before `release-gate` on enterprise runs.
 
 ## Inputs
 
-- All artifacts in `qa-ai-output/`.
-- Generated `.feature` files in `features/`.
+- All artifacts in `.qa-ai/output/`.
+- Generated `.feature` files in `.qa-ai/features/`.
 - Generated test code in `tests/` (when implementation was performed).
-- `qa-ai.config.yaml` for project context.
+- `.qa-ai/qa-ai.config.yaml` for project context.
 - Git diff of all changes made during the workflow.
 
 ## Responsibilities
@@ -30,7 +30,7 @@ Activated for the **PR summary** phase (phase 14 in `qa-workflow-orchestrator.md
 
 ## Output
 
-Produce `qa-ai-output/pr-summary.md`:
+Produce `.qa-ai/output/pr-summary.md`:
 
 ```markdown
 # QA Workflow PR Summary
@@ -45,9 +45,9 @@ Produce `qa-ai-output/pr-summary.md`:
 
 ### Feature Files (Gherkin)
 
-| File                          | Scenario                  | Type       | Status |
-| ----------------------------- | ------------------------- | ---------- | ------ |
-| features/RF-042-login.feature | Login invalid credentials | functional | New    |
+| File                                 | Scenario                  | Type       | Status |
+| ------------------------------------ | ------------------------- | ---------- | ------ |
+| .qa-ai/features/RF-042-login.feature | Login invalid credentials | functional | New    |
 
 ### Automation Code
 
@@ -57,11 +57,11 @@ Produce `qa-ai-output/pr-summary.md`:
 
 ### Artifacts
 
-| File                                          | Purpose                    |
-| --------------------------------------------- | -------------------------- |
-| qa-ai-output/requirement-analysis.md          | Extracted requirements     |
-| qa-ai-output/normalized-requirements.md       | Testable criteria          |
-| qa-ai-output/automation-feasibility-report.md | Feasibility classification |
+| File                                           | Purpose                    |
+| ---------------------------------------------- | -------------------------- |
+| .qa-ai/output/requirement-analysis.md          | Extracted requirements     |
+| .qa-ai/output/normalized-requirements.md       | Testable criteria          |
+| .qa-ai/output/automation-feasibility-report.md | Feasibility classification |
 
 ## Traceability Matrix
 

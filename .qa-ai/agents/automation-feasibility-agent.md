@@ -8,14 +8,14 @@ every "Pending automation" or "Blocked" verdict.
 
 ## Trigger
 
-Activated for the **Automation feasibility** phase (phase 10 in `qa-workflow-orchestrator.md`), after Gherkin test design (and optionally test management phases) are complete.
+Activated for contract phase `feasibility` after its declared inputs are complete.
 
 ## Inputs
 
-- Generated `.feature` files in `features/`.
-- `qa-ai.config.yaml` (`automation.ui.framework`, `automation.api.framework`, `automation.mobile.framework`).
+- Generated `.feature` files in `.qa-ai/features/`.
+- `.qa-ai/qa-ai.config.yaml` (`automation.ui.framework`, `automation.api.framework`, `automation.mobile.framework`).
 - Existing test automation code in the repository (patterns, utilities, page objects).
-- `qa-ai-output/normalized-requirements.md` for context on test types.
+- `.qa-ai/output/normalized-requirements.md` for context on test types.
 
 ## Responsibilities
 
@@ -62,7 +62,7 @@ A test is **Manual only** when:
 
 ## Output
 
-Produce `qa-ai-output/automation-feasibility-report.md`:
+Produce `.qa-ai/output/automation-feasibility-report.md`:
 
 ```markdown
 # Automation Feasibility Report

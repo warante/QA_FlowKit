@@ -1,5 +1,9 @@
 # QA AI Workflow
 
+`.qa-ai/contracts/workflow.v1.json` is the only source of truth for phase order and inclusion. The sections below
+describe phase responsibilities and artifacts; they are not an independent numbered sequence. Runtime progress numbers
+are calculated from the selected track.
+
 ## Optional - QA context intake
 
 Use this before Step 1 when `knowledge.enabled` is true or when the user provides `--qa-context <path>`.
@@ -12,8 +16,8 @@ Inputs:
 
 Outputs:
 
-- `qa-ai-output/qa-knowledge-summary.md`
-- `qa-ai-output/qa-init-decisions.md`
+- `.qa-ai/output/qa-knowledge-summary.md`
+- `.qa-ai/output/qa-init-decisions.md`
 
 Requirements:
 
@@ -33,8 +37,8 @@ Inputs:
 
 Outputs:
 
-- `qa-ai-output/requirement-analysis.md`
-- `qa-ai-output/source-analysis.md` when mixed sources are used
+- `.qa-ai/output/requirement-analysis.md`
+- `.qa-ai/output/source-analysis.md` when mixed sources are used
 
 Requirements:
 
@@ -49,7 +53,7 @@ After normalization, apply on-demand specialist routing from explicit NFR attrib
 configured tools. See [specialist-routing-matrix.md](specialist-routing-matrix.md). Record decisions in
 `## Strategy routing overview` (system design) and `## Strategy routing decisions` (per-RF proposal). Standard presets
 use `testDesign.strategyRouting.mode: advisory` to recommend specialists without blocking; `strict` enforces routing rows
-for configured `criticalSignals`. Advanced mobile scenarios may route to `mobile-advanced-agent` by signal, not by
+for configured `criticalSignals`. Advanced mobile scenarios may route to `mobile-advanced` by signal, not by
 Appium/Maestro framework selection alone.
 
 ## Step 2 - Official RF ID validation
@@ -82,7 +86,7 @@ See [config-schema.md](config-schema.md#risk-experimental) for risk scoring conf
 
 Outputs:
 
-- `qa-ai-output/test-management-coverage-analysis.md`
+- `.qa-ai/output/test-management-coverage-analysis.md`
 
 Requirements:
 
@@ -111,7 +115,7 @@ Requirements:
 
 Outputs:
 
-- `qa-ai-output/test-management-sync-plan.md`
+- `.qa-ai/output/test-management-sync-plan.md`
 
 Requirements:
 
@@ -125,7 +129,7 @@ claims that external cases were changed.
 
 When `testManagementSync.mode` is `governed`, the harness adds three guarded phases after the sync plan:
 
-- `sync-diff`: captures a remote snapshot and computes `qa-ai-output/test-management-sync-diff.md`.
+- `sync-diff`: captures a remote snapshot and computes `.qa-ai/output/test-management-sync-diff.md`.
 - `sync-apply`: requires `npx qa-flowkit run approve external-write:test-management` and records the approved sync
   plan hash before any external write may be attempted by the user-approved tooling.
 - `sync-verify`: validates the apply log, rollback plan and final snapshot evidence.
@@ -137,7 +141,7 @@ an `approval_invalidated` event and blocks `sync-apply` until the gate is approv
 
 Outputs:
 
-- `qa-ai-output/traceability-matrix.md`
+- `.qa-ai/output/traceability-matrix.md`
 
 Required mapping:
 
@@ -149,7 +153,7 @@ Requirement Source -> RF -> CA -> Feature -> Test Management Case ID -> Automati
 
 Outputs:
 
-- `qa-ai-output/automation-feasibility-report.md`
+- `.qa-ai/output/automation-feasibility-report.md`
 
 Requirements:
 
@@ -234,7 +238,7 @@ Outputs: `.qa-ai/output/test-data-plan.md`, `.qa-ai/output/test-data-inventory.m
 - Propose synthetic data. Detect sensitive data and document anonymization.
 - Never access production databases or include real credentials.
 
-See `.qa-ai/agents/test-data-agent.md` and `.qa-ai/workflows/test-data.md`.
+See `.qa-ai/agents/test-data-planning-agent.md` and `.qa-ai/workflows/test-data.md`.
 
 ### Environment Readiness
 
@@ -291,7 +295,7 @@ Outputs: `.qa-ai/output/observability-intake.md`
 - Read local incident reports, logs and metric exports.
 - Map production signals to RF/test IDs and propose coverage gaps.
 
-See `.qa-ai/agents/observability-agent.md` and `.qa-ai/workflows/observability-intake.md`.
+See `.qa-ai/agents/production-observability-intake-agent.md` and `.qa-ai/workflows/observability-intake.md`.
 
 ### Learning Loop
 

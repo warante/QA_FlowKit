@@ -101,11 +101,11 @@ npx qa-flowkit run next
 Expected artifacts:
 
 ```text
-qa-ai-output/requirement-analysis.md
-qa-ai-output/normalized-requirements.md
+.qa-ai/output/requirement-analysis.md
+.qa-ai/output/normalized-requirements.md
 features/functional/RF-101-TC-001-login.feature
-qa-ai-output/traceability-matrix.md
-qa-ai-output/pr-summary.md
+.qa-ai/output/traceability-matrix.md
+.qa-ai/output/pr-summary.md
 ```
 
 The feature must include:
@@ -207,7 +207,7 @@ AGENTS.md
 ```
 
 Feature type subfolders (`functional/`, `api/`, etc.) are created lazily when the first `.feature` file is written, not during `init`.
-No root-level `qa-ai.config.yaml`, `qa-ai-output/`, `features/` or `tests/` folders are created by default.
+No root-level `qa-ai.config.yaml`, `.qa-ai/output/`, `features/` or `tests/` folders are created by default.
 Legacy root layouts remain supported when already present or explicitly configured.
 
 **Step 3 — Verify setup**
@@ -240,7 +240,7 @@ Fix any reported issues before continuing to traceability.
 
 **Step 6 — Validate traceability**
 
-After the traceability matrix is generated at `qa-ai-output/traceability-matrix.md`:
+After the traceability matrix is generated at `.qa-ai/output/traceability-matrix.md`:
 
 ```bash
 node .qa-ai/scripts/validate-traceability.mjs
@@ -311,7 +311,7 @@ If your team has documented QA practices in a local folder, record it:
 node .qa-ai/scripts/init.mjs --qa-context qa-ai-knowledge
 ```
 
-Future agent sessions will read `qa-ai-output/qa-knowledge-summary.md` and `qa-ai-output/qa-init-decisions.md` before proposing defaults.
+Future agent sessions will read `.qa-ai/output/qa-knowledge-summary.md` and `.qa-ai/output/qa-init-decisions.md` before proposing defaults.
 
 **Step 5 — Open your AI coding tool**
 

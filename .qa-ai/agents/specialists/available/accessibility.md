@@ -1,5 +1,7 @@
 # Accessibility Testing Specialist
 
+> Inherits .qa-ai/rules/specialist-common.rules.md.
+
 > Guidance for accessibility (a11y) test design and validation beyond functional checks.
 
 ## Activation
@@ -29,7 +31,7 @@ Complements the Gherkin Test Design Agent and generic test design specialist wit
 ## Output Expectations
 
 - Gherkin scenarios tagged `@type:accessibility` with `@manual:true` unless an a11y automation stack is configured.
-- Notes in `qa-ai-output/test-design-proposal.md` or per-RF proposal for tooling recommendations (axe, Lighthouse CI, pa11y) without assuming they are installed.
+- Notes in `.qa-ai/output/test-design-proposal.md` or per-RF proposal for tooling recommendations (axe, Lighthouse CI, pa11y) without assuming they are installed.
 
 ## Constraints
 
