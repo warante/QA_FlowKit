@@ -4,12 +4,12 @@ Run after test data planning when `environments.enabled` is `true`. Skipped on q
 
 ## Prerequisites
 
-- `qa-ai.config.yaml` has `environments.*` configured.
+- `.qa-ai/qa-ai.config.yaml` has `environments.*` configured.
 - Required tools, services and browsers are identified.
 
 ## Steps
 
-1. Read `AGENTS.md`, `qa-ai.config.yaml` and `.qa-ai/agents/environment-readiness-agent.md`.
+1. Read `AGENTS.md`, `.qa-ai/qa-ai.config.yaml` and `.qa-ai/agents/environment-readiness-agent.md`.
 2. Read configured `environments.target` and required lists.
 3. Check availability of each required variable, service, browser and mobile host.
 4. Record check results with status, evidence and blocking flag.

@@ -17,8 +17,8 @@ not blame, and never include secrets or PII.
 
 - Failure description, logs or screenshots (user-provided).
 - Related `.feature` file and scenario name when available.
-- `qa-ai-output/traceability-matrix.md` for RF/CA mapping.
-- `qa-ai.config.yaml` (`tools.issueTracker`, `project.interfaceLanguage`).
+- `.qa-ai/output/traceability-matrix.md` for RF/CA mapping.
+- `.qa-ai/qa-ai.config.yaml` (`tools.issueTracker`, `project.interfaceLanguage`).
 - `.qa-ai/templates/defect-report.template.md`.
 
 ## Responsibilities
@@ -40,8 +40,8 @@ not blame, and never include secrets or PII.
 
 ## Output
 
-- `qa-ai-output/defect-reports/<RF-ID>-<short-slug>.md` per defect, or a single `qa-ai-output/defect-reports.md` when only one issue.
-- Optional index in `qa-ai-output/defect-reports/_index.md` when multiple reports exist.
+- `.qa-ai/output/defect-reports/<RF-ID>-<short-slug>.md` per defect, or a single `.qa-ai/output/defect-reports.md` when only one issue.
+- Optional index in `.qa-ai/output/defect-reports/_index.md` when multiple reports exist.
 
 ### Report shape (example)
 
@@ -49,7 +49,7 @@ not blame, and never include secrets or PII.
 # Defect: RF-042 login error not shown on invalid password
 
 - RF / CA: RF-042 / CA-3
-- Test case: TC-003 (`features/functional/RF-042-TC-003-login-invalid-credentials.feature`)
+- Test case: TC-003 (`.qa-ai/features/functional/RF-042-TC-003-login-invalid-credentials.feature`)
 - Severity: high
 - Environment: staging, Chrome 124, build 2026.06.28
 

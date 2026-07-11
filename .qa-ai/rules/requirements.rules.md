@@ -6,13 +6,15 @@ Apply during requirement intake, normalization, test design, coverage analysis a
 
 ## Requirement identifiers
 
-- Do not generate final Gherkin `.feature` files until the **official RF ID** is confirmed with the user.
+- Without an official RF ID, generate only draft Gherkin carrying `RF-PENDING*` and `@wip`. Draft features are excluded
+  from automation, external synchronization and PASS release decisions. Assign the official ID with
+  `qa-flowkit assign-rf` before those phases.
 - Preserve source RF and CA numbering when normalizing requirements; every acceptance criterion must link back to its RF.
 - Use consistent ID shapes in artifacts (for example `RF-123`, `CA-123-1`) matching project conventions.
 
 ## Normalized requirements
 
-- Store normalized output under `qa-ai-output/` (default `qa-ai-output/normalized-requirements.md`).
+- Store normalized output under `.qa-ai/output/` (default `.qa-ai/output/normalized-requirements.md`).
 - When semantic coverage is enabled, use atomic criterion rows with stable `Criterion ID`, `Condition or partition`,
   `Expected observable outcome` and `Status` (`ready`, `ambiguous`, `out-of-scope`, `pending-decision`).
 - Separate functional criteria from explicit source NFRs in `## Non-functional requirements` with stable `NFR ID`
@@ -25,7 +27,7 @@ Apply during requirement intake, normalization, test design, coverage analysis a
 
 ## Traceability matrix
 
-- Maintain `qa-ai-output/traceability-matrix.md` (or the path from `qa-ai.config.yaml`) as the repo source of truth linking requirements to tests.
+- Maintain `.qa-ai/output/traceability-matrix.md` (or the path from `.qa-ai/qa-ai.config.yaml`) as the repo source of truth linking requirements to tests.
 - Use a Markdown table with columns at least covering: requirement source, RF, feature file, test management case ID, type, priority, automation status.
 - When `normalized-requirements.md` lists source NFRs, add `## Non-functional traceability` with one row per `NFR ID`.
   Do not count NFR rows as functional CA coverage in summary metrics.

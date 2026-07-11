@@ -35,7 +35,7 @@ All commands except the default (framework copy) require `.qa-ai/` in the target
 
 - `.qa-ai/` remains the portable framework folder.
 - `qa-ai.config.yaml` remains the config file.
-- `qa-ai-output/`, `features/` and `tests/` remain stable generated/output paths.
+- `.qa-ai/output/`, `features/` and `tests/` remain stable generated/output paths.
 - Existing adapters remain valid.
 - `update` replaces only `.qa-ai/`, preserving `.qa-ai/state/` and `.qa-ai/config-profiles/`.
 - The manual folder-copy flow remains supported when npm is not available.

@@ -61,7 +61,7 @@ test('set-rf and approve gate unblock gherkin phase', async () => {
   }
 });
 
-test('run next prints localized blocker help and JSON adds blockerHelp', async () => {
+test('run next prints localized approval blocker help while provisional Gherkin remains allowed', async () => {
   const cwd = await prepareRepo('quick', {
     project: { qaTrack: 'quick', interfaceLanguage: 'es', defaultLanguage: 'es' }
   });
@@ -71,12 +71,11 @@ test('run next prints localized blocker help and JSON adds blockerHelp', async (
 
     const human = runCli(cwd, ['run', 'next']);
     assert.match(human.stdout, /Bloqueado/);
-    assert.match(human.stdout, /npx qa-flowkit run set-rf RF-123/);
     assert.match(human.stdout, /npx qa-flowkit run approve test-design/);
 
     const json = runCli(cwd, ['run', 'next', '--json']);
     const payload = JSON.parse(json.stdout);
-    assert.ok(payload.blockers.some((item) => item.type === 'rf'));
+    assert.ok(!payload.blockers.some((item) => item.type === 'rf'));
     assert.ok(payload.blockers.some((item) => item.type === 'approval'));
     assert.ok(payload.blockerHelp.some((item) => item.includes('Bloqueado')));
   } finally {

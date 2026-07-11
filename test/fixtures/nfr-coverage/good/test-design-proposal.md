@@ -20,7 +20,7 @@
 | RF     | NFR ID          | Attribute   | Applicable | Evidence type | Evidence reference                                          | Threshold / oracle                                                 | Environment or precondition                       | Status  | Rationale                                   |
 | ------ | --------------- | ----------- | ---------- | ------------- | ----------------------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------------------- | ------- | ------------------------------------------- |
 | RF-004 | RFN-004-SEC-01  | security    | yes        | feature       | features/functional/RF-004-TC-010-token-not-exposed.feature | No full payment token or sensitive fragments in logs or email body | Staging with log capture and notification sandbox | planned | Source RFN requires observable non-exposure |
-| RF-004 | RFN-004-PERF-01 | performance | yes        | test-plan     | qa-ai-output/nfr/RF-004-performance-plan.md                 | Trigger-to-result <= 5 s per transaction                           | Staging gateway stub with controlled latency      | planned | Source RFN defines measurable threshold     |
+| RF-004 | RFN-004-PERF-01 | performance | yes        | test-plan     | .qa-ai/output/nfr/RF-004-performance-plan.md                | Trigger-to-result <= 5 s per transaction                           | Staging gateway stub with controlled latency      | planned | Source RFN defines measurable threshold     |
 
 ## Proposed tests
 

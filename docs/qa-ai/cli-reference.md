@@ -65,7 +65,7 @@ Common `init.mjs` options:
 | `--no-feature-folders`             | Do not create canonical `features/<category>/.gitkeep` folders                           |
 | `--qa-context <path>`              | Repository-local QA practice folder                                                      |
 | `--with-ci <platform>`             | Generate pipeline workflow file (e.g. `github`). See [CI Integration](ci-integration.md) |
-| `--with-doc-templates`             | Create starter files under `qa-ai-output/`                                               |
+| `--with-doc-templates`             | Create starter files under `.qa-ai/output/`                                              |
 | `--with-test-management-mapping`   | Create the mapping JSON template                                                         |
 | `--set <key=value>`                | Repeatable scalar config override                                                        |
 | `--force`                          | Explicitly allow overwrite of generated files                                            |
@@ -90,7 +90,7 @@ npx qa-flowkit@rc update --dry-run --json
 - `.qa-ai/state/`;
 - `.qa-ai/config-profiles/`;
 - `qa-ai.config.yaml`;
-- `qa-ai-output/`;
+- `.qa-ai/output/`;
 - `features/` and automation code;
 - user-owned root files.
 
@@ -178,9 +178,9 @@ the command.
 
 `validate-execution-evidence` loads and parses JUnit XML or Cucumber JSON results, mapping them to automated test IDs in the traceability matrix. Failed tests that are quarantined only log warnings, while non-quarantined failures fail the gate. Missing results fail the command unless `--allow-missing` is passed.
 
-`validate-healing-log` parses the governed test healing log `qa-ai-output/healing-log.md`. It verifies that healed test cases exist in the traceability matrix, repair types are valid, justifications are sufficient, and modified files remain strictly within the configured specs directories (never modifying Gherkin `.feature` files).
+`validate-healing-log` parses the governed test healing log `.qa-ai/output/healing-log.md`. It verifies that healed test cases exist in the traceability matrix, repair types are valid, justifications are sufficient, and modified files remain strictly within the configured specs directories (never modifying Gherkin `.feature` files).
 
-`validate-test-impact` parses the test impact analysis report `qa-ai-output/test-impact-analysis.md`. It ensures all declared test cases and RFs exist in the traceability matrix, the selected list matches the union of the table's affected test cases, and all linked tests for affected RFs are selected according to the Superset Rule.
+`validate-test-impact` parses the test impact analysis report `.qa-ai/output/test-impact-analysis.md`. It ensures all declared test cases and RFs exist in the traceability matrix, the selected list matches the union of the table's affected test cases, and all linked tests for affected RFs are selected according to the Superset Rule.
 
 ## Guidance and maintenance
 
@@ -203,7 +203,7 @@ npx qa-flowkit export-report --format cucumber-json|allure|junit-xml [options]
 Options:
 
 - `--format <format>`: format to export (required: `cucumber-json`, `allure`, `junit-xml`).
-- `--out <dir>`: output directory (defaults to `qa-ai-output/reports/<format>/`).
+- `--out <dir>`: output directory (defaults to `.qa-ai/output/reports/<format>/`).
 - `--json`: prints a machine-readable JSON summary on stdout.
 - `--fixed-timestamp <epoch_or_iso>`: sets a deterministic timestamp for testing.
 - `--fixed-uuid <uuid_seed>`: sets a seed for generating deterministic UUIDs.

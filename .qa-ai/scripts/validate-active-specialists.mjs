@@ -35,7 +35,8 @@ async function main() {
   const activePath = resolveRepoPath(cwd, '.qa-ai/agents/specialists/active.md', {
     label: 'active specialists index'
   });
-  const wasMissing = options.allowMissing && (!configInfo.exists || !(await pathExists(activePath)));
+  const sourceRepo = await pathExists(resolveRepoPath(cwd, 'docs/qa-ai/architecture.md', { label: 'source marker' }));
+  const wasMissing = options.allowMissing && (!configInfo.exists || (!(await pathExists(activePath)) && !sourceRepo));
 
   const result = await validateActiveSpecialists(cwd, options);
 
@@ -51,7 +52,10 @@ async function main() {
     errors: result.errors,
     warnings: result.warnings,
     jsonMode,
-    successMessage: `[PASS] ${relativeTo(cwd, activePath)} matches qa-ai.config.yaml.`,
+    successMessage:
+      sourceRepo && !(await pathExists(activePath))
+        ? '[PASS] Specialist catalog entries resolve to available source files; active.md is a generated target cache.'
+        : `[PASS] ${relativeTo(cwd, activePath)} matches .qa-ai/qa-ai.config.yaml.`,
     failureMessage: `\nFAILED - ${result.errors.length} active specialist validation error(s).`
   });
 }

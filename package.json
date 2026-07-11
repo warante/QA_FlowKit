@@ -9,6 +9,7 @@
   "files": [
     "bin/",
     ".qa-ai/",
+    "!.qa-ai/qa-ai.config.yaml",
     "!.qa-ai/state/",
     "!.qa-ai/agents/specialists/active.md",
     "docs/qa-ai/",

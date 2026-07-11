@@ -58,7 +58,7 @@ npx qa-flowkit@rc
 ## Frozen during RC
 
 - CLI command names: `init`, `update`, `doctor`, `validate-target`, `validate-features`, `help`, …
-- Target paths: `.qa-ai/`, `qa-ai.config.yaml`, `qa-ai-output/`, `features/`
+- Target paths: `.qa-ai/`, `qa-ai.config.yaml`, `.qa-ai/output/`, `features/`
 - Rules filenames under `.qa-ai/rules/*.rules.md`
 - Required Gherkin tags: `@priority:`, `@type:`, `@manual:`
 - Validator scripts and their default non-strict behavior
@@ -83,7 +83,7 @@ clock (TASK-081).
 
 ## Migration from legacy beta or alpha releases
 
-1. Commit your target repo (`qa-ai.config.yaml`, `qa-ai-output/`, `features/`).
+1. Commit your target repo (`qa-ai.config.yaml`, `.qa-ai/output/`, `features/`).
 2. Run `npx qa-flowkit@rc update` (or refresh `.qa-ai/` from an `rc` release tag).
 3. Run `npx qa-flowkit doctor --strict` and `npx qa-flowkit validate-target`.
 4. Re-sync adapters: `npx qa-flowkit sync-adapters --force` if you use Claude Code or OpenCode.

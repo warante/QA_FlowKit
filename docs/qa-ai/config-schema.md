@@ -16,12 +16,9 @@ New projects use compact layout:
 .qa-ai/qa-ai.config.yaml
 ```
 
-Resolution order:
-
-1. `qa-ai.config.yaml` in the repository root (legacy; takes precedence when both exist)
-2. `.qa-ai/qa-ai.config.yaml` when no root config exists
-
-`doctor` warns (non-blocking) when both files exist. Custom paths in config always win over defaults.
+This is the only runtime config path. Root `qa-ai.config.yaml` is detected as legacy, blocks normal execution and is
+converted only after the user reviews and approves `qa-flowkit migrate`. Custom modern paths in config still override
+defaults.
 
 ## Top-level
 
@@ -55,50 +52,41 @@ Resolution order:
 
 ## `sources` / `knowledge`
 
-| Key                                       | Type    | Description                                                                      |
-| ----------------------------------------- | ------- | -------------------------------------------------------------------------------- |
-| `sources.main`                            | string  | Primary requirements source                                                      |
-| `sources.analysisPath`                    | string  | Optional mixed-source analysis artifact                                          |
-| `sources.external.enabled`                | boolean | Enable external intake phase (default `false`)                                   |
-| `sources.external.requirementsImportPath` | string  | Path for imported requirements (default `qa-ai-output/imported-requirements.md`) |
-| `sources.external.casesImportPath`        | string  | Path for imported test cases (default `qa-ai-output/imported-cases.md`)          |
-| `knowledge.enabled`                       | boolean | Load team QA context on init                                                     |
-| `knowledge.sourcePath`                    | string  | Repo-local context folder                                                        |
-| `knowledge.summaryPath`                   | string  | Generated summary path                                                           |
-| `knowledge.decisionsPath`                 | string  | Init decisions artifact                                                          |
+| Key                                       | Type    | Description                                                                       |
+| ----------------------------------------- | ------- | --------------------------------------------------------------------------------- |
+| `sources.main`                            | string  | Primary requirements source                                                       |
+| `sources.analysisPath`                    | string  | Optional mixed-source analysis artifact                                           |
+| `sources.external.enabled`                | boolean | Enable external intake phase (default `false`)                                    |
+| `sources.external.requirementsImportPath` | string  | Path for imported requirements (default `.qa-ai/output/imported-requirements.md`) |
+| `sources.external.casesImportPath`        | string  | Path for imported test cases (default `.qa-ai/output/imported-cases.md`)          |
+| `knowledge.enabled`                       | boolean | Load team QA context on init                                                      |
+| `knowledge.sourcePath`                    | string  | Repo-local context folder                                                         |
+| `knowledge.summaryPath`                   | string  | Generated summary path                                                            |
+| `knowledge.decisionsPath`                 | string  | Init decisions artifact                                                           |
 
 When `sources.external.enabled` is `true`, `init` generates the import artifact stubs and
 `validate-target` runs `validate-external-intake` as part of the pipeline.
 
 ## `requirements`
 
-| Key                                  | Type    | Description                                                 |
-| ------------------------------------ | ------- | ----------------------------------------------------------- |
-| `requireOfficialRfId`                | boolean | Block final Gherkin without RF ID                           |
-| `inferredAcceptanceCriteria`         | enum    | `forbid`, `require-approval`, or `allow` inferred CA policy |
-| `allowInferredAcceptanceCriteria`    | boolean | Deprecated legacy key; use `inferredAcceptanceCriteria`     |
-| `requireApprovalForInferredCriteria` | boolean | Deprecated legacy key; use `inferredAcceptanceCriteria`     |
-
-Legacy migration:
-
-| Legacy pair                                                                           | New value                                      |
-| ------------------------------------------------------------------------------------- | ---------------------------------------------- |
-| `allowInferredAcceptanceCriteria: false`                                              | `inferredAcceptanceCriteria: forbid`           |
-| `allowInferredAcceptanceCriteria: true` + `requireApprovalForInferredCriteria: true`  | `inferredAcceptanceCriteria: require-approval` |
-| `allowInferredAcceptanceCriteria: true` + `requireApprovalForInferredCriteria: false` | `inferredAcceptanceCriteria: allow`            |
-
-When both legacy keys and `inferredAcceptanceCriteria` are present, they must agree or `doctor` fails.
+| Key                          | Type    | Description                                                     |
+| ---------------------------- | ------- | --------------------------------------------------------------- |
+| `requireOfficialRfId`        | boolean | Restrict provisional RF drafts from implementation/sync/release |
+| `inferredAcceptanceCriteria` | enum    | `forbid`, `require-approval`, or `allow` inferred CA policy     |
 
 ## `gherkin`
 
-| Key                          | Type         | Description                                       |
-| ---------------------------- | ------------ | ------------------------------------------------- |
-| `language`                   | `en` \| `es` | Gherkin language for `.feature` files             |
-| `oneScenarioPerFile`         | boolean      | One test case per file                            |
-| `requireAcceptanceCriteria`  | boolean      | AC label required in features                     |
-| `manualTestsNeedFeatureFile` | boolean      | Manual tests still use `.feature`                 |
-| `featurePath`                | string       | Root folder for features (default `features`)     |
-| `tags.required`              | string[]     | Required tag names (`priority`, `type`, `manual`) |
+| Key                          | Type         | Description                                          |
+| ---------------------------- | ------------ | ---------------------------------------------------- |
+| `language`                   | `en` \| `es` | Gherkin language for `.feature` files                |
+| `scenarioLayout`             | string       | `multiple-per-file` or `one-per-file`                |
+| `requireAcceptanceCriteria`  | boolean      | AC label required in features                        |
+| `manualTestsNeedFeatureFile` | boolean      | Manual tests still use `.feature`                    |
+| `featurePath`                | string       | Root folder for features (default `.qa-ai/features`) |
+| `tags.required`              | string[]     | Required tag names (`priority`, `type`, `manual`)    |
+
+Interactive init asks whether to use standard `multiple-per-file` layout or TestRail-oriented `one-per-file`. In
+non-interactive mode the default is `one-per-file` when TestRail is selected and `multiple-per-file` otherwise.
 
 ## `testrail` (test management block)
 
@@ -170,7 +158,7 @@ phase allowed to request the `external-write:test-management` gate.
 report without blocking the workflow. `gate` treats the configured rubric threshold as a completion gate. See
 [quality-rubric.md](quality-rubric.md).
 
-`testDesign.strategyRouting.mode` defaults to `off` in code for backward compatibility. Standard presets (`playwright-full`, `karate-full`, `maestro-karate-mobile`, `selenium-jest-browserstack`, `webdriverio-playwright-api`) ship with `advisory`, which recommends specialists from keyword signals without blocking validators. `manual-only` ships with `off`. `strict` requires `## Strategy routing decisions` rows for signals listed in `testDesign.strategyRouting.criticalSignals` (defaults: `gdpr`, `browserstack`, `openapi`, `sast`, `dast`). Set `criticalSignals: []` to skip critical-signal row enforcement in strict mode.
+`testDesign.strategyRouting.mode` defaults to `off` in code. Standard presets (`playwright-full`, `karate-full`, `maestro-karate-mobile`, `selenium-jest-browserstack`) ship with `advisory`, which recommends specialists from keyword signals without blocking validators. `manual-only` ships with `off`. `strict` requires `## Strategy routing decisions` rows for signals listed in `testDesign.strategyRouting.criticalSignals` (defaults: `gdpr`, `browserstack`, `openapi`, `sast`, `dast`). Set `criticalSignals: []` to skip critical-signal row enforcement in strict mode.
 
 ```yaml
 testDesign:
@@ -339,7 +327,6 @@ When enabled, agents add an `AI component` column to the `## Proposed tests` tab
 | [playwright-full.yaml](../../.qa-ai/presets/playwright-full.yaml)                       | Default Playwright UI + API automation |
 | [maestro-karate-mobile.yaml](../../.qa-ai/presets/maestro-karate-mobile.yaml)           | Maestro mobile + Karate API            |
 | [karate-full.yaml](../../.qa-ai/presets/karate-full.yaml)                               | Karate API + UI                        |
-| [webdriverio-playwright-api.yaml](../../.qa-ai/presets/webdriverio-playwright-api.yaml) | Legacy compatibility preset            |
 | [selenium-jest-browserstack.yaml](../../.qa-ai/presets/selenium-jest-browserstack.yaml) | Alternate stack template               |
 
 Export/import profiles: `npx qa-flowkit config --export` / `--import`.

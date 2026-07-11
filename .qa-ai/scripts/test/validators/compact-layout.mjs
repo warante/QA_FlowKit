@@ -5,7 +5,6 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { activeSpecialistsContent } from '../../lib/project-config.mjs';
 import {
   COMPACT_CONFIG_PATH,
   COMPACT_FEATURES_DIR,
@@ -20,14 +19,9 @@ import { repoRoot } from './_shared.mjs';
 
 async function copyFramework(targetRoot) {
   await fs.cp(path.join(repoRoot, '.qa-ai'), path.join(targetRoot, '.qa-ai'), { recursive: true });
-}
-
-async function writeActiveSpecialists(targetRoot, configRelPath, configText) {
-  const config = parseSimpleYaml(configText);
-  const content = activeSpecialistsContent(config, 'node .qa-ai/scripts/init.mjs', configRelPath);
-  const activePath = path.join(targetRoot, '.qa-ai/agents/specialists/active.md');
-  await fs.mkdir(path.dirname(activePath), { recursive: true });
-  await fs.writeFile(activePath, content, 'utf8');
+  await fs.rm(path.join(targetRoot, COMPACT_CONFIG_PATH), { force: true });
+  await fs.rm(path.join(targetRoot, COMPACT_FEATURES_DIR), { recursive: true, force: true });
+  await fs.rm(path.join(targetRoot, COMPACT_OUTPUT_DIR), { recursive: true, force: true });
 }
 
 function runInit(targetRoot, args = []) {
@@ -51,24 +45,24 @@ test('config resolution: compact config when root is missing', async () => {
   assert.equal(info.relPath, COMPACT_CONFIG_PATH);
 });
 
-test('config resolution: root config when only legacy exists', async () => {
+test('config resolution: root config is detected but never loaded', async () => {
   const cwd = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-cl-res-root-'));
   await fs.writeFile(path.join(cwd, 'qa-ai.config.yaml'), 'project:\n  name: Legacy\n', 'utf8');
   const info = await loadQaAiConfig(cwd);
-  assert.equal(info.exists, true);
-  assert.equal(info.source, 'root');
-  assert.equal(info.dualConfig, false);
+  assert.equal(info.exists, false);
+  assert.equal(info.source, 'missing');
+  assert.equal(info.legacyConfigPresent, true);
 });
 
-test('config resolution: root config wins when both exist', async () => {
+test('config resolution: compact config wins and reports legacy root presence', async () => {
   const cwd = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-cl-res-dual-'));
   await fs.mkdir(path.join(cwd, '.qa-ai'), { recursive: true });
   await fs.writeFile(path.join(cwd, 'qa-ai.config.yaml'), ['project:', '  name: Root Legacy', ''].join('\n'), 'utf8');
   await fs.writeFile(path.join(cwd, COMPACT_CONFIG_PATH), ['project:', '  name: Compact New', ''].join('\n'), 'utf8');
   const info = await loadQaAiConfig(cwd);
-  assert.equal(info.source, 'root');
-  assert.equal(info.dualConfig, true);
-  assert.equal(info.data.project.name, 'Root Legacy');
+  assert.equal(info.source, 'compact');
+  assert.equal(info.legacyConfigPresent, true);
+  assert.equal(info.data.project.name, 'Compact New');
 });
 
 test('config resolution: missing config reports compact recommended path', async () => {
@@ -80,7 +74,7 @@ test('config resolution: missing config reports compact recommended path', async
   assert.equal(info.exists, false);
 });
 
-test('doctor warns on duplicate config without failing', async () => {
+test('doctor blocks legacy config and recommends migration', async () => {
   const cwd = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-cl-doctor-dual-'));
   await copyFramework(cwd);
   const preset = (await fs.readFile(path.join(repoRoot, '.qa-ai/presets/manual-only.yaml'), 'utf8')).replaceAll(
@@ -88,16 +82,14 @@ test('doctor warns on duplicate config without failing', async () => {
     'Dual'
   );
   await fs.writeFile(path.join(cwd, 'qa-ai.config.yaml'), preset, 'utf8');
-  await writeActiveSpecialists(cwd, 'qa-ai.config.yaml', preset);
-  await fs.writeFile(path.join(cwd, COMPACT_CONFIG_PATH), 'project:\n  name: Compact Duplicate\n', 'utf8');
   await fs.mkdir(path.join(cwd, '.qa-ai/features'), { recursive: true });
   await fs.mkdir(path.join(cwd, '.qa-ai/output'), { recursive: true });
   const result = spawnSync(process.execPath, [path.join(cwd, '.qa-ai/scripts/doctor.mjs')], {
     cwd,
     encoding: 'utf8'
   });
-  assert.equal(result.status, 0, result.stderr || result.stdout);
-  assert.match(result.stdout, /duplicate config/i);
+  assert.equal(result.status, 1, result.stderr || result.stdout);
+  assert.match(result.stdout, /qa-flowkit migrate/i);
 });
 
 test('init compact layout: writes config under .qa-ai and avoids root pollution', async () => {
@@ -106,8 +98,8 @@ test('init compact layout: writes config under .qa-ai and avoids root pollution'
   runInit(cwd, ['--no-adapters', '--preset', 'manual-only']);
 
   assert.equal(await pathExists(path.join(cwd, COMPACT_CONFIG_PATH)), true);
-  assert.equal(await pathExists(path.join(cwd, 'qa-ai.config.yaml')), false);
-  assert.equal(await pathExists(path.join(cwd, 'qa-ai-output')), false);
+  assert.equal(await pathExists(path.join(cwd, '.qa-ai', 'qa-ai.config.yaml')), true);
+  assert.equal(await pathExists(path.join(cwd, '.qa-ai', 'output')), true);
   assert.equal(await pathExists(path.join(cwd, 'features')), false);
   assert.equal(await pathExists(path.join(cwd, 'tests')), false);
   assert.equal(await pathExists(path.join(cwd, COMPACT_FEATURES_DIR, 'api')), false);
@@ -141,7 +133,7 @@ test('show-config resolves Spanish languages from compact config without root fi
     '--gherkin-language',
     'es'
   ]);
-  assert.equal(await pathExists(path.join(cwd, 'qa-ai.config.yaml')), false);
+  assert.equal(await pathExists(path.join(cwd, '.qa-ai', 'qa-ai.config.yaml')), true);
   const { resolveProjectConfigSummary } = await import('../../lib/config-resolve.mjs');
   const summary = await resolveProjectConfigSummary(cwd);
   assert.equal(summary.ok, true);
@@ -159,27 +151,33 @@ test('show-config resolves Spanish languages from compact config without root fi
   assert.equal(json.gherkinLanguage, 'es');
 });
 
-test('legacy project: root config and legacy paths still load', async () => {
+test('legacy project requires and completes explicit migration', async () => {
   const cwd = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-cl-legacy-'));
   await copyFramework(cwd);
   const legacyPreset = (await fs.readFile(path.join(repoRoot, '.qa-ai/presets/manual-only.yaml'), 'utf8'))
-    .replaceAll('.qa-ai/output/', 'qa-ai-output/')
+    .replaceAll('.qa-ai/output/', 'output/')
     .replaceAll('featurePath: .qa-ai/features', 'featurePath: features');
   const legacyConfig = legacyPreset.replaceAll('CHANGE_ME', 'Legacy');
   await fs.writeFile(path.join(cwd, 'qa-ai.config.yaml'), legacyConfig, 'utf8');
-  await writeActiveSpecialists(cwd, 'qa-ai.config.yaml', legacyConfig);
   await fs.mkdir(path.join(cwd, 'features'), { recursive: true });
-  await fs.mkdir(path.join(cwd, 'qa-ai-output'), { recursive: true });
 
   const info = await loadQaAiConfig(cwd);
-  assert.equal(info.source, 'root');
-  assert.equal(info.data.gherkin.featurePath, 'features');
+  assert.equal(info.exists, false);
+  assert.equal(info.legacyConfigPresent, true);
 
   const doctor = spawnSync(process.execPath, [path.join(cwd, '.qa-ai/scripts/doctor.mjs')], {
     cwd,
     encoding: 'utf8'
   });
-  assert.equal(doctor.status, 0, doctor.stderr || doctor.stdout);
+  assert.equal(doctor.status, 1, doctor.stderr || doctor.stdout);
+  const migration = spawnSync(process.execPath, [path.join(cwd, '.qa-ai/scripts/migrate.mjs'), '--yes'], {
+    cwd,
+    encoding: 'utf8'
+  });
+  assert.equal(migration.status, 0, `${migration.stdout}\n${migration.stderr}`);
+  assert.equal(await pathExists(path.join(cwd, 'qa-ai.config.yaml')), false);
+  assert.equal(await pathExists(path.join(cwd, COMPACT_CONFIG_PATH)), true);
+  assert.equal((await loadQaAiConfig(cwd, { useCache: false })).source, 'compact');
 });
 
 test('organize-features creates subfolder lazily', async () => {

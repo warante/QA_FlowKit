@@ -12,13 +12,13 @@ npx qa-flowkit export-report --format cucumber-json|allure|junit-xml [options]
 
 ### Options
 
-| Option              | Behavior / Default                                                             |
-| ------------------- | ------------------------------------------------------------------------------ |
-| `--format <format>` | **Required**. Supported: `cucumber-json`, `allure`, `junit-xml`.               |
-| `--out <dir>`       | Directory to write output files. Defaults to `qa-ai-output/reports/<format>/`. |
-| `--json`            | Outputs a machine-readable JSON summary to stdout.                             |
-| `--fixed-timestamp` | Injects a fixed epoch time or ISO 8601 string for testing determinism.         |
-| `--fixed-uuid`      | Injects a seed to generate deterministic UUIDs for testing.                    |
+| Option              | Behavior / Default                                                              |
+| ------------------- | ------------------------------------------------------------------------------- |
+| `--format <format>` | **Required**. Supported: `cucumber-json`, `allure`, `junit-xml`.                |
+| `--out <dir>`       | Directory to write output files. Defaults to `.qa-ai/output/reports/<format>/`. |
+| `--json`            | Outputs a machine-readable JSON summary to stdout.                              |
+| `--fixed-timestamp` | Injects a fixed epoch time or ISO 8601 string for testing determinism.          |
+| `--fixed-uuid`      | Injects a seed to generate deterministic UUIDs for testing.                     |
 
 ---
 

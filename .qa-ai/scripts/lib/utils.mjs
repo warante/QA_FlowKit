@@ -217,34 +217,20 @@ export function resolveRepoPath(cwd, relativePath, { label = 'path', allowRoot =
   return target.resolved;
 }
 
-export async function resolveTestManagementSyncPlanPath(cwd, config, { preferExisting = true } = {}) {
+export async function resolveTestManagementSyncPlanPath(cwd, config, { preferExisting: _preferExisting = true } = {}) {
   const configuredPath = getConfigValue(
     config,
     'testManagement.syncPlanPath',
     getConfigValue(config, 'testrail.syncPlanPath', DEFAULT_TEST_MANAGEMENT_SYNC_PLAN_PATH)
   );
   const absPath = resolveRepoPath(cwd, configuredPath, { label: 'sync plan' });
-  const legacyPath = [...LEGACY_ARTIFACT_ALIASES.keys()].find((candidate) => candidate.includes('sync-plan')) || null;
-  const legacyAbsPath = legacyPath ? resolveRepoPath(cwd, legacyPath, { label: 'legacy sync plan' }) : null;
-
-  if (preferExisting && !(await pathExists(absPath)) && legacyAbsPath && (await pathExists(legacyAbsPath))) {
-    return {
-      path: legacyPath,
-      absPath: legacyAbsPath,
-      isLegacy: true,
-      replacementPath: LEGACY_ARTIFACT_ALIASES.get(legacyPath) || configuredPath,
-      legacyPath,
-      legacyAbsPath
-    };
-  }
-
   return {
     path: configuredPath,
     absPath,
     isLegacy: false,
     replacementPath: null,
-    legacyPath,
-    legacyAbsPath
+    legacyPath: null,
+    legacyAbsPath: null
   };
 }
 
@@ -273,38 +259,6 @@ export function getConfigValue(config, keyPath, fallback = undefined) {
   return current === undefined || current === null ? fallback : current;
 }
 
-export function legacyInferredAcceptanceCriteria(requirements = {}) {
-  if (!requirements || typeof requirements !== 'object') return undefined;
-  if (requirements.allowInferredAcceptanceCriteria === false) return 'forbid';
-  if (requirements.allowInferredAcceptanceCriteria !== true) return undefined;
-  return requirements.requireApprovalForInferredCriteria === false ? 'allow' : 'require-approval';
-}
-
-export function normalizeRequirementsConfig(config) {
-  if (!config || typeof config !== 'object') return config;
-  const requirements = config.requirements;
-  if (!requirements || typeof requirements !== 'object') return config;
-  const legacyValue = legacyInferredAcceptanceCriteria(requirements);
-  if (!requirements.inferredAcceptanceCriteria && legacyValue) {
-    requirements.inferredAcceptanceCriteria = legacyValue;
-  }
-  return config;
-}
-
-export function inferredAcceptanceCriteriaConflicts(config) {
-  const requirements = config?.requirements;
-  const legacyValue = legacyInferredAcceptanceCriteria(requirements);
-  const configuredValue = requirements?.inferredAcceptanceCriteria;
-  if (!legacyValue || !configuredValue || legacyValue === configuredValue) return [];
-  return [
-    [
-      'requirements.inferredAcceptanceCriteria',
-      'requirements.allowInferredAcceptanceCriteria',
-      'requirements.requireApprovalForInferredCriteria'
-    ].join(', ')
-  ];
-}
-
 export async function loadQaAiConfig(cwd, { useCache = true } = {}) {
   const cacheKey = path.resolve(cwd);
   if (useCache && loadQaAiConfig.cache.has(cacheKey)) {
@@ -318,6 +272,7 @@ export async function loadQaAiConfig(cwd, { useCache = true } = {}) {
       relPath: resolved.path,
       source: resolved.source,
       dualConfig: resolved.dualConfig,
+      legacyConfigPresent: resolved.legacyConfigPresent,
       content: '',
       data: {}
     };
@@ -331,8 +286,9 @@ export async function loadQaAiConfig(cwd, { useCache = true } = {}) {
     relPath: resolved.path,
     source: resolved.source,
     dualConfig: resolved.dualConfig,
+    legacyConfigPresent: resolved.legacyConfigPresent,
     content,
-    data: normalizeRequirementsConfig(parseSimpleYaml(content, resolved.path))
+    data: parseSimpleYaml(content, resolved.path)
   };
   if (useCache) loadQaAiConfig.cache.set(cacheKey, result);
   return result;

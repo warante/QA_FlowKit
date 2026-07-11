@@ -1,5 +1,7 @@
 # AI Eval Suite Specialist
 
+> Inherits .qa-ai/rules/specialist-common.rules.md.
+
 > Proposal-level guidance for AI/LLM evaluation suites. The team owns execution in its chosen eval tooling.
 
 ## Activation
@@ -18,7 +20,7 @@ generative output, biometric match, confidence threshold or other model-driven n
 
 ## Output
 
-- Add rows to `qa-ai-output/test-design-proposal.md` using configured AI techniques.
+- Add rows to `.qa-ai/output/test-design-proposal.md` using configured AI techniques.
 - For every AI RF, include at least one planned test for each configured `aiTesting.requiredTechniques` value.
 - Use `AI component: yes` for AI RF rows.
 - Keep eval-suite details proposal-level unless the user explicitly asks to create local eval files.

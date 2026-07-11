@@ -19,9 +19,7 @@ import {
   NFR_EVIDENCE_TYPES,
   resolveNonFunctionalCoveragePolicy,
   resolveSourceNfrCoverageMode,
-  legacyInferredAcceptanceCriteria,
   hashFile,
-  normalizeRequirementsConfig,
   parseSimpleYaml,
   validateQualityReport
 } from './_fixtures.mjs';
@@ -122,7 +120,7 @@ test('specialistsForNfrAttributes: loads security and performance without preven
   const specialists = specialistsForNfrAttributes(['security', 'performance', 'maintainability']);
   assert.deepEqual(
     specialists.map(([id]) => id),
-    ['maintainability', 'observability-testing-agent', 'performance', 'security']
+    ['functional-security', 'maintainability', 'observability-testing', 'performance-design']
   );
 });
 
@@ -267,7 +265,7 @@ const qualityDimensions = [
 async function createQualityFixture({ mode = 'gate', minDimensionsPassed = 7 } = {}) {
   const cwd = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-quality-'));
   const featureRel = 'features/functional/RF-101-TC-001-login.feature';
-  const reportRel = 'qa-ai-output/gherkin-quality-report.md';
+  const reportRel = '.qa-ai/output/gherkin-quality-report.md';
   const featureContent = [
     '@rf:RF-101 @id:TC-001 @priority:high @type:functional @manual:false',
     'Feature: Login',
@@ -283,14 +281,14 @@ async function createQualityFixture({ mode = 'gate', minDimensionsPassed = 7 } =
   ].join('\n');
 
   await fs.mkdir(path.join(cwd, 'features', 'functional'), { recursive: true });
-  await fs.mkdir(path.join(cwd, 'qa-ai-output'), { recursive: true });
+  await fs.mkdir(path.join(cwd, '.qa-ai', 'output'), { recursive: true });
   await fs.mkdir(path.join(cwd, '.qa-ai', 'rules'), { recursive: true });
   await fs.copyFile(
     path.join(repoRoot, '.qa-ai', 'rules', 'gherkin-quality.rubric.md'),
     path.join(cwd, '.qa-ai', 'rules', 'gherkin-quality.rubric.md')
   );
   await fs.writeFile(
-    path.join(cwd, 'qa-ai.config.yaml'),
+    path.join(cwd, '.qa-ai', 'qa-ai.config.yaml'),
     [
       'project:',
       '  qaTrack: standard',
@@ -449,13 +447,13 @@ test('validateConfigData: reports schema violations with JSON paths', async () =
     ...valid,
     unknownTopLevel: true,
     project: { ...valid.project, qaTrack: 'slow' },
-    gherkin: { ...valid.gherkin, oneScenarioPerFile: 'yes' }
+    gherkin: { ...valid.gherkin, scenarioLayout: 'one-per-feature' }
   };
   const result = validateConfigData(invalid, schema);
   assert.equal(result.ok, false);
   assertIncludes(result.errors, '$.unknownTopLevel');
   assertIncludes(result.errors, '$.project.qaTrack');
-  assertIncludes(result.errors, '$.gherkin.oneScenarioPerFile');
+  assertIncludes(result.errors, '$.gherkin.scenarioLayout');
 });
 
 test('validateConfigData: accepts optional testDesign.nonFunctionalCoverage', async () => {
@@ -527,37 +525,26 @@ test('resolveNonFunctionalCoveragePolicy: defaults preserve backward compatibili
   assert.equal(NFR_EVIDENCE_TYPES.length, 6);
 });
 
-test('legacyInferredAcceptanceCriteria: maps legacy boolean pairs', () => {
-  assert.equal(
-    legacyInferredAcceptanceCriteria({
-      allowInferredAcceptanceCriteria: false,
-      requireApprovalForInferredCriteria: true
-    }),
-    'forbid'
+test('agent index: every executable agent is contract-guided or explicitly reactive', async () => {
+  const agentsDir = path.join(repoRoot, '.qa-ai', 'agents');
+  const contract = JSON.parse(
+    await fs.readFile(path.join(repoRoot, '.qa-ai', 'contracts', 'workflow.v1.json'), 'utf8')
   );
-  assert.equal(
-    legacyInferredAcceptanceCriteria({
-      allowInferredAcceptanceCriteria: true,
-      requireApprovalForInferredCriteria: true
-    }),
-    'require-approval'
+  const indexed = await fs.readFile(path.join(agentsDir, 'README.md'), 'utf8');
+  const contractAgents = new Set(
+    contract.phases.flatMap((phase) => phase.guidance || []).map((entry) => path.basename(entry))
   );
-  assert.equal(
-    legacyInferredAcceptanceCriteria({
-      allowInferredAcceptanceCriteria: true,
-      requireApprovalForInferredCriteria: false
-    }),
-    'allow'
+  const agentFiles = (await fs.readdir(agentsDir)).filter((file) => file.endsWith('-agent.md'));
+  for (const file of agentFiles) {
+    assert.ok(
+      contractAgents.has(file) || indexed.includes(`\`${file}\``),
+      `${file} must be referenced by workflow.v1.json or explicitly categorized in agents/README.md`
+    );
+  }
+  const specialistFiles = await fs.readdir(path.join(agentsDir, 'specialists', 'available'));
+  assert.deepEqual(
+    specialistFiles.filter((file) => file.endsWith('-agent.md')),
+    [],
+    'Specialists must use capability names without the -agent suffix'
   );
-});
-
-test('normalizeRequirementsConfig: materializes legacy inferred acceptance policy', () => {
-  const config = normalizeRequirementsConfig({
-    requirements: {
-      requireOfficialRfId: true,
-      allowInferredAcceptanceCriteria: true,
-      requireApprovalForInferredCriteria: false
-    }
-  });
-  assert.equal(config.requirements.inferredAcceptanceCriteria, 'allow');
 });

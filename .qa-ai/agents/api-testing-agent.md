@@ -8,12 +8,12 @@ never hardcode secrets or environment-specific data.
 
 ## Trigger
 
-Activated for the **API/integration implementation** phase (phase 12 in `qa-workflow-orchestrator.md`), when the feasibility report contains tests classified as "Automatable — API".
+Activated for contract phase `api-impl` when the feasibility report contains approved API-automatable tests.
 
 ## Inputs
 
-- `qa-ai-output/automation-feasibility-report.md` (tests classified as API automatable).
-- `qa-ai.config.yaml` (`automation.api.framework`, `automation.api.specsPath`).
+- `.qa-ai/output/automation-feasibility-report.md` (tests classified as API automatable).
+- `.qa-ai/qa-ai.config.yaml` (`automation.api.framework`, `automation.api.specsPath`).
 - Existing API test code in the repository for pattern detection.
 - `.qa-ai/agents/specialists/active.md` to load the relevant API specialist.
 - API documentation or endpoint specifications when available.
@@ -33,7 +33,7 @@ Activated for the **API/integration implementation** phase (phase 12 in `qa-work
 
 Use `automation.api.specsPath` from config.
 
-**When `automation.api.framework` is `karate`:** write executable `.feature` files under `tests/karate/features/api/` (or the configured specs path). Follow [karate.md](specialists/available/karate.md) and run `validate-karate-features.mjs`. Do not use Playwright/REST Assured spec file layouts.
+**When `automation.api.framework` is `karate`:** write executable `.feature` files under `.qa-ai/tests/karate/features/api/` (or the configured specs path). Follow [karate.md](specialists/available/karate.md) and run `validate-karate-features.mjs`. Do not use Playwright/REST Assured spec file layouts.
 
 **Otherwise** `init.mjs` creates sibling folders under the API test base (for example `tests/api/`):
 

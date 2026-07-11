@@ -5,11 +5,11 @@ Run after result analysis when failures are classified. Skipped on quick track.
 ## Prerequisites
 
 - `.qa-ai/output/result-analysis.md` exists.
-- `qa-ai.config.yaml` has `analysis.defectTriagePath` configured.
+- `.qa-ai/qa-ai.config.yaml` has `analysis.defectTriagePath` configured.
 
 ## Steps
 
-1. Read `AGENTS.md`, `qa-ai.config.yaml`, `.qa-ai/rules/defect.rules.md` and `.qa-ai/agents/defect-triage-agent.md`.
+1. Read `AGENTS.md`, `.qa-ai/qa-ai.config.yaml`, `.qa-ai/rules/defect.rules.md` and `.qa-ai/agents/defect-triage-agent.md`.
 2. Read the result analysis artifact.
 3. For each classified failure:
    - Create a proposed action with type, severity and description.

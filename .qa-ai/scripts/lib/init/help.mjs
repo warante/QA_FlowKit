@@ -3,7 +3,7 @@ export function printHelp() {
 
 Options:
   --preset <name>          Base template from .qa-ai/presets (default: playwright-full)
-  --project-name <name>    Project name for qa-ai.config.yaml (default: package.json name or folder name)
+  --project-name <name>    Project name for .qa-ai/qa-ai.config.yaml (default: package.json name or folder name)
   --test-management-project <name> Test management project name (default: project name when enabled)
   --interface-language <en|es> User-facing workflow language (default: en)
   --gherkin-language <en|es>   Gherkin feature language (default: en)
@@ -25,10 +25,11 @@ Options:
   --adapter <name>         Repeatable single adapter name
   --no-adapters            Skip adapter generation
   --no-interactive         Do not show interactive setup prompts
+  --scenario-layout <mode> one-per-file or multiple-per-file (default depends on TestRail)
   --no-feature-folders     Skip canonical feature subfolder and .gitkeep creation
-  --with-doc-templates     Generate starter QA docs under qa-ai-output/
+  --with-doc-templates     Generate starter QA docs under .qa-ai/output/
   --with-test-management-mapping Generate the configured test management mapping file
-  --with-karate-config         Create tests/karate/karate-config.js from template when Karate is used
+  --with-karate-config         Create configured Karate support files when Karate is used
   --force                  Overwrite generated files when they already exist
   --help                   Show this help
 `);

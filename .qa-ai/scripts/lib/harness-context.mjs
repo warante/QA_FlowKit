@@ -65,21 +65,36 @@ export function buildPhaseBlockers({ cwd: _cwd, phaseDef, snapshot, config, appr
     }
   }
 
-  if (phaseDef.requiresRfId && !snapshot.rfId) {
+  const officialRf = Boolean(snapshot.rfId && !String(snapshot.rfId).toUpperCase().startsWith('RF-PENDING'));
+  if (phaseDef.requiresRfId && !officialRf) {
     blockers.push({
       type: 'rf',
       message: 'Official RF ID is required. Run: npx qa-flowkit run set-rf <id>'
     });
   }
 
-  const requireOfficialRf = getConfigValue(config, 'requirements.requireOfficialRfId', true);
-  if (phaseDef.id === 'gherkin' && requireOfficialRf && !snapshot.rfId) {
-    if (!blockers.some((item) => item.type === 'rf')) {
-      blockers.push({
-        type: 'rf',
-        message: 'Official RF ID is required before Gherkin generation.'
-      });
-    }
+  const officialRfGatePhases = new Set([
+    'tm-sync',
+    'sync-diff',
+    'sync-apply',
+    'sync-verify',
+    'ui-impl',
+    'mobile-impl',
+    'api-impl',
+    'execution-plan',
+    'execution-run',
+    'release-gate'
+  ]);
+  if (
+    getConfigValue(config, 'requirements.requireOfficialRfId', true) &&
+    officialRfGatePhases.has(phaseDef.id) &&
+    !officialRf
+  ) {
+    blockers.push({
+      type: 'rf',
+      message:
+        'An official RF ID is required for implementation, external synchronization, execution, and final release evidence.'
+    });
   }
 
   if (phaseState?.status === 'blocked' && phaseState.blockedReason === 'validation') {
@@ -109,6 +124,8 @@ export function buildPhasePacket({ cwd, snapshot, phaseDef, config, blockers = [
   const modificationGate =
     phaseDef.permissions?.modifyExisting === 'approval' ? modificationApprovalGateId(phaseDef.id) : null;
 
+  const implementationPhases = new Set(['ui-impl', 'mobile-impl', 'api-impl']);
+  const inputs = resolveInputRefs(cwd, config, phaseDef.inputs);
   return {
     runId: snapshot.runId,
     track: snapshot.track,
@@ -119,7 +136,7 @@ export function buildPhasePacket({ cwd, snapshot, phaseDef, config, blockers = [
       status: phaseState.status,
       slashCommand: phaseDef.slashCommand || '/qa-full-flow',
       guidance: resolveGuidancePaths(config, phaseDef.guidance),
-      inputs: resolveInputRefs(cwd, config, phaseDef.inputs),
+      inputs,
       outputs: resolveOutputRefs(cwd, config, phaseDef.outputs),
       validators: [...(phaseDef.validators || [])],
       permissions: { ...phaseDef.permissions },
@@ -127,6 +144,23 @@ export function buildPhasePacket({ cwd, snapshot, phaseDef, config, blockers = [
       modificationGate
     },
     blockers,
+    implementationContext: implementationPhases.has(phaseDef.id)
+      ? {
+          approvedTestScope: inputs,
+          riskPath: getConfigValue(config, 'risk.analysisPath', '.qa-ai/output/risk-analysis.md'),
+          testDataPath: getConfigValue(config, 'testData.planPath', '.qa-ai/output/test-data-plan.md'),
+          environmentReadinessPath: getConfigValue(
+            config,
+            'environments.readinessPath',
+            '.qa-ai/output/environment-readiness.md'
+          ),
+          traceabilityPath: getConfigValue(config, 'traceability.matrixPath', '.qa-ai/output/traceability-matrix.md'),
+          interfaceLanguage: getConfigValue(config, 'project.interfaceLanguage', 'en'),
+          gherkinLanguage: getConfigValue(config, 'gherkin.language', 'en'),
+          scenarioLayout: getConfigValue(config, 'gherkin.scenarioLayout', 'multiple-per-file'),
+          approvals: [...(snapshot.approvals || [])]
+        }
+      : null,
     blockerHelp: renderBlockers(
       blockers.map((blocker) => ({ ...blocker, phaseId: phaseDef.id, phaseName: phaseDef.name })),
       interfaceLanguage(config)

@@ -108,6 +108,7 @@ export function configOverrides({
     ['project.interfaceLanguage', interfaceLanguage],
     ['project.qaTrack', args['qa-track'] || args.qaTrack],
     ['gherkin.language', gherkinLanguage],
+    ['gherkin.scenarioLayout', args['scenario-layout'] || args.scenarioLayout],
     ['knowledge.enabled', validatedQaContextPath ? 'true' : undefined],
     ['knowledge.sourcePath', validatedQaContextPath],
     ['sources.main', args['requirements-source'] || args.requirementsSource],

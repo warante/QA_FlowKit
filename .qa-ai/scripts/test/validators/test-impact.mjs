@@ -8,19 +8,20 @@ import { validateTestImpact } from './_fixtures.mjs';
 
 async function setupTestImpactFixture({ matrixContent = '', reportContent = '' } = {}) {
   const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-test-impact-'));
-  await fs.mkdir(path.join(tmp, 'qa-ai-output'), { recursive: true });
+  await fs.mkdir(path.join(tmp, '.qa-ai', 'output'), { recursive: true });
 
   const yamlContent = [
     'project:',
     '  qaTrack: standard',
     'traceability:',
-    '  matrixPath: qa-ai-output/traceability-matrix.md',
+    '  matrixPath: .qa-ai/output/traceability-matrix.md',
     'testImpact:',
-    '  analysisPath: qa-ai-output/test-impact-analysis.md',
+    '  analysisPath: .qa-ai/output/test-impact-analysis.md',
     ''
   ].join('\n');
 
-  await fs.writeFile(path.join(tmp, 'qa-ai.config.yaml'), yamlContent, 'utf8');
+  await fs.mkdir(path.join(tmp, '.qa-ai'), { recursive: true });
+  await fs.writeFile(path.join(tmp, '.qa-ai', 'qa-ai.config.yaml'), yamlContent, 'utf8');
 
   const defaultMatrix =
     matrixContent ||
@@ -32,10 +33,10 @@ async function setupTestImpactFixture({ matrixContent = '', reportContent = '' }
 | reqs/login.md | RF-101 | CA-2 | features/login.feature | TC-102 | e2e | high | automated | tests/login.spec.js |
 | reqs/logout.md | RF-102 | CA-1 | features/logout.feature | TC-103 | e2e | high | automated | tests/logout.spec.js |
 `;
-  await fs.writeFile(path.join(tmp, 'qa-ai-output/traceability-matrix.md'), defaultMatrix, 'utf8');
+  await fs.writeFile(path.join(tmp, '.qa-ai/output/traceability-matrix.md'), defaultMatrix, 'utf8');
 
   if (reportContent) {
-    await fs.writeFile(path.join(tmp, 'qa-ai-output/test-impact-analysis.md'), reportContent, 'utf8');
+    await fs.writeFile(path.join(tmp, '.qa-ai/output/test-impact-analysis.md'), reportContent, 'utf8');
   }
 
   return tmp;

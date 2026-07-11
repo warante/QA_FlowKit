@@ -18,7 +18,7 @@ function asSpawnResult(result) {
 test('secret scan detects fake token in governed apply log artifact', async () => {
   const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-test-secret-'));
   try {
-    const outputDir = path.join(tmp, 'qa-ai-output');
+    const outputDir = path.join(tmp, '.qa-ai', 'output');
     const applyLogFile = path.join(outputDir, 'test-management-apply-log.md');
     await fs.mkdir(outputDir, { recursive: true });
     await fs.writeFile(
@@ -32,7 +32,7 @@ test('secret scan detects fake token in governed apply log artifact', async () =
     );
 
     assert.ok(findings.some((finding) => finding.pattern === 'github-token'));
-    assert.ok(findings.every((finding) => finding.label === 'qa-ai-output/test-management-apply-log.md'));
+    assert.ok(findings.every((finding) => finding.label === '.qa-ai/output/test-management-apply-log.md'));
     assert.ok(findings.every((finding) => finding.excerpt.includes('[REDACTED]')));
     assert.ok(!findings.some((finding) => finding.excerpt.includes('ghp_abcdefghijklmnopqrstuvwxyz1234567890abcd')));
   } finally {

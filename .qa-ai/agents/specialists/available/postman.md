@@ -1,5 +1,7 @@
 # Postman/Newman Specialist
 
+> Inherits .qa-ai/rules/specialist-common.rules.md.
+
 > Framework-specific guidance for API testing with Postman collections and Newman CLI.
 
 ## Activation

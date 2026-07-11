@@ -47,7 +47,7 @@ Pending automation:
 
 Updated:
 
-- `qa-ai-output/traceability-matrix.md`
+- `.qa-ai/output/traceability-matrix.md`
 
 ## Execution status
 

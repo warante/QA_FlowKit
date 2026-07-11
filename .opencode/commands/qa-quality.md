@@ -26,7 +26,7 @@ Use `interfaceLanguage` from the resolved `show-config --json` output for user-f
 If `$ARGUMENTS` is empty, evaluate the active RF when a harness run is active; otherwise evaluate the configured
 feature root.
 
-Write or update only `testDesign.quality.reportPath` (default `qa-ai-output/gherkin-quality-report.md`) using
+Write or update only `testDesign.quality.reportPath` (default `.qa-ai/output/gherkin-quality-report.md`) using
 `.qa-ai/templates/gherkin-quality-report.template.md`.
 
 Do not modify `.feature` files during quality evaluation. If the report finds quality issues, list proposed follow-up

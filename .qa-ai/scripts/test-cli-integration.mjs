@@ -67,13 +67,7 @@ function initFramework(target, args = []) {
 }
 
 async function readConfig(cwd) {
-  const rootConfig = path.join(cwd, 'qa-ai.config.yaml');
-  try {
-    await fs.access(rootConfig);
-    return parseSimpleYaml(await fs.readFile(rootConfig, 'utf8'));
-  } catch {
-    return parseSimpleYaml(await fs.readFile(configFile(cwd), 'utf8'));
-  }
+  return parseSimpleYaml(await fs.readFile(configFile(cwd), 'utf8'));
 }
 
 async function hashDirectory(dirPath) {
@@ -178,7 +172,7 @@ async function main() {
     assert.equal(directConfig.project.name, 'My QA');
 
     await fs.writeFile(
-      path.join(directTarget, 'qa-ai.config.yaml'),
+      configFile(directTarget),
       ['version: 1', 'project:', '  name: CHANGE_ME', ''].join('\n'),
       'utf8'
     );
@@ -188,7 +182,7 @@ async function main() {
     assert.ok(changeMeDoctor.stdout.includes('project.name'), 'doctor should print the offending key path');
 
     await fs.writeFile(
-      path.join(directTarget, 'qa-ai.config.yaml'),
+      configFile(directTarget),
       [
         'version: 1',
         'project:',
@@ -217,7 +211,7 @@ async function main() {
         '  requireApprovalForInferredCriteria: true',
         'gherkin:',
         '  language: en',
-        '  oneScenarioPerFile: true',
+        '  scenarioLayout: one-per-file',
         '  requireAcceptanceCriteria: true',
         '  manualTestsNeedFeatureFile: true',
         '  featurePath: features',
@@ -280,13 +274,13 @@ async function main() {
     const validConfigContent = await fs.readFile(configFile(configValidationTarget), 'utf8');
     const invalidConfigContent = validConfigContent
       .replace('qaTrack: quick', 'qaTrack: slow')
-      .replace('oneScenarioPerFile: true', 'oneScenarioPerFile: yes')
+      .replace('scenarioLayout: one-per-file', 'scenarioLayout: invalid')
       .concat('unknownTopLevel: true\n');
     await fs.writeFile(configFile(configValidationTarget), invalidConfigContent, 'utf8');
     const invalidConfig = runCli(configValidationTarget, ['validate-config'], { expectFailure: true });
     assert.ok(invalidConfig.stdout.includes('$.unknownTopLevel'));
     assert.ok(invalidConfig.stdout.includes('$.project.qaTrack'));
-    assert.ok(invalidConfig.stdout.includes('$.gherkin.oneScenarioPerFile'));
+    assert.ok(invalidConfig.stdout.includes('$.gherkin.scenarioLayout'));
     const invalidConfigJson = runCli(configValidationTarget, ['validate-config', '--json'], { expectFailure: true });
     const invalidPayload = JSON.parse(invalidConfigJson.stdout);
     assert.equal(invalidPayload.ok, false);
@@ -486,138 +480,23 @@ async function main() {
     });
     assert.notEqual(brokenDoctor.status, 0);
 
-    // Legacy artifact alias regression test
-    {
-      const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-legacy-alias-'));
-      extraTempRoots.push(tmpDir);
-      await fs.mkdir(path.join(tmpDir, 'features', 'functional'), { recursive: true });
-      await fs.writeFile(
-        path.join(tmpDir, 'features', 'functional', 'RF-101-TC-001-login.feature'),
-        [
-          '# language: en',
-          '@priority:high @type:functional @manual:false @rf:RF-101 @id:TC-001',
-          'Feature: Login',
-          '  Acceptance Criteria: user can log in',
-          '  Scenario: valid login',
-          '    Given I open the app',
-          '    When I log in',
-          '    Then I see the dashboard'
-        ].join('\n'),
-        'utf8'
-      );
-      await copyFramework(tmpDir);
-      await fs.writeFile(
-        path.join(tmpDir, 'qa-ai.config.yaml'),
-        [
-          'version: 1',
-          'project:',
-          '  name: Legacy alias test',
-          '  repoMode: qa-design-only',
-          '  qaTrack: quick',
-          '  defaultLanguage: en',
-          '  interfaceLanguage: en',
-          'tools:',
-          '  testManagement: none',
-          '  issueTracker: none',
-          '  documentation: markdown',
-          'agents:',
-          '  specialistMode: auto',
-          'sources:',
-          '  main: markdown',
-          'knowledge:',
-          '  enabled: false',
-          "  sourcePath: ''",
-          '  summaryPath: qa-ai-output/qa-knowledge-summary.md',
-          '  decisionsPath: qa-ai-output/qa-init-decisions.md',
-          'requirements:',
-          '  requireOfficialRfId: true',
-          '  inferredAcceptanceCriteria: allow',
-          '  allowInferredAcceptanceCriteria: false',
-          '  requireApprovalForInferredCriteria: true',
-          'gherkin:',
-          '  language: en',
-          '  oneScenarioPerFile: true',
-          '  requireAcceptanceCriteria: true',
-          '  manualTestsNeedFeatureFile: true',
-          '  featurePath: features',
-          '  tags:',
-          '    required:',
-          '      - priority',
-          '      - type',
-          '      - manual',
-          'testrail:',
-          '  enabled: false',
-          "  projectName: ''",
-          '  allowCreateSections: false',
-          '  allowCreateCases: false',
-          '  allowUpdateCases: never',
-          '  allowDeleteCases: never',
-          '  mappingFile: qa-ai-output/test-management-mapping.json',
-          'automation:',
-          '  ui:',
-          '    framework: none',
-          '  api:',
-          '    framework: none',
-          '  strategy:',
-          '    automateAllTechnicallyPossible: false',
-          '    requireProposalBeforeImplementation: true',
-          '    allowModifyExistingTests: approval-only',
-          'testDesign:',
-          '  systemPath: qa-ai-output/test-design-system.md',
-          '  proposalPath: qa-ai-output/test-design-proposal.md',
-          'traceability:',
-          '  matrixPath: qa-ai-output/traceability-matrix.md',
-          'approval:',
-          '  beforeExternalWrite: true',
-          '  beforeExistingFileModification: true',
-          '  beforeTestRailSync: true',
-          '  beforeJiraTaskCreation: true',
-          '  beforePullRequest: true',
-          'commands:',
-          '  testQA: node .qa-ai/scripts/validate-features.mjs',
-          ''
-        ].join('\n'),
-        'utf8'
-      );
-      await fs.mkdir(path.join(tmpDir, 'qa-ai-output'), { recursive: true });
-      await fs.writeFile(
-        path.join(tmpDir, 'qa-ai-output', 'testrail-sync-plan.md'),
-        [
-          '# Test Management Sync Plan',
-          '',
-          'Approval is required before any external write.',
-          '',
-          '| ID | Proposed action | Approval status | Target section | Notes |',
-          '|---|---|---|---|---|',
-          '| RF-101 | Review coverage | Pending approval | Login | Coverage check |',
-          '| TC-001 | Propose create | Approval required | Login | No write without approval |',
-          ''
-        ].join('\n'),
-        'utf8'
-      );
-      const validateScript = path.join(tmpDir, '.qa-ai/scripts/validate-sync-plan.mjs');
-      const result = runNode(tmpDir, validateScript, ['--allow-missing']);
-      const combinedOutput = result.stdout + result.stderr;
-      assert.ok(
-        combinedOutput.includes('[WARN]') && combinedOutput.toLowerCase().includes('legacy'),
-        `Legacy sync plan path should emit a warning, got: ${combinedOutput}`
-      );
-    }
-
     {
       const nfrFixtureRoot = path.join(repoRoot, 'test', 'fixtures', 'nfr-coverage');
       const nfrTemp = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-flowkit-nfr-cli-'));
       extraTempRoots.push(nfrTemp);
       await copyFramework(nfrTemp);
-      await fs.mkdir(path.join(nfrTemp, 'qa-ai-output'), { recursive: true });
-      await fs.copyFile(path.join(nfrFixtureRoot, 'qa-ai.config.yaml'), path.join(nfrTemp, 'qa-ai.config.yaml'));
+      await fs.mkdir(path.join(nfrTemp, '.qa-ai', 'output'), { recursive: true });
+      await fs.copyFile(
+        path.join(nfrFixtureRoot, '.qa-ai', 'qa-ai.config.yaml'),
+        path.join(nfrTemp, '.qa-ai', 'qa-ai.config.yaml')
+      );
       await fs.copyFile(
         path.join(nfrFixtureRoot, 'normalized-requirements.md'),
-        path.join(nfrTemp, 'qa-ai-output', 'normalized-requirements.md')
+        path.join(nfrTemp, '.qa-ai', 'output', 'normalized-requirements.md')
       );
       await fs.copyFile(
         path.join(nfrFixtureRoot, 'bad', 'test-design-proposal.md'),
-        path.join(nfrTemp, 'qa-ai-output', 'test-design-proposal.md')
+        path.join(nfrTemp, '.qa-ai', 'output', 'test-design-proposal.md')
       );
       const nfrBadJson = runCli(nfrTemp, ['validate-test-coverage', '--allow-empty', '--mode', 'strict', '--json'], {
         expectFailure: true
@@ -630,14 +509,14 @@ async function main() {
       );
       await fs.copyFile(
         path.join(nfrFixtureRoot, 'good', 'test-design-proposal.md'),
-        path.join(nfrTemp, 'qa-ai-output', 'test-design-proposal.md')
+        path.join(nfrTemp, '.qa-ai', 'output', 'test-design-proposal.md')
       );
       const nfrGoodJson = runCli(nfrTemp, ['validate-test-coverage', '--allow-empty', '--mode', 'strict', '--json']);
       const nfrGoodPayload = JSON.parse(nfrGoodJson.stdout);
       assert.equal(nfrGoodPayload.ok, true, JSON.stringify(nfrGoodPayload.errors));
       await fs.copyFile(
         path.join(nfrFixtureRoot, 'good', 'traceability-matrix.md'),
-        path.join(nfrTemp, 'qa-ai-output', 'traceability-matrix.md')
+        path.join(nfrTemp, '.qa-ai', 'output', 'traceability-matrix.md')
       );
       const nfrTraceJson = runCli(nfrTemp, ['validate-traceability', '--allow-empty', '--json']);
       const nfrTracePayload = JSON.parse(nfrTraceJson.stdout);

@@ -4,7 +4,7 @@ Implement only approved automation changes using repository conventions.
 
 ## Before coding
 
-- Read `qa-ai.config.yaml` to identify UI/API frameworks and paths.
+- Read `.qa-ai/qa-ai.config.yaml` to identify UI/API frameworks and paths.
 - Inspect existing tests, helpers, fixtures and page objects before creating new patterns.
 - Confirm the approved automation implementation plan.
 - Ask approval before modifying existing tests or global framework config.
@@ -21,4 +21,4 @@ Implement only approved automation changes using repository conventions.
 
 - Run the most relevant local tests when possible.
 - If tests cannot be executed, document first manual execution requirements.
-- Update `qa-ai-output/traceability-matrix.md` and `qa-ai-output/pr-summary.md`.
+- Update `.qa-ai/output/traceability-matrix.md` and `.qa-ai/output/pr-summary.md`.

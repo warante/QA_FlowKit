@@ -182,7 +182,7 @@ node .qa-ai/scripts/validate-execution-evidence.mjs
 When `aiTesting.enabled: true`, AI-marked RFs must have linked passing eval evidence. Statistical scenarios additionally
 require numeric `score` and `threshold`, and `score >= threshold`.
 
-For enterprise release gates, add eval files to `qa-ai-output/release-gate.yaml`:
+For enterprise release gates, add eval files to `.qa-ai/output/release-gate.yaml`:
 
 ```yaml
 evidence:

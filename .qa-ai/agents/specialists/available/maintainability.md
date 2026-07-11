@@ -1,5 +1,7 @@
 # Maintainability Specialist
 
+> Inherits .qa-ai/rules/specialist-common.rules.md.
+
 > Guidance for observable engineering qualities such as observability, modularity and operability. Not a code-quality gate replacement.
 
 ## Role

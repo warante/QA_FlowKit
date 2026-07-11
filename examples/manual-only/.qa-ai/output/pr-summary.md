@@ -11,7 +11,7 @@ Adds reviewed manual login coverage for RF-101.
 
 ## Traceability
 
-See `qa-ai-output/traceability-matrix.md`.
+See `.qa-ai/output/traceability-matrix.md`.
 
 ## Risks
 

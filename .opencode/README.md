@@ -10,8 +10,8 @@ Related docs: [main README](../../../README.md) | [agent compatibility](../../..
 | --------------------------------------- | ---------------------------------------------------------------------- |
 | `AGENTS.md`                             | Generic behavior and safety rules                                      |
 | `qa-ai.config.yaml`                     | Project configuration                                                  |
-| `qa-ai-output/qa-knowledge-summary.md`  | Team QA practice summary when `knowledge.enabled` is true              |
-| `qa-ai-output/qa-init-decisions.md`     | Approved context-based init decisions when `knowledge.enabled` is true |
+| `.qa-ai/output/qa-knowledge-summary.md` | Team QA practice summary when `knowledge.enabled` is true              |
+| `.qa-ai/output/qa-init-decisions.md`    | Approved context-based init decisions when `knowledge.enabled` is true |
 | `.qa-ai/rules/README.md` + `*.rules.md` | Mandatory workflow rules (all agents)                                  |
 | `.qa-ai/agents/README.md`               | Agent loading protocol                                                 |
 | `.qa-ai/workflows/`                     | Task playbooks                                                         |

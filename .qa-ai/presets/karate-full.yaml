@@ -24,7 +24,7 @@ requirements:
   inferredAcceptanceCriteria: require-approval
 gherkin:
   language: en
-  oneScenarioPerFile: true
+  scenarioLayout: multiple-per-file
   requireAcceptanceCriteria: true
   manualTestsNeedFeatureFile: true
   featurePath: .qa-ai/features

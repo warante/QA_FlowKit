@@ -1,5 +1,7 @@
 # Jira Specialist
 
+> Inherits .qa-ai/rules/specialist-common.rules.md.
+
 > Integration guidance for Jira as requirement source and issue tracker.
 
 ## Activation

@@ -21,25 +21,25 @@ import { getConfigValue } from '../../lib/utils.mjs';
 import { repoRoot } from './_shared.mjs';
 
 const EXPANSION_SPECIALISTS = [
-  'analytics-tracking-agent',
-  'browserstack-strategy-agent',
-  'compliance-testing-agent',
-  'contract-testing-agent',
-  'cross-browser-device-agent',
-  'data-quality-agent',
-  'database-migration-agent',
-  'exploratory-testing-agent',
-  'i18n-l10n-agent',
-  'mobile-advanced-agent',
-  'observability-testing-agent',
-  'performance-execution-agent',
-  'post-deploy-validation-agent',
-  'privacy-testing-agent',
-  'resilience-chaos-agent',
-  'security-advanced-agent',
-  'test-data-agent',
-  'threat-modeling-agent',
-  'visual-regression-agent'
+  'analytics-tracking',
+  'browserstack-strategy',
+  'compliance-testing',
+  'contract-testing',
+  'cross-browser-device',
+  'data-quality',
+  'database-migration',
+  'exploratory-testing',
+  'i18n-l10n',
+  'mobile-advanced',
+  'observability-testing',
+  'performance-execution',
+  'post-deploy-validation',
+  'privacy-testing',
+  'resilience-chaos',
+  'advanced-security',
+  'test-data-strategy',
+  'threat-modeling',
+  'visual-regression'
 ];
 
 const EVIDENCE_COLUMN_NAMES = new Set(['evidence type', 'evidence', 'qa evidence']);
@@ -114,49 +114,49 @@ test('specialistCatalog: every catalog entry has a shipped source file', async (
 
 test('specialistsForNfrAttributes: security stays functional-only', () => {
   const specialists = specialistsForNfrAttributes(['security']).map(([id]) => id);
-  assert.deepEqual(specialists, ['security']);
-  assert.ok(!specialists.includes('security-advanced-agent'));
+  assert.deepEqual(specialists, ['functional-security']);
+  assert.ok(!specialists.includes('advanced-security'));
 });
 
 test('specialistsForNfrAttributes: maintainability includes observability specialist', () => {
   const specialists = specialistsForNfrAttributes(['maintainability']).map(([id]) => id);
-  assert.deepEqual(specialists, ['maintainability', 'observability-testing-agent']);
+  assert.deepEqual(specialists, ['maintainability', 'observability-testing']);
 });
 
-test('routeStrategiesForText: privacy signal routes to privacy-testing-agent', () => {
+test('routeStrategiesForText: privacy signal routes to privacy-testing', () => {
   const routes = routeStrategiesForText('User consent and GDPR deletion must be verified.', { mode: 'advisory' });
-  assert.ok(routes.some((route) => route.specialistId === 'privacy-testing-agent'));
+  assert.ok(routes.some((route) => route.specialistId === 'privacy-testing'));
 });
 
 test('routeStrategiesForText: BrowserStack signal routes to browserstack specialist', () => {
   const routes = routeStrategiesForText('Execute smoke on BrowserStack Automate with session video.', {
     mode: 'advisory'
   });
-  assert.ok(routes.some((route) => route.specialistId === 'browserstack-strategy-agent'));
+  assert.ok(routes.some((route) => route.specialistId === 'browserstack-strategy'));
 });
 
-test('routeStrategiesForText: OpenAPI signal routes to contract-testing-agent', () => {
+test('routeStrategiesForText: OpenAPI signal routes to contract-testing', () => {
   const routes = routeStrategiesForText('Validate consumer against the OpenAPI schema.', { mode: 'advisory' });
-  assert.ok(routes.some((route) => route.specialistId === 'contract-testing-agent'));
+  assert.ok(routes.some((route) => route.specialistId === 'contract-testing'));
 });
 
-test('routeStrategiesForText: Figma signal routes to visual-regression-agent', () => {
+test('routeStrategiesForText: Figma signal routes to visual-regression', () => {
   const routes = routeStrategiesForText('Compare layout against the new Figma redesign.', { mode: 'advisory' });
-  assert.ok(routes.some((route) => route.specialistId === 'visual-regression-agent'));
+  assert.ok(routes.some((route) => route.specialistId === 'visual-regression'));
 });
 
 test('routeStrategiesForText: advanced security keywords do not fire on generic security wording', () => {
   const routes = routeStrategiesForText('User authentication and authorization boundaries must be tested.', {
     mode: 'advisory'
   });
-  assert.ok(!routes.some((route) => route.specialistId === 'security-advanced-agent'));
+  assert.ok(!routes.some((route) => route.specialistId === 'advanced-security'));
 });
 
 test('routeStrategiesForText: performance execution requires execution keywords', () => {
   const designOnly = routeStrategiesForText('Response time must stay under 500ms for checkout.', { mode: 'advisory' });
-  assert.ok(!designOnly.some((route) => route.specialistId === 'performance-execution-agent'));
+  assert.ok(!designOnly.some((route) => route.specialistId === 'performance-execution'));
   const execution = routeStrategiesForText('Run a k6 load test against staging before release.', { mode: 'advisory' });
-  assert.ok(execution.some((route) => route.specialistId === 'performance-execution-agent'));
+  assert.ok(execution.some((route) => route.specialistId === 'performance-execution'));
 });
 
 test('activeSpecialists: manual-only preset does not auto-load expansion specialists', async () => {
@@ -174,11 +174,11 @@ test('activeSpecialists: selenium-jest-browserstack adds selenium and browsersta
   const config = parseSimpleYaml(content);
   const ids = activeSpecialists(config).map(([id]) => id);
   assert.ok(ids.includes('selenium'));
-  assert.ok(ids.includes('browserstack-strategy-agent'));
-  assert.ok(ids.includes('cross-browser-device-agent'));
+  assert.ok(ids.includes('browserstack-strategy'));
+  assert.ok(ids.includes('cross-browser-device'));
   assert.ok(ids.includes('generic-test-design'));
   for (const expansionId of EXPANSION_SPECIALISTS) {
-    if (expansionId === 'browserstack-strategy-agent' || expansionId === 'cross-browser-device-agent') continue;
+    if (expansionId === 'browserstack-strategy' || expansionId === 'cross-browser-device') continue;
     assert.ok(!ids.includes(expansionId), `Unexpected expansion specialist active: ${expansionId}`);
   }
 });
@@ -187,8 +187,8 @@ test('specialistsFromConfig: browserstack frameworks route cloud specialists', (
   const specialists = specialistsFromConfig({
     automation: { ui: { framework: 'selenium-jest-browserstack' }, mobile: { framework: 'none' } }
   }).map(([id]) => id);
-  assert.ok(specialists.includes('browserstack-strategy-agent'));
-  assert.ok(specialists.includes('cross-browser-device-agent'));
+  assert.ok(specialists.includes('browserstack-strategy'));
+  assert.ok(specialists.includes('cross-browser-device'));
 });
 
 test('mergeRoutedSpecialists: deduplicates nfr and keyword routes', () => {
@@ -196,7 +196,7 @@ test('mergeRoutedSpecialists: deduplicates nfr and keyword routes', () => {
   const routes = routeStrategiesForText('Audit events must appear in structured logs.');
   const merged = mergeRoutedSpecialists(nfr, routes).map(([id]) => id);
   assert.ok(merged.includes('maintainability'));
-  assert.ok(merged.includes('observability-testing-agent'));
+  assert.ok(merged.includes('observability-testing'));
   assert.equal(new Set(merged).size, merged.length);
 });
 
@@ -223,15 +223,15 @@ test('validateStrategyRouting: off mode skips enforcement', async () => {
 test('validateStrategyRouting: strict mode requires strategy routing section', async () => {
   const cwd = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-strategy-strict-'));
   try {
-    await fs.mkdir(path.join(cwd, 'qa-ai-output'), { recursive: true });
+    await fs.mkdir(path.join(cwd, '.qa-ai', 'output'), { recursive: true });
     await fs.writeFile(
-      path.join(cwd, 'qa-ai-output/test-design-proposal.md'),
+      path.join(cwd, '.qa-ai/output/test-design-proposal.md'),
       '# Test Design Proposal\n## Official RF ID\nRF-1\n## Scope\n',
       'utf8'
     );
     const result = await validateStrategyRouting(cwd, {
       config: {
-        testDesign: { strategyRouting: { mode: 'strict' }, proposalPath: 'qa-ai-output/test-design-proposal.md' }
+        testDesign: { strategyRouting: { mode: 'strict' }, proposalPath: '.qa-ai/output/test-design-proposal.md' }
       }
     });
     assert.equal(result.ok, false);
@@ -244,7 +244,7 @@ test('validateStrategyRouting: strict mode requires strategy routing section', a
 test('validateStrategyRouting: strict mode accepts valid routing rows', async () => {
   const cwd = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-strategy-pass-'));
   try {
-    await fs.mkdir(path.join(cwd, 'qa-ai-output'), { recursive: true });
+    await fs.mkdir(path.join(cwd, '.qa-ai', 'output'), { recursive: true });
     const proposal = [
       '# Test Design Proposal',
       '## Official RF ID',
@@ -253,13 +253,13 @@ test('validateStrategyRouting: strict mode accepts valid routing rows', async ()
       '',
       '| RF | Criterion IDs | Signal | Specialist(s) | Decision | Evidence type | Rationale |',
       '| --- | ------------- | ------ | ------------- | -------- | ------------- | --------- |',
-      '| RF-1 | CA-1 | gdpr | privacy-testing-agent | applicable | technical-review | privacy review |',
+      '| RF-1 | CA-1 | gdpr | privacy-testing | applicable | technical-review | privacy review |',
       ''
     ].join('\n');
-    await fs.writeFile(path.join(cwd, 'qa-ai-output/test-design-proposal.md'), proposal, 'utf8');
+    await fs.writeFile(path.join(cwd, '.qa-ai/output/test-design-proposal.md'), proposal, 'utf8');
     const result = await validateStrategyRouting(cwd, {
       config: {
-        testDesign: { strategyRouting: { mode: 'strict' }, proposalPath: 'qa-ai-output/test-design-proposal.md' }
+        testDesign: { strategyRouting: { mode: 'strict' }, proposalPath: '.qa-ai/output/test-design-proposal.md' }
       }
     });
     assert.equal(result.ok, true, result.errors.join('\n'));
@@ -284,8 +284,7 @@ const STANDARD_PRESETS = [
   'playwright-full.yaml',
   'karate-full.yaml',
   'maestro-karate-mobile.yaml',
-  'selenium-jest-browserstack.yaml',
-  'webdriverio-playwright-api.yaml'
+  'selenium-jest-browserstack.yaml'
 ];
 
 test('presets: standard track defaults strategyRouting to advisory', async () => {
@@ -306,7 +305,7 @@ test('presets: manual-only keeps strategyRouting off', async () => {
   assert.equal(getConfigValue(config, 'testDesign.strategyRouting.mode', 'off'), 'off');
 });
 
-test('routeStrategiesForText: mobile advanced signals route to mobile-advanced-agent', () => {
+test('routeStrategiesForText: mobile advanced signals route to mobile-advanced', () => {
   const signals = [
     'Verify push notification opt-out after login.',
     'Open the marketing deep link on cold start.',
@@ -318,33 +317,33 @@ test('routeStrategiesForText: mobile advanced signals route to mobile-advanced-a
   for (const text of signals) {
     const routes = routeStrategiesForText(text, { mode: 'advisory' });
     assert.ok(
-      routes.some((route) => route.specialistId === 'mobile-advanced-agent'),
-      `Expected mobile-advanced-agent for: ${text}`
+      routes.some((route) => route.specialistId === 'mobile-advanced'),
+      `Expected mobile-advanced for: ${text}`
     );
   }
 });
 
-test('routeStrategiesForText: Appium or Maestro alone do not route mobile-advanced-agent', () => {
+test('routeStrategiesForText: Appium or Maestro alone do not route mobile-advanced', () => {
   for (const text of ['Run Appium smoke on Android emulator.', 'Execute Maestro flows for login.']) {
     const routes = routeStrategiesForText(text, { mode: 'advisory' });
-    assert.ok(!routes.some((route) => route.specialistId === 'mobile-advanced-agent'), text);
+    assert.ok(!routes.some((route) => route.specialistId === 'mobile-advanced'), text);
   }
 });
 
-test('activeSpecialists: maestro preset loads maestro but not mobile-advanced-agent', async () => {
+test('activeSpecialists: maestro preset loads maestro but not mobile-advanced', async () => {
   const content = await fs.readFile(path.join(repoRoot, '.qa-ai/presets/maestro-karate-mobile.yaml'), 'utf8');
   const config = parseSimpleYaml(content);
   const ids = activeSpecialists(config).map(([id]) => id);
   assert.ok(ids.includes('maestro'));
-  assert.ok(!ids.includes('mobile-advanced-agent'));
+  assert.ok(!ids.includes('mobile-advanced'));
 });
 
 test('routeStrategiesForText: BrowserStack plus push notification routes cloud and mobile advanced', () => {
   const routes = routeStrategiesForText('Run push notification test on BrowserStack App Automate.', {
     mode: 'advisory'
   });
-  assert.ok(routes.some((route) => route.specialistId === 'browserstack-strategy-agent'));
-  assert.ok(routes.some((route) => route.specialistId === 'mobile-advanced-agent'));
+  assert.ok(routes.some((route) => route.specialistId === 'browserstack-strategy'));
+  assert.ok(routes.some((route) => route.specialistId === 'mobile-advanced'));
 });
 
 test('resolveCriticalSignals: uses defaults when not configured', () => {
@@ -367,9 +366,9 @@ test('resolveCriticalSignals: empty array disables critical enforcement', () => 
 });
 
 async function writeStrictProposal(cwd, bodyLines = []) {
-  await fs.mkdir(path.join(cwd, 'qa-ai-output'), { recursive: true });
+  await fs.mkdir(path.join(cwd, '.qa-ai', 'output'), { recursive: true });
   const proposal = ['# Test Design Proposal', '## Official RF ID', 'RF-1', ...bodyLines, ''].join('\n');
-  await fs.writeFile(path.join(cwd, 'qa-ai-output/test-design-proposal.md'), proposal, 'utf8');
+  await fs.writeFile(path.join(cwd, '.qa-ai/output/test-design-proposal.md'), proposal, 'utf8');
 }
 
 test('validateStrategyRouting: strict fails when configured critical signal lacks routing row', async () => {
@@ -380,7 +379,7 @@ test('validateStrategyRouting: strict fails when configured critical signal lack
       '',
       '| RF | Criterion IDs | Signal | Specialist(s) | Decision | Evidence type | Rationale |',
       '| --- | ------------- | ------ | ------------- | -------- | ------------- | --------- |',
-      '| RF-1 | CA-1 | unrelated | test-data-agent | applicable | test-plan | unrelated |',
+      '| RF-1 | CA-1 | unrelated | test-data-strategy | applicable | test-plan | unrelated |',
       '',
       'Compare layout against the new Figma redesign.'
     ]);
@@ -388,7 +387,7 @@ test('validateStrategyRouting: strict fails when configured critical signal lack
       config: {
         testDesign: {
           strategyRouting: { mode: 'strict', criticalSignals: ['figma'] },
-          proposalPath: 'qa-ai-output/test-design-proposal.md'
+          proposalPath: '.qa-ai/output/test-design-proposal.md'
         }
       }
     });
@@ -407,7 +406,7 @@ test('validateStrategyRouting: strict passes when configured critical signal has
       '',
       '| RF | Criterion IDs | Signal | Specialist(s) | Decision | Evidence type | Rationale |',
       '| --- | ------------- | ------ | ------------- | -------- | ------------- | --------- |',
-      '| RF-1 | CA-1 | figma | visual-regression-agent | applicable | automation-script | layout parity |',
+      '| RF-1 | CA-1 | figma | visual-regression | applicable | automation-script | layout parity |',
       '',
       'Compare layout against the new Figma redesign.'
     ]);
@@ -415,7 +414,7 @@ test('validateStrategyRouting: strict passes when configured critical signal has
       config: {
         testDesign: {
           strategyRouting: { mode: 'strict', criticalSignals: ['figma'] },
-          proposalPath: 'qa-ai-output/test-design-proposal.md'
+          proposalPath: '.qa-ai/output/test-design-proposal.md'
         }
       }
     });
@@ -433,7 +432,7 @@ test('validateStrategyRouting: strict with analytics event critical signal', asy
       '',
       '| RF | Criterion IDs | Signal | Specialist(s) | Decision | Evidence type | Rationale |',
       '| --- | ------------- | ------ | ------------- | -------- | ------------- | --------- |',
-      '| RF-1 | CA-1 | analytics event | analytics-tracking-agent | applicable | automation-script | event check |',
+      '| RF-1 | CA-1 | analytics event | analytics-tracking | applicable | automation-script | event check |',
       '',
       'Verify analytics event payload on checkout.'
     ]);
@@ -441,7 +440,7 @@ test('validateStrategyRouting: strict with analytics event critical signal', asy
       config: {
         testDesign: {
           strategyRouting: { mode: 'strict', criticalSignals: ['analytics event'] },
-          proposalPath: 'qa-ai-output/test-design-proposal.md'
+          proposalPath: '.qa-ai/output/test-design-proposal.md'
         }
       }
     });
@@ -459,7 +458,7 @@ test('validateStrategyRouting: advisory does not enforce critical signals', asyn
       config: {
         testDesign: {
           strategyRouting: { mode: 'advisory', criticalSignals: ['gdpr'] },
-          proposalPath: 'qa-ai-output/test-design-proposal.md'
+          proposalPath: '.qa-ai/output/test-design-proposal.md'
         }
       },
       mode: 'advisory'
@@ -478,7 +477,7 @@ test('validateStrategyRouting: strict fails when default critical signal lacks r
       '',
       '| RF | Criterion IDs | Signal | Specialist(s) | Decision | Evidence type | Rationale |',
       '| --- | ------------- | ------ | ------------- | -------- | ------------- | --------- |',
-      '| RF-1 | CA-1 | unrelated | test-data-agent | applicable | test-plan | unrelated |',
+      '| RF-1 | CA-1 | unrelated | test-data-strategy | applicable | test-plan | unrelated |',
       '',
       'User consent and GDPR deletion must be verified.'
     ]);
@@ -486,13 +485,13 @@ test('validateStrategyRouting: strict fails when default critical signal lacks r
       config: {
         testDesign: {
           strategyRouting: { mode: 'strict' },
-          proposalPath: 'qa-ai-output/test-design-proposal.md'
+          proposalPath: '.qa-ai/output/test-design-proposal.md'
         }
       }
     });
     assert.equal(result.ok, false);
     assert.ok(result.errors.some((error) => error.includes('gdpr')));
-    assert.ok(result.errors.some((error) => error.includes('privacy-testing-agent')));
+    assert.ok(result.errors.some((error) => error.includes('privacy-testing')));
   } finally {
     await fs.rm(cwd, { recursive: true, force: true });
   }
@@ -506,7 +505,7 @@ test('validateStrategyRouting: empty criticalSignals does not fail on gdpr text'
       '',
       '| RF | Criterion IDs | Signal | Specialist(s) | Decision | Evidence type | Rationale |',
       '| --- | ------------- | ------ | ------------- | -------- | ------------- | --------- |',
-      '| RF-1 | CA-1 | scope | test-data-agent | applicable | test-plan | placeholder |',
+      '| RF-1 | CA-1 | scope | test-data-strategy | applicable | test-plan | placeholder |',
       '',
       'User consent and GDPR deletion must be verified.'
     ]);
@@ -514,7 +513,7 @@ test('validateStrategyRouting: empty criticalSignals does not fail on gdpr text'
       config: {
         testDesign: {
           strategyRouting: { mode: 'strict', criticalSignals: [] },
-          proposalPath: 'qa-ai-output/test-design-proposal.md'
+          proposalPath: '.qa-ai/output/test-design-proposal.md'
         }
       }
     });

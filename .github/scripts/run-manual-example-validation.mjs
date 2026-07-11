@@ -61,7 +61,13 @@ async function main() {
 
       const afterInitDigest = await digestTree(targetRoot);
       if (afterInitDigest !== originalDigest) {
-        throw new Error('Packed init modified canonical example artifacts.');
+        const before = new Set(originalDigest.split('\n'));
+        const after = new Set(afterInitDigest.split('\n'));
+        const changed = [
+          ...[...before].filter((entry) => !after.has(entry)).map((entry) => `before: ${entry}`),
+          ...[...after].filter((entry) => !before.has(entry)).map((entry) => `after: ${entry}`)
+        ];
+        throw new Error(`Packed init modified canonical example artifacts:\n${changed.join('\n')}`);
       }
 
       run(node, [cli, 'doctor', '--strict'], { cwd: targetRoot });

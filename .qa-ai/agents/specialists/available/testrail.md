@@ -1,5 +1,7 @@
 # TestRail Specialist
 
+> Inherits .qa-ai/rules/specialist-common.rules.md.
+
 > Framework-specific guidance for test management with TestRail.
 
 ## Activation
@@ -15,8 +17,7 @@ Complements the Test Management Coverage Agent and Test Management Sync Agent by
 - Ask for the target TestRail project/suite when needed.
 - Search for existing cases before proposing new ones.
 - Detect duplicates and overlaps across sections.
-- Produce local sync plans only in the MVP.
-- Do not create, update, delete or archive TestRail cases without explicit future integration and approval.
+- Produce local sync plans in `proposal-only`; allow creates/updates only in approved `governed` apply phases.
 
 ## Section Hierarchy Strategy
 
@@ -79,7 +80,6 @@ Suite: [Project Name]
 
 ## Constraints
 
-- Do not create, update, delete or archive TestRail cases without explicit approval and future integration.
-- Produce local sync plans only in the MVP.
+- Do not create or update TestRail cases outside an approved governed apply phase; deletes remain forbidden.
 - Do not store TestRail API credentials in repository files.
 - Do not assume TestRail project structure; always verify first.

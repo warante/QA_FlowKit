@@ -21,7 +21,7 @@ Read first:
 - `.qa-ai/agents/release-gate-agent.md`
 - `.qa-ai/workflows/release-gate.md`
 
-Review QA artifacts (`qa-ai-output/pr-summary.md`, `qa-ai-output/traceability-matrix.md`, sync plan when present), recent validator output, execution evidence results and AI eval evidence results (when configured).
+Review QA artifacts (`.qa-ai/output/pr-summary.md`, `.qa-ai/output/traceability-matrix.md`, sync plan when present), recent validator output, execution evidence results and AI eval evidence results (when configured).
 
 If useful, run:
 
@@ -29,7 +29,7 @@ If useful, run:
 node .qa-ai/scripts/validate-target.mjs
 ```
 
-Present a short plan before editing `qa-ai-output/release-gate.yaml` (or the configured `release.gatePath`).
+Present a short plan before editing `.qa-ai/output/release-gate.yaml` (or the configured `release.gatePath`).
 
 Set `decision` to one of: `PASS`, `CONCERNS`, `FAIL`, `WAIVED`. Note that PASS requires execution evidence validation to pass for enterprise tracks when `execution.resultsPaths` is non-empty, and eval evidence validation to pass for AI-component RFs when `aiTesting.enabled` is true. Add AI eval JSON paths under `evidence.evals` when relevant. Do not leave `PENDING` for a final release without user approval.
 

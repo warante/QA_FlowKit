@@ -2,7 +2,7 @@
 
 **Enforced by:** validate-features.mjs (tag checks), validate-test-design.mjs (technique coverage)
 
-Apply when `aiTesting.enabled: true` in `qa-ai.config.yaml`. When disabled, all rules in this file are inactive and existing behavior is unchanged.
+Apply when `aiTesting.enabled: true` in `.qa-ai/qa-ai.config.yaml`. When disabled, all rules in this file are inactive and existing behavior is unchanged.
 
 ---
 

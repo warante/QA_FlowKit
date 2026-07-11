@@ -36,13 +36,13 @@ The folder may contain Markdown, text, YAML, JSON or other readable local docume
 6. Present the recommendation and ask for approval.
 7. After approval, run `init.mjs` with `--qa-context <path>` plus the approved flags.
 8. Write or update the configured local artifacts:
-   - `qa-ai-output/qa-knowledge-summary.md`
-   - `qa-ai-output/qa-init-decisions.md`
+   - `.qa-ai/output/qa-knowledge-summary.md`
+   - `.qa-ai/output/qa-init-decisions.md`
 9. Run `node .qa-ai/scripts/doctor.mjs`.
 
 ## Artifact Expectations
 
-`qa-ai-output/qa-knowledge-summary.md` should contain:
+`.qa-ai/output/qa-knowledge-summary.md` should contain:
 
 - Source folder.
 - Files reviewed.
@@ -51,7 +51,7 @@ The folder may contain Markdown, text, YAML, JSON or other readable local docume
 - Pending decisions.
 - Workflow adaptations future agents must follow.
 
-`qa-ai-output/qa-init-decisions.md` should contain:
+`.qa-ai/output/qa-init-decisions.md` should contain:
 
 - Approved init command.
 - Reasoning for selected defaults.

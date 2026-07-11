@@ -11,7 +11,7 @@ function asSpawnResult(result) {
 
 test('clean.mjs: dry-run reports would-delete for generated manifest entry', async () => {
   await withTempWorkspace('qa-clean-', async (tmp) => {
-    const generatedDir = path.join(tmp, 'qa-ai-output');
+    const generatedDir = path.join(tmp, '.qa-ai', 'output');
     await fs.mkdir(generatedDir, { recursive: true });
     const generatedFile = path.join(generatedDir, 'qa-init-decisions.md');
     await fs.writeFile(generatedFile, '# Init decisions\n', 'utf8');
@@ -26,7 +26,7 @@ test('clean.mjs: dry-run reports would-delete for generated manifest entry', asy
             {
               type: 'file',
               category: 'generated',
-              path: 'qa-ai-output/qa-init-decisions.md',
+              path: '.qa-ai/output/qa-init-decisions.md',
               sha256: '0000000000000000000000000000000000000000000000000000000000000000'
             }
           ]
@@ -39,7 +39,7 @@ test('clean.mjs: dry-run reports would-delete for generated manifest entry', asy
 
     const res = asSpawnResult(runValidatorScript('clean.mjs', tmp, ['--generated', '--include-modified']));
     assert.equal(res.status, 0, res.stderr);
-    assert.match(res.stdout, /WOULD DELETE FILE.*qa-ai-output\/qa-init-decisions\.md/i);
+    assert.match(res.stdout, /WOULD DELETE FILE.*.qa-ai\/output\/qa-init-decisions\.md/i);
     assert.match(res.stdout, /No files were deleted/);
     assert.equal(
       await fs
@@ -53,7 +53,7 @@ test('clean.mjs: dry-run reports would-delete for generated manifest entry', asy
 
 test('clean.mjs: --force deletes generated file tracked in manifest', async () => {
   await withTempWorkspace('qa-clean-force-', async (tmp) => {
-    const generatedDir = path.join(tmp, 'qa-ai-output');
+    const generatedDir = path.join(tmp, '.qa-ai', 'output');
     await fs.mkdir(generatedDir, { recursive: true });
     const generatedFile = path.join(generatedDir, 'qa-init-decisions.md');
     await fs.writeFile(generatedFile, '# Init decisions\n', 'utf8');
@@ -68,7 +68,7 @@ test('clean.mjs: --force deletes generated file tracked in manifest', async () =
             {
               type: 'file',
               category: 'generated',
-              path: 'qa-ai-output/qa-init-decisions.md',
+              path: '.qa-ai/output/qa-init-decisions.md',
               sha256: '0000000000000000000000000000000000000000000000000000000000000000'
             }
           ]

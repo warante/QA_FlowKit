@@ -39,7 +39,7 @@ When approved:
 1. Read the current `project.qaTrack` value.
 2. If already `enterprise`, summarize what is enabled and suggest `/qa-status` and `/qa-help` instead of rewriting config.
 3. Otherwise set `project.qaTrack` to `enterprise` in the active config file (`configPath` from `show-config --json`; preserve all other keys).
-4. Optionally append a short note to `qa-ai-output/qa-init-decisions.md` when that file exists, recording the governance
+4. Optionally append a short note to `.qa-ai/output/qa-init-decisions.md` when that file exists, recording the governance
    enablement date and `$ARGUMENTS` when provided.
 
 After updating config, tell the user:

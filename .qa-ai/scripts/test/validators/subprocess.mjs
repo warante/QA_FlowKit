@@ -108,8 +108,9 @@ test('validate-maestro-flows: --json skips when Maestro is not configured', asyn
 
 test('validate-maestro-flows: --json passes for a valid configured flow', async () => {
   await withTempWorkspace('qa-maestro-ok-', async (tmp) => {
+    await fs.mkdir(path.join(tmp, '.qa-ai'), { recursive: true });
     await fs.writeFile(
-      path.join(tmp, 'qa-ai.config.yaml'),
+      path.join(tmp, '.qa-ai', 'qa-ai.config.yaml'),
       ['automation:', '  mobile:', '    framework: maestro', '    flowsPath: tests/maestro/flows', ''].join('\n'),
       'utf8'
     );
@@ -127,8 +128,9 @@ test('validate-maestro-flows: --json passes for a valid configured flow', async 
 
 test('validate-maestro-flows: --json fails for an escaping subflow path', async () => {
   await withTempWorkspace('qa-maestro-bad-', async (tmp) => {
+    await fs.mkdir(path.join(tmp, '.qa-ai'), { recursive: true });
     await fs.writeFile(
-      path.join(tmp, 'qa-ai.config.yaml'),
+      path.join(tmp, '.qa-ai', 'qa-ai.config.yaml'),
       ['automation:', '  mobile:', '    framework: maestro', '    flowsPath: tests/maestro/flows', ''].join('\n'),
       'utf8'
     );

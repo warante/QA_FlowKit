@@ -1,5 +1,7 @@
 # Generic Test Design Specialist
 
+> Inherits .qa-ai/rules/specialist-common.rules.md.
+
 > Shared test-design techniques for Gherkin and non-Gherkin outputs, plus structured manual tests and exploratory
 > charters.
 

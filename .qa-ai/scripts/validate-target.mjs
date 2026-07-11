@@ -232,7 +232,7 @@ async function main() {
       console.log(`\nFAILED - ${findings.length} potential secret(s) in QA artifacts.`);
       process.exit(1);
     }
-    console.log('[PASS] No secret-like values detected in qa-ai-output or features.');
+    console.log('[PASS] No secret-like values detected in configured QA output or feature paths.');
   }
 
   console.log('\nVALID - target repository validation passed.');

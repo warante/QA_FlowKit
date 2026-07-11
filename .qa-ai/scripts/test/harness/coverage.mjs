@@ -12,15 +12,18 @@ test('validate-test-coverage CLI enforces source NFR coverage on nfr fixture', a
   const fixtureRoot = path.join(sourceRoot, 'test', 'fixtures', 'nfr-coverage');
   const cwd = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-harness-nfr-'));
   try {
-    await fs.mkdir(path.join(cwd, 'qa-ai-output'), { recursive: true });
-    await fs.copyFile(path.join(fixtureRoot, 'qa-ai.config.yaml'), path.join(cwd, 'qa-ai.config.yaml'));
+    await fs.mkdir(path.join(cwd, '.qa-ai', 'output'), { recursive: true });
+    await fs.copyFile(
+      path.join(fixtureRoot, '.qa-ai', 'qa-ai.config.yaml'),
+      path.join(cwd, '.qa-ai', 'qa-ai.config.yaml')
+    );
     await fs.copyFile(
       path.join(fixtureRoot, 'normalized-requirements.md'),
-      path.join(cwd, 'qa-ai-output', 'normalized-requirements.md')
+      path.join(cwd, '.qa-ai', 'output', 'normalized-requirements.md')
     );
     await fs.copyFile(
       path.join(fixtureRoot, 'bad', 'test-design-proposal.md'),
-      path.join(cwd, 'qa-ai-output', 'test-design-proposal.md')
+      path.join(cwd, '.qa-ai', 'output', 'test-design-proposal.md')
     );
     const script = path.join(sourceRoot, '.qa-ai', 'scripts', 'validate-test-coverage.mjs');
     const bad = spawnSync(node, [script, '--allow-empty', '--mode', 'strict', '--json'], {
@@ -34,7 +37,7 @@ test('validate-test-coverage CLI enforces source NFR coverage on nfr fixture', a
 
     await fs.copyFile(
       path.join(fixtureRoot, 'good', 'test-design-proposal.md'),
-      path.join(cwd, 'qa-ai-output', 'test-design-proposal.md')
+      path.join(cwd, '.qa-ai', 'output', 'test-design-proposal.md')
     );
     const good = spawnSync(node, [script, '--allow-empty', '--mode', 'strict', '--json'], {
       cwd,

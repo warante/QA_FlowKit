@@ -38,7 +38,7 @@ export async function validateStrategyRouting(cwd, options = {}) {
   }
 
   const proposalPath =
-    options.proposalPath || getConfigValue(config, 'testDesign.proposalPath', 'qa-ai-output/test-design-proposal.md');
+    options.proposalPath || getConfigValue(config, 'testDesign.proposalPath', '.qa-ai/output/test-design-proposal.md');
   const absolute = resolveRepoPath(cwd, proposalPath, { label: 'test design proposal' });
   if (!(await pathExists(absolute))) {
     if (options.allowMissing) return { ok: true, errors: [], warnings: [] };

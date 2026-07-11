@@ -7,7 +7,7 @@ Apply this protocol to every QA FlowKit slash-command interaction.
 Before emitting any user-facing text:
 
 1. Prefer resolved settings from `node .qa-ai/scripts/show-config.mjs --json` (or `npx qa-flowkit show-config --json`). Slash commands may inject this JSON in the preamble.
-2. If reading manually, load config from `qa-ai.config.yaml` (legacy root) **or** `.qa-ai/qa-ai.config.yaml` (compact default). Root config takes precedence when both exist.
+2. If reading manually, load config only from `.qa-ai/qa-ai.config.yaml`. If root `qa-ai.config.yaml` exists, stop and offer explicit migration.
 3. Resolve the interface language from `interfaceLanguage` in the JSON output, or from `project.interfaceLanguage` / `project.defaultLanguage` in the loaded file. Default to `en` only when no config exists (`ok: false`).
 4. Use that language for the complete command interaction: questions, option labels,
    plans, approvals, progress, errors and summaries.

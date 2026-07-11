@@ -14,7 +14,7 @@ Activated after result analysis is complete, when `execution.mode` is `advisory`
 - `.qa-ai/output/result-analysis.md`
 - `.qa-ai/output/execution-summary.md`
 - `.qa-ai/output/traceability-matrix.md`
-- `qa-ai.config.yaml` (`analysis.defectTriagePath`, `analysis.actionPlanPath`)
+- `.qa-ai/qa-ai.config.yaml` (`analysis.defectTriagePath`, `analysis.actionPlanPath`)
 
 ## Responsibilities
 

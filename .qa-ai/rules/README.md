@@ -4,10 +4,11 @@ Mandatory behavior for **every** AI agent (Claude Code, OpenCode, Codex, Cursor,
 
 ## How to load (all tools)
 
-1. Read `AGENTS.md` and `qa-ai.config.yaml` when present.
-2. Read **every** file in this folder matching `*.rules.md` before changing QA workflow behavior, requirements, tests, automation, or `qa-ai-output/` artifacts.
+1. Read `AGENTS.md` and `.qa-ai/qa-ai.config.yaml` when present.
+2. Read **every** file in this folder matching `*.rules.md` before changing QA workflow behavior, requirements, tests, automation, or `.qa-ai/output/` artifacts.
 3. Read `.qa-ai/agents/README.md` and the phase agent for the current step.
 4. Load specialists from `.qa-ai/agents/specialists/active.md` when present.
+5. Before loading any specialist, read `specialist-common.rules.md`.
 
 If your tool only accepts a short file list, include at minimum:
 
@@ -24,7 +25,8 @@ Then load the rest before implementation or external-tool phases.
 | Order | File                                                     | Scope                                                                                 |
 | ----: | -------------------------------------------------------- | ------------------------------------------------------------------------------------- |
 |     1 | [approval.rules.md](approval.rules.md)                   | Plans, approvals, secrets, MVP boundaries                                             |
-|     2 | [workflow.rules.md](workflow.rules.md)                   | Languages, tracks, artifacts, validators                                              |
+|     2 | [specialist-common.rules.md](specialist-common.rules.md) | Shared language, traceability, output and safety contract for specialists             |
+|     3 | [workflow.rules.md](workflow.rules.md)                   | Languages, tracks, artifacts, validators                                              |
 |     3 | [untrusted-content.rules.md](untrusted-content.rules.md) | Requirement/context prompt-injection handling                                         |
 |     4 | [requirements.rules.md](requirements.rules.md)           | RF/CA intake, normalized NFR table, traceability matrix                               |
 |     5 | [test-design.rules.md](test-design.rules.md)             | System + per-RF design, `## Non-functional coverage`, proposal-first                  |
@@ -40,11 +42,6 @@ Then load the rest before implementation or external-tool phases.
 |    15 | [release-gate.rules.md](release-gate.rules.md)           | Enterprise release gate                                                               |
 |    16 | [cleanup.rules.md](cleanup.rules.md)                     | Safe cleanup of generated files                                                       |
 |    17 | [karate.rules.md](karate.rules.md)                       | Executable Karate `.feature` files (when Karate is configured)                        |
-
-## Legacy filenames
-
-- [testrail.rules.md](testrail.rules.md) → same content as `test-management.rules.md`
-- [webdriverio.rules.md](webdriverio.rules.md) → same content as `ui-automation.rules.md`
 
 ## Rules ↔ validators
 
@@ -72,7 +69,7 @@ Each `*.rules.md` includes an **Enforced by** line. Critical rules must map to a
 | [cleanup.rules.md](cleanup.rules.md)                     | `clean.mjs`                                                                                                              |
 | [karate.rules.md](karate.rules.md)                       | `validate-karate-features.mjs` (when api/ui framework is karate)                                                         |
 
-`doctor.mjs` requires every `*.rules.md` file to exist. `validate-active-specialists.mjs` enforces specialist config against `qa-ai.config.yaml`.
+`doctor.mjs` requires every `*.rules.md` file to exist. `validate-active-specialists.mjs` enforces specialist config against `.qa-ai/qa-ai.config.yaml`.
 
 ### Additional validators (config, governed execution, framework integrity)
 
@@ -82,7 +79,7 @@ it) and additionally checked structurally by `validate-quality-report.mjs`.
 
 | Validator                         | Enforces / validates                                                               |
 | --------------------------------- | ---------------------------------------------------------------------------------- |
-| `validate-config.mjs`             | `qa-ai.config.yaml` against `contracts/config.v1.schema.json`                      |
+| `validate-config.mjs`             | `.qa-ai/qa-ai.config.yaml` against `contracts/config.v1.schema.json`               |
 | `validate-workflow-contract.mjs`  | `contracts/workflow.v1.json` integrity (phase IDs, paths, validator allowlist)     |
 | `validate-active-specialists.mjs` | `agents/specialists/active.md` against configured specialists                      |
 | `validate-quality-report.mjs`     | `gherkin-quality-report.md` structure against `gherkin-quality.rubric.md`          |
@@ -97,5 +94,5 @@ it) and additionally checked structurally by `validate-quality-report.mjs`.
 ## Conflict resolution
 
 - `.qa-ai/rules/` overrides team QA context summaries when they conflict.
-- `qa-ai.config.yaml` overrides default paths and tool names.
+- `.qa-ai/qa-ai.config.yaml` overrides default paths and tool names.
 - Phase agents add detail but must not contradict these rules.

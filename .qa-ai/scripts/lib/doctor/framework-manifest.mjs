@@ -16,12 +16,11 @@ export const requiredRules = [
   '.qa-ai/rules/issue-tracker.rules.md',
   '.qa-ai/rules/release-gate.rules.md',
   '.qa-ai/rules/requirements.rules.md',
+  '.qa-ai/rules/specialist-common.rules.md',
   '.qa-ai/rules/test-design.rules.md',
   '.qa-ai/rules/test-management.rules.md',
-  '.qa-ai/rules/testrail.rules.md',
   '.qa-ai/rules/untrusted-content.rules.md',
   '.qa-ai/rules/ui-automation.rules.md',
-  '.qa-ai/rules/webdriverio.rules.md',
   '.qa-ai/rules/workflow.rules.md'
 ];
 
@@ -86,7 +85,7 @@ export const requiredSpecialists = [
   '.qa-ai/agents/specialists/available/postman.md',
   '.qa-ai/agents/specialists/available/rest-assured.md',
   '.qa-ai/agents/specialists/available/selenium.md',
-  '.qa-ai/agents/specialists/available/security.md',
+  '.qa-ai/agents/specialists/available/functional-security.md',
   '.qa-ai/agents/specialists/available/testrail.md',
   '.qa-ai/agents/specialists/available/webdriverio.md'
 ];
@@ -96,8 +95,7 @@ export const requiredPresets = [
   '.qa-ai/presets/karate-full.yaml',
   '.qa-ai/presets/maestro-karate-mobile.yaml',
   '.qa-ai/presets/playwright-full.yaml',
-  '.qa-ai/presets/selenium-jest-browserstack.yaml',
-  '.qa-ai/presets/webdriverio-playwright-api.yaml'
+  '.qa-ai/presets/selenium-jest-browserstack.yaml'
 ];
 
 export const requiredContracts = [

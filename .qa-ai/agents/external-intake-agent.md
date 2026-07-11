@@ -14,12 +14,12 @@ Activated as the optional `external-intake` step, before requirements normalizat
 
 ## Inputs
 
-- `qa-ai.config.yaml` (`sources.external.enabled`, `sources.external.requirementsImportPath`,
+- `.qa-ai/qa-ai.config.yaml` (`sources.external.enabled`, `sources.external.requirementsImportPath`,
   `sources.external.casesImportPath`, `requirements.requireOfficialRfId`).
 - External requirements from the configured issue tracker (Jira, Linear, GitHub Issues, etc.) via MCP read tools.
 - Existing test cases from the configured test management tool via MCP read tools.
 - `.qa-ai/rules/untrusted-content.rules.md` — mandatory before reading external content.
-- `qa-ai-output/qa-knowledge-summary.md` when `knowledge.enabled` is true.
+- `.qa-ai/output/qa-knowledge-summary.md` when `knowledge.enabled` is true.
 
 ## Responsibilities
 
@@ -40,12 +40,12 @@ Activated as the optional `external-intake` step, before requirements normalizat
 
 ### Imported requirements artifact
 
-Path: `sources.external.requirementsImportPath` (default: `qa-ai-output/imported-requirements.md`).
+Path: `sources.external.requirementsImportPath` (default: `.qa-ai/output/imported-requirements.md`).
 Use `.qa-ai/templates/imported-requirements.template.md`.
 
 ### Imported test cases artifact
 
-Path: `sources.external.casesImportPath` (default: `qa-ai-output/imported-cases.md`).
+Path: `sources.external.casesImportPath` (default: `.qa-ai/output/imported-cases.md`).
 Use `.qa-ai/templates/imported-cases.template.md`.
 
 ## Done Criteria

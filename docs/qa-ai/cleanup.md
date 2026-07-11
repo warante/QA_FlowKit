@@ -10,7 +10,7 @@ The command is designed for target repositories after `.qa-ai/` has been copied 
 
 ## Why cleanup is manifest-based
 
-Generated project files can become real user work quickly. For example, `qa-ai-output/test-design-proposal.md` may start as a template and later contain important analysis.
+Generated project files can become real user work quickly. For example, `.qa-ai/output/test-design-proposal.md` may start as a template and later contain important analysis.
 
 For that reason, cleanup does not delete by path pattern alone. It reads:
 
@@ -72,7 +72,7 @@ When no scope flag is passed, `--all` is assumed for the dry-run preview.
 Changed tracked files are skipped by default:
 
 ```text
-[SKIP] qa-ai-output/test-design-proposal.md (modified since init)
+[SKIP] .qa-ai/output/test-design-proposal.md (modified since init)
 ```
 
 To delete modified tracked files, the user must be explicit:

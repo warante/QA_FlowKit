@@ -6,10 +6,10 @@ Apply when `automation.api.framework` and/or `automation.ui.framework` is `karat
 
 ## Two Gherkin worlds
 
-| Location                                    | Purpose                              | Validator                      |
-| ------------------------------------------- | ------------------------------------ | ------------------------------ |
-| `gherkin.featurePath` (default `features/`) | QA design, traceability, manual tags | `validate-features.mjs`        |
-| `tests/karate/features/...`                 | Executable Karate API/UI tests       | `validate-karate-features.mjs` |
+| Location                                           | Purpose                              | Validator                      |
+| -------------------------------------------------- | ------------------------------------ | ------------------------------ |
+| `gherkin.featurePath` (default `.qa-ai/features/`) | QA design, traceability, manual tags | `validate-features.mjs`        |
+| `.qa-ai/tests/karate/features/...`                 | Executable Karate API/UI tests       | `validate-karate-features.mjs` |
 
 Do not put Karate `* url` / `method` steps in design features. Do not require QA `Acceptance Criteria:` blocks in Karate execution features.
 
@@ -18,7 +18,7 @@ Do not put Karate `* url` / `method` steps in design features. Do not require QA
 - Use `Feature:` and one or more `Scenario` / `Scenario Outline` blocks.
 - Prefer Karate `*` steps over Cucumber `Given`/`When`/`Then` glue.
 - API scenarios: include `url`/`path`, `method`, `status`, and `match` as appropriate.
-- UI scenarios: use Karate UI keywords (`driver`, `click`, `input`, etc.) under `tests/karate/features/ui/`.
+- UI scenarios: use Karate UI keywords (`driver`, `click`, `input`, etc.) under `.qa-ai/tests/karate/features/ui/`.
 - Reuse `Background` for shared setup; use `karate-config.js` for environments (never hardcode secrets).
 - Recommended tags: `@rf:`, `@id:`, `@smoke` for traceability (optional unless `--strict-rf`).
 

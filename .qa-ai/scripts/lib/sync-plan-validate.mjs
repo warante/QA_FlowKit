@@ -88,7 +88,7 @@ async function validateMappingFile(cwd, config, errors) {
 }
 
 /**
- * @returns {Promise<{ ok: boolean, errors: string[], warnings: string[], legacyWarning?: string }>}
+ * @returns {Promise<{ ok: boolean, errors: string[], warnings: string[] }>}
  */
 export async function validateSyncPlan(cwd, options = {}) {
   const configInfo = await loadQaAiConfig(cwd);
@@ -97,30 +97,25 @@ export async function validateSyncPlan(cwd, options = {}) {
     ? { path: options.path, absPath: resolveRepoPath(cwd, options.path, { label: 'sync plan' }), isLegacy: false }
     : await resolveTestManagementSyncPlanPath(cwd, configInfo.data);
   const syncPlanPath = resolvedSyncPlan.path;
-  const legacyWarning = resolvedSyncPlan.isLegacy
-    ? `Legacy sync plan path '${resolvedSyncPlan.path}' found. Rename it to '${resolvedSyncPlan.replacementPath}' to follow current conventions.`
-    : '';
   const featureRootPath = resolveRepoPath(cwd, featureRoot, { label: 'feature root' });
   const syncPlanFilePath = resolvedSyncPlan.absPath;
   const features = await collectFeatureIds(featureRootPath);
 
   if (features.length === 0) {
-    if (options.allowEmpty) return { ok: true, errors: [], warnings: [], legacyWarning };
+    if (options.allowEmpty) return { ok: true, errors: [], warnings: [] };
     return {
       ok: false,
       errors: [`No .feature files found under ${featureRoot}.`],
-      warnings: [],
-      legacyWarning
+      warnings: []
     };
   }
 
   if (!(await pathExists(syncPlanFilePath))) {
-    if (options.allowMissing) return { ok: true, errors: [], warnings: [], legacyWarning };
+    if (options.allowMissing) return { ok: true, errors: [], warnings: [] };
     return {
       ok: false,
       errors: [`Sync plan not found at ${syncPlanPath}.`],
-      warnings: [],
-      legacyWarning
+      warnings: []
     };
   }
 
@@ -128,6 +123,11 @@ export async function validateSyncPlan(cwd, options = {}) {
   const normalizedContent = normalizeId(content);
   const syncPlan = parseSyncPlanTable(content);
   const errors = [];
+  for (const feature of features) {
+    if (/RF-PENDING/i.test(await readText(feature.file))) {
+      errors.push(`${relativeTo(cwd, feature.file)} uses a provisional RF and cannot be externally synchronized.`);
+    }
+  }
   errors.push(...syncPlan.errors);
   errors.push(...duplicatePlanErrors(syncPlan.rows));
 
@@ -150,5 +150,5 @@ export async function validateSyncPlan(cwd, options = {}) {
 
   await validateMappingFile(cwd, configInfo.data, errors);
 
-  return { ok: errors.length === 0, errors, warnings: [], legacyWarning };
+  return { ok: errors.length === 0, errors, warnings: [] };
 }

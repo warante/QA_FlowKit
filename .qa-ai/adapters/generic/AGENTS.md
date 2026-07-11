@@ -11,7 +11,7 @@ Add an AI-assisted QA workflow to an existing QA or automation repository: requi
 ## Mandatory behavior
 
 - Read this file before making changes.
-- Resolve project config with `node .qa-ai/scripts/show-config.mjs --json` when present. Compact init writes `.qa-ai/qa-ai.config.yaml`; legacy repos may use root `qa-ai.config.yaml` (root takes precedence when both exist).
+- Resolve project config with `node .qa-ai/scripts/show-config.mjs --json`. `.qa-ai/qa-ai.config.yaml` is the only runtime config; a root config must be migrated first.
 - When `knowledge.enabled` is true, read the configured QA knowledge summary and init decisions artifacts before QA workflow work.
 - Read **all** shared rules before changing workflow behavior:
   - Start with [.qa-ai/rules/README.md](.qa-ai/rules/README.md) (load order and tool-agnostic index).
@@ -53,8 +53,8 @@ Detailed rules live under `.qa-ai/rules/`. Do not rely on this summary alone.
   output/                   # QA artifacts (compact layout)
   features/                 # Gherkin features (compact layout)
   tests/                    # automation specs when configured
-qa-ai.config.yaml           # legacy root config (still supported)
-qa-ai-output/               # legacy artifact root
+.qa-ai/qa-ai.config.yaml    # only runtime config path
+.qa-ai/output/               # legacy artifact root
 features/                   # legacy feature root
 tests/                      # legacy automation root
 ```

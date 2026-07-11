@@ -13,7 +13,7 @@ Review existing QA tests when an RF or its acceptance criteria has changed.
 Read these files first:
 
 - `AGENTS.md`
-- Resolved config from the injected `show-config --json` output when present; otherwise run `node .qa-ai/scripts/show-config.mjs --json`. Compact init uses `.qa-ai/qa-ai.config.yaml`; legacy repos may use root `qa-ai.config.yaml`.
+- Resolved config from the injected `show-config --json` output when present; otherwise run `node .qa-ai/scripts/show-config.mjs --json`. `.qa-ai/qa-ai.config.yaml` is the only runtime config; migrate a detected root config before continuing.
 - `.qa-ai/rules/`
 - `.qa-ai/agents/README.md`
 - `.qa-ai/agents/qa-workflow-orchestrator.md`
@@ -43,7 +43,7 @@ Workflow:
 
 1. Inspect existing `.feature` files, automation tests and traceability artifacts for the RF.
 2. Compare current tests with the updated RF and acceptance criteria.
-3. Produce or update `qa-ai-output/test-design-proposal.md` with explicit sections:
+3. Produce or update `.qa-ai/output/test-design-proposal.md` with explicit sections:
    - Existing tests to keep.
    - Existing tests to modify.
    - Existing tests to retire or delete.
@@ -54,6 +54,6 @@ Workflow:
 4. Ask for approval before changing, deleting or adding tests.
 5. Apply only the approved changes.
 6. Run `node .qa-ai/scripts/validate-features.mjs`, `node .qa-ai/scripts/validate-traceability.mjs` and `node .qa-ai/scripts/validate-sync-plan.mjs` after feature/artifact changes.
-7. Update `qa-ai-output/traceability-matrix.md` when useful.
+7. Update `.qa-ai/output/traceability-matrix.md` when useful.
 
 Never delete tests by default. Do not write to configured external tools.

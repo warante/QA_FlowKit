@@ -124,7 +124,9 @@ npm run test:e2e-manual-example
 AGENTS.md                  instrucciones genéricas cuando no se elige un override de host específico
 ```
 
-Los repositorios legacy pueden seguir usando `qa-ai.config.yaml`, `qa-ai-output/`, `features/` y `tests/` en la raíz. QA FlowKit sigue leyendo esas rutas cuando están configuradas o cuando existe el config en raíz.
+Los layouts legacy se detectan, pero nunca se cargan durante la ejecución. Revisa `qa-flowkit migrate --dry-run`,
+aprueba la migración explícita y continúa exclusivamente con `.qa-ai/qa-ai.config.yaml`, `.qa-ai/output/`,
+`.qa-ai/features/` y las rutas modernas de automatización configuradas.
 
 Las carpetas de automatización se generan solo cuando el preset elegido las requiere. En una terminal interactiva,
 `init` muestra un selector de adaptador para tu CLI de IA; en entornos no interactivos detecta carpetas de agentes
@@ -143,14 +145,13 @@ El track controla la profundidad; los presets configuran frameworks y herramient
 
 ## Presets
 
-| Preset                       | Track habitual | Automatización                    |
-| ---------------------------- | -------------- | --------------------------------- |
-| `manual-only`                | `quick`        | Ninguna                           |
-| `playwright-full`            | `standard`     | Playwright UI + API               |
-| `maestro-karate-mobile`      | `standard`     | Maestro mobile + Karate API       |
-| `karate-full`                | `standard`     | Karate API + UI                   |
-| `webdriverio-playwright-api` | `standard`     | Preset de compatibilidad heredado |
-| `selenium-jest-browserstack` | `standard`     | Selenium/Jest                     |
+| Preset                       | Track habitual | Automatización              |
+| ---------------------------- | -------------- | --------------------------- |
+| `manual-only`                | `quick`        | Ninguna                     |
+| `playwright-full`            | `standard`     | Playwright UI + API         |
+| `maestro-karate-mobile`      | `standard`     | Maestro mobile + Karate API |
+| `karate-full`                | `standard`     | Karate API + UI             |
+| `selenium-jest-browserstack` | `standard`     | Selenium/Jest               |
 
 Ejemplo:
 

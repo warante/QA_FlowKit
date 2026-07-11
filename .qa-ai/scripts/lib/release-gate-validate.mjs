@@ -1,6 +1,14 @@
 import { validateReleaseGateData } from './release-gate.mjs';
 import { validateExecutionEvidence } from './execution-evidence-validate.mjs';
-import { getConfigValue, loadQaAiConfig, parseSimpleYaml, pathExists, readText, resolveRepoPath } from './utils.mjs';
+import {
+  getConfigValue,
+  listFilesRecursive,
+  loadQaAiConfig,
+  parseSimpleYaml,
+  pathExists,
+  readText,
+  resolveRepoPath
+} from './utils.mjs';
 
 export async function validateReleaseGateFile(cwd, filePath, options = {}) {
   const gatePath = resolveRepoPath(cwd, filePath, { label: 'release gate' });
@@ -59,6 +67,22 @@ export async function validateReleaseGateFile(cwd, filePath, options = {}) {
   const resultsPaths = getConfigValue(configInfo.data, 'execution.resultsPaths', []);
   const evalResultsPaths = getConfigValue(configInfo.data, 'execution.evalResultsPaths', []);
   const aiTestingEnabled = Boolean(getConfigValue(configInfo.data, 'aiTesting.enabled', false));
+  if (result.decision === 'PASS') {
+    const featureRoot = resolveRepoPath(
+      cwd,
+      getConfigValue(configInfo.data, 'gherkin.featurePath', '.qa-ai/features'),
+      { label: 'feature root' }
+    );
+    if (await pathExists(featureRoot)) {
+      const provisional = [];
+      for (const featureFile of await listFilesRecursive(featureRoot, (candidate) => candidate.endsWith('.feature'))) {
+        if (/RF-PENDING/i.test(await readText(featureFile))) provisional.push(featureFile);
+      }
+      if (provisional.length > 0) {
+        errors.push(`${filePath}: PASS is forbidden while provisional RF feature drafts exist.`);
+      }
+    }
+  }
 
   if (
     track === 'enterprise' &&

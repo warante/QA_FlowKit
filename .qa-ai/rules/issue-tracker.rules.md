@@ -11,8 +11,8 @@ Apply when drafting Jira, Azure DevOps, GitHub Issues or other work items config
 
 ## Primary artifacts
 
-- Consolidated automation task draft: `qa-ai-output/jira-automation-task.md` (required for `doctor --strict` on initialized repos when issue tracking is in scope).
-- Optional per-task detail: `qa-ai-output/issue-drafts/<task-id>.md` for multiple blockers.
+- Consolidated automation task draft: `.qa-ai/output/jira-automation-task.md` (required for `doctor --strict` on initialized repos when issue tracking is in scope).
+- Optional per-task detail: `.qa-ai/output/issue-drafts/<task-id>.md` for multiple blockers.
 
 ## Content
 

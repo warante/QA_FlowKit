@@ -7,7 +7,7 @@ Apply on the `enterprise` QA track before release or merge when `release.gatePat
 ## When required
 
 - `project.qaTrack` is `enterprise`.
-- Artifact path defaults to `qa-ai-output/release-gate.yaml` unless config overrides it.
+- Artifact path defaults to `.qa-ai/output/release-gate.yaml` unless config overrides it.
 
 ## Decisions
 
@@ -18,7 +18,7 @@ Apply on the `enterprise` QA track before release or merge when `release.gatePat
 ## Evidence
 
 - List only **existing repository paths** in `evidence_paths`; do not invent files.
-- Review at minimum: `qa-ai-output/pr-summary.md`, `qa-ai-output/traceability-matrix.md`, sync plan when present, and recent validator output the user provides.
+- Review at minimum: `.qa-ai/output/pr-summary.md`, `.qa-ai/output/traceability-matrix.md`, sync plan when present, and recent validator output the user provides.
 
 ## Constraints
 

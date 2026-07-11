@@ -283,10 +283,11 @@ function parsedTagValue(model, content, tagName) {
  */
 export function validateFeatureContent(content, file, requiredTags, language, options = {}) {
   const errors = [];
+  const warnings = [];
   const rules = languageRules(language);
+  const ast = parseGherkin(content, language);
   const parsed = parseFeature(content, language);
   const featureLine = parsed.featureLines[0]?.text || findAnyLine(content, rules.featurePrefixes);
-  const scenarioLine = parsed.scenarioLines[0]?.text || findAnyLine(content, rules.scenarioPrefixes);
   const languageLine = parsed.languageLine || findLine(content, '# language:');
 
   if (languageLine && !new RegExp(`#\\s*language:\\s*${rules.code}\\b`, 'i').test(languageLine)) {
@@ -297,8 +298,11 @@ export function validateFeatureContent(content, file, requiredTags, language, op
   }
   if (parsed.featureLines.length !== 1)
     errors.push(`Expected exactly one Feature title, found ${parsed.featureLines.length}.`);
-  if (parsed.scenarioLines.length !== 1) {
-    errors.push(`Expected exactly one Scenario, found ${parsed.scenarioLines.length}.`);
+  const scenarioLayout = options.scenarioLayout || 'multiple-per-file';
+  if (parsed.scenarioLines.length === 0) {
+    errors.push('Expected at least one Scenario.');
+  } else if (scenarioLayout === 'one-per-file' && parsed.scenarioLines.length !== 1) {
+    errors.push(`Configured scenarioLayout is one-per-file; found ${parsed.scenarioLines.length} Scenarios.`);
   }
   if (parsed.acceptanceLines.length === 0) errors.push(`Missing ${rules.acceptanceLabel}.`);
 
@@ -306,6 +310,40 @@ export function validateFeatureContent(content, file, requiredTags, language, op
     if (!hasRequiredParsedTag(parsed, tag) && !hasRequiredTag(content, tag)) {
       errors.push(`Missing required tag value ${tag}:<value>`);
     }
+  }
+
+  const featureTags = (ast.feature?.tags || []).map((item) => item.name.toLowerCase());
+  const scenarioNodes = [];
+  const backgroundNodes = [];
+  const collectScenarioNodes = (node) => {
+    if (node.type === 'Scenario') scenarioNodes.push(node);
+    if (node.type === 'Background') backgroundNodes.push(node);
+    for (const child of node.children || []) collectScenarioNodes(child);
+  };
+  if (ast.feature) collectScenarioNodes(ast.feature);
+  if (backgroundNodes.length > 0 && scenarioNodes.length < 2) {
+    errors.push('Background requires at least two Scenarios that share its preconditions.');
+  }
+  const scenarioIds = [];
+  for (const scenario of scenarioNodes) {
+    const effectiveTags = [...featureTags, ...(scenario.tags || []).map((item) => item.name.toLowerCase())];
+    for (const tag of requiredTags.map(requiredTagName).filter(Boolean)) {
+      const prefix = `${tag.toLowerCase()}:`;
+      if (!effectiveTags.some((value) => value.startsWith(prefix) && value.length > prefix.length)) {
+        errors.push(`Scenario "${scenario.name}" is missing required tag value ${tag}:<value>.`);
+      }
+    }
+    const idTag = effectiveTags.find((value) => value.startsWith('@id:'));
+    if (scenarioLayout === 'multiple-per-file' && scenarioNodes.length > 1 && !idTag) {
+      errors.push(`Scenario "${scenario.name}" must declare a unique @id:<TC-ID> in multiple-per-file layout.`);
+    }
+    if (idTag) scenarioIds.push(idTag.slice(4).toUpperCase());
+    if (!rfPattern.test(scenario.name)) {
+      errors.push(`Scenario title does not contain an RF-like ID. Scenario: "${scenario.name}".`);
+    }
+  }
+  if (new Set(scenarioIds).size !== scenarioIds.length) {
+    errors.push('Every Scenario in a feature file must use a unique @id:<TC-ID>.');
   }
 
   const typeValue = parsedTagValue(parsed, content, 'type');
@@ -325,11 +363,18 @@ export function validateFeatureContent(content, file, requiredTags, language, op
     }
   }
 
-  if (scenarioLine && !rfPattern.test(scenarioLine)) {
-    errors.push('Scenario title does not contain an RF-like ID.');
-  }
   if (!rfPattern.test(path.basename(file))) {
     errors.push('Feature filename does not contain an RF-like ID.');
+  }
+
+  const provisionalRf = /\bRF-PENDING(?:-[A-Za-z0-9._-]+)?\b/i.test(content) || /RF-PENDING/i.test(path.basename(file));
+  if (provisionalRf) {
+    const hasWip = parsed.tags.some(({ tag }) => tag.toLowerCase() === '@wip');
+    if (!hasWip) errors.push('Provisional RF features must include @wip.');
+    const message =
+      'Provisional RF feature is draft-only and cannot be automated, externally synchronized, or used for a PASS release gate.';
+    if (options.strictProvisionalRf) errors.push(message);
+    else warnings.push(message);
   }
 
   // AI-component tag validation
@@ -362,7 +407,6 @@ export function validateFeatureContent(content, file, requiredTags, language, op
     }
   }
 
-  const ast = parseGherkin(content, language);
   const statisticalMatches = statisticalAssertions(ast, rules.code);
   const statisticalLike = statisticalLikeLines(ast, rules.code);
   const malformedStatisticalCount = Math.max(0, statisticalLike.length - statisticalMatches.length);
@@ -398,11 +442,12 @@ export function validateFeatureContent(content, file, requiredTags, language, op
 
   return {
     errors,
+    warnings,
     ids: [
       ...new Set([
         ...idsFromText(path.basename(file, '.feature')),
         ...idsFromText(featureLine),
-        ...idsFromText(scenarioLine)
+        ...parsed.scenarioLines.flatMap((scenario) => idsFromText(scenario.text))
       ])
     ].sort(),
     caseIds: [...new Set([...caseIdsFromText(path.basename(file, '.feature')), ...caseIdsFromTags(parsed)])].sort()

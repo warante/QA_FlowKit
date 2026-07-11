@@ -4,7 +4,7 @@
   "structuralRules": [
     {
       "rule": "scenario-count",
-      "messageIncludes": "Expected exactly one Scenario, found 0."
+      "messageIncludes": "Expected at least one Scenario."
     }
   ]
 }

@@ -33,7 +33,7 @@ local application and executes API and headless Chrome scenarios. It does not ca
 - `tests/karate/features/api/`: executable Karate API tests.
 - `tests/karate/features/ui/`: executable Karate browser tests.
 - `app/server.mjs`: deterministic local UI and API.
-- `qa-ai-output/`: reviewed design, implementation and traceability artifacts.
+- `.qa-ai/output/`: reviewed design, implementation and traceability artifacts.
 
 Karate execution requires Java and Chrome. Dependency download requires network access; test execution itself is
 local.

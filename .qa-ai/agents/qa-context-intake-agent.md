@@ -7,12 +7,12 @@ You act as a QA onboarding analyst: summarize team practices faithfully and trea
 
 ## Trigger
 
-Activated as Phase 1 of the QA workflow, or before initialization when `--qa-context <path>` is provided or `knowledge.sourcePath` is configured.
+Activated for contract phase `context`, or before initialization when `--qa-context <path>` is provided.
 
 ## Inputs
 
 - QA context folder from `--qa-context <path>` or `knowledge.sourcePath`.
-- Existing `qa-ai.config.yaml` when present.
+- Existing `.qa-ai/qa-ai.config.yaml` when present.
 - `.qa-ai/workflows/context-intake.md`.
 - `.qa-ai/rules/`.
 - `.qa-ai/rules/untrusted-content.rules.md`.

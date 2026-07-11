@@ -1,0 +1,127 @@
+version: 1
+project:
+  name: nfr-coverage-fixture
+  repoMode: qa-design-only
+  qaTrack: standard
+  defaultLanguage: en
+  interfaceLanguage: en
+tools:
+  testManagement: none
+  issueTracker: none
+  documentation: markdown
+agents:
+  specialistMode: auto
+sources:
+  main: markdown
+knowledge:
+  enabled: false
+  sourcePath: ''
+  summaryPath: .qa-ai/output/qa-knowledge-summary.md
+  decisionsPath: .qa-ai/output/qa-init-decisions.md
+requirements:
+  requireOfficialRfId: true
+  inferredAcceptanceCriteria: require-approval
+gherkin:
+  language: en
+  scenarioLayout: one-per-file
+  requireAcceptanceCriteria: true
+  manualTestsNeedFeatureFile: true
+  featurePath: .qa-ai/features
+  tags:
+    required:
+      - priority
+      - type
+      - manual
+automation:
+  enabled: false
+  framework: none
+  language: none
+  testPath: .qa-ai/tests
+  timeoutMs: 30000
+  retries: 0
+api:
+  enabled: false
+  framework: none
+  baseUrlSource: env
+mobile:
+  enabled: false
+  framework: none
+  platform: none
+browser:
+  enabled: false
+  provider: none
+  browser: none
+  operatingSystem: none
+execution:
+  enabled: false
+  resultPaths: []
+  evalResultPaths: []
+  reportPath: .qa-ai/output/execution-results.md
+  requireEvidenceForRelease: false
+  quarantine:
+    enabled: false
+    mappingPath: .qa-ai/test-management/mapping.json
+    requireReason: true
+testData:
+  enabled: false
+  strategy: synthetic
+  piiAllowed: false
+  cleanupRequired: true
+  seedSource: deterministic
+  artifactPath: .qa-ai/output/test-data-plan.md
+environments:
+  enabled: false
+  targets: []
+  readinessPath: .qa-ai/output/environment-readiness.md
+observability:
+  enabled: false
+  logSource: none
+  metricsSource: none
+  traceSource: none
+  productionReadOnly: true
+  reportPath: .qa-ai/output/observability-intake.md
+testImpact:
+  enabled: false
+  mode: advisory
+  reportPath: .qa-ai/output/test-impact-analysis.md
+healing:
+  enabled: false
+  mode: advisory
+  maxRepairsPerRun: 3
+  requireApprovalForBehaviorChange: true
+  logPath: .qa-ai/output/healing-log.md
+learningLoop:
+  enabled: false
+  reportPath: .qa-ai/output/learning-log.md
+testManagementSync:
+  mode: proposal-only
+  mappingPath: .qa-ai/test-management/mapping.json
+  planPath: .qa-ai/output/test-management-sync-plan.md
+  diffPath: .qa-ai/output/test-management-sync-diff.md
+  applyLogPath: .qa-ai/output/test-management-apply-log.md
+  rollbackPath: .qa-ai/output/test-management-rollback.md
+  remoteSnapshotPath: .qa-ai/output/test-management-remote-snapshot.md
+risk:
+  enabled: false
+  model: probability-impact
+  reportPath: .qa-ai/output/risk-analysis.md
+release:
+  gateEnabled: false
+  gatePath: .qa-ai/output/release-gate.json
+  requireExecutionEvidence: false
+  requireObservabilityEvidence: false
+traceability:
+  matrixPath: .qa-ai/output/traceability-matrix.md
+testDesign:
+  systemPath: .qa-ai/output/test-design-system.md
+  proposalPath: .qa-ai/output/test-design-proposal.md
+  nonFunctionalCoverage:
+    mode: strict
+    requireEvidenceReference: true
+    requireMetricOrOracle: true
+    requireEnvironmentOrDataset: true
+    requireResidualRisk: true
+    requireFeatureForExecutable: true
+    requiredEvidenceTypes: []
+  strategyRouting:
+    mode: advisory

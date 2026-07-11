@@ -40,7 +40,7 @@ Use `--skip-release-gate` or `--allow-missing` only for incomplete repositories.
 
 ## Artifact
 
-Default path: `qa-ai-output/release-gate.yaml`
+Default path: `.qa-ai/output/release-gate.yaml`
 
 Template: `.qa-ai/templates/release-gate.template.yaml`
 

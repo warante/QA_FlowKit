@@ -1,5 +1,7 @@
 # Availability and Reliability Specialist
 
+> Inherits .qa-ai/rules/specialist-common.rules.md.
+
 > Guidance for uptime, recovery, idempotency and fault-tolerance design. Not chaos engineering or production failover testing.
 
 ## Role

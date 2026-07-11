@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import path from 'node:path';
 import fs from 'node:fs/promises';
+import readline from 'node:readline/promises';
 import { defaultKarateConfigPath } from './lib/automation-framework.mjs';
 import { activeSpecialistsContent, configuredDirs } from './lib/project-config.mjs';
 import { getTestManagementMappingFile } from './lib/test-management-config.mjs';
@@ -76,6 +77,39 @@ async function main() {
     process.exit(1);
   }
 
+  const presetContent = await readText(presetPath);
+  const presetConfig = parseSimpleYaml(presetContent);
+  const configuredTestManagement = String(
+    args['test-management-tool'] || args.testManagementTool || getConfigValue(presetConfig, 'tools.testManagement', '')
+  ).toLowerCase();
+  let scenarioLayout = args['scenario-layout'] || args.scenarioLayout;
+  if (!scenarioLayout && process.stdin.isTTY && process.stdout.isTTY && !process.env.CI && !args['no-interactive']) {
+    const testRailFirst = configuredTestManagement === 'testrail';
+    const choices = testRailFirst
+      ? [
+          ['1', 'one-per-file', 'One scenario per file (recommended for TestRail)'],
+          ['2', 'multiple-per-file', 'Multiple scenarios per feature (standard Gherkin)']
+        ]
+      : [
+          ['1', 'multiple-per-file', 'Multiple scenarios per feature (standard Gherkin)'],
+          ['2', 'one-per-file', 'One scenario per file (recommended for TestRail)']
+        ];
+    console.log('\nSelect the Gherkin scenario layout:');
+    for (const [key, , label] of choices) console.log(`  ${key}. ${label}`);
+    const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+    try {
+      const answer = (await rl.question('\nScenario layout [1]: ')).trim() || '1';
+      scenarioLayout = choices.find(([key, value]) => answer === key || answer === value)?.[1] || choices[0][1];
+    } finally {
+      rl.close();
+    }
+  }
+  scenarioLayout ||= configuredTestManagement === 'testrail' ? 'one-per-file' : 'multiple-per-file';
+  if (!['one-per-file', 'multiple-per-file'].includes(scenarioLayout)) {
+    throw new Error('Invalid scenario layout. Use one-per-file or multiple-per-file.');
+  }
+  args.scenarioLayout = scenarioLayout;
+
   const qaContextPath = selectedQaContextPath(args);
   if (qaContextPath) {
     const resolvedContext = resolveRepoPath(cwd, qaContextPath, { label: 'QA context folder' });
@@ -95,6 +129,7 @@ async function main() {
   console.log(`Using base template: ${presetName}`);
   console.log(`Using interface language: ${interfaceLanguage}`);
   console.log(`Using Gherkin language: ${gherkinLanguage}`);
+  console.log(`Using Gherkin scenario layout: ${scenarioLayout}`);
 
   const adapters = await selectedAdapters(cwd, args);
 
@@ -104,7 +139,7 @@ async function main() {
   const projectName = await derivedProjectName(cwd, args);
   console.log(`Using project name: ${projectName}`);
   const configContent = personalizeConfig({
-    content: await readText(presetPath),
+    content: presetContent,
     projectName,
     args,
     interfaceLanguage,

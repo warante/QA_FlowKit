@@ -80,7 +80,7 @@ Inside OpenCode:
 **Agent asks:** Test management project/suite?
 **Answer:** `None — quick track`
 
-**Show:** the agent producing artifacts under `qa-ai-output/`:
+**Show:** the agent producing artifacts under `.qa-ai/output/`:
 
 - `requirement-analysis.md`
 - `normalized-requirements.md`
@@ -135,7 +135,7 @@ The agent runs the final gate and reports success. Optionally, the presenter can
 /qa-status
 ```
 
-**Show:** zero exit code and the final artifact tree under `qa-ai-output/` and `features/`.
+**Show:** zero exit code and the final artifact tree under `.qa-ai/output/` and `features/`.
 
 ## Closing (1:55–2:00)
 

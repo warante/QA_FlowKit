@@ -25,6 +25,17 @@ export async function validateActiveSpecialists(cwd, options = {}) {
   }
 
   if (!(await pathExists(activePath))) {
+    const sourceRepo = await pathExists(resolveRepoPath(cwd, 'docs/qa-ai/architecture.md', { label: 'source marker' }));
+    if (sourceRepo) {
+      const errors = [];
+      for (const id of Object.keys(specialistCatalog)) {
+        const sourcePath = resolveRepoPath(cwd, `.qa-ai/agents/specialists/available/${id}.md`, {
+          label: `specialist source "${id}"`
+        });
+        if (!(await pathExists(sourcePath))) errors.push(`Missing specialist source for catalog entry ${id}.`);
+      }
+      return { ok: errors.length === 0, errors, warnings: [] };
+    }
     if (allowMissing) return { ok: true, errors: [], warnings: [] };
     return { ok: false, errors: ['run init or config import to generate active specialists.'], warnings: [] };
   }

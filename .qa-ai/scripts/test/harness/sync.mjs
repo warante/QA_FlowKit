@@ -57,6 +57,12 @@ test('governed sync plan approval and invalidation on modification', async () =>
         file: `${DEFAULT_FEATURE_PATH}/functional/RF-GOV-TC-001.feature`,
         content: '@rf:RF-GOV\nFeature: Test\n'
       },
+      {
+        id: 'traceability',
+        file: '.qa-ai/output/traceability-matrix.md',
+        content:
+          '# Traceability\n\n| Requirement Source | RF | Feature File | Test Management Case ID | Type | Priority | Automation Status |\n| --- | --- | --- | --- | --- | --- | --- |\n| requirements/RF-GOV.md | RF-GOV | .qa-ai/features/functional/RF-GOV-TC-001.feature | TC-001 | functional | high | manual |'
+      },
       { id: 'tm-coverage', file: '.qa-ai/output/test-management-coverage-analysis.md', content: '# coverage' },
       {
         id: 'tm-sync',

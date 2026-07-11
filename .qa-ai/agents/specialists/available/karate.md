@@ -1,5 +1,7 @@
 # Karate Specialist (full stack)
 
+> Inherits .qa-ai/rules/specialist-common.rules.md.
+
 > Framework-specific guidance for API, UI, mocks and performance with Karate DSL ([Karate docs](https://docs.karatelabs.io/getting-started/why-karate)).
 
 ## Activation
@@ -8,16 +10,16 @@ Use when `automation.api.framework` is `karate` and/or `automation.ui.framework`
 
 ## Role
 
-Complements the API Testing Agent and UI implementation agent. Handles Karate DSL, folder layout and runner conventions—not QA design Gherkin under `features/`.
+Complements the API Testing Agent and UI implementation agent. Handles Karate DSL, folder layout and runner conventions—not QA design Gherkin under `.qa-ai/features/`.
 
 ## Two Gherkin worlds
 
-| Path                                                 | Validator                                          |
-| ---------------------------------------------------- | -------------------------------------------------- |
-| `gherkin.featurePath` (design / traceability)        | `node .qa-ai/scripts/validate-features.mjs`        |
-| `tests/karate/features/api` and `.../ui` (execution) | `node .qa-ai/scripts/validate-karate-features.mjs` |
+| Path                                                        | Validator                                          |
+| ----------------------------------------------------------- | -------------------------------------------------- |
+| `gherkin.featurePath` (design / traceability)               | `node .qa-ai/scripts/validate-features.mjs`        |
+| `.qa-ai/tests/karate/features/api` and `.../ui` (execution) | `node .qa-ai/scripts/validate-karate-features.mjs` |
 
-## API features (`tests/karate/features/api`)
+## API features (`.qa-ai/tests/karate/features/api`)
 
 ```gherkin
 @smoke @rf:RF-101
@@ -38,7 +40,7 @@ Feature: Create post API
 - Data-driven: `Scenario Outline` + `Examples`.
 - Config: `karate-config.js` + `karate.env` for environments.
 
-## UI features (`tests/karate/features/ui`)
+## UI features (`.qa-ai/tests/karate/features/ui`)
 
 - Use Karate built-in UI automation (`driver`, `click`, `input`, `waitFor`, etc.).
 - Keep scenarios independent; prefer `Background` for login/session setup via `call`.

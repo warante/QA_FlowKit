@@ -19,7 +19,7 @@ graph TD
     D -- Yes --> E[Redirect to /qa-update-tests]
     D -- No --> F[Verify Paths & Safe Scopes]
     F --> G[Perform Code Repair on Spec Files Only]
-    G --> H[Write to qa-ai-output/healing-log.md]
+    G --> H[Write to .qa-ai/output/healing-log.md]
     H --> I[Run validate-healing-log.mjs]
     I --> J[Target Validation Complete]
 ```
@@ -42,7 +42,7 @@ To prevent agents from modifying business expectations, the healing loop enforce
 
 ### 2. Governed Healing Log (`healing-log.md`)
 
-Every healed test must be documented in `qa-ai-output/healing-log.md`. This log serves as the audit trail for automated modifications.
+Every healed test must be documented in `.qa-ai/output/healing-log.md`. This log serves as the audit trail for automated modifications.
 
 #### Format
 
@@ -88,7 +88,7 @@ Test impact analysis helps QA teams run only the subset of tests affected by cod
 
 ### 1. Analysis Report (`test-impact-analysis.md`)
 
-When a developer submits a PR or code changes, the impact agent analyzes the repository diff and creates `qa-ai-output/test-impact-analysis.md`. The format must be a Markdown table under `## Impacted Areas`:
+When a developer submits a PR or code changes, the impact agent analyzes the repository diff and creates `.qa-ai/output/test-impact-analysis.md`. The format must be a Markdown table under `## Impacted Areas`:
 
 - **Changed area**: Description of the modified code area.
 - **Affected RF**: The requirement ID impacted (e.g. `RF-101`).

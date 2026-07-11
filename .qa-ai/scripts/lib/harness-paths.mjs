@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { listFilesRecursive, pathExists, relativeTo, resolveRepoPath } from './utils.mjs';
-import { DEFAULT_FEATURE_PATH, LEGACY_ARTIFACT_ALIASES } from './artifact-paths.mjs';
+import { DEFAULT_FEATURE_PATH } from './artifact-paths.mjs';
 import { resolveContractPath, resolveOutputSpec } from './harness-contract.mjs';
 
 export function resolveHarnessRelativePath(cwd, relativePath, { label = 'path' } = {}) {
@@ -23,26 +23,8 @@ export function resolveConfigHarnessPath(cwd, config, pathRef, fallback = '', la
   return resolveHarnessRelativePath(cwd, relative, { label });
 }
 
-function legacyPathForCanonical(canonicalPath) {
-  for (const [legacy, canonical] of LEGACY_ARTIFACT_ALIASES.entries()) {
-    if (canonical === canonicalPath) return legacy;
-  }
-  return '';
-}
-
 export async function resolveExistingOutputTarget(cwd, config, outputSpec, label = 'phase output') {
   const target = resolveOutputHarnessPaths(cwd, config, outputSpec, label);
-  if (target.absolute && (await pathExists(target.absolute))) {
-    return target;
-  }
-  const resolved = resolveOutputSpec(config, outputSpec);
-  const legacyRelative = legacyPathForCanonical(resolved.path);
-  if (legacyRelative) {
-    const legacyTarget = resolveHarnessRelativePath(cwd, legacyRelative, { label });
-    if (legacyTarget.absolute && (await pathExists(legacyTarget.absolute))) {
-      return legacyTarget;
-    }
-  }
   return target;
 }
 

@@ -104,7 +104,7 @@ execution.evalResultsPaths
 execution.quarantine
 ```
 
-Preset IDs are public. The `webdriverio-playwright-api` preset remains available as a deprecated compatibility preset;
+Preset IDs are public for the current pre-stable contract. Legacy compatibility presets were removed before 1.0;
 new projects should use `playwright-full`.
 
 ## Workflow And State
@@ -135,7 +135,7 @@ Stable target paths:
 
 - `.qa-ai/`
 - `qa-ai.config.yaml`
-- `qa-ai-output/`
+- `.qa-ai/output/`
 - `features/`
 - `.qa-ai/config-profiles/`
 - `.qa-ai/state/runs/`
@@ -156,11 +156,8 @@ wording are experimental even when their file locations are public.
 
 Current deprecated compatibility surfaces:
 
-| Surface                      | Replacement                      | Commitment                       |
-| ---------------------------- | -------------------------------- | -------------------------------- |
-| `webdriverio-playwright-api` | `playwright-full`                | No removal before post-1.0 major |
-| `rules/webdriverio.rules.md` | `rules/ui-automation.rules.md`   | Alias retained through `1.x`     |
-| `rules/testrail.rules.md`    | `rules/test-management.rules.md` | Alias retained through `1.x`     |
+| Surface | Replacement | Commitment |
+| ------- | ----------- | ---------- |
 
 ## Verification
 

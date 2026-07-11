@@ -79,6 +79,70 @@ test('validateFeatureContent: Scenario Outline counts as single scenario', () =>
   assert.ok(languageRules('es').scenarioPattern.test(parsed.scenarioLines[0].text));
 });
 
+test('validateFeatureContent: multiple-per-file accepts cohesive scenarios while one-per-file rejects them', () => {
+  const content = `
+@priority:high @type:functional @manual:false @rf:RF-101
+Feature: Authentication
+  Acceptance Criteria: RF-101 login behavior
+
+  @id:TC-101
+  Scenario: RF-101 TC-101 valid login
+    Given a valid user
+    When the user signs in
+    Then access is granted
+
+  @id:TC-102
+  Scenario: RF-101 TC-102 invalid login
+    Given an invalid user
+    When the user signs in
+    Then access is denied
+`;
+  const multi = validateFeatureContent(content, 'RF-101-authentication.feature', ['priority', 'type', 'manual'], 'en', {
+    scenarioLayout: 'multiple-per-file'
+  });
+  assert.equal(multi.errors.length, 0, multi.errors.join('\n'));
+  const single = validateFeatureContent(
+    content,
+    'RF-101-authentication.feature',
+    ['priority', 'type', 'manual'],
+    'en',
+    {
+      scenarioLayout: 'one-per-file'
+    }
+  );
+  assert.ok(single.errors.some((error) => error.includes('one-per-file')));
+});
+
+test('validateFeatureContent: provisional RF requires @wip and blocks strict validation', () => {
+  const base = `
+@priority:high @type:functional @manual:true @rf:RF-PENDING-1 @id:TC-101
+Feature: Draft behavior
+  Acceptance Criteria: pending identifier
+  Scenario: RF-PENDING-1 TC-101 draft behavior
+    Given a draft requirement
+    When it is reviewed
+    Then the expected behavior is documented
+`;
+  const missingWip = validateFeatureContent(base, 'RF-PENDING-1-TC-101.feature', ['priority', 'type', 'manual'], 'en');
+  assert.ok(missingWip.errors.some((error) => error.includes('@wip')));
+  const draft = validateFeatureContent(
+    base.replace('@priority:high', '@wip @priority:high'),
+    'RF-PENDING-1-TC-101.feature',
+    ['priority', 'type', 'manual'],
+    'en'
+  );
+  assert.equal(draft.errors.length, 0, draft.errors.join('\n'));
+  assert.ok(draft.warnings.some((warning) => warning.includes('draft-only')));
+  const strict = validateFeatureContent(
+    base.replace('@priority:high', '@wip @priority:high'),
+    'RF-PENDING-1-TC-101.feature',
+    ['priority', 'type', 'manual'],
+    'en',
+    { strictProvisionalRf: true }
+  );
+  assert.ok(strict.errors.some((error) => error.includes('draft-only')));
+});
+
 test('validateFeatureContent: strict-tags requires @rf and @id', () => {
   const minimal = [
     '@priority:high @type:functional @manual:true',

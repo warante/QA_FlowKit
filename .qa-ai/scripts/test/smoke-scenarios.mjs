@@ -93,7 +93,7 @@ export async function runSmokeScenarios({ copyFramework, run }) {
         throw new Error(`Default init did not create expected path: ${relPath}`);
       }
     }
-    const forbiddenRootPaths = ['qa-ai.config.yaml', 'features', 'qa-ai-output', 'tests'];
+    const forbiddenRootPaths = ['qa-ai.config.yaml', 'qa-ai-output', 'features', 'tests'];
     for (const relPath of forbiddenRootPaths) {
       try {
         await fs.access(path.join(defaultTarget, relPath));

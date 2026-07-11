@@ -16,17 +16,17 @@ sources:
 knowledge:
   enabled: false
   sourcePath: ''
-  summaryPath: qa-ai-output/qa-knowledge-summary.md
-  decisionsPath: qa-ai-output/qa-init-decisions.md
+  summaryPath: .qa-ai/output/qa-knowledge-summary.md
+  decisionsPath: .qa-ai/output/qa-init-decisions.md
 requirements:
   requireOfficialRfId: true
   inferredAcceptanceCriteria: require-approval
 gherkin:
   language: en
-  oneScenarioPerFile: true
+  scenarioLayout: one-per-file
   requireAcceptanceCriteria: true
   manualTestsNeedFeatureFile: true
-  featurePath: features
+  featurePath: .qa-ai/features
   tags:
     required:
       - priority
@@ -42,8 +42,8 @@ automation:
     requireProposalBeforeImplementation: true
     allowModifyExistingTests: approval-only
 testDesign:
-  systemPath: qa-ai-output/test-design-system.md
-  proposalPath: qa-ai-output/test-design-proposal.md
+  systemPath: .qa-ai/output/test-design-system.md
+  proposalPath: .qa-ai/output/test-design-proposal.md
   coverage:
     mode: strict
     requirePositive: true
@@ -58,10 +58,10 @@ testDesign:
     allowResidualRiskInAdvisory: true
   quality:
     mode: advisory
-    reportPath: qa-ai-output/gherkin-quality-report.md
+    reportPath: .qa-ai/output/gherkin-quality-report.md
     minDimensionsPassed: 8
 traceability:
-  matrixPath: qa-ai-output/traceability-matrix.md
+  matrixPath: .qa-ai/output/traceability-matrix.md
 approval:
   beforeExternalWrite: true
   beforeExistingFileModification: true

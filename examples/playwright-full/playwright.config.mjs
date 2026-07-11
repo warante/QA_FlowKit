@@ -3,7 +3,7 @@ import { defineConfig, devices } from '@playwright/test';
 const baseURL = process.env.BASE_URL || 'http://127.0.0.1:4174';
 
 export default defineConfig({
-  testDir: './tests/playwright',
+  testDir: '.qa-ai/tests/playwright',
   fullyParallel: true,
   forbidOnly: true,
   retries: process.env.CI ? 1 : 0,

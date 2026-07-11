@@ -1,5 +1,7 @@
 # Compatibility and Portability Specialist
 
+> Inherits .qa-ai/rules/specialist-common.rules.md.
+
 > Guidance for platform, browser, device and deployment matrices. Not exhaustive matrix execution without approval.
 
 ## Role

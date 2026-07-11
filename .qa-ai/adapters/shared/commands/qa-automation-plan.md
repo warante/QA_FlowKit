@@ -13,7 +13,7 @@ Create an automation feasibility and implementation plan from existing `.feature
 Read these files first:
 
 - `AGENTS.md`
-- Resolved config from the injected `show-config --json` output when present; otherwise run `node .qa-ai/scripts/show-config.mjs --json`. Compact init uses `.qa-ai/qa-ai.config.yaml`; legacy repos may use root `qa-ai.config.yaml`.
+- Resolved config from the injected `show-config --json` output when present; otherwise run `node .qa-ai/scripts/show-config.mjs --json`. `.qa-ai/qa-ai.config.yaml` is the only runtime config; migrate a detected root config before continuing.
 - `.qa-ai/rules/`
 - `.qa-ai/agents/README.md`
 - `.qa-ai/agents/qa-workflow-orchestrator.md`
@@ -40,8 +40,8 @@ Workflow:
 1. Inspect existing `.feature` files and configured automation paths.
 2. Inspect existing UI/API automation patterns before proposing code.
 3. Classify tests as automated, automatable, partial, manual, blocked or not automatable.
-4. Produce or update `qa-ai-output/automation-feasibility-report.md`.
-5. Produce or update `qa-ai-output/automation-implementation-plan.md`.
+4. Produce or update `.qa-ai/output/automation-feasibility-report.md`.
+5. Produce or update `.qa-ai/output/automation-implementation-plan.md`.
 6. If the user explicitly approves implementation, add automation code using the configured frameworks and local patterns.
 7. Run relevant project tests or explain why they cannot be run.
 

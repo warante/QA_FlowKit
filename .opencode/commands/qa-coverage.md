@@ -55,10 +55,10 @@ Coverage dimensions:
 
 Expected local artifacts:
 
-- `qa-ai-output/qa-coverage-report.md` with separate sections for planned coverage, created evidence, `proposal-only`
+- `.qa-ai/output/qa-coverage-report.md` with separate sections for planned coverage, created evidence, `proposal-only`
   rows, `pending-decision` criteria, functional CA metrics and RFN metrics. Do not claim 100% coverage when any validator
   fails or a planned `Action: create` feature is missing.
-- `qa-ai-output/test-management-coverage-analysis.md` when test management is configured or local mapping data exists
-- `qa-ai-output/traceability-matrix.md` when useful
+- `.qa-ai/output/test-management-coverage-analysis.md` when test management is configured or local mapping data exists
+- `.qa-ai/output/traceability-matrix.md` when useful
 
 Do not modify tests or write to external tools unless the user explicitly asks and approves a follow-up change.

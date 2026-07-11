@@ -1,5 +1,7 @@
 # REST Assured Specialist
 
+> Inherits .qa-ai/rules/specialist-common.rules.md.
+
 > Framework-specific guidance for API testing with REST Assured (Java/Kotlin).
 
 ## Activation

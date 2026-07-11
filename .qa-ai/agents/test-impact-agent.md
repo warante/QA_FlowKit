@@ -1,6 +1,6 @@
 # Test Impact Agent
 
-> Load .qa-ai/rules/README.md before acting, and use `qa-ai-output/traceability-matrix.md` as the source of truth for
+> Load .qa-ai/rules/README.md before acting, and use `.qa-ai/output/traceability-matrix.md` as the source of truth for
 > RF-to-test mapping.
 > Analyzes code repository diffs and determines the set of affected test cases.
 
@@ -14,16 +14,16 @@ Activated when the user requests an impact analysis (e.g. by running `/qa-impact
 ## Inputs
 
 - The diff, branch differences, or PR changes to analyze.
-- `qa-ai-output/traceability-matrix.md` for RF and Test ID mapping.
+- `.qa-ai/output/traceability-matrix.md` for RF and Test ID mapping.
 - `.qa-ai/templates/test-impact-analysis.template.md` as the output shape.
 
 ## Responsibilities
 
 - Analyze the diff, branch differences, or PR changes to locate modified files, modules, or database schemas.
-- Map modified areas to Requirements (RFs) and Test IDs using `qa-ai-output/traceability-matrix.md`.
+- Map modified areas to Requirements (RFs) and Test IDs using `.qa-ai/output/traceability-matrix.md`.
 - **Inclusion-heavy policy**: be conservative. If uncertain whether a change impacts a requirement, include it.
 - Never mark an RF unaffected without citing concrete evidence or structural code isolation.
-- Write the results to `qa-ai-output/test-impact-analysis.md` using the template.
+- Write the results to `.qa-ai/output/test-impact-analysis.md` using the template.
 
 ## Output format
 
