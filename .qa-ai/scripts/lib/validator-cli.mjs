@@ -1,17 +1,30 @@
 import { fileURLToPath } from 'node:url';
+import { redactValidatorDiagnostics } from './secret-patterns.mjs';
+
+function sanitizeValidatorValue(value) {
+  if (typeof value === 'string') return redactValidatorDiagnostics(value);
+  if (Array.isArray(value)) return value.map(sanitizeValidatorValue);
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, sanitizeValidatorValue(item)]));
+  }
+  return value;
+}
 
 export function isValidatorMain(importMetaUrl) {
   return process.argv[1] === fileURLToPath(importMetaUrl);
 }
 
 export function emitJson(ok, errors = [], warnings = [], extra = {}) {
+  const safeErrors = sanitizeValidatorValue(errors);
+  const safeWarnings = sanitizeValidatorValue(warnings);
+  const safeExtra = sanitizeValidatorValue(extra);
   console.log(
     JSON.stringify({
+      ...safeExtra,
       ok,
-      errors,
-      warnings,
-      findings: errors.map((message) => ({ severity: 'error', message })),
-      ...extra
+      errors: safeErrors,
+      warnings: safeWarnings,
+      findings: safeErrors.map((message) => ({ severity: 'error', message }))
     })
   );
 }
@@ -21,7 +34,7 @@ export function emitFindingsJson({ ok, errors = [], warnings = [], findings, ext
     ...errors.map((message) => ({ severity: 'error', message })),
     ...warnings.map((message) => ({ severity: 'warning', message }))
   ];
-  console.log(JSON.stringify({ ok, errors, warnings, findings: resolvedFindings, ...extra }));
+  console.log(JSON.stringify(sanitizeValidatorValue({ ...extra, ok, errors, warnings, findings: resolvedFindings })));
 }
 
 export function isJsonMode(args) {
@@ -41,16 +54,16 @@ export function finishValidatorRun({
   if (!ok) {
     if (jsonMode) emitJson(false, errors, warnings, extraJson);
     else {
-      for (const warning of warnings) console.log(`WARNING: ${warning}`);
-      for (const error of errors) console.error(error);
-      console.log(failureMessage || `\nFAILED - ${errors.length} validation error(s).`);
+      for (const warning of warnings) console.log(`WARNING: ${redactValidatorDiagnostics(warning)}`);
+      for (const error of errors) console.error(redactValidatorDiagnostics(error));
+      console.log(redactValidatorDiagnostics(failureMessage || `\nFAILED - ${errors.length} validation error(s).`));
     }
     process.exit(1);
   }
   if (jsonMode) emitJson(true, [], warnings, extraJson);
   else {
-    for (const warning of warnings) console.log(`WARNING: ${warning}`);
-    if (successMessage) console.log(successMessage);
+    for (const warning of warnings) console.log(`WARNING: ${redactValidatorDiagnostics(warning)}`);
+    if (successMessage) console.log(redactValidatorDiagnostics(successMessage));
   }
 }
 
@@ -69,17 +82,17 @@ export function finishValidatorFindingsRun({
       emitFindingsJson({ ok: false, errors, warnings, findings, extra: extraJson });
       process.exit(1);
     }
-    for (const warning of warnings) console.log(`WARNING: ${warning}`);
-    for (const error of errors) console.error(error);
-    console.log(failureMessage || `\nFAILED - ${errors.length} validation error(s).`);
+    for (const warning of warnings) console.log(`WARNING: ${redactValidatorDiagnostics(warning)}`);
+    for (const error of errors) console.error(redactValidatorDiagnostics(error));
+    console.log(redactValidatorDiagnostics(failureMessage || `\nFAILED - ${errors.length} validation error(s).`));
     process.exit(1);
   }
   if (jsonMode) {
     emitFindingsJson({ ok: true, errors: [], warnings, findings: findings || [], extra: extraJson });
     return;
   }
-  for (const warning of warnings) console.log(`WARNING: ${warning}`);
-  if (successMessage) console.log(successMessage);
+  for (const warning of warnings) console.log(`WARNING: ${redactValidatorDiagnostics(warning)}`);
+  if (successMessage) console.log(redactValidatorDiagnostics(successMessage));
 }
 
 /** Map common CLI flags to validator options. */
@@ -109,7 +122,8 @@ export function finishSkippedValidator({ jsonMode, message }) {
 export function runValidatorMain(importMetaUrl, main) {
   if (!isValidatorMain(importMetaUrl)) return;
   main().catch((error) => {
-    console.error(error);
+    const message = redactValidatorDiagnostics(error?.message || String(error));
+    console.error(message);
     process.exit(1);
   });
 }

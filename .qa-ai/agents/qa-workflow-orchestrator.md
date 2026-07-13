@@ -124,3 +124,4 @@ Next: <next resolved phase or complete>
 - Do not perform undeclared external writes.
 - Never store secrets.
 - Never claim a phase, validator, execution or external operation completed without evidence.
+- The agent-guidance contract validation (`.qa-ai/scripts/validate-agent-guidance.mjs`) is a framework integrity check, not a new workflow phase source. Run it during framework maintenance, not as a user-facing phase.

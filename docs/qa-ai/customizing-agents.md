@@ -25,6 +25,51 @@ Use `qa-ai.config.yaml` for project-specific paths, frameworks, languages and to
 | Active specialists    | `.qa-ai/agents/specialists/active.md`                | Generated list of specialists for the current config                   |
 | Adapter commands      | `.qa-ai/adapters/*` and generated root tool folders  | Tool-specific slash commands and onboarding                            |
 
+## Semantic guidance contract
+
+Every Markdown file under `.qa-ai/agents/` must be registered in
+`.qa-ai/contracts/agent-guidance.v1.json`. The manifest records its category, phase IDs, required sections, permissions,
+configuration references, routing signals and artifact policy. It validates guidance consistency; workflow order
+continues to come exclusively from `workflow.v1.json`.
+
+When adding or changing guidance:
+
+1. Update the Markdown and its manifest entry together.
+2. Use `contractual-only` unless a named optional artifact is registered with a material creation condition, linked
+   primary artifact, canonical evidence type and `gating: false`.
+3. For a specialist, retain `specialist-common.rules.md` inheritance and add positive and negative production-router
+   coverage.
+4. Never edit `specialists/active.md` manually; regenerate it from configuration.
+5. Run `node .qa-ai/scripts/validate-agent-guidance.mjs` and `npm run test:agent-guidance` in the framework source repo.
+
+`requiredRules` entries are rule basenames only, for example `requirements.rules.md`; paths, separators, traversal and
+absolute names are rejected. The V1 schema has an exact semantic identity in the validator. Framework maintainers who
+change that schema must version the contract or deliberately update the identity and its mutation tests together.
+
+### Phase-scoped permissions
+
+Agents that serve multiple workflow phases must use `phasePermissions` (per-phase permission blocks) instead of a
+single `permissions` object. The contract rejects aggregate permissions when mapped phases have different workflow
+permission levels.
+
+Each `phasePermissions` entry declares per-phase controls for that agent:
+
+- `localWrite` — whether the agent may create or modify local files during that phase.
+- `externalRead` — whether the agent may read from external tools (TestRail, Jira, etc.) during that phase.
+- `externalWrite` — whether the agent may write to external tools during that phase.
+- `approvalGates` — when `externalWrite` is true, the list of approval-gate IDs the agent must pass before writing.
+  Every gate must exist in `workflow.v1.json` for that phase.
+
+Governed sub-step agents declare their approval gates through `allowlistApprovalGates` in the guidance manifest. The
+validator (`validate-agent-guidance.mjs`) checks that every declared gate exists in the workflow contract and that
+`externalWrite` phases always have at least one governing gate.
+
+### Safe auxiliary paths
+
+Every auxiliary artifact path in the guidance manifest must start with `.qa-ai/output/`. Traversal (`..`), absolute
+paths, UNC paths and Windows drive letters are rejected. Linked primary artifacts must also stay under
+`.qa-ai/output/`. These constraints are enforced by `AGENT_UNSAFE_PATH` in `validate-agent-guidance.mjs`.
+
 ## Safe customization workflow
 
 1. Run `node .qa-ai/scripts/doctor.mjs` before changing agent behavior.

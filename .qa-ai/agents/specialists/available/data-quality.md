@@ -58,6 +58,16 @@ Act as a data quality QA specialist. Define observable data-quality rules, recon
 - Auditability: <rule>
 ```
 
+## Artifact and handoff policy
+
+- **Primary contractual output:** test-design-proposal from the active test-design phase.
+- **Strategy family:** `data-quality`.
+- **Allowed evidence types:** `test-plan`, `automation-script`, `technical-review`.
+- **Optional auxiliary artifact:** `.qa-ai/output/data-quality-plan.md`.
+- **Create it only when:** data correctness across systems is a first-class concern and reconciliation checks are in scope.
+- **Link any auxiliary artifact from the primary contractual output; it remains non-gating.**
+- **Return proposed tests/evidence, residual risks and open questions to the active phase.**
+
 ## Safety Boundaries
 
 - Do not require direct database access when product boundaries provide sufficient evidence.

@@ -54,7 +54,8 @@ Maestro mobile automation uses `automation.mobile.flowsPath`, the Maestro specia
 
 ## Implementation Rules
 
-- One spec file per feature file (matching the RF-ID naming).
+- Treat each Test ID/scenario as the atomic implementation and reporting unit. A spec may contain multiple Test IDs
+  when each remains independently named, selectable and reportable using the configured framework's conventions.
 - Follow the Given-When-Then structure from the feature file as test flow.
 - Create a page object for each distinct page/view; use composition for shared components.
 - Keep selectors in page objects only (never in spec files).
@@ -74,17 +75,20 @@ Maestro mobile automation uses `automation.mobile.flowsPath`, the Maestro specia
 
 Phase is complete when:
 
-- Every UI-automatable test from the feasibility report has a corresponding spec (or implementation plan if not approved for write).
-- Page objects exist for all pages referenced in specs.
+- Every UI-automatable Test ID/scenario from the feasibility report has a corresponding spec (or a blocked row in the implementation plan with missing inputs documented).
+- Page objects exist for all pages referenced in approved specs.
 - Tests follow existing repo patterns and conventions.
 - No hardcoded environment data or credentials in test files.
+- Scaffold-only outputs are labeled and excluded from implemented counts.
 
 ## Error Handling
 
 - **Framework is `none` or `undecided`**: Do not implement. Produce an implementation plan with framework comparison and mark tests as pending.
 - **No existing patterns found**: Propose a base structure (page objects, config, helpers) and ask approval before scaffolding.
-- **Selectors unknown**: Create page objects with placeholder selectors marked `// TODO: replace with stable selector` and note in output.
-- **Test environment not available**: Create specs that are structurally complete but add skip annotation with reason.
+- **Selectors unknown**: Produce a blocked implementation plan row with the missing selectors listed as blockers. Do not create placeholder page objects or spec files by default. If the user explicitly requests scaffolding, label the output `scaffold-only`, exclude it from implemented counts and never count it as done criteria evidence.
+- **Test environment not available**: Produce a blocked implementation-plan row describing the missing environment and
+  required readiness evidence. Do not create skipped executable specs by default. Explicitly requested scaffolding
+  remains `scaffold-only` and does not satisfy completion criteria.
 
 ## Constraints
 

@@ -25,6 +25,16 @@ generative output, biometric match, confidence threshold or other model-driven n
 - Use `AI component: yes` for AI RF rows.
 - Keep eval-suite details proposal-level unless the user explicitly asks to create local eval files.
 
+## Artifact and handoff policy
+
+- **Primary contractual output:** test-design-proposal from the active test-design phase.
+- **Strategy family:** `ai-evals`.
+- **Allowed evidence types:** `technical-review`, `test-plan`.
+- **Optional auxiliary artifact:** `none`.
+- **Create it only when:** AI evaluation suites are in scope and `aiTesting.enabled` is true.
+- **Link any auxiliary artifact from the primary contractual output; it remains non-gating.**
+- **Return proposed tests/evidence, residual risks and open questions to the active phase.**
+
 ## Safety Boundaries
 
 - Do not call AI models, external eval services or production systems.

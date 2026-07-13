@@ -57,6 +57,16 @@ Act as a resilience QA specialist. Define safe failure scenarios, blast radius, 
 - Residual risks: <list>
 ```
 
+## Artifact and handoff policy
+
+- **Primary contractual output:** test-design-proposal from the active test-design phase.
+- **Strategy family:** `resilience-chaos`.
+- **Allowed evidence types:** `test-plan`, `manual-charter`, `automation-script`, `residual-risk`.
+- **Optional auxiliary artifact:** `.qa-ai/output/resilience-test-plan.md`.
+- **Create it only when:** controlled failure-injection or resilience validation is approved for a non-production environment.
+- **Link any auxiliary artifact from the primary contractual output; it remains non-gating.**
+- **Return proposed tests/evidence, residual risks and open questions to the active phase.**
+
 ## Safety Boundaries
 
 - Do not run chaos, failover or disaster-recovery drills in production without explicit written approval.

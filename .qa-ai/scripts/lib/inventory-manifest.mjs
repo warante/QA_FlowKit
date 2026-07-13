@@ -49,6 +49,8 @@ export const DOCTOR_HARNESS_LIB_SCRIPTS = [
   '.qa-ai/scripts/lib/mobile-automation.mjs',
   '.qa-ai/scripts/lib/project-config.mjs',
   '.qa-ai/scripts/lib/config-schema.mjs',
+  '.qa-ai/scripts/lib/json-schema-lite.mjs',
+  '.qa-ai/scripts/lib/agent-guidance-contract.mjs',
   '.qa-ai/scripts/lib/detect-adapters.mjs',
   '.qa-ai/scripts/lib/injection-patterns.mjs',
   '.qa-ai/scripts/lib/test-management-mapping.mjs',

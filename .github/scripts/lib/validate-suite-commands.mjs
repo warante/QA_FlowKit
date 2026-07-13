@@ -61,6 +61,8 @@ export const VALIDATE_CORE_STEPS = [
   { type: 'npm', script: 'test:cli-contracts' },
   { type: 'npm', script: 'test:cli-contracts:unit' },
   { type: 'npm', script: 'test:example-compatibility' },
+  { type: 'npm', script: 'test:agent-guidance' },
+  { type: 'npm', script: 'test:doctor-guidance-integrity' },
   { type: 'node', file: '.qa-ai/scripts/doctor.mjs' },
   ...starterCoreValidatorSteps(),
   { type: 'node', file: '.qa-ai/scripts/test-validators.mjs' },

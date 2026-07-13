@@ -15,6 +15,13 @@
       "fixtureLabel": "workflow.v1.json",
       "migrationGuide": "docs/qa-ai/schema-compatibility.md#workflow"
     },
+    "agent-guidance": {
+      "currentVersion": 1,
+      "supportedVersions": [1],
+      "schemaPath": ".qa-ai/contracts/agent-guidance.v1.schema.json",
+      "fixtureLabel": "agent-guidance.v1.json",
+      "migrationGuide": "docs/qa-ai/schema-compatibility.md#agent-guidance"
+    },
     "run-state": {
       "currentVersion": 1,
       "supportedVersions": [1],

@@ -79,6 +79,16 @@ module.exports = new LoginPage();
 - Tests that share browser state — each `it()` should be independent.
 - Using `execute()` for interactions when WDIO commands exist.
 
+## Artifact and handoff policy
+
+- **Primary contractual output:** implementation plan from the active UI automation implementation phase.
+- **Strategy family:** `webdriverio`.
+- **Allowed evidence types:** `automation-script`.
+- **Optional auxiliary artifact:** `none`.
+- **Create it only when:** WebdriverIO is the configured UI framework and automation implementation is in scope.
+- **Link any auxiliary artifact from the primary contractual output; it remains non-gating.**
+- **Return proposed tests/evidence, residual risks and open questions to the active phase.**
+
 ## Constraints
 
 - Do not modify `wdio.conf.*` without approval.

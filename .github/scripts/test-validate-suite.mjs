@@ -22,8 +22,16 @@ test('legacy validate:oss-extraction delegates to the suite runner', () => {
   assert.match(legacyCommand, /run-validate-suite\.mjs full/);
 });
 
-test('validate:core and validate:e2e npm scripts exist', () => {
-  const scripts = JSON.parse(readFileSync(path.join(repoRoot, 'package.json'), 'utf8')).scripts;
-  assert.match(scripts['validate:core'], /run-validate-suite\.mjs core/);
-  assert.match(scripts['validate:e2e'], /run-validate-suite\.mjs e2e/);
+test('validate:core includes agent-guidance coverage', () => {
+  const coreLabels = VALIDATE_CORE_STEPS.map(stepLabel);
+  const hasAgentGuidance = coreLabels.some((l) => l.includes('test:agent-guidance'));
+  const hasValidator = coreLabels.some((l) => l.includes('validate-agent-guidance.mjs'));
+  assert.ok(hasAgentGuidance, 'validate:core must include test:agent-guidance');
+  assert.ok(hasValidator, 'validate:core must include validate-agent-guidance.mjs');
+});
+
+test('validate:core includes doctor guidance-integrity tests', () => {
+  const coreLabels = VALIDATE_CORE_STEPS.map(stepLabel);
+  const hasDoctorGuidanceTests = coreLabels.some((l) => l.includes('test:doctor-guidance-integrity'));
+  assert.ok(hasDoctorGuidanceTests, 'validate:core must include test:doctor-guidance-integrity');
 });

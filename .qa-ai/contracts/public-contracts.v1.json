@@ -35,6 +35,7 @@
       ],
       "experimental": [
         "execute",
+        "validate-agent-guidance",
         "validate-test-coverage",
         "validate-quality-report",
         "validate-strategy-routing",
@@ -84,6 +85,7 @@
       ],
       "experimental": [
         "metrics --json",
+        "validate-agent-guidance --json",
         "validate-quality-report --json",
         "validate-risk-analysis --json",
         "validate-test-data-plan --json",
@@ -152,6 +154,8 @@
       ".qa-ai/contracts/run-state.v1.schema.json draft 2020-12",
       ".qa-ai/contracts/run-event.v1.schema.json draft 2020-12",
       ".qa-ai/contracts/init-manifest.v1.schema.json draft 2020-12",
+      ".qa-ai/contracts/agent-guidance.v1.json version 1",
+      ".qa-ai/contracts/agent-guidance.v1.schema.json draft 2020-12",
       ".qa-ai/state/runs/<run-id>/run.json schemaVersion 1",
       ".qa-ai/state/runs/<run-id>/events.jsonl event payload fields",
       ".qa-ai/state/init-manifest.json version 1",

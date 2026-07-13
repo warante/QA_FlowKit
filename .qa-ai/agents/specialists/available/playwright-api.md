@@ -81,6 +81,16 @@ test('create order returns expected structure', async ({ apiClient }) => {
 - Use factory patterns for complex payloads.
 - Never depend on pre-existing database state; tests must be self-contained.
 
+## Artifact and handoff policy
+
+- **Primary contractual output:** implementation plan from the active API automation implementation phase.
+- **Strategy family:** `playwright-api`.
+- **Allowed evidence types:** `automation-script`.
+- **Optional auxiliary artifact:** `none`.
+- **Create it only when:** Playwright API is the configured API framework and automation implementation is in scope.
+- **Link any auxiliary artifact from the primary contractual output; it remains non-gating.**
+- **Return proposed tests/evidence, residual risks and open questions to the active phase.**
+
 ## Constraints
 
 - Do not modify `playwright.config.*` without approval.

@@ -4,6 +4,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
+import { fileURLToPath } from 'node:url';
 import {
   findBrokenLocalMarkdownLinks,
   findStaleEvergreenVersions,
@@ -11,6 +12,8 @@ import {
   validateLifecycleClaims,
   validateRequiredCommands
 } from './lib/documentation-consistency.mjs';
+
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 
 test('stale prerelease versions fail in evergreen docs but historical files stay outside the check', () => {
   const errors = findStaleEvergreenVersions(
@@ -84,4 +87,82 @@ test('broken local Markdown links fail while external and existing links pass', 
   const errors = await findBrokenLocalMarkdownLinks(root, ['docs/guide.md']);
   assert.equal(errors.length, 1);
   assert.match(errors[0], /missing\.md/);
+});
+
+test('agent guidance contributor and architecture documentation stays aligned', async () => {
+  const customization = await fs.readFile(path.join(repoRoot, 'docs/qa-ai/customizing-agents.md'), 'utf8');
+  const architecture = await fs.readFile(path.join(repoRoot, 'docs/qa-ai/architecture.md'), 'utf8');
+  const routing = await fs.readFile(path.join(repoRoot, 'docs/qa-ai/specialist-routing-matrix.md'), 'utf8');
+  const rules = await fs.readFile(path.join(repoRoot, '.qa-ai/rules/README.md'), 'utf8');
+
+  assert.match(customization, /agent-guidance\.v1\.json/);
+  assert.match(customization, /Never edit `specialists\/active\.md` manually/);
+  assert.match(customization, /test:agent-guidance/);
+  assert.match(architecture, /does not control workflow order/);
+  assert.match(routing, /all 42 specialist IDs/);
+  assert.match(rules, /validate-agent-guidance\.mjs/);
+});
+
+test('phase-scoped permissions are documented in customizing-agents', async () => {
+  const customization = await fs.readFile(path.join(repoRoot, 'docs/qa-ai/customizing-agents.md'), 'utf8');
+  assert.match(customization, /phasePermissions/);
+  assert.match(customization, /Phase-scoped permissions/);
+  assert.match(customization, /approvalGates/);
+  assert.match(customization, /AGENT_UNSAFE_PATH/);
+  assert.match(customization, /Safe auxiliary paths/);
+});
+
+test('workflow vs agent-guidance contract authority is documented in architecture', async () => {
+  const architecture = await fs.readFile(path.join(repoRoot, 'docs/qa-ai/architecture.md'), 'utf8');
+  assert.match(architecture, /Workflow contract vs agent-guidance contract/);
+  assert.match(architecture, /workflow\.v1\.json.*authoritative/s);
+  assert.match(architecture, /agent-guidance\.v1\.json.*records stable\s+metadata/s);
+});
+
+test('agent-guidance contract is noted as experimental with V3 semantics in public-contracts', async () => {
+  const contracts = await fs.readFile(path.join(repoRoot, 'docs/qa-ai/public-contracts.md'), 'utf8');
+  assert.match(contracts, /Subject to V3 semantics/);
+  assert.match(contracts, /agent-guidance\.v1\.json.*experimental/);
+});
+
+test('routing precedence, explicit selection and cache semantics are documented', async () => {
+  const routing = await fs.readFile(path.join(repoRoot, 'docs/qa-ai/specialist-routing-matrix.md'), 'utf8');
+  assert.match(routing, /Routing precedence/);
+  assert.match(routing, /Explicit specialist selection/);
+  assert.match(routing, /Cache semantics/);
+  assert.match(routing, /Explicit user instruction/);
+  assert.match(routing, /Never edit `active\.md` manually/);
+});
+
+test('new agent-guidance error codes are documented in troubleshooting', async () => {
+  const troubleshooting = await fs.readFile(path.join(repoRoot, 'docs/qa-ai/troubleshooting.md'), 'utf8');
+  const requiredCodes = [
+    'AGENT_PERMISSION_PHASE_MISMATCH',
+    'AGENT_EXTERNAL_WRITE_UNGOVERNED',
+    'AGENT_APPROVAL_GATE_PHASE_MISMATCH',
+    'AGENT_UNKNOWN_APPROVAL_GATE',
+    'AGENT_UNSAFE_PATH',
+    'AGENT_READONLY_MUTATION',
+    'AGENT_CONTRACT_MISSING',
+    'AGENT_CONTRACT_PARSE',
+    'AGENT_SCHEMA_MISSING',
+    'AGENT_SCHEMA_PARSE',
+    'AGENT_WORKFLOW_MISSING',
+    'AGENT_WORKFLOW_PARSE',
+    'AGENT_CONFIG_SCHEMA_MISSING',
+    'AGENT_CONFIG_SCHEMA_PARSE'
+  ];
+  for (const code of requiredCodes) {
+    assert.match(troubleshooting, new RegExp(code), `Missing error code: ${code}`);
+  }
+});
+
+test('npm-pack-allowlist includes agent-guidance contract and schema files', async () => {
+  const allowlist = await fs.readFile(
+    path.join(repoRoot, '.qa-ai', 'scripts', 'lib', 'npm-pack-allowlist.mjs'),
+    'utf8'
+  );
+  assert.match(allowlist, /agent-guidance\.v1\.json/);
+  assert.match(allowlist, /agent-guidance\.v1\.schema\.json/);
+  assert.match(allowlist, /agent-guidance-contract\.mjs/);
 });

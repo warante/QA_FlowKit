@@ -85,6 +85,16 @@ public class LoginPage {
 - Use `@BeforeEach` / `beforeEach` for fresh session per test.
 - Handle unexpected alerts and popups in a base test class.
 
+## Artifact and handoff policy
+
+- **Primary contractual output:** implementation plan from the active UI automation implementation phase.
+- **Strategy family:** `selenium`.
+- **Allowed evidence types:** `automation-script`.
+- **Optional auxiliary artifact:** `none`.
+- **Create it only when:** Selenium is the configured UI framework and automation implementation is in scope.
+- **Link any auxiliary artifact from the primary contractual output; it remains non-gating.**
+- **Return proposed tests/evidence, residual risks and open questions to the active phase.**
+
 ## Constraints
 
 - Do not change WebDriver, grid or runner config without approval.

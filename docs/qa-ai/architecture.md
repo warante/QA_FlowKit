@@ -8,6 +8,10 @@
     README.md                   protocol for loading role instructions
     specialists/available/      optional specialist instructions by tool/framework
     specialists/active.md       generated active specialist index
+  contracts/
+    workflow.v1.json            canonical phase order and permissions
+    config.v1.schema.json       runtime configuration surface
+    agent-guidance.v1.json      registered agent/specialist metadata
   adapters/                     tool-specific adapter templates
   presets/                      YAML starter configurations
   rules/                        mandatory workflow rules
@@ -46,6 +50,22 @@ tests/                          automation code when configured
   normalized source NFRs.
 - `validate-sync-plan.mjs` checks that test-management sync plans remain proposal-first, mention approval, cover feature identifiers, validate Markdown table shape, detect duplicate plan IDs and validate the optional test-management mapping file shape.
 - `validate-active-specialists.mjs` checks that `.qa-ai/agents/specialists/active.md` matches the configured tools/frameworks.
+- `validate-agent-guidance.mjs` validates the 73-file guidance inventory, schema, Markdown structure, canonical
+  references, permissions and specialist artifact policy. It also verifies that the V1 schema retains its core
+  guidance and permission definitions and that every canonical source has the expected identity, is a regular file
+  and resolves inside the repository (symlink and junction escapes are rejected). Parseable but structurally invalid
+  contracts and schemas still produce bounded, redacted findings rather than exceptions or partial success.
+  It does not control workflow order. `doctor.mjs` consumes this validator's structured result, so source checkouts and target
+  installations use the same integrity checks; missing or invalid contracts and schemas fail in both environments.
+
+**Workflow contract vs agent-guidance contract**: `workflow.v1.json` is the authoritative source for phase order,
+inclusion, dependencies, approvals, permissions, outputs and validators. `agent-guidance.v1.json` records stable
+metadata about each guidance Markdown file (category, phase IDs, permissions, artifact policy, config keys,
+routing signals) without duplicating workflow order. The two contracts are validated together:
+phase-to-guidance mapping consistency, permission alignment between guidance and workflow, and approval-gate
+validity are all checked by `validate-agent-guidance.mjs`. Neither contract overrides the other; they describe
+complementary aspects of the same workflow.
+
 - `smoke-test.mjs` runs native Node smoke checks for init, config profiles, selected adapters, no-overwrite behavior and unsafe path rejection.
 - `sync-agent-adapters.mjs` copies selected adapter templates into target tool paths.
 

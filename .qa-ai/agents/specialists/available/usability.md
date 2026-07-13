@@ -38,6 +38,16 @@ completion or user-error prevention without a measurable oracle.
 - Open questions: <unresolved testable conditions>
 ```
 
+## Artifact and handoff policy
+
+- **Primary contractual output:** test-design-system or test-design-proposal from the active system test-design phase.
+- **Strategy family:** `usability`.
+- **Allowed evidence types:** `feature`, `manual-charter`, `test-plan`, `technical-review`, `residual-risk`.
+- **Optional auxiliary artifact:** `none`.
+- **Create it only when:** usability NFRs are declared and subjective behavior requires charter or review evidence.
+- **Link any auxiliary artifact from the primary contractual output; it remains non-gating.**
+- **Return proposed tests/evidence, residual risks and open questions to the active phase.**
+
 ## Safety Boundaries
 
 - Do not claim representative user research coverage from a single exploratory session.

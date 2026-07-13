@@ -16,8 +16,8 @@ Activated for contract phase `tm-sync` after coverage analysis. Skipped if `tool
 - [.qa-ai/rules/test-management.rules.md](../rules/test-management.rules.md) (proposal-first sync).
 - The resolved `tm-coverage` output from the current phase context packet.
 - Generated `.feature` files in `.qa-ai/features/`.
-- `.qa-ai/qa-ai.config.yaml` (`tools.testManagement`, `tools.testManagementProject`).
-- `.qa-ai/agents/specialists/active.md` to load test management specialist.
+- `.qa-ai/qa-ai.config.yaml` (`tools.testManagement`, `testrail.projectName`, `testManagementSync.mode`).
+- `.qa-ai/agents/specialists/active.md` to load the test management specialist as a Markdown-host fallback; runtime specialist routing is authoritative.
 
 ## Responsibilities
 
@@ -100,7 +100,7 @@ Phase is complete when:
 
 ## Constraints
 
-- This planning phase never writes externally. In `proposal-only` the flow ends at the reviewed plan; in `governed`
+- This planning phase never writes externally. In `proposal-only` the flow ends at the reviewed plan (local artifact only, no apply language that claims external effects). In `governed`
   the separate diff/apply/verify phases require explicit gates and connected tooling.
 - Do not delete or archive remote cases without explicit request.
 - Ask approval before marking any planned external writes.

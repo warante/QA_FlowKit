@@ -11,7 +11,8 @@ import {
   installPackTarball,
   repoRoot,
   resolvePackTarball,
-  runCli
+  runCli,
+  runNodeScript
 } from '../../.github/scripts/lib/ci-helpers.mjs';
 
 async function assertIncludes(filePath, expected, label = filePath) {
@@ -80,6 +81,15 @@ async function validateCommandInteractionContract(packageRoot) {
   );
 }
 
+function validateAgentGuidanceAt(targetRoot) {
+  const scriptPath = path.join(targetRoot, '.qa-ai', 'scripts', 'validate-agent-guidance.mjs');
+  const result = runNodeScript(scriptPath, ['--json'], { cwd: targetRoot, stdio: 'pipe' });
+  const payload = JSON.parse(result.stdout);
+  if (!payload.ok || payload.summary?.registered !== 73 || payload.summary?.categories?.specialist !== 42) {
+    throw new Error(`Agent guidance validation failed in ${targetRoot}: ${result.stdout}`);
+  }
+}
+
 async function main() {
   const tempRoot = await fs.mkdtemp(path.join(repoRoot, '.qa-flowkit-npm-smoke-'));
   const packDir = path.join(tempRoot, 'pack');
@@ -102,6 +112,7 @@ async function main() {
     await validateCommandInteractionContract(path.join(initTarget, 'node_modules', 'qa-flowkit'));
     runCli(initTarget, []);
     configureFramework(initTarget, ['--no-adapters']);
+    validateAgentGuidanceAt(initTarget);
     await assertExists(path.join(initTarget, '.qa-ai', 'scripts', 'init.mjs'), '.qa-ai framework');
     await assertExists(path.join(initTarget, COMPACT_CONFIG_PATH), 'generated config');
     await assertExists(path.join(initTarget, DEFAULT_FEATURE_PATH), 'features directory');
@@ -164,6 +175,7 @@ async function main() {
     if (runDirCount < 1) throw new Error('Expected at least one run directory before update.');
 
     runCli(updateTarget, ['update', '--skip-doctor']);
+    validateAgentGuidanceAt(updateTarget);
     const activeAfter = await fs.readFile(activePointer, 'utf8');
     if (activeBefore !== activeAfter) throw new Error('Active run pointer changed after update.');
     await assertExists(path.join(updateTarget, '.qa-ai', 'state', 'keep.json'), 'preserved state');

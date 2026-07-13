@@ -157,6 +157,7 @@ npx qa-flowkit run check
 | `validate-sync-diff`          | Validate governed test-management snapshot and diff artifacts      |
 | `validate-sync-result`        | Validate governed test-management apply and verify artifacts       |
 | `validate-active-specialists` | Compare generated specialists with config                          |
+| `validate-agent-guidance`     | Validate agent/specialist guidance manifest, schema and Markdown   |
 | `validate-test-design`        | Validate system and per-RF design artifacts                        |
 | `validate-test-coverage`      | Validate configured cross-feature coverage obligations             |
 | `validate-quality-report`     | Validate semantic Gherkin quality reports                          |

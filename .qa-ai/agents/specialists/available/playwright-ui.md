@@ -81,6 +81,16 @@ setup('authenticate', async ({ page }) => {
 - Use `test.describe.configure({ mode: 'parallel' })` explicitly for clarity.
 - Workers share nothing; avoid filesystem-based shared state.
 
+## Artifact and handoff policy
+
+- **Primary contractual output:** implementation plan from the active UI automation implementation phase.
+- **Strategy family:** `playwright-ui`.
+- **Allowed evidence types:** `automation-script`.
+- **Optional auxiliary artifact:** `none`.
+- **Create it only when:** Playwright UI is the configured UI framework and automation implementation is in scope.
+- **Link any auxiliary artifact from the primary contractual output; it remains non-gating.**
+- **Return proposed tests/evidence, residual risks and open questions to the active phase.**
+
 ## Constraints
 
 - Do not modify `playwright.config.*` without approval.

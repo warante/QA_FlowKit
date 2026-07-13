@@ -72,3 +72,9 @@ Skipped if `testManagementSync.mode` is `"proposal-only"`.
 - Never write credentials, tokens, or passwords to files.
 - `delete` actions on the external test management system are strictly forbidden during sync apply.
 - If a write fails, stop immediately, log the failure, and mark its status as `failed` in the rollback plan.
+
+## Done Criteria
+
+- Every attempted action has an apply-log result and verification evidence.
+- Failure or partial completion includes a usable rollback plan.
+- No action exceeded the approved diff or external-write gate.

@@ -65,9 +65,9 @@ Produce `.qa-ai/output/pr-summary.md`:
 
 ## Traceability Matrix
 
-| RF     | CAs Covered      | Features | Automated | Manual |
-| ------ | ---------------- | -------- | --------- | ------ |
-| RF-042 | CA-1, CA-2, CA-3 | 3        | 2         | 1      |
+| RF     | CAs Covered      | Scenarios / Test IDs | Automated | Manual |
+| ------ | ---------------- | -------------------- | --------- | ------ |
+| RF-042 | CA-1, CA-2, CA-3 | 3                    | 2         | 1      |
 
 ## Risks and Limitations
 

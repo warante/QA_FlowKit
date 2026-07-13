@@ -59,6 +59,16 @@ Act as a contract testing architect. Identify producer/consumer boundaries, defi
 - Consumer ownership and release dependency recorded
 ```
 
+## Artifact and handoff policy
+
+- **Primary contractual output:** test-design-proposal from the active test-design phase.
+- **Strategy family:** `contract-testing`.
+- **Allowed evidence types:** `test-plan`, `automation-script`, `technical-review`.
+- **Optional auxiliary artifact:** `none`.
+- **Create it only when:** producer/consumer contract boundaries exist and schema or compatibility checks are in scope.
+- **Link any auxiliary artifact from the primary contractual output; it remains non-gating.**
+- **Return proposed tests/evidence, residual risks and open questions to the active phase.**
+
 ## Safety Boundaries
 
 - Do not infer an external partner contract without source evidence or user confirmation.
