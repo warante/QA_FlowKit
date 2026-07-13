@@ -32,7 +32,10 @@ describe('Layer 1 — Inventory and Registration', () => {
     for (const p of paths) assert.ok(!p.includes('\\'), `${p}: POSIX only`);
   });
   it('registered files exist on disk', () => {
-    for (const entry of contract.guidance) assert.ok(exists(entry.path), `${entry.path}: missing on disk`);
+    for (const entry of contract.guidance) {
+      if (entry.artifactPolicy === 'generated-cache') continue;
+      assert.ok(exists(entry.path), `${entry.path}: missing on disk`);
+    }
   });
   it('recursive discovery equals manifest exactly', () => {
     const raw = contract.guidance.map((e) => e.path).sort();
@@ -139,8 +142,11 @@ describe('Layer 6 — Semantic Invariants', () => {
       for (const a of e.auxiliaryArtifacts) assert.ok(a.gating !== true, `${e.path}: ${a.path} gating=true`);
     }
   });
-  it('all 73 paths exist on disk', () => {
-    for (const e of contract.guidance) assert.ok(exists(e.path), e.path);
+  it('all non-generated paths exist on disk', () => {
+    for (const e of contract.guidance) {
+      if (e.artifactPolicy === 'generated-cache') continue;
+      assert.ok(exists(e.path), e.path);
+    }
   });
   it('every specialist has unique strategyFamily', () => {
     const f = new Set();

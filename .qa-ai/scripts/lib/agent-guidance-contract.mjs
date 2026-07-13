@@ -708,6 +708,7 @@ export function validateGuidanceInventory(contract, discovered) {
       });
   }
   for (const entry of contract.guidance) {
+    if (entry.artifactPolicy === 'generated-cache') continue;
     if (!discoveredSet.has(entry.path))
       findings.push({
         code: 'AGENT_MISSING_FILE',

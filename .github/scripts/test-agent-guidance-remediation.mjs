@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
+import { existsSync } from 'node:fs';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
@@ -36,6 +37,10 @@ const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'
 
 async function loadJson(relativePath) {
   return JSON.parse(await fs.readFile(path.join(repoRoot, relativePath), 'utf8'));
+}
+
+function exists(relPath) {
+  return existsSync(path.join(repoRoot, relPath));
 }
 
 function clone(value) {
@@ -86,7 +91,14 @@ test('schema and shape mutations fail with stable finding families', async () =>
 test('inventory compares exact discovered and registered path sets', async () => {
   const contract = await loadJson('.qa-ai/contracts/agent-guidance.v1.json');
   const discovered = await discoverGuidanceFiles(repoRoot);
-  assert.deepEqual(discovered, contract.guidance.map((entry) => entry.path).sort());
+  const expectedRegistered = contract.guidance
+    .filter((entry) => {
+      if (entry.artifactPolicy !== 'generated-cache') return true;
+      return exists(entry.path);
+    })
+    .map((entry) => entry.path)
+    .sort();
+  assert.deepEqual(discovered, expectedRegistered);
 
   const missingRegistration = validateGuidanceInventory(contract, [...discovered, '.qa-ai/agents/unregistered.md']);
   assert.ok(findingCodes(missingRegistration).has('AGENT_UNREGISTERED_FILE'));
@@ -509,7 +521,8 @@ test('CLI success on a valid repository returns ok=true with summary', async () 
   const parsed = JSON.parse(result.stdout);
   assert.equal(parsed.ok, true);
   assert.equal(parsed.summary?.registered, 73);
-  assert.equal(parsed.summary?.discovered, 73);
+  const activeExists = exists('.qa-ai/agents/specialists/active.md');
+  assert.equal(parsed.summary?.discovered, activeExists ? 73 : 72);
   assert.equal(parsed.summary?.errors, 0);
 });
 
