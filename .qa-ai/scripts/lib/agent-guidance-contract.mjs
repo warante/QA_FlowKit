@@ -1162,7 +1162,7 @@ export function extractMarkdownConfigKeys(content) {
     if (matches) {
       for (const m of matches) {
         const inner = m.slice(1, -1);
-        if (/^[a-zA-Z][a-zA-Z0-9_.]*(\.[a-zA-Z][a-zA-Z0-9_.]*)+$/.test(inner)) keys.add(inner);
+        if (/^[a-zA-Z][a-zA-Z0-9_]*(\.[a-zA-Z][a-zA-Z0-9_]*)+$/.test(inner)) keys.add(inner);
       }
     }
   }
