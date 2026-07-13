@@ -14,6 +14,13 @@ async function prepareTempTarget({ includeDocs = false } = {}) {
   await fs.cp(path.join(repoRoot, '.qa-ai'), path.join(dir, '.qa-ai'), { recursive: true });
   await fs.cp(path.join(repoRoot, 'AGENTS.md'), path.join(dir, 'AGENTS.md'));
   await fs.mkdir(path.join(dir, '.qa-ai', 'output'), { recursive: true });
+  // The doctor requires a valid qa-ai.config.yaml for non-source checkouts.
+  // Copy a tracked fixture so tests are deterministic even when the source repo
+  // does not ship its own runtime config.
+  await fs.cp(
+    path.join(repoRoot, 'test', 'fixtures', 'golden-target', '.qa-ai', 'qa-ai.config.yaml'),
+    path.join(dir, '.qa-ai', 'qa-ai.config.yaml')
+  );
   if (includeDocs) {
     await fs.mkdir(path.join(dir, 'docs', 'qa-ai'), { recursive: true });
     await fs.writeFile(path.join(dir, 'docs', 'qa-ai', 'architecture.md'), '# architecture');
