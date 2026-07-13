@@ -17,7 +17,7 @@ import { verifyCompatibilityFixtures } from './verify-compatibility-fixtures.mjs
 test('schema registry lists versioned contract surfaces', async () => {
   const registry = await loadSchemaRegistry(repoRoot);
   assert.equal(registry.schemaVersion, 1);
-  for (const surface of ['config', 'workflow', 'run-state', 'run-event', 'init-manifest']) {
+  for (const surface of ['config', 'workflow', 'agent-guidance', 'run-state', 'run-event', 'init-manifest']) {
     assert.ok(registry.surfaces?.[surface]?.schemaPath, `missing surface ${surface}`);
     assert.deepEqual(registry.surfaces[surface].supportedVersions, [1]);
     await fs.access(path.join(repoRoot, registry.surfaces[surface].schemaPath));

@@ -1,0 +1,159 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/warante/QA_FlowKit/.qa-ai/contracts/agent-guidance.v1.schema.json",
+  "title": "QA FlowKit Agent Guidance Contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "canonicalSources", "guidance"],
+  "properties": {
+    "version": { "type": "number", "const": 1 },
+    "canonicalSources": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["workflow", "configSchema", "gherkinConstants", "specialistCommonRules"],
+      "properties": {
+        "workflow": { "type": "string", "minLength": 1 },
+        "configSchema": { "type": "string", "minLength": 1 },
+        "gherkinConstants": { "type": "string", "minLength": 1 },
+        "specialistCommonRules": { "type": "string", "minLength": 1 }
+      }
+    },
+    "guidance": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/guidanceEntry" }
+    }
+  },
+  "$defs": {
+    "permissions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["localWrite", "externalRead", "externalWrite"],
+      "properties": {
+        "localWrite": { "type": "boolean" },
+        "externalRead": { "type": "boolean" },
+        "externalWrite": { "type": "boolean" }
+      }
+    },
+    "phasePermissionEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["localWrite", "externalRead", "externalWrite"],
+      "properties": {
+        "localWrite": { "type": "boolean" },
+        "externalRead": { "type": "boolean" },
+        "externalWrite": { "type": "boolean" },
+        "approvalGates": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        }
+      }
+    },
+    "auxiliaryArtifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "condition", "linkedArtifact", "evidenceType", "gating"],
+      "properties": {
+        "path": { "type": "string", "pattern": "^\\.qa-ai/", "minLength": 1 },
+        "condition": { "type": "string", "minLength": 1 },
+        "linkedArtifact": { "type": "string", "pattern": "^\\.qa-ai/", "minLength": 1 },
+        "evidenceType": {
+          "type": "string",
+          "enum": ["feature", "automation-script", "manual-charter", "test-plan", "technical-review", "residual-risk"]
+        },
+        "gating": { "type": "boolean", "const": false },
+        "safetyClassification": {
+          "type": "string",
+          "enum": ["public-safe-summary", "sensitive-reference-only", "internal"]
+        }
+      }
+    },
+    "guidanceEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "category", "requiredSections", "artifactPolicy"],
+      "properties": {
+        "path": { "type": "string", "pattern": "^\\.qa-ai/agents/", "minLength": 1 },
+        "category": {
+          "type": "string",
+          "enum": ["index", "phase", "governed-substep", "reactive", "specialist-cache", "specialist"]
+        },
+        "phaseIds": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
+        "requiredSections": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        },
+        "requiredRules": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]*\\.rules\\.md$",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "permissions": { "$ref": "#/$defs/permissions" },
+        "phasePermissions": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/phasePermissionEntry" }
+        },
+        "artifactPolicy": {
+          "type": "string",
+          "enum": ["none", "contractual-only", "contractual-with-auxiliary", "generated-cache"]
+        },
+        "configKeys": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        },
+        "canonicalVocabularies": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        },
+        "auxiliaryArtifacts": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/auxiliaryArtifact" }
+        },
+        "routingSignals": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        },
+        "strategyFamily": { "type": "string", "minLength": 1 },
+        "allowlistApprovalGates": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "category": { "const": "phase" } }, "required": ["category"] },
+          "then": {
+            "required": ["phaseIds"],
+            "anyOf": [{ "required": ["permissions"] }, { "required": ["phasePermissions"] }]
+          }
+        },
+        {
+          "if": {
+            "properties": { "category": { "enum": ["index", "specialist-cache", "reactive", "specialist"] } },
+            "required": ["category"]
+          },
+          "then": { "not": { "required": ["phaseIds"] } }
+        },
+        {
+          "if": { "properties": { "category": { "const": "specialist" } }, "required": ["category"] },
+          "then": { "required": ["strategyFamily", "routingSignals", "canonicalVocabularies"] }
+        },
+        {
+          "if": { "properties": { "artifactPolicy": { "const": "contractual-with-auxiliary" } } },
+          "then": { "required": ["auxiliaryArtifacts"] }
+        }
+      ]
+    }
+  }
+}

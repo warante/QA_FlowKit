@@ -101,6 +101,8 @@ export const requiredPresets = [
 export const requiredContracts = [
   '.qa-ai/contracts/workflow.v1.json',
   '.qa-ai/contracts/config.v1.schema.json',
+  '.qa-ai/contracts/agent-guidance.v1.json',
+  '.qa-ai/contracts/agent-guidance.v1.schema.json',
   '.qa-ai/contracts/public-contracts.v1.json'
 ];
 
