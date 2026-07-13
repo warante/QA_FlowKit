@@ -102,6 +102,16 @@ newman run collections/RF-015-orders.postman_collection.json \
 - Not documenting Newman execution commands — other team members need to run tests.
 - Assertions that only check status code — validate response structure and business fields.
 
+## Artifact and handoff policy
+
+- **Primary contractual output:** implementation plan from the active API automation implementation phase.
+- **Strategy family:** `postman`.
+- **Allowed evidence types:** `automation-script`.
+- **Optional auxiliary artifact:** `none`.
+- **Create it only when:** Postman/Newman is the configured API framework and automation implementation is in scope.
+- **Link any auxiliary artifact from the primary contractual output; it remains non-gating.**
+- **Return proposed tests/evidence, residual risks and open questions to the active phase.**
+
 ## Constraints
 
 - Do not commit environment files with real credentials to the repository.

@@ -14,8 +14,8 @@ Activated for contract phase `tm-coverage` after Gherkin quality evaluation. Ski
 
 - [.qa-ai/rules/test-management.rules.md](../rules/test-management.rules.md) (proposal-first sync).
 - Generated `.feature` files from the resolved `gherkin` phase output.
-- `.qa-ai/qa-ai.config.yaml` (`tools.testManagement`, `tools.testManagementProject`).
-- `.qa-ai/agents/specialists/active.md` to load test management specialist.
+- `.qa-ai/qa-ai.config.yaml` (`tools.testManagement`, `testrail.projectName`).
+- `.qa-ai/agents/specialists/active.md` to load the test management specialist as a Markdown-host fallback; runtime specialist routing is authoritative.
 - Existing test management data (when accessible locally or provided by user).
 - `.qa-ai/output/imported-cases.md` when `sources.external.enabled` is true — check this file first
   to avoid proposing new cases that already exist in the remote test management tool. Cases listed
@@ -29,7 +29,7 @@ Activated for contract phase `tm-coverage` after Gherkin quality evaluation. Ski
 - Detect duplicates (tests that already cover the same CA).
 - Detect overlaps (tests that partially cover the same flows).
 - Identify coverage gaps (CAs without any existing test case).
-- Produce coverage metrics for **functional** acceptance criteria only.
+- Produce coverage metrics for **functional** acceptance criteria only. Count criteria once, not once per feature file when `multiple-per-file` is used.
 - Report NFR coverage separately from CA/test-case metrics using `## Non-functional traceability` and
   `## Non-functional coverage`; do not propose syncing load plans, technical reviews or charters as external test cases
   unless the user explicitly requests artifact export.

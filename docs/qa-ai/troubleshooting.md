@@ -10,6 +10,7 @@ Common failures and their resolutions, organized by area.
 - [CI](#ci)
 - [npm install and packaging](#npm-install-and-packaging)
 - [Agent and adapter issues](#agent-and-adapter-issues)
+- [Agent guidance contract](#agent-guidance-contract)
 
 ---
 
@@ -1095,3 +1096,386 @@ node .qa-ai/scripts/init.mjs --interface-language es --gherkin-language es --for
 ```
 
 For Spanish, remind the agent to include `# language: es` in all `.feature` files.
+
+---
+
+## Agent guidance contract
+
+### `Unregistered guidance file` or `Missing file`
+
+**Symptom**
+
+```
+FAILED - 1 agent guidance validation error(s).
+[AGENT_UNREGISTERED_FILE] .qa-ai/agents/new-agent.md: Discovered guidance file not registered...
+```
+
+**Cause**
+
+A Markdown file was added under `.qa-ai/agents/` without updating `.qa-ai/contracts/agent-guidance.v1.json`.
+
+**Fix**
+
+1. Register the file in `.qa-ai/contracts/agent-guidance.v1.json` with its category, phase IDs and metadata.
+2. Run `node .qa-ai/scripts/validate-agent-guidance.mjs` to verify.
+3. If the file was removed intentionally, delete it and re-run validation.
+
+### `Unknown config key`
+
+**Symptom**
+
+```
+[AGENT_UNKNOWN_CONFIG_KEY] .qa-ai/agents/...: Unknown config key "tools.testManagementProject".
+```
+
+**Cause**
+
+A guidance file or the manifest references a config key that does not exist in `config.v1.schema.json`.
+
+**Fix**
+
+- For the manifest entry: update the `configKeys` array to use valid dotted paths.
+- For agent Markdown: replace the invalid key with the canonical key (e.g. `testrail.projectName` instead of `tools.testManagementProject`).
+
+Check valid keys with `node .qa-ai/scripts/validate-config.mjs`.
+
+### `Unknown phase ID`
+
+**Symptom**
+
+```
+[AGENT_UNKNOWN_PHASE_ID] .qa-ai/agents/...: Unknown phase ID "...".
+```
+
+**Cause**
+
+A manifest entry references a phase ID not present in `workflow.v1.json`.
+
+**Fix**
+
+- If the phase ID was changed, update the manifest and agent guidance to use the new ID.
+- If adding a new phase, update the workflow contract first, then register guidance.
+
+### `Stale generated specialist cache`
+
+**Symptom**
+
+`active.md` content does not match configured specialists.
+
+**Fix**
+
+Regenerate the cache by running `node .qa-ai/scripts/init.mjs` or the appropriate config operation. Never edit `active.md` manually.
+
+### `Auxiliary artifact missing primary link`
+
+**Symptom**
+
+A specialist declares an auxiliary artifact without `linkedArtifact` in the manifest.
+
+**Fix**
+
+In `.qa-ai/contracts/agent-guidance.v1.json`, ensure every auxiliary artifact entry references a primary contractual artifact via `linkedArtifact`.
+
+### `Contract/schema mismatch after update`
+
+**Symptom**
+
+After updating QA FlowKit, `validate-agent-guidance.mjs` reports schema validation failures.
+
+**Fix**
+
+Compare the installed `agent-guidance.v1.schema.json` with the schema version expected. The `update` command preserves user artifacts; if guidance files changed upstream, review and merge them with local modifications.
+
+### `AGENT_PERMISSION_PHASE_MISMATCH`
+
+**Symptom**
+
+```
+[AGENT_PERMISSION_PHASE_MISMATCH] .qa-ai/agents/...: externalWrite mismatch for phase "test-management-sync"...
+```
+
+**Cause**
+
+An agent's `phasePermissions` block declares permissions that conflict with the workflow contract for that phase. This
+can mean the agent declares `externalWrite: true` when the workflow phase declares `externalWrite: denied`, or vice
+versa. It may also indicate that aggregate `permissions` were used when mapped phases have different workflow
+permission levels.
+
+**Fix**
+
+1. Compare the agent's `phasePermissions` in `.qa-ai/contracts/agent-guidance.v1.json` with the phase's
+   `permissions` in `.qa-ai/contracts/workflow.v1.json`.
+2. Align the agent's permission declaration with the workflow contract.
+3. If the agent serves multiple phases with different permissions, use `phasePermissions` instead of the aggregate
+   `permissions` object.
+4. Re-run `node .qa-ai/scripts/validate-agent-guidance.mjs`.
+
+### `AGENT_EXTERNAL_WRITE_UNGOVERNED`
+
+**Symptom**
+
+```
+[AGENT_EXTERNAL_WRITE_UNGOVERNED] .qa-ai/agents/...: externalWrite requires a writable workflow phase and an explicit approval gate.
+```
+
+**Cause**
+
+An agent declares `externalWrite: true` in its permissions (or `phasePermissions`), but either the workflow phase does
+not permit external writes, or the agent does not declare any approval gates.
+
+**Fix**
+
+1. Verify the workflow phase's `permissions.externalWrite` is `allowed` or `approval`.
+2. Add at least one `approvalGates` entry in the agent's `phasePermissions` block for that phase, using gate IDs that
+   exist in the workflow contract's `entryApprovals`.
+3. For governed sub-step agents, use `allowlistApprovalGates` in the guidance manifest.
+
+### `AGENT_APPROVAL_GATE_PHASE_MISMATCH`
+
+**Symptom**
+
+```
+[AGENT_APPROVAL_GATE_PHASE_MISMATCH] .qa-ai/agents/...: approvalGates mismatch for phase "test-management-sync": agent=[sync-diff-approval], workflow=[sync-approval].
+```
+
+**Cause**
+
+The agent's declared approval gates for a phase do not match the workflow contract's `entryApprovals` for that same
+phase.
+
+**Fix**
+
+1. Review the workflow contract's `entryApprovals` for the phase.
+2. Update the agent's `phasePermissions.<phaseId>.approvalGates` to match exactly.
+3. Or update the workflow contract if the gates were intentionally changed — but workflow changes must be coordinated
+   with guidance updates.
+
+### `AGENT_UNKNOWN_APPROVAL_GATE`
+
+**Symptom**
+
+```
+[AGENT_UNKNOWN_APPROVAL_GATE] .qa-ai/agents/...: Unknown approval gate "made-up-gate".
+```
+
+**Cause**
+
+An approval gate declared in the guidance manifest (`allowlistApprovalGates` or `phasePermissions`) does not exist in
+any workflow phase's `entryApprovals`.
+
+**Fix**
+
+Use a gate ID that exists in `workflow.v1.json`. Check the relevant phase's `entryApprovals` array for valid gate names.
+Common gates include `test-design`, `sync-plan`, `sync-diff`, `sync-result`, `automation-plan`, `release-gate`.
+
+### `AGENT_UNSAFE_PATH`
+
+**Symptom**
+
+```
+[AGENT_UNSAFE_PATH] .qa-ai/agents/...: Path contains traversal (..).
+[AGENT_UNSAFE_PATH] .qa-ai/agents/...: Auxiliary path "../outside/output.md" must stay under .qa-ai/output/.
+```
+
+**Cause**
+
+A guidance file path or auxiliary artifact path contains `..`, is absolute, uses a UNC path, has a Windows drive letter,
+or escapes the required root directory (`.qa-ai/agents/` for guidance, `.qa-ai/output/` for auxiliary artifacts).
+
+**Fix**
+
+Use only repository-relative paths that stay within `.qa-ai/agents/` for guidance files and `.qa-ai/output/` for
+auxiliary artifacts. Do not use `..` or absolute paths anywhere in the guidance manifest.
+
+### `AGENT_READONLY_MUTATION`
+
+**Symptom**
+
+```
+[AGENT_READONLY_MUTATION] .qa-ai/agents/...: Read-only guidance instructs mutation of evaluated inputs (delete/overwrite/rename/move/patch/rewrite).
+```
+
+**Cause**
+
+A guidance file whose permissions declare `externalWrite: false` and that has no governed `phasePermissions` block
+contains language that suggests mutation of evaluated inputs (requirements, tests, feature files, contracts, snapshots,
+spec files).
+
+**Fix**
+
+1. If the mutation is intentional, add a `phasePermissions` block with `externalWrite: true` and corresponding
+   `approvalGates` for the relevant phase(s).
+2. If the mutation language is a placeholder or suggestion, rephrase it to describe proposal or draft output without
+   claiming direct mutation.
+3. Ensure mutation instructions are always paired with approval-gate references.
+
+### `AGENT_CONTRACT_MISSING`
+
+**Symptom**
+
+```
+Cannot find .qa-ai/contracts/agent-guidance.v1.json.
+```
+
+**Cause**
+
+The agent-guidance contract file is missing from `.qa-ai/contracts/`.
+
+**Fix**
+
+Restore the contract file from the framework source. If you are in a target repository, run `npx qa-flowkit update` to
+refresh the framework folder while preserving state. In the source repository, check out the file from git.
+
+### `AGENT_CONTRACT_PARSE`
+
+**Symptom**
+
+```
+[AGENT_CONTRACT_PARSE] agent-guidance.v1.json: JSON parse error...
+```
+
+**Cause**
+
+The contract file contains invalid JSON — commonly a trailing comma, unquoted key, or syntax error.
+
+**Fix**
+
+Validate the JSON with `node -e "JSON.parse(require('fs').readFileSync('.qa-ai/contracts/agent-guidance.v1.json','utf8'))"`.
+Fix the syntax error and re-run validation.
+
+### `AGENT_SCHEMA_MISSING`
+
+**Symptom**
+
+```
+[AGENT_SCHEMA_MISSING] Cannot find .qa-ai/contracts/agent-guidance.v1.schema.json.
+```
+
+**Cause**
+
+The JSON Schema file for the agent-guidance contract is missing.
+
+**Fix**
+
+Restore `agent-guidance.v1.schema.json` from the framework source. The file is required for schema-level validation
+of the guidance contract. Run `npx qa-flowkit update` in a target repository or restore from git in the source repo.
+
+### `AGENT_SCHEMA_PARSE`
+
+**Symptom**
+
+```
+[AGENT_SCHEMA_PARSE] agent-guidance.v1.schema.json: JSON parse error...
+```
+
+**Cause**
+
+The schema file contains invalid JSON.
+
+**Fix**
+
+Validate the JSON syntax as with `AGENT_CONTRACT_PARSE`. Fix the error and re-run validation.
+
+### `AGENT_SCHEMA_INVALID`
+
+**Symptom**
+
+```
+[AGENT_SCHEMA_INVALID] agent-guidance.v1.schema.json: Schema $defs.guidanceEntry must enforce...
+```
+
+**Cause**
+
+The schema is valid JSON but no longer identifies or enforces the V1 agent-guidance contract. Empty, unrelated,
+weakened or structurally malformed schema keywords are rejected even when the current manifest would otherwise
+validate. Cyclic local references and excessive evaluation depth also fail closed.
+
+**Fix**
+
+Restore the canonical `agent-guidance.v1.schema.json` from the same QA FlowKit version as the manifest. Do not replace
+it with a permissive placeholder. `doctor.mjs` treats this as `state=invalid-schema` in both source and target repos.
+
+### `AGENT_CONTRACT_CANONICAL_SOURCE_SURFACE` / `AGENT_CONTRACT_CANONICAL_SOURCE_MISSING`
+
+**Symptom**
+
+```
+[AGENT_CONTRACT_CANONICAL_SOURCE_SURFACE] canonicalSources.workflow: ...
+[AGENT_CONTRACT_CANONICAL_SOURCE_MISSING] canonicalSources.workflow: ...
+```
+
+**Cause**
+
+A canonical source points to the wrong V1 framework file, does not exist as a regular file, or resolves outside the
+repository through a symlink or Windows junction. Canonical source values must be normalized POSIX
+repository-relative paths and are not user-configurable aliases.
+
+**Fix**
+
+Restore the four `canonicalSources` values and their files from the matching QA FlowKit release, then run
+`node .qa-ai/scripts/validate-agent-guidance.mjs` and `node .qa-ai/scripts/doctor.mjs` again.
+
+### `AGENT_WORKFLOW_MISSING`
+
+**Symptom**
+
+```
+[AGENT_WORKFLOW_MISSING] Cannot find .qa-ai/contracts/workflow.v1.json.
+```
+
+**Cause**
+
+The workflow contract required for cross-referencing phase IDs and permissions is missing.
+
+**Fix**
+
+Restore `workflow.v1.json` from the framework source. Run `npx qa-flowkit update` in a target repository or restore
+from git in the source repo.
+
+### `AGENT_WORKFLOW_PARSE`
+
+**Symptom**
+
+```
+[AGENT_WORKFLOW_PARSE] workflow.v1.json: JSON parse error...
+```
+
+**Cause**
+
+The workflow contract file contains invalid JSON.
+
+**Fix**
+
+Validate the JSON and fix the syntax error.
+
+### `AGENT_CONFIG_SCHEMA_MISSING`
+
+**Symptom**
+
+```
+[AGENT_CONFIG_SCHEMA_MISSING] Cannot find .qa-ai/contracts/config.v1.schema.json.
+```
+
+**Cause**
+
+The config schema file required for validating `configKeys` in the guidance contract is missing.
+
+**Fix**
+
+Restore `config.v1.schema.json` from the framework source.
+
+### `AGENT_CONFIG_SCHEMA_PARSE`
+
+**Symptom**
+
+```
+[AGENT_CONFIG_SCHEMA_PARSE] config.v1.schema.json: JSON parse error...
+```
+
+**Cause**
+
+The config schema file contains invalid JSON.
+
+**Fix**
+
+Validate the JSON and fix the syntax error.

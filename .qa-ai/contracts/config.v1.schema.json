@@ -60,6 +60,17 @@
       "properties": {
         "main": { "type": "string" },
         "analysisPath": { "type": "string", "x-stability": "experimental" },
+        "external": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["enabled", "requirementsImportPath", "casesImportPath"],
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "requirementsImportPath": { "type": "string" },
+            "casesImportPath": { "type": "string" }
+          },
+          "x-stability": "experimental"
+        },
         "jira": {
           "type": "object",
           "additionalProperties": false,

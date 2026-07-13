@@ -118,16 +118,19 @@
     "qa:validate-external-intake": "node .qa-ai/scripts/validate-external-intake.mjs",
     "qa:validate-healing-log": "node .qa-ai/scripts/validate-healing-log.mjs",
     "qa:validate-test-impact": "node .qa-ai/scripts/validate-test-impact.mjs",
+    "qa:validate-agent-guidance": "node .qa-ai/scripts/validate-agent-guidance.mjs",
     "qa:test-validators": "node .qa-ai/scripts/test-validators.mjs",
     "qa:test-cli": "node .qa-ai/scripts/test-cli-integration.mjs",
     "qa:test-hooks": "node .qa-ai/scripts/test-hooks.mjs",
     "qa:smoke": "node .qa-ai/scripts/smoke-test.mjs",
     "qa:smoke-npm": "node .qa-ai/scripts/smoke-npm-pack.mjs",
+    "test:doctor-guidance-integrity": "node --test .github/scripts/test-doctor-guidance-integrity.mjs",
     "validate:core": "node .github/scripts/run-validate-suite.mjs core",
     "validate:e2e": "node .github/scripts/run-validate-suite.mjs e2e",
     "validate:oss-extraction": "node .github/scripts/run-validate-suite.mjs full",
     "validate:timing": "node .github/scripts/benchmark-validate-suites.mjs",
-    "test:validate-suite": "node --test .github/scripts/test-validate-suite.mjs"
+    "test:validate-suite": "node --test .github/scripts/test-validate-suite.mjs",
+    "test:agent-guidance": "node --test .github/scripts/test-agent-guidance-contract.mjs .github/scripts/test-agent-guidance-semantics.mjs .github/scripts/test-agent-guidance-remediation.mjs"
   },
   "keywords": [
     "qa",

@@ -58,6 +58,16 @@ Act as an analytics QA specialist. Define event coverage, payload contracts, con
 - Duplicate prevention verified for retries/back navigation
 ```
 
+## Artifact and handoff policy
+
+- **Primary contractual output:** test-design-proposal from the active test-design phase.
+- **Strategy family:** `analytics-tracking`.
+- **Allowed evidence types:** `test-plan`, `automation-script`, `technical-review`.
+- **Optional auxiliary artifact:** `.qa-ai/output/analytics-tracking-plan.md`.
+- **Create it only when:** analytics, event or telemetry behavior is in scope and payload contracts must be validated.
+- **Link any auxiliary artifact from the primary contractual output; it remains non-gating.**
+- **Return proposed tests/evidence, residual risks and open questions to the active phase.**
+
 ## Safety Boundaries
 
 - Do not send test analytics to production datasets without approval.

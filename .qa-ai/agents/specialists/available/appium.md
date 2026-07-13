@@ -54,6 +54,16 @@ Complements the UI Automation Implementation Agent by providing Appium-specific 
 - Document gesture coordinates relative to screen percentage, not absolute pixels.
 - Create reusable gesture helpers in a dedicated module.
 
+## Artifact and handoff policy
+
+- **Primary contractual output:** implementation plan from the active UI/Mobile automation implementation phase.
+- **Strategy family:** `appium`.
+- **Allowed evidence types:** `automation-script`.
+- **Optional auxiliary artifact:** `none`.
+- **Create it only when:** Appium is the configured mobile framework and automation implementation is in scope.
+- **Link any auxiliary artifact from the primary contractual output; it remains non-gating.**
+- **Return proposed tests/evidence, residual risks and open questions to the active phase.**
+
 ## Constraints
 
 - Do not change device capabilities, Appium server config or cloud provider settings without approval.

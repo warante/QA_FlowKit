@@ -64,6 +64,11 @@ export const VALIDATOR_REGISTRY = {
     script: 'validate-workflow-contract.mjs',
     starterCoreArgs: []
   },
+  'validate-agent-guidance': {
+    script: 'validate-agent-guidance.mjs',
+    cli: true,
+    starterCoreArgs: []
+  },
   'validate-target': {
     script: 'validate-target.mjs',
     cli: true
@@ -313,6 +318,7 @@ export const STARTER_CORE_VALIDATOR_ORDER = [
   'validate-untrusted-content',
   'validate-external-intake',
   'validate-workflow-contract',
+  'validate-agent-guidance',
   'validate-features',
   'validate-risk-analysis',
   'validate-test-coverage',

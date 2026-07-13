@@ -57,6 +57,16 @@ Act as an observability QA specialist. Define observable signals and verificatio
 - Failure path emits actionable but non-sensitive error information
 ```
 
+## Artifact and handoff policy
+
+- **Primary contractual output:** test-design-proposal from the active test-design phase.
+- **Strategy family:** `observability-testing`.
+- **Allowed evidence types:** `test-plan`, `manual-charter`, `automation-script`, `residual-risk`.
+- **Optional auxiliary artifact:** `.qa-ai/output/observability-test-plan.md`.
+- **Create it only when:** logs, metrics, traces or alerts are required as product-quality evidence.
+- **Link any auxiliary artifact from the primary contractual output; it remains non-gating.**
+- **Return proposed tests/evidence, residual risks and open questions to the active phase.**
+
 ## Safety Boundaries
 
 - Do not store live telemetry exports, private dashboard URLs or sensitive logs in repository artifacts.

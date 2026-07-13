@@ -57,6 +57,16 @@ Act as a performance automation specialist. Turn approved performance plans into
 - Baseline comparison: <previous report/path>
 ```
 
+## Artifact and handoff policy
+
+- **Primary contractual output:** test-design-proposal from the active test-design phase.
+- **Strategy family:** `performance-execution`.
+- **Allowed evidence types:** `test-plan`, `manual-charter`, `automation-script`, `residual-risk`.
+- **Optional auxiliary artifact:** `.qa-ai/output/performance-execution-plan.md`.
+- **Create it only when:** approved performance plans exist and executable load/soak/spike scripts are in scope.
+- **Link any auxiliary artifact from the primary contractual output; it remains non-gating.**
+- **Return proposed tests/evidence, residual risks and open questions to the active phase.**
+
 ## Safety Boundaries
 
 - Do not run unauthorized load, stress, spike or soak tests.

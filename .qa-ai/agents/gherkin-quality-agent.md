@@ -46,3 +46,9 @@ Use `.qa-ai/templates/gherkin-quality-report.template.md` and include:
 - No external writes.
 - No numeric scoring.
 - If evidence is missing, mark the criterion `fail` and explain using the closest quoted line or `No direct evidence`.
+
+## Done Criteria
+
+- Every in-scope feature has a rubric result or an explicit blocked reason.
+- Findings reference the affected scenario/Test ID and actionable dimension.
+- The configured quality-report validator passes when the report is required.

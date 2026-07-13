@@ -62,6 +62,16 @@ cy.session('user', () => {
 });
 ```
 
+## Artifact and handoff policy
+
+- **Primary contractual output:** implementation plan from the active UI automation implementation phase.
+- **Strategy family:** `cypress`.
+- **Allowed evidence types:** `automation-script`.
+- **Optional auxiliary artifact:** `none`.
+- **Create it only when:** Cypress is the configured UI framework and automation implementation is in scope.
+- **Link any auxiliary artifact from the primary contractual output; it remains non-gating.**
+- **Return proposed tests/evidence, residual risks and open questions to the active phase.**
+
 ## Constraints
 
 - Do not modify `cypress.config.*` without approval.

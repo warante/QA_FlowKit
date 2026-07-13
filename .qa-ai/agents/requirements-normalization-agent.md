@@ -26,7 +26,8 @@ Activated for contract phase `normalize` after requirements intake is complete a
 - Identify and exclude unit-test-level criteria (mark as "out of scope for QA tests").
 - Identify criteria that need multiple test scenarios (data variations, boundary values).
 - Identify coverage obligations derived from product risk, but keep them separate from source requirements.
-- Record whether boundary, accessibility, performance and functional security coverage is applicable and why.
+- Keep boundary-value analysis as a technique/condition under the `edge-case` type. Do not use `boundary` as a
+  canonical Gherkin `@type:` value; the canonical type is `edge-case`.
 - Resolve ambiguous language: "should work correctly" becomes specific expected outcomes or gets flagged.
 - Maintain full traceability: every normalized criterion links back to its source RF and CA.
 - Extract explicit non-functional requirements (NFR) from the source into a dedicated table with stable IDs,
@@ -54,7 +55,7 @@ Produce `.qa-ai/output/normalized-requirements.md` with this structure:
 | Criterion ID  | RF      | Source CA / rule | Condition or partition | Expected observable outcome | Type       | Status           | Traceability   |
 | ------------- | ------- | ---------------- | ---------------------- | --------------------------- | ---------- | ---------------- | -------------- |
 | CR-RF-[ID]-01 | RF-[ID] | CA-[N]           | [partition/condition]  | [single observable outcome] | functional | ready            | RF-[ID] CA-[N] |
-| CR-RF-[ID]-02 | RF-[ID] | CA-[N]           | [boundary value]       | [observable outcome]        | boundary   | pending-decision | RF-[ID] CA-[N] |
+| CR-RF-[ID]-02 | RF-[ID] | CA-[N]           | [boundary value]       | [observable outcome]        | edge-case  | pending-decision | RF-[ID] CA-[N] |
 
 Add a decision table when the RF combines intervals, eligibility rules or mutually exclusive causes. Add a state
 transition table when persistent booking/payment states change. Split multi-outcome flows into separate criterion rows

@@ -46,7 +46,9 @@ The entire `.cursor/` directory is gitignored by default except [`.cursor/README
 7. Run `npm run docs:check` and `npm run validate:oss-extraction` locally.
 8. When editing workflows or release gates, update [`docs/qa-ai/required-checks.v1.json`](docs/qa-ai/required-checks.v1.json)
    and confirm `npm run test:required-checks` passes.
-9. Open a PR with a clear summary and manual validation steps.
+9. When editing agent or specialist guidance, run `npm run test:agent-guidance` and
+   `node .qa-ai/scripts/validate-agent-guidance.mjs`.
+10. Open a PR with a clear summary and manual validation steps.
 
 Changes under `examples/`, presets or target validators must also keep
 [`examples/compatibility.json`](examples/compatibility.json) current. Run:

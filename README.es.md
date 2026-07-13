@@ -178,6 +178,7 @@ Consulta el [esquema de configuración](docs/qa-ai/config-schema.md).
 | `qa-flowkit validate-features`                        | Validar el Gherkin de diseño QA                            |
 | `qa-flowkit validate-test-coverage`                   | Validar obligaciones de cobertura y filas NFR de fuente    |
 | `qa-flowkit validate-traceability`                    | Validar trazabilidad RF-prueba y NFR                       |
+| `qa-flowkit validate-agent-guidance`                  | Validar manifiesto y Markdown de orientación de agentes    |
 | `qa-flowkit validate-release-gate`                    | Validar la decisión enterprise de release                  |
 | [`qa-flowkit export-report`](docs/qa-ai/reporting.md) | Exportar casos de prueba Gherkin y resultados de ejecución |
 
@@ -198,6 +199,7 @@ QA FlowKit valida, entre otras cosas:
 - instrucciones parecidas a prompt injection en requisitos y contexto QA;
 - trazabilidad con RF oficial e IDs de test duplicados;
 - lenguaje proposal-first en planes de sincronización;
+- consistencia del manifiesto de orientación de agentes y especialistas;
 - evidencias obligatorias del release gate enterprise y resultados de ejecución de pruebas.
 
 Consulta las [reglas Gherkin](.qa-ai/rules/gherkin.rules.md) y el

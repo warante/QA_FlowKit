@@ -86,5 +86,6 @@ notes: |
 
 ## Constraints
 
-- Proposal-first only; no external writes.
+- Proposal-first only; no external writes. Reject scaffold-only, provisional (`RF-PENDING*` / `@wip`) and unevidenced
+  claims as release-gate evidence. Only implementation verified by validator and completion criteria counts toward PASS.
 - Do not overwrite the gate file without user approval unless `--force` was requested.

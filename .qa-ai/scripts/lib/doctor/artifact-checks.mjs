@@ -65,7 +65,7 @@ function addWorkflowArtifactChecks(checks, config, strict) {
   }
 }
 
-export function addArtifactChecks(checks, config, strict) {
+export function addArtifactChecks(checks, config, strict, { sourceRepository = false } = {}) {
   const featurePath = getConfigValue(config, 'gherkin.featurePath', DEFAULT_FEATURE_PATH);
   const matrixPath = getConfigValue(config, 'traceability.matrixPath', ARTIFACT_PATHS.traceabilityMatrix);
   const mappingFile = getTestManagementMappingFile(config);
@@ -81,7 +81,13 @@ export function addArtifactChecks(checks, config, strict) {
       pathCheck('optional', `feature category folder ${subfolder}`, `${featurePath.replace(/\/$/, '')}/${subfolder}`)
     );
   }
-  checks.push(pathCheck('required', 'configured QA output path', path.dirname(matrixPath)));
+  checks.push(
+    pathCheck(
+      sourceRepository && !strict ? 'optional' : 'required',
+      'configured QA output path',
+      path.dirname(matrixPath)
+    )
+  );
   checks.push(pathCheck(checkLevel(strict, 'optional'), 'configured traceability matrix', matrixPath));
   if (mappingFile && track !== 'quick')
     checks.push(pathCheck(checkLevel(strict, 'optional'), 'configured test management mapping file', mappingFile));

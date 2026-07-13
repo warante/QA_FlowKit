@@ -1,0 +1,1075 @@
+{
+  "version": 1,
+  "canonicalSources": {
+    "workflow": ".qa-ai/contracts/workflow.v1.json",
+    "configSchema": ".qa-ai/contracts/config.v1.schema.json",
+    "gherkinConstants": ".qa-ai/scripts/lib/gherkin-constants.mjs",
+    "specialistCommonRules": ".qa-ai/rules/specialist-common.rules.md"
+  },
+  "guidance": [
+    {
+      "path": ".qa-ai/agents/README.md",
+      "category": "index",
+      "requiredSections": [
+        "Canonical workflow",
+        "Agent categories",
+        "Shared specialist contract",
+        "Generated active cache",
+        "Stable references"
+      ],
+      "canonicalVocabularies": [
+        "contractual",
+        "auxiliary",
+        "phase",
+        "governed-substep",
+        "reactive",
+        "specialist-cache",
+        "specialist",
+        "index"
+      ],
+      "artifactPolicy": "none"
+    },
+    {
+      "path": ".qa-ai/agents/specialists/active.md",
+      "category": "specialist-cache",
+      "artifactPolicy": "generated-cache",
+      "requiredSections": []
+    },
+    {
+      "path": ".qa-ai/agents/qa-workflow-orchestrator.md",
+      "category": "phase",
+      "phaseIds": [],
+      "requiredSections": ["Trigger", "Mandatory inputs", "Orchestration procedure", "Constraints"],
+      "requiredRules": ["workflow.rules.md", "approval.rules.md"],
+      "permissions": {
+        "localWrite": true,
+        "externalRead": false,
+        "externalWrite": false
+      },
+      "artifactPolicy": "contractual-only",
+      "configKeys": ["project.qaTrack", "knowledge.enabled", "gherkin.scenarioLayout"]
+    },
+    {
+      "path": ".qa-ai/agents/qa-context-intake-agent.md",
+      "category": "phase",
+      "phaseIds": ["context"],
+      "requiredSections": ["Trigger", "Inputs", "Responsibilities", "Output", "Done Criteria", "Constraints"],
+      "requiredRules": ["workflow.rules.md", "untrusted-content.rules.md"],
+      "permissions": {
+        "localWrite": true,
+        "externalRead": false,
+        "externalWrite": false
+      },
+      "artifactPolicy": "contractual-only",
+      "configKeys": ["knowledge.enabled", "knowledge.summaryPath", "sources.analysisPath"]
+    },
+    {
+      "path": ".qa-ai/agents/requirements-intake-agent.md",
+      "category": "phase",
+      "phaseIds": ["intake"],
+      "requiredSections": ["Trigger", "Inputs", "Responsibilities", "Output", "Done Criteria", "Constraints"],
+      "requiredRules": ["requirements.rules.md", "untrusted-content.rules.md", "approval.rules.md"],
+      "permissions": {
+        "localWrite": true,
+        "externalRead": false,
+        "externalWrite": false
+      },
+      "artifactPolicy": "contractual-only",
+      "configKeys": [
+        "sources.main",
+        "sources.markdown.paths",
+        "requirements.requireOfficialRfId",
+        "requirements.inferredAcceptanceCriteria"
+      ]
+    },
+    {
+      "path": ".qa-ai/agents/requirements-normalization-agent.md",
+      "category": "phase",
+      "phaseIds": ["normalize"],
+      "requiredSections": ["Trigger", "Inputs", "Responsibilities", "Output", "Done Criteria", "Constraints"],
+      "requiredRules": ["requirements.rules.md", "test-design.rules.md"],
+      "permissions": {
+        "localWrite": true,
+        "externalRead": false,
+        "externalWrite": false
+      },
+      "artifactPolicy": "contractual-only",
+      "configKeys": ["gherkin.language", "project.interfaceLanguage"],
+      "canonicalVocabularies": ["gherkin-types", "nfr-attributes"]
+    },
+    {
+      "path": ".qa-ai/agents/test-design-system-agent.md",
+      "category": "phase",
+      "phaseIds": ["test-design-system"],
+      "requiredSections": ["Trigger", "Inputs", "Responsibilities", "Output", "Done Criteria", "Constraints"],
+      "requiredRules": ["test-design.rules.md", "specialist-common.rules.md"],
+      "permissions": {
+        "localWrite": true,
+        "externalRead": false,
+        "externalWrite": false
+      },
+      "artifactPolicy": "contractual-only",
+      "configKeys": ["testDesign.systemPath", "testDesign.coverage.mode", "testDesign.strategyRouting.mode"]
+    },
+    {
+      "path": ".qa-ai/agents/gherkin-test-design-agent.md",
+      "category": "phase",
+      "phaseIds": ["test-design-rf", "gherkin", "traceability"],
+      "requiredSections": ["Trigger", "Inputs", "Responsibilities", "Output", "Done Criteria", "Constraints"],
+      "requiredRules": ["test-design.rules.md", "gherkin.rules.md", "ai-testing.rules.md"],
+      "permissions": {
+        "localWrite": true,
+        "externalRead": false,
+        "externalWrite": false
+      },
+      "artifactPolicy": "contractual-only",
+      "configKeys": [
+        "gherkin.language",
+        "gherkin.scenarioLayout",
+        "gherkin.featurePath",
+        "gherkin.tags.required",
+        "testDesign.proposalPath",
+        "aiTesting.enabled"
+      ],
+      "canonicalVocabularies": ["gherkin-types", "evidence-types", "nfr-attributes"]
+    },
+    {
+      "path": ".qa-ai/agents/gherkin-quality-agent.md",
+      "category": "phase",
+      "phaseIds": ["gherkin-quality"],
+      "requiredSections": ["Trigger", "Inputs", "Responsibilities", "Output", "Done Criteria", "Constraints"],
+      "requiredRules": ["gherkin.rules.md", "test-design.rules.md"],
+      "permissions": {
+        "localWrite": true,
+        "externalRead": false,
+        "externalWrite": false
+      },
+      "artifactPolicy": "contractual-only",
+      "configKeys": [
+        "testDesign.quality.mode",
+        "testDesign.quality.minDimensionsPassed",
+        "testDesign.quality.reportPath"
+      ]
+    },
+    {
+      "path": ".qa-ai/agents/external-intake-agent.md",
+      "category": "phase",
+      "phaseIds": ["external-intake"],
+      "requiredSections": ["Trigger", "Inputs", "Responsibilities", "Output", "Done Criteria", "Constraints"],
+      "requiredRules": ["untrusted-content.rules.md", "approval.rules.md"],
+      "permissions": {
+        "localWrite": true,
+        "externalRead": true,
+        "externalWrite": false
+      },
+      "artifactPolicy": "contractual-only",
+      "configKeys": ["sources.main"]
+    },
+    {
+      "path": ".qa-ai/agents/test-management-coverage-agent.md",
+      "category": "phase",
+      "phaseIds": ["tm-coverage"],
+      "requiredSections": ["Trigger", "Inputs", "Responsibilities", "Output", "Done Criteria", "Constraints"],
+      "requiredRules": ["test-management.rules.md"],
+      "permissions": {
+        "localWrite": true,
+        "externalRead": true,
+        "externalWrite": false
+      },
+      "artifactPolicy": "contractual-only",
+      "configKeys": ["tools.testManagement", "testrail.projectName", "testrail.enabled"]
+    },
+    {
+      "path": ".qa-ai/agents/test-management-sync-agent.md",
+      "category": "phase",
+      "phaseIds": ["tm-sync"],
+      "requiredSections": ["Trigger", "Inputs", "Responsibilities", "Output", "Done Criteria", "Constraints"],
+      "requiredRules": ["test-management.rules.md", "approval.rules.md"],
+      "permissions": {
+        "localWrite": true,
+        "externalRead": true,
+        "externalWrite": false
+      },
+      "artifactPolicy": "contractual-only",
+      "configKeys": ["tools.testManagement", "testrail.projectName", "testManagementSync.mode"]
+    },
+    {
+      "path": ".qa-ai/agents/test-management-diff-agent.md",
+      "category": "governed-substep",
+      "phaseIds": ["sync-diff"],
+      "requiredSections": ["Trigger", "Inputs", "Responsibilities", "Output", "Done Criteria", "Constraints"],
+      "requiredRules": ["test-management.rules.md", "approval.rules.md"],
+      "permissions": {
+        "localWrite": true,
+        "externalRead": true,
+        "externalWrite": false
+      },
+      "phasePermissions": {
+        "sync-diff": {
+          "localWrite": true,
+          "externalRead": true,
+          "externalWrite": false,
+          "approvalGates": []
+        }
+      },
+      "artifactPolicy": "contractual-only",
+      "configKeys": ["testManagementSync.diffPath", "testManagementSync.remoteSnapshotPath"]
+    },
+    {
+      "path": ".qa-ai/agents/test-management-apply-agent.md",
+      "category": "governed-substep",
+      "phaseIds": ["sync-apply", "sync-verify"],
+      "requiredSections": ["Trigger", "Inputs", "Responsibilities", "Output", "Done Criteria", "Constraints"],
+      "requiredRules": ["test-management.rules.md", "approval.rules.md"],
+      "permissions": {
+        "localWrite": true,
+        "externalRead": true,
+        "externalWrite": false
+      },
+      "phasePermissions": {
+        "sync-apply": {
+          "localWrite": true,
+          "externalRead": true,
+          "externalWrite": true,
+          "approvalGates": ["external-write:test-management"]
+        },
+        "sync-verify": {
+          "localWrite": true,
+          "externalRead": true,
+          "externalWrite": false,
+          "approvalGates": []
+        }
+      },
+      "artifactPolicy": "contractual-only",
+      "configKeys": ["testManagementSync.applyLogPath", "testManagementSync.rollbackPath"],
+      "allowlistApprovalGates": ["external-write:test-management"]
+    },
+    {
+      "path": ".qa-ai/agents/automation-feasibility-agent.md",
+      "category": "phase",
+      "phaseIds": ["feasibility"],
+      "requiredSections": ["Trigger", "Inputs", "Responsibilities", "Output", "Done Criteria", "Constraints"],
+      "requiredRules": [
+        "automation.rules.md",
+        "ui-automation.rules.md",
+        "api-testing.rules.md",
+        "mobile-automation.rules.md"
+      ],
+      "permissions": {
+        "localWrite": true,
+        "externalRead": false,
+        "externalWrite": false
+      },
+      "artifactPolicy": "contractual-only",
+      "configKeys": [
+        "automation.ui.framework",
+        "automation.api.framework",
+        "automation.mobile.framework",
+        "automation.strategy.automateAllTechnicallyPossible"
+      ]
+    },
+    {
+      "path": ".qa-ai/agents/ui-implementation-agent.md",
+      "category": "phase",
+      "phaseIds": ["ui-impl", "mobile-impl"],
+      "requiredSections": ["Trigger", "Inputs", "Responsibilities", "Output", "Done Criteria", "Constraints"],
+      "requiredRules": ["ui-automation.rules.md", "mobile-automation.rules.md"],
+      "permissions": {
+        "localWrite": true,
+        "externalRead": false,
+        "externalWrite": false
+      },
+      "artifactPolicy": "contractual-only",
+      "configKeys": [
+        "automation.ui.framework",
+        "automation.ui.specsPath",
+        "automation.ui.pageObjectsPath",
+        "automation.mobile.framework",
+        "automation.mobile.flowsPath"
+      ]
+    },
+    {
+      "path": ".qa-ai/agents/api-testing-agent.md",
+      "category": "phase",
+      "phaseIds": ["api-impl"],
+      "requiredSections": ["Trigger", "Inputs", "Responsibilities", "Output", "Done Criteria", "Constraints"],
+      "requiredRules": ["api-testing.rules.md"],
+      "permissions": {
+        "localWrite": true,
+        "externalRead": false,
+        "externalWrite": false
+      },
+      "artifactPolicy": "contractual-only",
+      "configKeys": ["automation.api.framework", "automation.api.specsPath"]
+    },
+    {
+      "path": ".qa-ai/agents/jira-task-agent.md",
+      "category": "phase",
+      "phaseIds": ["jira"],
+      "requiredSections": ["Trigger", "Inputs", "Responsibilities", "Output", "Done Criteria", "Constraints"],
+      "requiredRules": ["issue-tracker.rules.md", "approval.rules.md"],
+      "permissions": {
+        "localWrite": true,
+        "externalRead": false,
+        "externalWrite": false
+      },
+      "artifactPolicy": "contractual-only",
+      "configKeys": ["tools.issueTracker"]
+    },
+    {
+      "path": ".qa-ai/agents/pr-agent.md",
+      "category": "phase",
+      "phaseIds": ["pr"],
+      "requiredSections": ["Trigger", "Inputs", "Responsibilities", "Output", "Done Criteria", "Constraints"],
+      "requiredRules": ["approval.rules.md"],
+      "permissions": {
+        "localWrite": true,
+        "externalRead": false,
+        "externalWrite": false
+      },
+      "artifactPolicy": "contractual-only",
+      "configKeys": []
+    },
+    {
+      "path": ".qa-ai/agents/release-gate-agent.md",
+      "category": "phase",
+      "phaseIds": ["release-gate"],
+      "requiredSections": ["Trigger", "Inputs", "Responsibilities", "Output", "Done Criteria", "Constraints"],
+      "requiredRules": ["release-gate.rules.md", "approval.rules.md"],
+      "permissions": {
+        "localWrite": true,
+        "externalRead": false,
+        "externalWrite": false
+      },
+      "artifactPolicy": "contractual-only",
+      "configKeys": ["release.gatePath", "project.qaTrack"]
+    },
+    {
+      "path": ".qa-ai/agents/risk-analysis-agent.md",
+      "category": "phase",
+      "phaseIds": ["risk-analysis"],
+      "requiredSections": ["Trigger", "Inputs", "Responsibilities", "Output", "Done Criteria", "Constraints"],
+      "requiredRules": ["requirements.rules.md", "approval.rules.md"],
+      "permissions": {
+        "localWrite": true,
+        "externalRead": false,
+        "externalWrite": false
+      },
+      "artifactPolicy": "contractual-only",
+      "configKeys": [
+        "risk.enabled",
+        "risk.mode",
+        "risk.analysisPath",
+        "risk.registerPath",
+        "risk.scoring.impactWeight",
+        "risk.scoring.probabilityWeight",
+        "risk.thresholds.smokeMax"
+      ]
+    },
+    {
+      "path": ".qa-ai/agents/test-data-planning-agent.md",
+      "category": "phase",
+      "phaseIds": ["test-data"],
+      "requiredSections": ["Trigger", "Inputs", "Responsibilities", "Output", "Done Criteria", "Constraints"],
+      "requiredRules": ["approval.rules.md"],
+      "permissions": {
+        "localWrite": true,
+        "externalRead": false,
+        "externalWrite": false
+      },
+      "artifactPolicy": "contractual-only",
+      "configKeys": [
+        "testData.enabled",
+        "testData.planPath",
+        "testData.inventoryPath",
+        "testData.allowSynthetic",
+        "testData.allowProductionCopies"
+      ]
+    },
+    {
+      "path": ".qa-ai/agents/environment-readiness-agent.md",
+      "category": "phase",
+      "phaseIds": ["environment-readiness"],
+      "requiredSections": ["Trigger", "Inputs", "Responsibilities", "Output", "Done Criteria", "Constraints"],
+      "requiredRules": ["approval.rules.md"],
+      "permissions": {
+        "localWrite": true,
+        "externalRead": false,
+        "externalWrite": false
+      },
+      "artifactPolicy": "contractual-only",
+      "configKeys": [
+        "environments.enabled",
+        "environments.target",
+        "environments.readinessPath",
+        "environments.healthJsonPath"
+      ]
+    },
+    {
+      "path": ".qa-ai/agents/execution-agent.md",
+      "category": "phase",
+      "phaseIds": ["execution-plan", "execution-run"],
+      "requiredSections": ["Trigger", "Inputs", "Responsibilities", "Output", "Done Criteria", "Constraints"],
+      "requiredRules": ["approval.rules.md"],
+      "permissions": {
+        "localWrite": true,
+        "externalRead": false,
+        "externalWrite": false
+      },
+      "artifactPolicy": "contractual-only",
+      "configKeys": [
+        "execution.mode",
+        "execution.commands",
+        "execution.planPath",
+        "execution.summaryPath",
+        "commands.testQA"
+      ]
+    },
+    {
+      "path": ".qa-ai/agents/result-analysis-agent.md",
+      "category": "phase",
+      "phaseIds": ["result-analysis"],
+      "requiredSections": ["Trigger", "Inputs", "Responsibilities", "Output", "Done Criteria", "Constraints"],
+      "requiredRules": ["defect.rules.md", "approval.rules.md"],
+      "permissions": {
+        "localWrite": true,
+        "externalRead": false,
+        "externalWrite": false
+      },
+      "artifactPolicy": "contractual-only",
+      "configKeys": ["analysis.resultAnalysisPath", "analysis.requireFailureClassification"]
+    },
+    {
+      "path": ".qa-ai/agents/defect-triage-agent.md",
+      "category": "phase",
+      "phaseIds": ["defect-triage"],
+      "requiredSections": ["Trigger", "Inputs", "Responsibilities", "Output", "Done Criteria", "Constraints"],
+      "requiredRules": ["defect.rules.md", "approval.rules.md"],
+      "permissions": {
+        "localWrite": true,
+        "externalRead": false,
+        "externalWrite": false
+      },
+      "artifactPolicy": "contractual-only",
+      "configKeys": ["analysis.defectTriagePath", "analysis.actionPlanPath"]
+    },
+    {
+      "path": ".qa-ai/agents/test-healing-agent.md",
+      "category": "governed-substep",
+      "phaseIds": ["healing"],
+      "requiredSections": ["Trigger", "Inputs", "Responsibilities", "Output", "Done Criteria", "Constraints"],
+      "requiredRules": ["approval.rules.md"],
+      "permissions": {
+        "localWrite": true,
+        "externalRead": false,
+        "externalWrite": false
+      },
+      "artifactPolicy": "contractual-only",
+      "configKeys": ["automation.healing.enabled"]
+    },
+    {
+      "path": ".qa-ai/agents/learning-loop-agent.md",
+      "category": "phase",
+      "phaseIds": ["learning-loop"],
+      "requiredSections": ["Trigger", "Inputs", "Responsibilities", "Output", "Done Criteria", "Constraints"],
+      "requiredRules": ["approval.rules.md"],
+      "permissions": {
+        "localWrite": true,
+        "externalRead": false,
+        "externalWrite": false
+      },
+      "artifactPolicy": "contractual-only",
+      "configKeys": ["learningLoop.enabled", "learningLoop.logPath", "learningLoop.improvementPath"]
+    },
+    {
+      "path": ".qa-ai/agents/production-observability-intake-agent.md",
+      "category": "phase",
+      "phaseIds": ["observability-intake"],
+      "requiredSections": ["Trigger", "Inputs", "Responsibilities", "Output", "Done Criteria", "Constraints"],
+      "requiredRules": ["approval.rules.md", "untrusted-content.rules.md"],
+      "permissions": {
+        "localWrite": true,
+        "externalRead": true,
+        "externalWrite": false
+      },
+      "artifactPolicy": "contractual-only",
+      "configKeys": ["observability.enabled", "observability.intakePath", "observability.signalAnalysisPath"]
+    },
+    {
+      "path": ".qa-ai/agents/defect-report-agent.md",
+      "category": "reactive",
+      "requiredSections": ["Trigger", "Inputs", "Responsibilities", "Output", "Done Criteria", "Constraints"],
+      "requiredRules": ["defect.rules.md", "approval.rules.md"],
+      "permissions": {
+        "localWrite": true,
+        "externalRead": false,
+        "externalWrite": false
+      },
+      "artifactPolicy": "contractual-only"
+    },
+    {
+      "path": ".qa-ai/agents/test-impact-agent.md",
+      "category": "reactive",
+      "requiredSections": ["Trigger", "Inputs", "Responsibilities", "Output", "Done Criteria", "Constraints"],
+      "requiredRules": ["approval.rules.md"],
+      "permissions": {
+        "localWrite": true,
+        "externalRead": false,
+        "externalWrite": false
+      },
+      "artifactPolicy": "contractual-only"
+    },
+    {
+      "path": ".qa-ai/agents/specialists/available/generic-test-design.md",
+      "category": "specialist",
+      "requiredSections": ["Artifact and handoff policy"],
+      "strategyFamily": "generic-test-design",
+      "canonicalVocabularies": ["gherkin-types", "evidence-types", "test-design-techniques"],
+      "configKeys": ["testDesign.coverage.mode", "testDesign.strategyRouting.mode"],
+      "artifactPolicy": "contractual-only",
+      "routingSignals": ["always", "design-phase"]
+    },
+    {
+      "path": ".qa-ai/agents/specialists/available/testrail.md",
+      "category": "specialist",
+      "requiredSections": ["Artifact and handoff policy"],
+      "strategyFamily": "testrail",
+      "canonicalVocabularies": ["evidence-types"],
+      "configKeys": ["testrail.projectName", "testrail.enabled", "testrail.mappingFile", "testManagementSync.mode"],
+      "artifactPolicy": "contractual-only",
+      "routingSignals": ["testrail", "test-management"]
+    },
+    {
+      "path": ".qa-ai/agents/specialists/available/appium.md",
+      "category": "specialist",
+      "requiredSections": ["Artifact and handoff policy"],
+      "strategyFamily": "appium",
+      "canonicalVocabularies": ["evidence-types"],
+      "configKeys": ["automation.mobile.framework"],
+      "artifactPolicy": "contractual-only",
+      "routingSignals": ["appium", "mobile"]
+    },
+    {
+      "path": ".qa-ai/agents/specialists/available/cypress.md",
+      "category": "specialist",
+      "requiredSections": ["Artifact and handoff policy"],
+      "strategyFamily": "cypress",
+      "canonicalVocabularies": ["evidence-types"],
+      "configKeys": ["automation.ui.framework"],
+      "artifactPolicy": "contractual-only",
+      "routingSignals": ["cypress", "ui"]
+    },
+    {
+      "path": ".qa-ai/agents/specialists/available/karate.md",
+      "category": "specialist",
+      "requiredSections": ["Artifact and handoff policy"],
+      "strategyFamily": "karate",
+      "canonicalVocabularies": ["evidence-types"],
+      "configKeys": ["automation.api.framework", "automation.ui.framework", "automation.karate.configPath"],
+      "artifactPolicy": "contractual-only",
+      "routingSignals": ["karate", "api", "ui"]
+    },
+    {
+      "path": ".qa-ai/agents/specialists/available/maestro.md",
+      "category": "specialist",
+      "requiredSections": ["Artifact and handoff policy"],
+      "strategyFamily": "maestro",
+      "canonicalVocabularies": ["evidence-types"],
+      "configKeys": ["automation.mobile.framework", "automation.mobile.flowsPath"],
+      "artifactPolicy": "contractual-only",
+      "routingSignals": ["maestro", "mobile"]
+    },
+    {
+      "path": ".qa-ai/agents/specialists/available/playwright-api.md",
+      "category": "specialist",
+      "requiredSections": ["Artifact and handoff policy"],
+      "strategyFamily": "playwright-api",
+      "canonicalVocabularies": ["evidence-types"],
+      "configKeys": ["automation.api.framework"],
+      "artifactPolicy": "contractual-only",
+      "routingSignals": ["playwright", "api"]
+    },
+    {
+      "path": ".qa-ai/agents/specialists/available/playwright-ui.md",
+      "category": "specialist",
+      "requiredSections": ["Artifact and handoff policy"],
+      "strategyFamily": "playwright-ui",
+      "canonicalVocabularies": ["evidence-types"],
+      "configKeys": ["automation.ui.framework"],
+      "artifactPolicy": "contractual-only",
+      "routingSignals": ["playwright", "ui"]
+    },
+    {
+      "path": ".qa-ai/agents/specialists/available/postman.md",
+      "category": "specialist",
+      "requiredSections": ["Artifact and handoff policy"],
+      "strategyFamily": "postman",
+      "canonicalVocabularies": ["evidence-types"],
+      "configKeys": ["automation.api.framework"],
+      "artifactPolicy": "contractual-only",
+      "routingSignals": ["postman", "api"]
+    },
+    {
+      "path": ".qa-ai/agents/specialists/available/rest-assured.md",
+      "category": "specialist",
+      "requiredSections": ["Artifact and handoff policy"],
+      "strategyFamily": "rest-assured",
+      "canonicalVocabularies": ["evidence-types"],
+      "configKeys": ["automation.api.framework"],
+      "artifactPolicy": "contractual-only",
+      "routingSignals": ["rest-assured", "api"]
+    },
+    {
+      "path": ".qa-ai/agents/specialists/available/selenium.md",
+      "category": "specialist",
+      "requiredSections": ["Artifact and handoff policy"],
+      "strategyFamily": "selenium",
+      "canonicalVocabularies": ["evidence-types"],
+      "configKeys": ["automation.ui.framework"],
+      "artifactPolicy": "contractual-only",
+      "routingSignals": ["selenium", "ui"]
+    },
+    {
+      "path": ".qa-ai/agents/specialists/available/webdriverio.md",
+      "category": "specialist",
+      "requiredSections": ["Artifact and handoff policy"],
+      "strategyFamily": "webdriverio",
+      "canonicalVocabularies": ["evidence-types"],
+      "configKeys": ["automation.ui.framework"],
+      "artifactPolicy": "contractual-only",
+      "routingSignals": ["webdriverio", "ui"]
+    },
+    {
+      "path": ".qa-ai/agents/specialists/available/accessibility.md",
+      "category": "specialist",
+      "requiredSections": ["Artifact and handoff policy"],
+      "strategyFamily": "accessibility",
+      "canonicalVocabularies": ["evidence-types", "gherkin-types"],
+      "artifactPolicy": "contractual-only",
+      "routingSignals": ["accessibility", "a11y"]
+    },
+    {
+      "path": ".qa-ai/agents/specialists/available/advanced-security.md",
+      "category": "specialist",
+      "requiredSections": ["Artifact and handoff policy"],
+      "strategyFamily": "advanced-security",
+      "canonicalVocabularies": ["evidence-types"],
+      "auxiliaryArtifacts": [
+        {
+          "path": ".qa-ai/output/security-assessment-plan.md",
+          "condition": "multiple security findings require structured plan",
+          "linkedArtifact": ".qa-ai/output/normalized-requirements.md",
+          "evidenceType": "technical-review",
+          "gating": false
+        }
+      ],
+      "artifactPolicy": "contractual-with-auxiliary",
+      "routingSignals": ["security", "penetration-testing"]
+    },
+    {
+      "path": ".qa-ai/agents/specialists/available/ai-evals.md",
+      "category": "specialist",
+      "requiredSections": ["Artifact and handoff policy"],
+      "strategyFamily": "ai-evals",
+      "canonicalVocabularies": ["evidence-types", "ai-techniques"],
+      "configKeys": ["aiTesting.enabled", "aiTesting.requiredTechniques"],
+      "artifactPolicy": "contractual-only",
+      "routingSignals": ["ai-component", "ai-evaluation"]
+    },
+    {
+      "path": ".qa-ai/agents/specialists/available/ai-red-team.md",
+      "category": "specialist",
+      "requiredSections": ["Artifact and handoff policy"],
+      "strategyFamily": "ai-red-team",
+      "canonicalVocabularies": ["evidence-types", "ai-techniques"],
+      "configKeys": ["aiTesting.enabled", "aiTesting.requiredTechniques"],
+      "artifactPolicy": "contractual-only",
+      "routingSignals": ["ai-component", "red-team", "adversarial"]
+    },
+    {
+      "path": ".qa-ai/agents/specialists/available/analytics-tracking.md",
+      "category": "specialist",
+      "requiredSections": ["Artifact and handoff policy"],
+      "strategyFamily": "analytics-tracking",
+      "canonicalVocabularies": ["evidence-types"],
+      "auxiliaryArtifacts": [
+        {
+          "path": ".qa-ai/output/analytics-tracking-plan.md",
+          "condition": "multiple analytics events require detailed coverage",
+          "linkedArtifact": ".qa-ai/output/test-design-proposal.md",
+          "evidenceType": "test-plan",
+          "gating": false
+        }
+      ],
+      "artifactPolicy": "contractual-with-auxiliary",
+      "routingSignals": ["analytics", "tracking"]
+    },
+    {
+      "path": ".qa-ai/agents/specialists/available/availability-reliability.md",
+      "category": "specialist",
+      "requiredSections": ["Artifact and handoff policy"],
+      "strategyFamily": "availability-reliability",
+      "canonicalVocabularies": ["evidence-types", "nfr-attributes"],
+      "artifactPolicy": "contractual-only",
+      "routingSignals": ["availability", "reliability"]
+    },
+    {
+      "path": ".qa-ai/agents/specialists/available/browserstack-strategy.md",
+      "category": "specialist",
+      "requiredSections": ["Artifact and handoff policy"],
+      "strategyFamily": "browserstack-strategy",
+      "canonicalVocabularies": ["evidence-types"],
+      "auxiliaryArtifacts": [
+        {
+          "path": ".qa-ai/output/browserstack-strategy.md",
+          "condition": "BrowserStack execution planned",
+          "linkedArtifact": ".qa-ai/output/automation-implementation-plan.md",
+          "evidenceType": "test-plan",
+          "gating": false
+        }
+      ],
+      "artifactPolicy": "contractual-with-auxiliary",
+      "routingSignals": ["browserstack", "device-cloud"]
+    },
+    {
+      "path": ".qa-ai/agents/specialists/available/compatibility-portability.md",
+      "category": "specialist",
+      "requiredSections": ["Artifact and handoff policy"],
+      "strategyFamily": "compatibility-portability",
+      "canonicalVocabularies": ["evidence-types", "nfr-attributes"],
+      "artifactPolicy": "contractual-only",
+      "routingSignals": ["compatibility", "portability"]
+    },
+    {
+      "path": ".qa-ai/agents/specialists/available/compliance-testing.md",
+      "category": "specialist",
+      "requiredSections": ["Artifact and handoff policy"],
+      "strategyFamily": "compliance-testing",
+      "canonicalVocabularies": ["evidence-types"],
+      "artifactPolicy": "contractual-with-auxiliary",
+      "routingSignals": ["compliance", "regulatory"],
+      "auxiliaryArtifacts": [
+        {
+          "path": ".qa-ai/output/compliance-evidence-matrix.md",
+          "condition": "regulatory or audit obligations require a structured evidence matrix",
+          "linkedArtifact": ".qa-ai/output/test-design-proposal.md",
+          "evidenceType": "technical-review",
+          "gating": false,
+          "safetyClassification": "internal"
+        }
+      ]
+    },
+    {
+      "path": ".qa-ai/agents/specialists/available/contract-testing.md",
+      "category": "specialist",
+      "requiredSections": ["Artifact and handoff policy"],
+      "strategyFamily": "contract-testing",
+      "canonicalVocabularies": ["evidence-types"],
+      "artifactPolicy": "contractual-only",
+      "routingSignals": ["contract", "pact", "schema"]
+    },
+    {
+      "path": ".qa-ai/agents/specialists/available/cross-browser-device.md",
+      "category": "specialist",
+      "requiredSections": ["Artifact and handoff policy"],
+      "strategyFamily": "cross-browser-device",
+      "canonicalVocabularies": ["evidence-types"],
+      "artifactPolicy": "contractual-with-auxiliary",
+      "routingSignals": ["cross-browser", "device-matrix"],
+      "auxiliaryArtifacts": [
+        {
+          "path": ".qa-ai/output/cross-browser-device-matrix.md",
+          "condition": "a multi-browser or multi-device matrix materially improves reviewability",
+          "linkedArtifact": ".qa-ai/output/test-design-proposal.md",
+          "evidenceType": "test-plan",
+          "gating": false,
+          "safetyClassification": "internal"
+        }
+      ]
+    },
+    {
+      "path": ".qa-ai/agents/specialists/available/data-quality.md",
+      "category": "specialist",
+      "requiredSections": ["Artifact and handoff policy"],
+      "strategyFamily": "data-quality",
+      "canonicalVocabularies": ["evidence-types"],
+      "auxiliaryArtifacts": [
+        {
+          "path": ".qa-ai/output/data-quality-plan.md",
+          "condition": "multiple data quality checks needed",
+          "linkedArtifact": ".qa-ai/output/test-design-proposal.md",
+          "evidenceType": "test-plan",
+          "gating": false
+        }
+      ],
+      "artifactPolicy": "contractual-with-auxiliary",
+      "routingSignals": ["data-quality", "data-integrity"]
+    },
+    {
+      "path": ".qa-ai/agents/specialists/available/database-migration.md",
+      "category": "specialist",
+      "requiredSections": ["Artifact and handoff policy"],
+      "strategyFamily": "database-migration",
+      "canonicalVocabularies": ["evidence-types"],
+      "artifactPolicy": "contractual-with-auxiliary",
+      "routingSignals": ["database", "migration"],
+      "auxiliaryArtifacts": [
+        {
+          "path": ".qa-ai/output/database-migration-test-plan.md",
+          "condition": "multiple migration stages or rollback checks require a dedicated plan",
+          "linkedArtifact": ".qa-ai/output/test-design-proposal.md",
+          "evidenceType": "test-plan",
+          "gating": false,
+          "safetyClassification": "internal"
+        }
+      ]
+    },
+    {
+      "path": ".qa-ai/agents/specialists/available/exploratory-testing.md",
+      "category": "specialist",
+      "requiredSections": ["Artifact and handoff policy"],
+      "strategyFamily": "exploratory-testing",
+      "canonicalVocabularies": ["evidence-types"],
+      "artifactPolicy": "contractual-with-auxiliary",
+      "routingSignals": ["exploratory", "session-based"],
+      "auxiliaryArtifacts": [
+        {
+          "path": ".qa-ai/output/exploratory-charters/",
+          "condition": "multiple exploratory sessions require separate charters",
+          "linkedArtifact": ".qa-ai/output/test-design-proposal.md",
+          "evidenceType": "manual-charter",
+          "gating": false,
+          "safetyClassification": "internal"
+        }
+      ]
+    },
+    {
+      "path": ".qa-ai/agents/specialists/available/functional-security.md",
+      "category": "specialist",
+      "requiredSections": ["Artifact and handoff policy"],
+      "strategyFamily": "functional-security",
+      "canonicalVocabularies": ["evidence-types", "gherkin-types"],
+      "artifactPolicy": "contractual-only",
+      "routingSignals": ["security", "authentication", "authorization"]
+    },
+    {
+      "path": ".qa-ai/agents/specialists/available/i18n-l10n.md",
+      "category": "specialist",
+      "requiredSections": ["Artifact and handoff policy"],
+      "strategyFamily": "i18n-l10n",
+      "canonicalVocabularies": ["evidence-types"],
+      "artifactPolicy": "contractual-with-auxiliary",
+      "routingSignals": ["i18n", "localization", "internationalization"],
+      "auxiliaryArtifacts": [
+        {
+          "path": ".qa-ai/output/localization-test-matrix.md",
+          "condition": "multiple locales require a reviewable localization matrix",
+          "linkedArtifact": ".qa-ai/output/test-design-proposal.md",
+          "evidenceType": "test-plan",
+          "gating": false,
+          "safetyClassification": "internal"
+        }
+      ]
+    },
+    {
+      "path": ".qa-ai/agents/specialists/available/jira.md",
+      "category": "specialist",
+      "requiredSections": ["Artifact and handoff policy"],
+      "strategyFamily": "jira",
+      "canonicalVocabularies": ["evidence-types"],
+      "configKeys": ["tools.issueTracker"],
+      "artifactPolicy": "contractual-only",
+      "routingSignals": ["jira", "issue-tracker"]
+    },
+    {
+      "path": ".qa-ai/agents/specialists/available/maintainability.md",
+      "category": "specialist",
+      "requiredSections": ["Artifact and handoff policy"],
+      "strategyFamily": "maintainability",
+      "canonicalVocabularies": ["evidence-types", "nfr-attributes"],
+      "artifactPolicy": "contractual-only",
+      "routingSignals": ["maintainability", "code-quality"]
+    },
+    {
+      "path": ".qa-ai/agents/specialists/available/mobile-advanced.md",
+      "category": "specialist",
+      "requiredSections": ["Artifact and handoff policy"],
+      "strategyFamily": "mobile-advanced",
+      "canonicalVocabularies": ["evidence-types"],
+      "artifactPolicy": "contractual-with-auxiliary",
+      "routingSignals": ["mobile", "advanced", "gestures", "push-notifications"],
+      "auxiliaryArtifacts": [
+        {
+          "path": ".qa-ai/output/mobile-advanced-test-plan.md",
+          "condition": "multiple advanced mobile capabilities require a dedicated plan",
+          "linkedArtifact": ".qa-ai/output/test-design-proposal.md",
+          "evidenceType": "test-plan",
+          "gating": false,
+          "safetyClassification": "internal"
+        }
+      ]
+    },
+    {
+      "path": ".qa-ai/agents/specialists/available/observability-testing.md",
+      "category": "specialist",
+      "requiredSections": ["Artifact and handoff policy"],
+      "strategyFamily": "observability-testing",
+      "canonicalVocabularies": ["evidence-types"],
+      "auxiliaryArtifacts": [
+        {
+          "path": ".qa-ai/output/observability-test-plan.md",
+          "condition": "multiple observability signals need structured testing",
+          "linkedArtifact": ".qa-ai/output/production-signal-analysis.md",
+          "evidenceType": "test-plan",
+          "gating": false
+        }
+      ],
+      "artifactPolicy": "contractual-with-auxiliary",
+      "routingSignals": ["observability", "monitoring", "alerting"]
+    },
+    {
+      "path": ".qa-ai/agents/specialists/available/performance-design.md",
+      "category": "specialist",
+      "requiredSections": ["Artifact and handoff policy"],
+      "strategyFamily": "performance-design",
+      "canonicalVocabularies": ["evidence-types", "gherkin-types", "nfr-attributes"],
+      "artifactPolicy": "contractual-only",
+      "routingSignals": ["performance", "load", "stress"]
+    },
+    {
+      "path": ".qa-ai/agents/specialists/available/performance-execution.md",
+      "category": "specialist",
+      "requiredSections": ["Artifact and handoff policy"],
+      "strategyFamily": "performance-execution",
+      "canonicalVocabularies": ["evidence-types"],
+      "auxiliaryArtifacts": [
+        {
+          "path": ".qa-ai/output/performance-execution-plan.md",
+          "condition": "performance tests need environment/load profile planning",
+          "linkedArtifact": ".qa-ai/output/test-design-proposal.md",
+          "evidenceType": "test-plan",
+          "gating": false
+        }
+      ],
+      "artifactPolicy": "contractual-with-auxiliary",
+      "routingSignals": ["performance", "load-testing", "stress-testing", "execution"]
+    },
+    {
+      "path": ".qa-ai/agents/specialists/available/post-deploy-validation.md",
+      "category": "specialist",
+      "requiredSections": ["Artifact and handoff policy"],
+      "strategyFamily": "post-deploy-validation",
+      "canonicalVocabularies": ["evidence-types"],
+      "auxiliaryArtifacts": [
+        {
+          "path": ".qa-ai/output/post-deploy-validation-plan.md",
+          "condition": "deployment requires structured post-deploy checks",
+          "linkedArtifact": ".qa-ai/output/release-gate.yaml",
+          "evidenceType": "test-plan",
+          "gating": false
+        }
+      ],
+      "artifactPolicy": "contractual-with-auxiliary",
+      "routingSignals": ["post-deploy", "release", "smoke"]
+    },
+    {
+      "path": ".qa-ai/agents/specialists/available/privacy-testing.md",
+      "category": "specialist",
+      "requiredSections": ["Artifact and handoff policy"],
+      "strategyFamily": "privacy-testing",
+      "canonicalVocabularies": ["evidence-types"],
+      "auxiliaryArtifacts": [
+        {
+          "path": ".qa-ai/output/privacy-test-plan.md",
+          "condition": "privacy requirements need structured test plan",
+          "linkedArtifact": ".qa-ai/output/test-design-proposal.md",
+          "evidenceType": "test-plan",
+          "gating": false
+        }
+      ],
+      "artifactPolicy": "contractual-with-auxiliary",
+      "routingSignals": ["privacy", "gdpr", "pii"]
+    },
+    {
+      "path": ".qa-ai/agents/specialists/available/resilience-chaos.md",
+      "category": "specialist",
+      "requiredSections": ["Artifact and handoff policy"],
+      "strategyFamily": "resilience-chaos",
+      "canonicalVocabularies": ["evidence-types"],
+      "auxiliaryArtifacts": [
+        {
+          "path": ".qa-ai/output/resilience-test-plan.md",
+          "condition": "resilience/chaos testing requires blast-radius planning",
+          "linkedArtifact": ".qa-ai/output/test-design-proposal.md",
+          "evidenceType": "test-plan",
+          "gating": false
+        }
+      ],
+      "artifactPolicy": "contractual-with-auxiliary",
+      "routingSignals": ["resilience", "chaos", "fault-injection"]
+    },
+    {
+      "path": ".qa-ai/agents/specialists/available/scalability-design.md",
+      "category": "specialist",
+      "requiredSections": ["Artifact and handoff policy"],
+      "strategyFamily": "scalability-design",
+      "canonicalVocabularies": ["evidence-types", "nfr-attributes"],
+      "artifactPolicy": "contractual-only",
+      "routingSignals": ["scalability", "capacity"]
+    },
+    {
+      "path": ".qa-ai/agents/specialists/available/test-data-strategy.md",
+      "category": "specialist",
+      "requiredSections": ["Artifact and handoff policy"],
+      "strategyFamily": "test-data-strategy",
+      "canonicalVocabularies": ["evidence-types"],
+      "auxiliaryArtifacts": [
+        {
+          "path": ".qa-ai/output/test-data-strategy.md",
+          "condition": "test data strategy needs centralized documentation",
+          "linkedArtifact": ".qa-ai/output/test-data-plan.md",
+          "evidenceType": "test-plan",
+          "gating": false
+        }
+      ],
+      "artifactPolicy": "contractual-with-auxiliary",
+      "routingSignals": ["test-data", "data-generation"]
+    },
+    {
+      "path": ".qa-ai/agents/specialists/available/threat-modeling.md",
+      "category": "specialist",
+      "requiredSections": ["Artifact and handoff policy"],
+      "strategyFamily": "threat-modeling",
+      "canonicalVocabularies": ["evidence-types"],
+      "auxiliaryArtifacts": [
+        {
+          "path": ".qa-ai/output/threat-model.md",
+          "condition": "threat modeling exercise produces artifacts",
+          "linkedArtifact": ".qa-ai/output/risk-analysis.md",
+          "evidenceType": "technical-review",
+          "gating": false
+        }
+      ],
+      "artifactPolicy": "contractual-with-auxiliary",
+      "routingSignals": ["threat-modeling", "stride", "attack-surface"]
+    },
+    {
+      "path": ".qa-ai/agents/specialists/available/usability.md",
+      "category": "specialist",
+      "requiredSections": ["Artifact and handoff policy"],
+      "strategyFamily": "usability",
+      "canonicalVocabularies": ["evidence-types", "nfr-attributes"],
+      "artifactPolicy": "contractual-only",
+      "routingSignals": ["usability", "ux"]
+    },
+    {
+      "path": ".qa-ai/agents/specialists/available/visual-regression.md",
+      "category": "specialist",
+      "requiredSections": ["Artifact and handoff policy"],
+      "strategyFamily": "visual-regression",
+      "canonicalVocabularies": ["evidence-types"],
+      "artifactPolicy": "contractual-only",
+      "routingSignals": ["visual", "regression", "screenshot"]
+    }
+  ]
+}

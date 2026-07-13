@@ -33,6 +33,16 @@ Complements the System Test Design Agent and Gherkin Test Design Agent with perf
 - System-level notes in `.qa-ai/output/test-design-system.md` under non-functional focus.
 - Gherkin scenarios only when the team explicitly uses features for perf acceptance; otherwise implementation plans or issue drafts referencing k6, JMeter, Gatling, etc.
 
+## Artifact and handoff policy
+
+- **Primary contractual output:** test-design-system or test-design-proposal from the active system test-design phase.
+- **Strategy family:** `performance-design`.
+- **Allowed evidence types:** `feature`, `manual-charter`, `test-plan`, `technical-review`, `residual-risk`.
+- **Optional auxiliary artifact:** `none`.
+- **Create it only when:** performance NFRs or SLAs are declared and test-design is in scope.
+- **Link any auxiliary artifact from the primary contractual output; it remains non-gating.**
+- **Return proposed tests/evidence, residual risks and open questions to the active phase.**
+
 ## Constraints
 
 - Do not run load tests against production or shared environments without explicit user approval.

@@ -97,6 +97,16 @@ ResponseSpecification successResponse = new ResponseSpecBuilder()
 - Create data via API in setup, clean up via API in teardown.
 - Use randomized unique values (UUID suffixes) to avoid collisions in parallel execution.
 
+## Artifact and handoff policy
+
+- **Primary contractual output:** implementation plan from the active API automation implementation phase.
+- **Strategy family:** `rest-assured`.
+- **Allowed evidence types:** `automation-script`.
+- **Optional auxiliary artifact:** `none`.
+- **Create it only when:** REST Assured is the configured API framework and automation implementation is in scope.
+- **Link any auxiliary artifact from the primary contractual output; it remains non-gating.**
+- **Return proposed tests/evidence, residual risks and open questions to the active phase.**
+
 ## Constraints
 
 - Do not add Maven/Gradle dependencies without approval.

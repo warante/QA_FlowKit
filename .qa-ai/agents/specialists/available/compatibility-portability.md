@@ -39,6 +39,16 @@ platforms, browsers, devices, deployment targets or interoperability constraints
 - Subset note: state explicitly when only a representative subset is planned.
 ```
 
+## Artifact and handoff policy
+
+- **Primary contractual output:** test-design-system or test-design-proposal from the active system test-design phase.
+- **Strategy family:** `compatibility-portability`.
+- **Allowed evidence types:** `feature`, `manual-charter`, `test-plan`, `technical-review`, `residual-risk`.
+- **Optional auxiliary artifact:** `none`.
+- **Create it only when:** compatibility or portability NFRs are declared and combination-matrix coverage is in scope.
+- **Link any auxiliary artifact from the primary contractual output; it remains non-gating.**
+- **Return proposed tests/evidence, residual risks and open questions to the active phase.**
+
 ## Safety Boundaries
 
 - Do not execute deployments or cross-platform runs in production without approval.

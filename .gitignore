@@ -56,6 +56,7 @@ tests/
 !examples/**/tests/**
 prueba/
 plan/
+.omo/run-continuation/
 
 # Test runners (when automation is added)
 test-results/

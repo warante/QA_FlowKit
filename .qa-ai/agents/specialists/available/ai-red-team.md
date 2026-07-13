@@ -26,6 +26,16 @@ content.
 - Mark each proposed case with the relevant AI technique and RF/CA traceability.
 - Add residual risks when deeper security review, policy review or red-team authorization is required.
 
+## Artifact and handoff policy
+
+- **Primary contractual output:** test-design-proposal from the active test-design phase.
+- **Strategy family:** `ai-red-team`.
+- **Allowed evidence types:** `technical-review`, `test-plan`.
+- **Optional auxiliary artifact:** `none`.
+- **Create it only when:** AI adversarial testing is in scope and `aiTesting.enabled` is true.
+- **Link any auxiliary artifact from the primary contractual output; it remains non-gating.**
+- **Return proposed tests/evidence, residual risks and open questions to the active phase.**
+
 ## Safety Boundaries
 
 - Only design tests for systems the user is authorized to test.

@@ -175,6 +175,7 @@ See the [configuration schema](docs/qa-ai/config-schema.md) for all generated ke
 | `qa-flowkit validate-features`                        | Validate QA design Gherkin                                   |
 | `qa-flowkit validate-test-coverage`                   | Validate configured coverage obligations and source NFR rows |
 | `qa-flowkit validate-traceability`                    | Validate RF-to-test and NFR traceability                     |
+| `qa-flowkit validate-agent-guidance`                  | Validate agent/specialist guidance manifest and Markdown     |
 | `qa-flowkit validate-release-gate`                    | Validate the enterprise release decision                     |
 | [`qa-flowkit export-report`](docs/qa-ai/reporting.md) | Export Gherkin-aligned test cases and execution results      |
 
@@ -194,6 +195,7 @@ QA FlowKit validates, among other things:
 - prompt-injection-like instructions in requirement and QA context sources;
 - official RF traceability and duplicate test IDs;
 - proposal-first test-management sync language;
+- agent and specialist guidance manifest consistency;
 - required enterprise release-gate evidence and test execution results.
 
 See [Gherkin rules](.qa-ai/rules/gherkin.rules.md) and the

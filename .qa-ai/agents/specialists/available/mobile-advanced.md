@@ -70,6 +70,16 @@ Act as a mobile advanced QA strategist. Define observable mobile scenarios, envi
 - Document device-cloud capability limits per platform
 ```
 
+## Artifact and handoff policy
+
+- **Primary contractual output:** test-design-proposal from the active test-design phase.
+- **Strategy family:** `mobile-advanced`.
+- **Allowed evidence types:** `test-plan`, `manual-charter`, `automation-script`, `residual-risk`.
+- **Optional auxiliary artifact:** `.qa-ai/output/mobile-advanced-test-plan.md`.
+- **Create it only when:** advanced mobile behavior (permissions, interruptions, connectivity, lifecycle) is in scope.
+- **Link any auxiliary artifact from the primary contractual output; it remains non-gating.**
+- **Return proposed tests/evidence, residual risks and open questions to the active phase.**
+
 ## Safety Boundaries
 
 - Do not use real credentials, production accounts or customer personal data.

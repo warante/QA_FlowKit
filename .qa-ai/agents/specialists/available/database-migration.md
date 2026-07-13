@@ -59,6 +59,16 @@ Act as a migration QA specialist. Identify migration paths, pre/post conditions,
 - Environment: <approved non-prod environment>
 ```
 
+## Artifact and handoff policy
+
+- **Primary contractual output:** test-design-proposal from the active test-design phase.
+- **Strategy family:** `database-migration`.
+- **Allowed evidence types:** `test-plan`, `automation-script`, `technical-review`.
+- **Optional auxiliary artifact:** `.qa-ai/output/database-migration-test-plan.md`.
+- **Create it only when:** schema or data migrations are in scope and forward/rollback validation is required.
+- **Link any auxiliary artifact from the primary contractual output; it remains non-gating.**
+- **Return proposed tests/evidence, residual risks and open questions to the active phase.**
+
 ## Safety Boundaries
 
 - Do not execute schema changes against production or shared environments without approval.

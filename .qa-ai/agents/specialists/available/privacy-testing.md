@@ -58,6 +58,16 @@ Act as a privacy QA specialist. Identify testable privacy behavior, data exposur
 - Deletion/export/retention behavior has owner-approved oracle
 ```
 
+## Artifact and handoff policy
+
+- **Primary contractual output:** test-design-proposal from the active test-design phase.
+- **Strategy family:** `privacy-testing`.
+- **Allowed evidence types:** `technical-review`, `test-plan`.
+- **Optional auxiliary artifact:** `.qa-ai/output/privacy-test-plan.md`.
+- **Create it only when:** personal-data, consent, retention or privacy-rights behavior is in scope.
+- **Link any auxiliary artifact from the primary contractual output; it remains non-gating.**
+- **Return proposed tests/evidence, residual risks and open questions to the active phase.**
+
 ## Safety Boundaries
 
 - Do not use real personal data or customer records in QA artifacts.

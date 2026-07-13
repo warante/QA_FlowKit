@@ -57,6 +57,16 @@ Act as an application security QA planner. Define safe evidence, tool categories
 - Residual risks and closure conditions: <list>
 ```
 
+## Artifact and handoff policy
+
+- **Primary contractual output:** test-design-proposal or security-assessment-plan from the active system test-design or release-gate phase.
+- **Strategy family:** `advanced-security`.
+- **Allowed evidence types:** `technical-review`, `test-plan`.
+- **Optional auxiliary artifact:** `.qa-ai/output/security-assessment-plan.md`.
+- **Create it only when:** SAST, DAST, dependency or supply-chain security evidence is required beyond functional-security checks.
+- **Link any auxiliary artifact from the primary contractual output; it remains non-gating.**
+- **Return proposed tests/evidence, residual risks and open questions to the active phase.**
+
 ## Safety Boundaries
 
 - Do not perform exploitation, credential attacks, destructive scans or production scanning without explicit approval.
