@@ -257,7 +257,7 @@ async function main() {
           key.endsWith('.gradle')
         )
           continue;
-        if (/^[a-zA-Z][a-zA-Z0-9_.]*(\.[a-zA-Z][a-zA-Z0-9_.]*)+$/.test(key)) {
+        if (/^[a-zA-Z][a-zA-Z0-9_]*(\.[a-zA-Z][a-zA-Z0-9_]*)+$/.test(key)) {
           const wildcard = key.endsWith('.*');
           const baseKey = wildcard ? key.slice(0, -2) : key;
           const knownExports = new Set([
