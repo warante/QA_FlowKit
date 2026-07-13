@@ -48,6 +48,13 @@ this feature PR is merged.
 - Cross-platform smoke and npm-pack checks now account for generated adapters and framework-specific example paths.
 - Documentation drift and missing packaged contract files now fail validation before release.
 
+## [1.0.0-rc.10](https://github.com/warante/QA_FlowKit/compare/v1.0.0-rc.9...v1.0.0-rc.10) (2026-07-13)
+
+
+### Fixed
+
+* **ci:** pin npm for Node 20 publishing ([#94](https://github.com/warante/QA_FlowKit/issues/94)) ([a4971d6](https://github.com/warante/QA_FlowKit/commit/a4971d6cc9ae564ad1fcd998163ce187e8a53654))
+
 ## [1.0.0-rc.9](https://github.com/warante/QA_FlowKit/compare/v1.0.0-rc.8...v1.0.0-rc.9) (2026-07-13)
 
 
