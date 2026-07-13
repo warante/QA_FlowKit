@@ -23,7 +23,7 @@ Stable command names:
 ```text
 init update bootstrap config doctor
 validate-config validate-untrusted-content validate-external-intake validate-target validate-features validate-karate-features validate-maestro-flows
-validate-traceability validate-sync-plan validate-sync-diff validate-sync-result validate-active-specialists
+validate-traceability validate-sync-plan validate-sync-diff validate-sync-result validate-active-specialists validate-agent-guidance
 validate-release-gate validate-test-design
 sync-adapters export-report help clean version run
 ```
@@ -109,14 +109,15 @@ new projects should use `playwright-full`.
 
 ## Workflow And State
 
-| Surface                                         | Level          | Notes                                                     |
-| ----------------------------------------------- | -------------- | --------------------------------------------------------- |
-| `workflow.v1.json`, `schemaVersion: 1`          | `stable`       | Phase IDs, ordering semantics, permissions and validators |
-| `config.v1.schema.json`, JSON Schema 2020-12    | `experimental` | Machine-readable config contract used by init and doctor  |
-| `run.json`, `schemaVersion: 1`                  | `experimental` | Preserved by update; migration support required before RC |
-| `events.jsonl`                                  | `experimental` | Append-only audit events; individual optional fields vary |
-| `.lock` and atomic temporary files              | `internal`     | Never parse or commit                                     |
-| `.qa-ai/state/init-manifest.json`, `version: 1` | `experimental` | Used by cleanup and update                                |
+| Surface                                         | Level          | Notes                                                                                                                                                                                                       |
+| ----------------------------------------------- | -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `workflow.v1.json`, `schemaVersion: 1`          | `stable`       | Phase IDs, ordering semantics, permissions and validators                                                                                                                                                   |
+| `agent-guidance.v1.json`, `version: 1`          | `experimental` | Agent guidance metadata, categories, permissions and artifact policy. Subject to V3 semantics refinement during RC; phase-permission and approval-gate shapes may evolve before the stable contract freeze. |
+| `config.v1.schema.json`, JSON Schema 2020-12    | `experimental` | Machine-readable config contract used by init and doctor                                                                                                                                                    |
+| `run.json`, `schemaVersion: 1`                  | `experimental` | Preserved by update; migration support required before RC                                                                                                                                                   |
+| `events.jsonl`                                  | `experimental` | Append-only audit events; individual optional fields vary                                                                                                                                                   |
+| `.lock` and atomic temporary files              | `internal`     | Never parse or commit                                                                                                                                                                                       |
+| `.qa-ai/state/init-manifest.json`, `version: 1` | `experimental` | Used by cleanup and update                                                                                                                                                                                  |
 
 Machine-readable schema files and compatibility fixtures are documented in
 [Schema compatibility](schema-compatibility.md). Verification:

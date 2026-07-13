@@ -74,3 +74,45 @@ Use one canonical evidence type per row. Add a `Supporting evidence` column in s
 - The orchestrator loads selected specialists before system and per-RF test design.
 - `validate-strategy-routing.mjs` enforces `## Strategy routing decisions` when `testDesign.strategyRouting.mode` is `strict`.
 - Standard automation presets (`qaTrack: standard`) ship with `testDesign.strategyRouting.mode: advisory`; `manual-only` (`qaTrack: quick`) ships with `off`.
+- `.qa-ai/contracts/agent-guidance.v1.json` registers all 42 specialist IDs, routing signals and artifact policies.
+  Runtime selection remains owned by `project-config.mjs` and `test-strategy-router.mjs`; the manifest is validated
+  against those production catalogs and never replaces them.
+- Source tests require a positive and negative production-router case for every registered specialist, plus composition,
+  precedence and no-match coverage.
+
+## Routing precedence
+
+When multiple routing sources activate simultaneously, the following precedence applies (highest first):
+
+1. **Explicit user instruction** — the user names one or more specialists. The orchestrator loads exactly those
+   specialists and skips automatic routing for that RF/CA.
+2. **Config-driven activation** — `specialistCatalog` entries with `always: true` in `project-config.mjs` are loaded
+   unconditionally (framework/tool specialists).
+3. **NFR attribute routing** — normalized requirement rows with source NFR attributes (e.g. `performance`, `security`,
+   `privacy`) activate their corresponding strategy specialists.
+4. **Keyword signal routing** — RF/CA wording that matches registered `routingSignals` activates the associated
+   specialist. Keyword routing respects signal counts: when more than one keyword matches, the specialist with the
+   highest unique-signal count is prioritized.
+5. **Advisory-only signals** — when `testDesign.strategyRouting.mode` is `advisory`, the router recommends specialists
+   but does not require `## Strategy routing decisions` rows.
+
+## Explicit specialist selection
+
+When the user or config explicitly selects a specialist, the router:
+
+- Loads the named specialist regardless of keyword or NFR signals.
+- Still checks `agent-guidance.v1.json` to validate that the specialist ID is registered and has the correct
+  `strategyFamily`.
+- Does not suppress other non-overlapping strategy specialists that are independently activated.
+
+## Cache semantics
+
+`specialists/active.md` is a generated cache for Markdown-only hosts. It is not the runtime source of truth:
+
+- Regenerate it through `init.mjs` or `config.mjs --import` after changing the specialist configuration.
+- Never edit `active.md` manually — manual edits are overwritten on the next regeneration.
+- Source-repository validation (`validate-active-specialists.mjs`) checks consistency between `active.md` and
+  configured specialists, but the production router reads from `project-config.mjs` and
+  `test-strategy-router.mjs`, not from the cache file.
+- When `active.md` is missing or stale, the orchestrator warns and continues from runtime routing; do not block
+  workflow execution on a missing cache file.

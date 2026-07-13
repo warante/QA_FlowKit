@@ -13,13 +13,14 @@ The schema registry is [`.qa-ai/contracts/schema-registry.v1.json`](../../.qa-ai
 
 ## Surfaces
 
-| Surface       | Version field   | Schema file                    | Notes                                                                    |
-| ------------- | --------------- | ------------------------------ | ------------------------------------------------------------------------ |
-| Configuration | `version`       | `config.v1.schema.json`        | Parsed from `qa-ai.config.yaml`                                          |
-| Workflow      | `schemaVersion` | `workflow.v1.schema.json`      | Structural contract; path and validator semantics are checked separately |
-| Run state     | `schemaVersion` | `run-state.v1.schema.json`     | `.qa-ai/state/runs/<run-id>/run.json`                                    |
-| Run events    | per-line JSON   | `run-event.v1.schema.json`     | `.qa-ai/state/runs/<run-id>/events.jsonl`                                |
-| Init manifest | `version`       | `init-manifest.v1.schema.json` | `.qa-ai/state/init-manifest.json`                                        |
+| Surface        | Version field   | Schema file                     | Notes                                                                    |
+| -------------- | --------------- | ------------------------------- | ------------------------------------------------------------------------ |
+| Configuration  | `version`       | `config.v1.schema.json`         | Parsed from `qa-ai.config.yaml`                                          |
+| Workflow       | `schemaVersion` | `workflow.v1.schema.json`       | Structural contract; path and validator semantics are checked separately |
+| Agent guidance | `version`       | `agent-guidance.v1.schema.json` | Guidance inventory, categories, permissions and artifact policy          |
+| Run state      | `schemaVersion` | `run-state.v1.schema.json`      | `.qa-ai/state/runs/<run-id>/run.json`                                    |
+| Run events     | per-line JSON   | `run-event.v1.schema.json`      | `.qa-ai/state/runs/<run-id>/events.jsonl`                                |
+| Init manifest  | `version`       | `init-manifest.v1.schema.json`  | `.qa-ai/state/init-manifest.json`                                        |
 
 Unsupported versions must fail with an actionable migration message that references this document.
 
@@ -56,6 +57,13 @@ Harness snapshots use `schemaVersion: 1` and preserve:
 - approvals and timestamps.
 
 Consumers should prefer CLI JSON output (`npx qa-flowkit run status --json`) instead of parsing state files directly. Beta-to-1.0 migration behavior is documented in [beta-to-1.0-migration.md](beta-to-1.0-migration.md) and validated by `npm run test:e2e-update-migration`.
+
+## Agent guidance
+
+Agent guidance contracts use `version: 1`. The manifest registers every Markdown file under `.qa-ai/agents/`; its
+schema validates structural metadata while `validate-agent-guidance.mjs` enforces inventory, workflow/config
+references, Markdown sections, routing metadata and non-gating auxiliary artifacts. The contract describes guidance
+semantics and never replaces workflow phase order.
 
 ## Init manifest
 

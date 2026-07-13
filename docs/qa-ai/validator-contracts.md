@@ -31,6 +31,7 @@ some commands emit JSON on failure (`validate-config --json`), others emit human
 | `validate-traceability`       | Empty/missing fails                | `--allow-empty`, `--allow-missing`                             | CI/bootstrap tolerant mode                                 |
 | `validate-sync-plan`          | Empty/missing fails                | `--allow-empty`, `--allow-missing`                             | CI/bootstrap tolerant mode                                 |
 | `validate-active-specialists` | Missing index fails                | `--allow-missing`                                              | CI/bootstrap tolerant mode                                 |
+| `validate-agent-guidance`     | Invalid contract/schema fails      | `--allow-missing`                                              | CI/bootstrap tolerant mode                                 |
 | `validate-config`             | Invalid schema fails               | `--allow-missing`                                              | Skip when config file is absent                            |
 
 ### `validate-target` composition
@@ -42,10 +43,11 @@ Default pipeline:
 3. `validate-traceability` (respecting allow flags)
 4. `validate-sync-plan` (respecting allow flags)
 5. `validate-active-specialists` (respecting allow flags)
-6. `validate-release-gate` on enterprise track
-7. Optional design/coverage/quality validators based on config
-8. `validate-untrusted-content` in warn mode unless `--strict-untrusted-content`
-9. Optional secret scan when strict doctor is enabled
+6. `validate-agent-guidance` (respecting allow flags)
+7. `validate-release-gate` on enterprise track
+8. Optional design/coverage/quality validators based on config
+9. `validate-untrusted-content` in warn mode unless `--strict-untrusted-content`
+10. Optional secret scan when strict doctor is enabled
 
 Use `--json` on `validate-target` for a machine-readable aggregate report. Child validator ordering is stable and
 documented in the script source.
