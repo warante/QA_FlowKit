@@ -38,6 +38,16 @@ appId: ${APP_ID}
 
 Do not claim host E2E support from structural validation alone.
 
+## Artifact and handoff policy
+
+- **Primary contractual output:** implementation plan from the active mobile automation implementation phase.
+- **Strategy family:** `maestro`.
+- **Allowed evidence types:** `automation-script`.
+- **Optional auxiliary artifact:** `none`.
+- **Create it only when:** Maestro is the configured mobile framework and automation implementation is in scope.
+- **Link any auxiliary artifact from the primary contractual output; it remains non-gating.**
+- **Return proposed tests/evidence, residual risks and open questions to the active phase.**
+
 ## Constraints
 
 - Maestro CLI requires Java 17 or later.

@@ -50,7 +50,8 @@ tests/api/
 
 ## Implementation Rules
 
-- One spec file per feature file (matching the RF-ID naming).
+- Treat each Test ID/scenario as the atomic implementation and reporting unit. A spec may contain multiple Test IDs
+  when each remains independently named, selectable and reportable using the configured framework's conventions.
 - Follow the Given-When-Then structure from the feature file as test flow.
 - Extract reusable API calls into clients (do not repeat endpoint + header setup).
 - Use environment variables or config files for base URLs, credentials, and environment-specific data.
@@ -70,8 +71,8 @@ Phase is complete when:
 
 - **Framework is `none` or `undecided`**: Do not implement. Produce an implementation plan document with recommended framework options and mark tests as blocked.
 - **No existing patterns found**: Propose a base structure and ask approval before creating.
-- **API documentation missing**: Create test skeletons with `@wip`/pending marks and note what is needed.
-- **Auth mechanism unclear**: Ask user to describe the auth flow before implementing.
+- **API documentation missing**: Produce a blocked implementation plan row documenting what endpoints/auth are unknown. Do not create test skeletons with invented endpoints or auth flows by default. If the user explicitly requests scaffolding, label it `scaffold-only` and exclude it from done criteria counts.
+- **Auth mechanism unclear**: Produce a blocked plan row and ask for auth details. Do not invent an auth flow.
 
 ## Constraints
 

@@ -57,6 +57,16 @@ Act as a release QA specialist. Define safe, minimal and reversible validation a
 - Residual risks: <known issues and monitoring plan>
 ```
 
+## Artifact and handoff policy
+
+- **Primary contractual output:** release-gate or test-design-proposal from the active release-gate phase.
+- **Strategy family:** `post-deploy-validation`.
+- **Allowed evidence types:** `test-plan`, `manual-charter`, `automation-script`, `residual-risk`.
+- **Optional auxiliary artifact:** `.qa-ai/output/post-deploy-validation-plan.md`.
+- **Create it only when:** post-deploy smoke, synthetic checks or release verification is in scope.
+- **Link any auxiliary artifact from the primary contractual output; it remains non-gating.**
+- **Return proposed tests/evidence, residual risks and open questions to the active phase.**
+
 ## Safety Boundaries
 
 - Do not run destructive production scenarios without explicit approval and a rollback plan.

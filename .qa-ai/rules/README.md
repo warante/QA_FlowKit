@@ -77,19 +77,21 @@ These validators are part of the framework but are not tied to a single `*.rules
 `validate-target.mjs` or the CLI. `gherkin-quality.rubric.md` is **agent-enforced** (the Gherkin quality agent applies
 it) and additionally checked structurally by `validate-quality-report.mjs`.
 
-| Validator                         | Enforces / validates                                                               |
-| --------------------------------- | ---------------------------------------------------------------------------------- |
-| `validate-config.mjs`             | `.qa-ai/qa-ai.config.yaml` against `contracts/config.v1.schema.json`               |
-| `validate-workflow-contract.mjs`  | `contracts/workflow.v1.json` integrity (phase IDs, paths, validator allowlist)     |
-| `validate-active-specialists.mjs` | `agents/specialists/active.md` against configured specialists                      |
-| `validate-quality-report.mjs`     | `gherkin-quality-report.md` structure against `gherkin-quality.rubric.md`          |
-| `validate-external-intake.mjs`    | `imported-requirements.md` / `imported-cases.md` (IDs, timestamps, injection scan) |
-| `validate-maestro-flows.mjs`      | Maestro flow YAML under `automation.mobile.flowsPath`                              |
-| `validate-sync-diff.mjs`          | Governed sync diff vs approved plan and remote snapshot                            |
-| `validate-sync-result.mjs`        | Governed apply log vs diff, rollback and mapping                                   |
-| `validate-execution-evidence.mjs` | Execution/eval evidence per RF (used by `validate-release-gate.mjs`)               |
-| `validate-healing-log.mjs`        | `healing-log.md` (repair types, justification, allowed spec roots)                 |
-| `validate-test-impact.mjs`        | `test-impact-analysis.md` (impacted areas, superset of selected Test IDs)          |
+| Validator                         | Enforces / validates                                                                                               |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `validate-config.mjs`             | `.qa-ai/qa-ai.config.yaml` against `contracts/config.v1.schema.json`                                               |
+| `validate-workflow-contract.mjs`  | `contracts/workflow.v1.json` integrity (phase IDs, paths, validator allowlist)                                     |
+| `validate-active-specialists.mjs` | `agents/specialists/active.md` against configured specialists                                                      |
+| `validate-quality-report.mjs`     | `gherkin-quality-report.md` structure against `gherkin-quality.rubric.md`                                          |
+| `validate-external-intake.mjs`    | `imported-requirements.md` / `imported-cases.md` (IDs, timestamps, injection scan)                                 |
+| `validate-maestro-flows.mjs`      | Maestro flow YAML under `automation.mobile.flowsPath`                                                              |
+| `validate-sync-diff.mjs`          | Governed sync diff vs approved plan and remote snapshot                                                            |
+| `validate-sync-result.mjs`        | Governed apply log vs diff, rollback and mapping                                                                   |
+| `validate-execution-evidence.mjs` | Execution/eval evidence per RF (used by `validate-release-gate.mjs`)                                               |
+| `validate-agent-guidance.mjs`     | `agent-guidance.v1.json` integrity: inventory, categories, config keys, phase IDs, permissions, Markdown semantics |
+| `validate-agent-guidance.mjs`     | `agent-guidance.v1.schema.json` identity/shape plus canonical-source identity, existence and path safety           |
+| `validate-healing-log.mjs`        | `healing-log.md` (repair types, justification, allowed spec roots)                                                 |
+| `validate-test-impact.mjs`        | `test-impact-analysis.md` (impacted areas, superset of selected Test IDs)                                          |
 
 ## Conflict resolution
 

@@ -44,6 +44,16 @@ both apply, load both and keep their rows distinct.
 - Evidence type: choose one per row — `test-plan`, `automation-script` (k6/Gatling, etc.) or `residual-risk`
 ```
 
+## Artifact and handoff policy
+
+- **Primary contractual output:** test-design-system or test-design-proposal from the active system test-design phase.
+- **Strategy family:** `scalability-design`.
+- **Allowed evidence types:** `feature`, `manual-charter`, `test-plan`, `technical-review`, `residual-risk`.
+- **Optional auxiliary artifact:** `none`.
+- **Create it only when:** scalability or growth NFRs are declared and system test-design is in scope.
+- **Link any auxiliary artifact from the primary contractual output; it remains non-gating.**
+- **Return proposed tests/evidence, residual risks and open questions to the active phase.**
+
 ## Safety Boundaries
 
 - Do not execute load tests against production or shared environments without explicit approval.

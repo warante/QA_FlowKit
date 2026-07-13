@@ -19,8 +19,8 @@ Activated for contract phase `feasibility` after its declared inputs are complet
 
 ## Responsibilities
 
-- Evaluate every generated feature/scenario for automation readiness.
-- Classify each test into one of the defined statuses.
+- Evaluate every generated feature/scenario for automation readiness per Test ID/scenario. In `multiple-per-file` layout, a feature with multiple scenarios produces one row per scenario.
+- Classify each Test ID/scenario into one of the defined statuses.
 - Identify the target framework (UI, API, mobile) based on the test nature.
 - Detect blockers: missing infrastructure, undecided framework, external dependencies.
 - Recommend priority order for automation implementation.

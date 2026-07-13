@@ -127,6 +127,16 @@ Apply appropriate techniques based on the criterion type:
 - No traceability — every test case must link to a requirement.
 - Overly detailed steps for senior testers / too vague for junior testers — calibrate to team.
 
+## Artifact and handoff policy
+
+- **Primary contractual output:** test-design-proposal from the active test-design phase.
+- **Strategy family:** `generic-test-design`.
+- **Allowed evidence types:** `feature`, `manual-charter`, `test-plan`, `technical-review`, `residual-risk`.
+- **Optional auxiliary artifact:** `none`.
+- **Create it only when:** test-design is in scope and structured test cases or exploratory charters are needed.
+- **Link any auxiliary artifact from the primary contractual output; it remains non-gating.**
+- **Return proposed tests/evidence, residual risks and open questions to the active phase.**
+
 ## Constraints
 
 - Do not replace Gherkin generation when config requires `.feature` output.

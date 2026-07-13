@@ -78,6 +78,16 @@ Suite: [Project Name]
 - Generic titles ("Test 1", "Check functionality") — use descriptive names.
 - Not linking cases to requirements — traceability is essential.
 
+## Artifact and handoff policy
+
+- **Primary contractual output:** test-management-coverage-plan from the active test management phase.
+- **Strategy family:** `testrail`.
+- **Allowed evidence types:** `test-plan`, `technical-review`.
+- **Optional auxiliary artifact:** `none`.
+- **Create it only when:** TestRail is configured and test management coverage planning is in scope.
+- **Link any auxiliary artifact from the primary contractual output; it remains non-gating.**
+- **Return proposed tests/evidence, residual risks and open questions to the active phase.**
+
 ## Constraints
 
 - Do not create or update TestRail cases outside an approved governed apply phase; deletes remain forbidden.

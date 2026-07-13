@@ -64,3 +64,9 @@ Activated as the governed Sync Diff sub-step (it is not part of the numbered mai
 - All generated idempotency keys must be completely unique and absent from the existing mapping file.
 - Updates must map to valid existing external IDs in the mapping file.
 - The snapshot timestamp must be newer than the sync plan approval time.
+
+## Done Criteria
+
+- The remote snapshot and proposed diff are internally consistent and validator-ready.
+- Every action is traceable to a Test ID and approved sync-plan row.
+- No external write has occurred.

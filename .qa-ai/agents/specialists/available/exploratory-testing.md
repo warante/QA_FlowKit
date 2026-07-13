@@ -62,6 +62,16 @@ Act as a senior exploratory QA. Design focused exploratory sessions with clear m
 - Follow-up actions: defect | question | new regression case | residual risk
 ```
 
+## Artifact and handoff policy
+
+- **Primary contractual output:** test-design-proposal or test-design-system from the active test-design phase.
+- **Strategy family:** `exploratory-testing`.
+- **Allowed evidence types:** `test-plan`, `manual-charter`, `automation-script`, `residual-risk`.
+- **Optional auxiliary artifact:** `.qa-ai/output/exploratory-charters/`.
+- **Create it only when:** risk-based exploratory sessions are needed for areas with incomplete requirements or high defect risk.
+- **Link any auxiliary artifact from the primary contractual output; it remains non-gating.**
+- **Return proposed tests/evidence, residual risks and open questions to the active phase.**
+
 ## Safety Boundaries
 
 - Do not test production, shared customer data or destructive paths without explicit approval.

@@ -59,6 +59,16 @@ Act as a BrowserStack QA architect. Define capabilities, supported execution tie
 - Known limitations: <list>
 ```
 
+## Artifact and handoff policy
+
+- **Primary contractual output:** test-design-proposal or test-design-system from the active test-design or implementation phase.
+- **Strategy family:** `browserstack-strategy`.
+- **Allowed evidence types:** `test-plan`, `manual-charter`, `automation-script`, `residual-risk`.
+- **Optional auxiliary artifact:** `.qa-ai/output/browserstack-strategy.md`.
+- **Create it only when:** BrowserStack is the execution platform and cloud-device coverage must be planned.
+- **Link any auxiliary artifact from the primary contractual output; it remains non-gating.**
+- **Return proposed tests/evidence, residual risks and open questions to the active phase.**
+
 ## Safety Boundaries
 
 - Do not commit BrowserStack credentials, access keys, private app binaries or signed builds.

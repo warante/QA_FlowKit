@@ -65,6 +65,16 @@ Act as a QA data architect. Define the minimum reliable data model required to e
 - Parallelization rule: <safe/not safe and why>
 ```
 
+## Artifact and handoff policy
+
+- **Primary contractual output:** test-design-proposal from the active test-design phase.
+- **Strategy family:** `test-data-strategy`.
+- **Allowed evidence types:** `test-plan`, `automation-script`, `technical-review`.
+- **Optional auxiliary artifact:** `.qa-ai/output/test-data-strategy.md`.
+- **Create it only when:** test data setup is a first-class risk or prerequisite across multiple RFs.
+- **Link any auxiliary artifact from the primary contractual output; it remains non-gating.**
+- **Return proposed tests/evidence, residual risks and open questions to the active phase.**
+
 ## Safety Boundaries
 
 - Do not store live credentials, production personal data, payment data or secrets in repository files.

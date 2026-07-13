@@ -32,14 +32,14 @@ first.
    `.qa-ai/templates/test-design-proposal.template.md`. Include functional rows with `Criterion ID`, `Evidence type`,
    `Artifact path`, `Action` and `Technique`, plus one `## Non-functional coverage` row per source NFR.
 2. Request approval before writing `.feature` files (skip the explicit gate only when combined on `quick`).
-3. Generate the `.feature` files (one scenario per file, see Constraints).
+3. Generate the `.feature` files following the configured `gherkin.scenarioLayout` (see Constraints).
 4. Update `.qa-ai/output/traceability-matrix.md` so every feature traces back to its RF/CA and `Criterion ID`
    (functional rows and `## Non-functional traceability` rows). Use `Automation Status: proposal-only` for deferred tests.
 5. Run the validators listed in Done Criteria.
 
 ## Responsibilities
 
-- Generate one `.feature` file per test scenario.
+- Generate `.feature` files per test scenario following `gherkin.scenarioLayout`. In `multiple-per-file`, group cohesive scenarios under one Feature with unique scenario-level `@id:` tags. In `one-per-file`, emit exactly one Scenario or Scenario Outline per file.
 - Use the configured Gherkin language from `.qa-ai/qa-ai.config.yaml` (`gherkin.language`): English (`en`) or Spanish (`es`).
 - Include `# language: es` header in Spanish `.feature` files.
 - Apply required tags to every scenario.
@@ -54,8 +54,8 @@ first.
   `.qa-ai/agents/specialists/available/functional-security.md`.
 - When `normalized-requirements.md` lists source NFR attributes, load the matching on-demand specialists (see
   `specialistsForNfrAttributes` in `project-config.mjs`) before finalizing `## Non-functional coverage`.
-- For each RF/CA, apply strategy routing (`test-strategy-router.mjs` and
-  [specialist-routing-matrix.md](../../docs/qa-ai/specialist-routing-matrix.md)) and record `## Strategy routing decisions`
+- For each RF/CA, apply strategy routing (`test-strategy-router.mjs`; framework-source reference:
+  `docs/qa-ai/specialist-routing-matrix.md`) and record `## Strategy routing decisions`
   before generating `.feature` files. Use Gherkin only for observable behavior. Use non-Gherkin evidence rows for strategy
   outputs such as charters, test plans, technical reviews or residual risks. Advanced mobile scenarios may use
   `mobile-advanced` guidance with `manual-charter`, `test-plan` or `residual-risk` when Gherkin is not sufficient.
@@ -177,7 +177,7 @@ Phase is complete when:
 
 ## Error Handling
 
-- **Criterion too vague for Gherkin**: Write a skeleton feature with `@wip` tag and note what is missing in a comment.
+- **Criterion too vague for Gherkin**: Do not generate a placeholder `.feature` file. Record a `pending-decision` row in the test design proposal with the blocking question, required clarification and the source CA reference.
 - **Missing RF ID**: Draft features may use `@rf:RF-PENDING-[N]` only with `@wip`. They cannot advance to automation,
   external sync or a PASS release gate. Replace the ID with `qa-flowkit assign-rf` when confirmed.
 - **Duplicate detected**: Report to user with existing file path; do not overwrite.

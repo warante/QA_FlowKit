@@ -62,6 +62,16 @@ Feature: Create post API
 - Heavy JavaScript in features—move to `karate-config.js` or helpers.
 - Cucumber-only `Given`/`When`/`Then` without Karate `*` steps when avoidable.
 
+## Artifact and handoff policy
+
+- **Primary contractual output:** implementation plan from the active API or UI automation implementation phase.
+- **Strategy family:** `karate`.
+- **Allowed evidence types:** `automation-script`.
+- **Optional auxiliary artifact:** `none`.
+- **Create it only when:** Karate is the configured API or UI framework and automation implementation is in scope.
+- **Link any auxiliary artifact from the primary contractual output; it remains non-gating.**
+- **Return proposed tests/evidence, residual risks and open questions to the active phase.**
+
 ## Constraints
 
 - Do not change `karate-config.js`, `pom.xml`, `build.gradle` or runner config without approval.

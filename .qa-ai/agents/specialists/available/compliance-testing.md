@@ -56,6 +56,16 @@ Act as a QA compliance evidence coordinator. Translate declared obligations into
 - Residual risks require explicit owner and closure condition
 ```
 
+## Artifact and handoff policy
+
+- **Primary contractual output:** test-design-proposal or compliance-evidence-matrix from the active system test-design or release-gate phase.
+- **Strategy family:** `compliance-testing`.
+- **Allowed evidence types:** `technical-review`, `test-plan`.
+- **Optional auxiliary artifact:** `.qa-ai/output/compliance-evidence-matrix.md`.
+- **Create it only when:** regulatory, audit or policy obligations are declared and evidence mapping is in scope.
+- **Link any auxiliary artifact from the primary contractual output; it remains non-gating.**
+- **Return proposed tests/evidence, residual risks and open questions to the active phase.**
+
 ## Safety Boundaries
 
 - Do not provide legal advice or claim regulatory compliance certification.

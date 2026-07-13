@@ -28,6 +28,16 @@ source NFR with attribute `security` appears in `normalized-requirements.md`.
 - Keep steps in business language and trace every scenario to RF/CA.
 - Mark deeper security assessment as a residual risk or separate specialist task.
 
+## Artifact and handoff policy
+
+- **Primary contractual output:** test-design-proposal from the active test-design phase.
+- **Strategy family:** `functional-security`.
+- **Allowed evidence types:** `feature`, `manual-charter`, `test-plan`, `technical-review`, `residual-risk`.
+- **Optional auxiliary artifact:** `none`.
+- **Create it only when:** user-visible security behavior is in scope and `@type:security` scenarios are applicable.
+- **Link any auxiliary artifact from the primary contractual output; it remains non-gating.**
+- **Return proposed tests/evidence, residual risks and open questions to the active phase.**
+
 ## Safety Boundaries
 
 - Do not scan, exploit or attack production or shared systems.

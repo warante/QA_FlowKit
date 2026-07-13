@@ -27,8 +27,8 @@ enumerating individual cases. Plan the strategy and confirm scope before writing
 ## Procedure (plan before writing)
 
 1. Read `normalized-requirements.md` and detect the source NFR attributes; load the matching on-demand specialists.
-2. Run or apply the specialist routing matrix (`test-strategy-router.mjs` and
-   [specialist-routing-matrix.md](../../docs/qa-ai/specialist-routing-matrix.md)) before drafting the system-wide strategy.
+2. Run or apply the specialist routing matrix (`test-strategy-router.mjs`; framework-source reference:
+   `docs/qa-ai/specialist-routing-matrix.md`) before drafting the system-wide strategy.
    Summarize selected specialist families in `## Strategy routing overview`, including mobile advanced, privacy, cloud
    execution or other on-demand families when keyword signals match.
 3. Draft the system-wide strategy (scope, architecture alignment, testability risks, cross-RF coverage) and the
@@ -60,3 +60,9 @@ enumerating individual cases. Plan the strategy and confirm scope before writing
 After approval, continue with per-RF design (`gherkin-test-design-agent.md` / `test-design-proposal.md`) then Gherkin feature generation.
 
 Run `node .qa-ai/scripts/validate-test-design.mjs` and `node .qa-ai/scripts/qa-help.mjs` when complete.
+
+## Constraints
+
+- Keep the system design proposal-first and repository-local.
+- Do not invent thresholds, environments, tools or external evidence.
+- Do not modify existing artifacts without the configured approval.

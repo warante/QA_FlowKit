@@ -6,7 +6,7 @@
 
 ## Activation
 
-Load when generating or reviewing tests tagged `@type:accessibility`, or when the user requests WCAG-aligned coverage. Not auto-selected by `init.mjs`; add manually to `.qa-ai/agents/specialists/active.md` or load on demand during Gherkin design.
+Load when generating or reviewing tests tagged `@type:accessibility`, or when the user requests WCAG-aligned coverage. Load on demand during Gherkin design via runtime routing or explicit signal. Do not manually edit `active.md` — runtime routing is authoritative.
 
 ## Role
 
@@ -32,6 +32,16 @@ Complements the Gherkin Test Design Agent and generic test design specialist wit
 
 - Gherkin scenarios tagged `@type:accessibility` with `@manual:true` unless an a11y automation stack is configured.
 - Notes in `.qa-ai/output/test-design-proposal.md` or per-RF proposal for tooling recommendations (axe, Lighthouse CI, pa11y) without assuming they are installed.
+
+## Artifact and handoff policy
+
+- **Primary contractual output:** test-design-proposal from the active test-design phase.
+- **Strategy family:** `accessibility`.
+- **Allowed evidence types:** `feature`, `manual-charter`, `test-plan`, `technical-review`, `residual-risk`.
+- **Optional auxiliary artifact:** `none`.
+- **Create it only when:** WCAG-aligned accessibility coverage is required or `@type:accessibility` scenarios are in scope.
+- **Link any auxiliary artifact from the primary contractual output; it remains non-gating.**
+- **Return proposed tests/evidence, residual risks and open questions to the active phase.**
 
 ## Constraints
 

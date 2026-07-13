@@ -105,6 +105,16 @@ When creating task drafts for the Issue Task Agent:
 - Ignoring linked issues — they provide context for dependencies and scope.
 - Storing Jira API tokens or cookies in any file.
 
+## Artifact and handoff policy
+
+- **Primary contractual output:** draft requirement extraction or issue-task output from the active requirements intake or issue-tracking phase.
+- **Strategy family:** `jira`.
+- **Allowed evidence types:** `test-plan`, `technical-review`.
+- **Optional auxiliary artifact:** `none`.
+- **Create it only when:** Jira is configured as a requirement source or issue tracker and the phase is in scope.
+- **Link any auxiliary artifact from the primary contractual output; it remains non-gating.**
+- **Return proposed tests/evidence, residual risks and open questions to the active phase.**
+
 ## Constraints
 
 - Keep external writes disabled in the MVP. Draft tasks locally only.

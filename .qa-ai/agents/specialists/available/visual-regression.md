@@ -57,6 +57,16 @@ Act as a visual QA specialist. Define what should be visually protected, which s
 - Store baseline update process in PR review notes
 ```
 
+## Artifact and handoff policy
+
+- **Primary contractual output:** test-design-proposal from the active test-design phase.
+- **Strategy family:** `visual-regression`.
+- **Allowed evidence types:** `test-plan`, `manual-charter`, `automation-script`, `residual-risk`.
+- **Optional auxiliary artifact:** `none`.
+- **Create it only when:** visual regression, screenshot or design-drift testing is in scope.
+- **Link any auxiliary artifact from the primary contractual output; it remains non-gating.**
+- **Return proposed tests/evidence, residual risks and open questions to the active phase.**
+
 ## Safety Boundaries
 
 - Do not claim pixel-perfect parity unless the product/design requirement explicitly demands it.

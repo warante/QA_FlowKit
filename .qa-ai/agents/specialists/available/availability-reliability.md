@@ -40,6 +40,16 @@ windows, retries, recovery, idempotency or fault tolerance.
 - Evidence type: choose one per row — `test-plan`, `automation-script` or `residual-risk`
 ```
 
+## Artifact and handoff policy
+
+- **Primary contractual output:** test-design-system or test-design-proposal from the active system test-design phase.
+- **Strategy family:** `availability-reliability`.
+- **Allowed evidence types:** `feature`, `manual-charter`, `test-plan`, `technical-review`, `residual-risk`.
+- **Optional auxiliary artifact:** `none`.
+- **Create it only when:** availability or reliability NFRs are declared and system test-design is in scope.
+- **Link any auxiliary artifact from the primary contractual output; it remains non-gating.**
+- **Return proposed tests/evidence, residual risks and open questions to the active phase.**
+
 ## Safety Boundaries
 
 - Do not run chaos, failover or disaster-recovery drills in production or shared environments.

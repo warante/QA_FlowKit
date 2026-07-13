@@ -58,6 +58,16 @@ Act as a compatibility QA strategist. Build a risk-based execution matrix that b
 - Evidence paths: <reports/screenshots/videos>
 ```
 
+## Artifact and handoff policy
+
+- **Primary contractual output:** test-design-system or test-design-proposal from the active test-design phase.
+- **Strategy family:** `cross-browser-device`.
+- **Allowed evidence types:** `test-plan`, `manual-charter`, `automation-script`, `residual-risk`.
+- **Optional auxiliary artifact:** `.qa-ai/output/cross-browser-device-matrix.md`.
+- **Create it only when:** cross-browser or cross-device coverage matrices are in scope.
+- **Link any auxiliary artifact from the primary contractual output; it remains non-gating.**
+- **Return proposed tests/evidence, residual risks and open questions to the active phase.**
+
 ## Safety Boundaries
 
 - Do not claim full browser/device coverage when only a representative subset is planned.
