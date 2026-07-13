@@ -36,7 +36,7 @@ jobs:
           registry-url: https://registry.npmjs.org
 
       - name: Upgrade npm for Trusted Publishing
-        run: npm install -g npm@latest
+        run: npm install -g npm@^11.10.0
 
       - name: Verify npm minimum release-age policy
         run: node .github/scripts/verify-npm-release-age-policy.mjs --check-npm-version
