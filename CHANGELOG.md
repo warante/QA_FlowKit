@@ -48,6 +48,24 @@ this feature PR is merged.
 - Cross-platform smoke and npm-pack checks now account for generated adapters and framework-specific example paths.
 - Documentation drift and missing packaged contract files now fail validation before release.
 
+## [1.0.0-rc.9](https://github.com/warante/QA_FlowKit/compare/v1.0.0-rc.8...v1.0.0-rc.9) (2026-07-13)
+
+
+### Added
+
+* contrato de orientación de agentes, validador y tests ([#93](https://github.com/warante/QA_FlowKit/issues/93)) ([690f663](https://github.com/warante/QA_FlowKit/commit/690f6639b38a24f811cc6989419b05748a25b524))
+
+
+### Fixed
+
+* agregar delay entre reintentos de npm registry en post-publish validation ([#87](https://github.com/warante/QA_FlowKit/issues/87)) ([ec045e5](https://github.com/warante/QA_FlowKit/commit/ec045e5d71e402bbd48febad63404b4e3ad5c3d2))
+* endurecer CI contra inyección usando variables de entorno en lugar de interpolación en shell ([#89](https://github.com/warante/QA_FlowKit/issues/89)) ([26a95dc](https://github.com/warante/QA_FlowKit/commit/26a95dce5c85c4f75deffb621341c545a7d7eb10))
+
+
+### Changed
+
+* renombrar specialists, agentes y limpiar artefactos legacy ([#90](https://github.com/warante/QA_FlowKit/issues/90)) ([0f4b83c](https://github.com/warante/QA_FlowKit/commit/0f4b83c94dc829b0977bf6460d334bb5a7c4b204))
+
 ## [1.0.0-rc.8](https://github.com/warante/QA_FlowKit/compare/v1.0.0-rc.7...v1.0.0-rc.8) (2026-07-08)
 
 
