@@ -49,6 +49,13 @@
 - Cross-platform smoke and npm-pack checks now account for generated adapters and framework-specific example paths.
 - Documentation drift and missing packaged contract files now fail validation before release.
 
+## [1.0.0-rc.11](https://github.com/warante/QA_FlowKit/compare/v1.0.0-rc.10...v1.0.0-rc.11) (2026-08-04)
+
+
+### Fixed
+
+* resolve npm audit high vulnerabilities in transitive dependencies ([3ecbf5a](https://github.com/warante/QA_FlowKit/commit/3ecbf5a84c155ecacac0129cc87a70a094e2fd9c))
+
 ## [1.0.0-rc.10](https://github.com/warante/QA_FlowKit/compare/v1.0.0-rc.9...v1.0.0-rc.10) (2026-07-13)
 
 
