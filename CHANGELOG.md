@@ -2,8 +2,9 @@
 
 ## Unreleased
 
-Target beta: `0.5.3-beta.0`. The version bump, release tag and npm publication remain managed by release-please after
-this feature PR is merged.
+### Fixed
+
+- Resolved npm audit high-severity vulnerabilities in transitive dependencies (brace-expansion, fast-uri) via `npm audit fix`.
 
 ### Added
 
