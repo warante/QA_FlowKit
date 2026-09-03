@@ -39,14 +39,14 @@ describe('Layer 1 — Inventory and Registration', () => {
   });
   it('recursive discovery equals manifest exactly', () => {
     const raw = contract.guidance.map((e) => e.path).sort();
-    assert.equal(raw.length, 73, `Expected 73 registered, got ${raw.length}`);
+    assert.equal(raw.length, 77, `Expected 77 registered, got ${raw.length}`);
   });
   it('category counts', () => {
     const c = {};
     for (const e of contract.guidance) c[e.category] = (c[e.category] || 0) + 1;
     assert.equal(c.index, 1);
     assert.ok(c.phase >= 24);
-    assert.equal(c.specialist, 42);
+    assert.equal(c.specialist, 46);
     assert.equal(c['specialist-cache'], 1);
     assert.ok(c['governed-substep'] >= 3);
     assert.ok(c.reactive >= 2);
@@ -187,11 +187,9 @@ describe('Layer 8 — Routing Integration', () => {
     assert.ok(typeof r.specialistsFromConfig === 'function');
   });
 
-  it('production specialist catalog has 42 specialist entries', async () => {
-    const { specialistCatalog } = await import(
-      pathToFileURL(path.join(repoRoot, '.qa-ai', 'scripts', 'lib', 'project-config.mjs')).href
-    );
-    assert.equal(Object.keys(specialistCatalog).length, 42);
+  it('production specialist catalog has 46 specialist entries', async () => {
+    const { specialistCatalog } = await import('../../.qa-ai/scripts/lib/project-config.mjs');
+    assert.equal(Object.keys(specialistCatalog).length, 46);
   });
 
   it('every manifest specialist has a corresponding catalog entry', async () => {

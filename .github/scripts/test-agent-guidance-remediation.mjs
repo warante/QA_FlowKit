@@ -280,9 +280,9 @@ function negativeRoutingForSpecialist(id, details) {
   return [];
 }
 
-test('all 42 specialists have real positive and negative routing coverage', () => {
+test('all 46 specialists have real positive and negative routing coverage', () => {
   const catalogEntries = Object.entries(specialistCatalog);
-  assert.equal(catalogEntries.length, 42);
+  assert.equal(catalogEntries.length, 46);
 
   for (const [id, details] of catalogEntries) {
     const positive = positiveRoutingForSpecialist(id, details);
@@ -520,9 +520,9 @@ test('CLI success on a valid repository returns ok=true with summary', async () 
   assert.equal(result.code, 0, `expected exit 0, got stderr=${result.stderr}`);
   const parsed = JSON.parse(result.stdout);
   assert.equal(parsed.ok, true);
-  assert.equal(parsed.summary?.registered, 73);
+  assert.equal(parsed.summary?.registered, 77);
   const activeExists = exists('.qa-ai/agents/specialists/active.md');
-  assert.equal(parsed.summary?.discovered, activeExists ? 73 : 72);
+  assert.equal(parsed.summary?.discovered, activeExists ? 77 : 76);
   assert.equal(parsed.summary?.errors, 0);
 });
 

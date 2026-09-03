@@ -86,3 +86,13 @@ Produce `.qa-ai/output/observability-intake.md` (or configured `observability.in
 - Do not read files outside the configured source paths.
 - Do not include real user data, PII or session identifiers in signal extracts.
 - Do not modify test cases or risk analysis directly; only propose changes.
+
+## APM Integration
+
+For automated signal fetching from APM systems (Datadog, New Relic), use:
+
+```bash
+node .qa-ai/scripts/apm-intake.mjs --connector <name> --credentials <file>
+```
+
+This script fetches signals from configured APM systems and maps them to RFs via the traceability matrix. Credentials must be stored securely and never committed to the repository.

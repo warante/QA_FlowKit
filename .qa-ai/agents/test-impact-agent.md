@@ -39,3 +39,23 @@ The generated report must define:
 ```bash
 node .qa-ai/scripts/validate-test-impact.mjs
 ```
+
+## Change Impact Analysis
+
+For automated change impact prediction based on git diffs, use:
+
+```bash
+node .qa-ai/scripts/change-impact.mjs --branch <branch-name>
+```
+
+This script analyzes code changes and predicts affected RFs for targeted testing.
+
+## RF Dependency Graph
+
+For dependency analysis between RFs, use:
+
+```bash
+node .qa-ai/scripts/rf-dependency-graph.mjs
+```
+
+This script builds a dependency graph from explicit declarations in requirements and implicit links from the traceability matrix. Output includes JSON, Markdown, and Graphviz DOT formats.

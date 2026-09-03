@@ -152,6 +152,11 @@ El track controla la profundidad; los presets configuran frameworks y herramient
 | `maestro-karate-mobile`      | `standard`     | Maestro mobile + Karate API |
 | `karate-full`                | `standard`     | Karate API + UI             |
 | `selenium-jest-browserstack` | `standard`     | Selenium/Jest               |
+| `cypress-full`               | `standard`     | Cypress UI + API            |
+| `webdriverio-full`           | `standard`     | WebdriverIO navegador       |
+| `appium-full`                | `standard`     | Appium movil                |
+| `postman-full`               | `standard`     | Postman API collections     |
+| `rest-assured-full`          | `standard`     | REST Assured Java API       |
 
 Ejemplo:
 
@@ -181,6 +186,12 @@ Consulta el [esquema de configuración](docs/qa-ai/config-schema.md).
 | `qa-flowkit validate-agent-guidance`                  | Validar manifiesto y Markdown de orientación de agentes    |
 | `qa-flowkit validate-release-gate`                    | Validar la decisión enterprise de release                  |
 | [`qa-flowkit export-report`](docs/qa-ai/reporting.md) | Exportar casos de prueba Gherkin y resultados de ejecución |
+| `npm run qa:traceability-metrics`                     | Calcular metricas de cobertura de trazabilidad             |
+| `npm run qa:execution-traceability`                   | Vincular resultados de ejecucion con RFs                   |
+| `npm run qa:change-impact`                            | Predecir RFs afectados desde git diffs                     |
+| `npm run qa:rf-dependency-graph`                      | Construir grafo de dependencias entre RFs (JSON, MD, DOT)  |
+| `npm run qa:update-traceability`                      | Actualizar artefactos de trazabilidad desde datos CI       |
+| `npm run qa:apm-intake`                               | Obtener senales de produccion desde conectores APM         |
 
 La referencia completa está en [Referencia CLI](docs/qa-ai/cli-reference.md).
 
@@ -275,6 +286,7 @@ Consulta la [guía de migración beta a 1.0](docs/qa-ai/beta-to-1.0-migration.md
 | Ingesta externa                     | [External Intake](docs/qa-ai/external-intake.md)                           |
 | Sync gobernado de pruebas           | [Governed Sync](docs/qa-ai/governed-sync.md)                               |
 | Puente de automatización / sanación | [Automation Bridge](docs/qa-ai/automation-bridge.md)                       |
+| Trazabilidad y observabilidad       | [Roadmap trazabilidad](docs/qa-ai/traceability-observability-roadmap.md)   |
 | Roadmap e implementación            | [Roadmap](ROADMAP.md) y [tareas](tasks/README.md)                          |
 | Seguridad                           | [Política de seguridad](SECURITY.md)                                       |
 | Contribución                        | [Guía de contribución](CONTRIBUTING.md)                                    |

@@ -56,5 +56,18 @@ export async function runConfigChecks(cwd, configInfo) {
     }
   }
 
+  const observability = configInfo.data?.observability;
+  if (observability?.enabled) {
+    const sourcePaths = observability.sourcePaths || [];
+    if (sourcePaths.length > 0) {
+      console.log(`[PASS] observability: enabled with ${sourcePaths.length} source path(s)`);
+    } else {
+      warned += 1;
+      console.log('[WARN] observability: enabled but no sourcePaths configured');
+    }
+  } else {
+    console.log('[PASS] observability: disabled (enable in config for shift-right testing)');
+  }
+
   return { failed, warned };
 }

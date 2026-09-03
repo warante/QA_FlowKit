@@ -73,6 +73,9 @@ Related capability families include UI, API, mobile, test management, accessibil
 privacy, AI evaluation, performance design/execution, scalability, resilience, observability, data, contracts,
 compatibility, localization, analytics and exploratory testing.
 
+For observability, see `.qa-ai/docs/observability-guide.md` which clarifies the relationship between the
+observability-testing specialist (pre-release validation) and the production-observability-intake agent (post-release learning).
+
 ## Shared specialist contract
 
 All specialists inherit `.qa-ai/rules/specialist-common.rules.md`. Specialist files should contain only distinctive

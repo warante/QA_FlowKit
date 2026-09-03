@@ -138,9 +138,11 @@ analysis:
   actionPlanPath: .qa-ai/output/qa-action-plan.md
   requireFailureClassification: true
 observability:
-  enabled: false
-  mode: 'off'
-  sourcePaths: []
+  enabled: true
+  mode: advisory
+  sourcePaths:
+    - test-results/**/*.xml
+    - test-results/**/*.json
   intakePath: .qa-ai/output/observability-intake.md
   signalAnalysisPath: .qa-ai/output/production-signal-analysis.md
 learningLoop:

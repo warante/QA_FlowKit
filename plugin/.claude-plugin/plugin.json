@@ -43,6 +43,11 @@
       "namespace": "qa-flowkit"
     },
     {
+      "name": "qa-execute",
+      "path": "skills/qa-execute.md",
+      "namespace": "qa-flowkit"
+    },
+    {
       "name": "qa-full-flow",
       "path": "skills/qa-full-flow.md",
       "namespace": "qa-flowkit"

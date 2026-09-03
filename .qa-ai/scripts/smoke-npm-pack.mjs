@@ -85,7 +85,7 @@ function validateAgentGuidanceAt(targetRoot) {
   const scriptPath = path.join(targetRoot, '.qa-ai', 'scripts', 'validate-agent-guidance.mjs');
   const result = runNodeScript(scriptPath, ['--json'], { cwd: targetRoot, stdio: 'pipe' });
   const payload = JSON.parse(result.stdout);
-  if (!payload.ok || payload.summary?.registered !== 73 || payload.summary?.categories?.specialist !== 42) {
+  if (!payload.ok || payload.summary?.registered !== 77 || payload.summary?.categories?.specialist !== 46) {
     throw new Error(`Agent guidance validation failed in ${targetRoot}: ${result.stdout}`);
   }
 }

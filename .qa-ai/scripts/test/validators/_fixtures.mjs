@@ -47,6 +47,18 @@ export {
   validateNfrTraceability
 } from '../../lib/nfr-coverage.mjs';
 export { validateTraceabilityArtifacts, featureTraceabilityIds } from '../../lib/traceability-validate.mjs';
+export { computeTraceabilityMetrics, formatMetricsReport } from '../../lib/traceability-metrics.mjs';
+export {
+  linkExecutionToTraceability,
+  computeExecutionTraceabilityMetrics,
+  formatExecutionTraceabilityReport
+} from '../../lib/execution-traceability.mjs';
+export {
+  parseGitDiff,
+  mapChangesToRfs,
+  computeChangeImpactMetrics,
+  formatChangeImpactReport
+} from '../../lib/change-impact.mjs';
 export {
   parseNormalizedCriteria,
   validateProposalContract,

@@ -149,6 +149,11 @@ The track controls workflow depth; presets configure frameworks and tools.
 | `maestro-karate-mobile`      | `standard`    | Maestro mobile + Karate API |
 | `karate-full`                | `standard`    | Karate API + UI             |
 | `selenium-jest-browserstack` | `standard`    | Selenium/Jest               |
+| `cypress-full`               | `standard`    | Cypress UI + API            |
+| `webdriverio-full`           | `standard`    | WebdriverIO browser         |
+| `appium-full`                | `standard`    | Appium mobile               |
+| `postman-full`               | `standard`    | Postman API collections     |
+| `rest-assured-full`          | `standard`    | REST Assured Java API       |
 
 Example:
 
@@ -178,6 +183,12 @@ See the [configuration schema](docs/qa-ai/config-schema.md) for all generated ke
 | `qa-flowkit validate-agent-guidance`                  | Validate agent/specialist guidance manifest and Markdown     |
 | `qa-flowkit validate-release-gate`                    | Validate the enterprise release decision                     |
 | [`qa-flowkit export-report`](docs/qa-ai/reporting.md) | Export Gherkin-aligned test cases and execution results      |
+| `npm run qa:traceability-metrics`                     | Compute traceability coverage metrics                        |
+| `npm run qa:execution-traceability`                   | Link execution results to RFs                                |
+| `npm run qa:change-impact`                            | Predict affected RFs from git diffs                          |
+| `npm run qa:rf-dependency-graph`                      | Build RF dependency graph (JSON, Markdown, DOT)              |
+| `npm run qa:update-traceability`                      | Update traceability artifacts from CI data                   |
+| `npm run qa:apm-intake`                               | Fetch production signals from APM connectors                 |
 
 The complete command and option reference is in [CLI Reference](docs/qa-ai/cli-reference.md).
 `qa-flowkit metrics` reads only local run state under `.qa-ai/state/runs/`; it never reads artifact contents or sends
@@ -269,6 +280,7 @@ outside `.qa-ai/`. Review the [beta-to-1.0 migration guide](docs/qa-ai/beta-to-1
 | External requirements intake | [External Intake](docs/qa-ai/external-intake.md)                            |
 | Governed test sync           | [Governed Sync](docs/qa-ai/governed-sync.md)                                |
 | Automation bridge / healing  | [Automation Bridge](docs/qa-ai/automation-bridge.md)                        |
+| Traceability & observability | [Traceability Roadmap](docs/qa-ai/traceability-observability-roadmap.md)    |
 | Roadmap and implementation   | [Roadmap](ROADMAP.md) and [implementation tasks](tasks/README.md)           |
 | Security                     | [Security Policy](SECURITY.md)                                              |
 | Contributing                 | [Contributing Guide](CONTRIBUTING.md)                                       |

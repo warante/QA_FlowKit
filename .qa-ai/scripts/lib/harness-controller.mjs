@@ -31,6 +31,7 @@ import {
   maybeUnblockEntryBlockedPhase
 } from './harness/phase-transitions.mjs';
 import { checkAndInvalidateSyncPlanApproval } from './harness/approvals.mjs';
+import { executeSelfCorrectionLoop, isSelfCorrectionEnabled } from './harness-self-correction.mjs';
 export { approveGate, retryPhase } from './harness/approvals.mjs';
 
 export { buildRunId } from './harness/run-id.mjs';
@@ -445,41 +446,116 @@ export async function checkPhase(cwd, { maxAttempts = DEFAULT_MAX_VALIDATION_ATT
     }
 
     if (!validatorResult.ok) {
-      if (phaseState.attempts >= maxAttempts) {
-        phaseState.status = 'blocked';
-        phaseState.blockedReason = 'validation';
-        snapshot.status = 'blocked';
-      } else {
-        phaseState.status = 'active';
-        phaseState.blockedReason = null;
+      // Check if self-correction is enabled for this phase
+      const selfCorrectionEnabled = isSelfCorrectionEnabled(configInfo.data, phaseId);
+
+      if (selfCorrectionEnabled) {
+        // Execute self-correction loop
+        const correctionResult = await executeSelfCorrectionLoop(
+          cwd,
+          runId,
+          phaseId,
+          validatorResult,
+          async (feedback) => {
+            // Emit an event for the agent to handle correction
+            await appendRunEvent(cwd, runId, {
+              type: 'phase.correction_requested',
+              phaseId,
+              feedback,
+              timestamp: new Date().toISOString()
+            });
+            // The actual correction is handled by the agent when it receives the feedback
+            // This callback just signals that correction is needed
+          }
+        );
+
+        if (correctionResult.success) {
+          // Self-correction succeeded - re-run validation to confirm
+          const finalValidation = await runPhaseValidators(cwd, configInfo.data, phaseDef);
+          if (finalValidation.ok) {
+            phaseState.lastValidation = {
+              ok: true,
+              results: finalValidation.results,
+              selfCorrectionIterations: correctionResult.iterations,
+              timestamp: new Date().toISOString()
+            };
+            // Continue to success path below
+            validatorResult.ok = true;
+            validatorResult.results = finalValidation.results;
+          }
+        } else if (
+          correctionResult.reason === 'oscillation_detected' ||
+          correctionResult.reason === 'max_iterations_reached'
+        ) {
+          // Self-correction failed - escalate
+          phaseState.status = 'blocked';
+          phaseState.blockedReason = 'self-correction-failed';
+          snapshot.status = 'blocked';
+          await writeRunSnapshot(cwd, snapshot);
+          return {
+            ok: false,
+            phaseId,
+            validation: validatorResult,
+            selfCorrection: {
+              failed: true,
+              reason: correctionResult.reason,
+              iterations: correctionResult.iterations
+            },
+            attempts: phaseState.attempts,
+            blocked: true,
+            blockerHelp: blockerHelp(
+              [
+                {
+                  type: 'self-correction-failed',
+                  retryable: true,
+                  message: `Self-correction failed: ${correctionResult.reason}. Manual intervention required.`
+                }
+              ],
+              configInfo.data,
+              phaseDef
+            )
+          };
+        }
       }
-      await writeRunSnapshot(cwd, snapshot);
-      await appendRunEvent(cwd, runId, {
-        type: 'phase.validation_failed',
-        phaseId,
-        results: validatorResult.results
-      });
-      return {
-        ok: false,
-        phaseId,
-        validation: validatorResult,
-        attempts: phaseState.attempts,
-        blocked: phaseState.status === 'blocked',
-        blockerHelp:
-          phaseState.status === 'blocked'
-            ? blockerHelp(
-                [
-                  {
-                    type: 'validation',
-                    retryable: true,
-                    message: 'Phase is blocked after repeated validation failures.'
-                  }
-                ],
-                configInfo.data,
-                phaseDef
-              )
-            : []
-      };
+
+      // Original failure handling (if self-correction not enabled or didn't succeed)
+      if (!validatorResult.ok) {
+        if (phaseState.attempts >= maxAttempts) {
+          phaseState.status = 'blocked';
+          phaseState.blockedReason = 'validation';
+          snapshot.status = 'blocked';
+        } else {
+          phaseState.status = 'active';
+          phaseState.blockedReason = null;
+        }
+        await writeRunSnapshot(cwd, snapshot);
+        await appendRunEvent(cwd, runId, {
+          type: 'phase.validation_failed',
+          phaseId,
+          results: validatorResult.results
+        });
+        return {
+          ok: false,
+          phaseId,
+          validation: validatorResult,
+          attempts: phaseState.attempts,
+          blocked: phaseState.status === 'blocked',
+          blockerHelp:
+            phaseState.status === 'blocked'
+              ? blockerHelp(
+                  [
+                    {
+                      type: 'validation',
+                      retryable: true,
+                      message: 'Phase is blocked after repeated validation failures.'
+                    }
+                  ],
+                  configInfo.data,
+                  phaseDef
+                )
+              : []
+        };
+      }
     }
 
     phaseState.outputs = currentOutputs;
