@@ -1,0 +1,167 @@
+version: 1
+project:
+  name: CHANGE_ME
+  repoMode: qa-and-automation
+  qaTrack: standard
+  defaultLanguage: en
+  interfaceLanguage: en
+tools:
+  testManagement: testrail
+  issueTracker: jira
+  documentation: markdown
+agents:
+  specialistMode: auto
+sources:
+  main: markdown
+  analysisPath: .qa-ai/output/source-analysis.md
+knowledge:
+  enabled: false
+  sourcePath: ''
+  summaryPath: .qa-ai/output/qa-knowledge-summary.md
+  decisionsPath: .qa-ai/output/qa-init-decisions.md
+requirements:
+  requireOfficialRfId: true
+  inferredAcceptanceCriteria: require-approval
+gherkin:
+  language: en
+  scenarioLayout: multiple-per-file
+  requireAcceptanceCriteria: true
+  manualTestsNeedFeatureFile: true
+  featurePath: .qa-ai/features
+  tags:
+    required:
+      - priority
+      - type
+      - manual
+testrail:
+  enabled: true
+  projectName: CHANGE_ME
+  allowCreateSections: true
+  allowCreateCases: true
+  allowUpdateCases: approval-only
+  allowDeleteCases: never
+  mappingFile: .qa-ai/output/test-management-mapping.json
+automation:
+  ui:
+    framework: webdriverio
+    specsPath: .qa-ai/tests/webdriverio/specs
+    pageObjectsPath: .qa-ai/tests/webdriverio/pages
+  api:
+    framework: none
+  mobile:
+    framework: none
+  strategy:
+    automateAllTechnicallyPossible: true
+    requireProposalBeforeImplementation: true
+    allowModifyExistingTests: approval-only
+testDesign:
+  systemPath: .qa-ai/output/test-design-system.md
+  proposalPath: .qa-ai/output/test-design-proposal.md
+  coverage:
+    mode: advisory
+    requirePositive: true
+    requireNegative: true
+    requireAlternative: true
+    requireBoundaryWhenApplicable: true
+    requireAccessibilityWhenApplicable: false
+    requirePerformanceWhenApplicable: false
+    requireSecurityReview: false
+    requireTechniqueTraceability: false
+  quality:
+    mode: off
+    reportPath: .qa-ai/output/gherkin-quality-report.md
+    minDimensionsPassed: 7
+  strategyRouting:
+    mode: advisory
+    includeKeywordSignals: true
+traceability:
+  matrixPath: .qa-ai/output/traceability-matrix.md
+release:
+  gatePath: .qa-ai/output/release-gate.yaml
+approval:
+  beforeExternalWrite: true
+  beforeExistingFileModification: true
+  beforeTestRailSync: true
+  beforeJiraTaskCreation: true
+  beforePullRequest: true
+commands:
+  lint: npm run lint
+  testE2E: npm run test:e2e
+  testQA: npm run test:qa
+execution:
+  resultsPaths:
+    - webdriverio-results/**/*.xml
+    - webdriverio-results/**/*.json
+  evalResultsPaths: []
+  quarantine:
+    mappingField: quarantined
+risk:
+  enabled: false
+  mode: advisory
+  analysisPath: .qa-ai/output/risk-analysis.md
+  registerPath: .qa-ai/output/risk-register.md
+  scoring:
+    impactWeight: 3
+    probabilityWeight: 2
+    complexityWeight: 2
+    dataSensitivityWeight: 2
+    securityPrivacyWeight: 3
+    aiImpactWeight: 2
+  thresholds:
+    smokeMax: 4
+    standardMax: 8
+    extendedMax: 12
+testData:
+  enabled: false
+  mode: advisory
+  planPath: .qa-ai/output/test-data-plan.md
+  inventoryPath: .qa-ai/output/test-data-inventory.md
+  allowSynthetic: true
+  allowProductionCopies: false
+  anonymizationRequired: true
+  resetStrategy: documented
+environments:
+  enabled: false
+  mode: advisory
+  readinessPath: .qa-ai/output/environment-readiness.md
+  healthJsonPath: .qa-ai/output/environment-health.json
+  target: local
+  requiredVariables: []
+  requiredServices: []
+  requiredBrowsers: []
+  requiredMobileHosts: []
+analysis:
+  resultAnalysisPath: .qa-ai/output/result-analysis.md
+  defectTriagePath: .qa-ai/output/defect-triage.md
+  actionPlanPath: .qa-ai/output/qa-action-plan.md
+  requireFailureClassification: true
+observability:
+  enabled: true
+  mode: advisory
+  sourcePaths:
+    - webdriverio-results/**/*.xml
+    - webdriverio-results/**/*.json
+  intakePath: .qa-ai/output/observability-intake.md
+  signalAnalysisPath: .qa-ai/output/production-signal-analysis.md
+learningLoop:
+  enabled: false
+  mode: 'off'
+  logPath: .qa-ai/output/learning-log.md
+  improvementPath: .qa-ai/output/rule-improvement-proposals.md
+testManagementSync:
+  mode: proposal-only
+  diffPath: .qa-ai/output/test-management-sync-diff.md
+  applyLogPath: .qa-ai/output/test-management-apply-log.md
+  rollbackPath: .qa-ai/output/test-management-rollback-plan.md
+  remoteSnapshotPath: .qa-ai/output/test-management-remote-snapshot.md
+aiTesting:
+  enabled: false
+  requiredTechniques:
+    - adversarial
+    - statistical-consistency
+    - robustness-paraphrase
+    - safety-guardrails
+  optionalTechniques:
+    - fairness-bias
+    - degradation-fallback
+    - pii-leakage

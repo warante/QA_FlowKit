@@ -234,6 +234,30 @@ export const STRATEGY_ROUTING_RULES = [
       'android permission',
       'ios permission'
     ]
+  },
+  {
+    id: 'llm-evaluation',
+    specialists: ['llm-evaluation'],
+    evidenceTypes: ['test-plan', 'automation-script'],
+    signals: ['llm', 'genai', 'chatbot', 'rag', 'hallucination', 'large language model', 'prompt evaluation']
+  },
+  {
+    id: 'prompt-regression',
+    specialists: ['prompt-regression'],
+    evidenceTypes: ['test-plan', 'automation-script'],
+    signals: ['prompt version', 'prompt engineering', 'prompt regression', 'prompt chain', 'prompt template']
+  },
+  {
+    id: 'self-correction',
+    specialists: ['self-correction-loop'],
+    evidenceTypes: ['test-plan'],
+    signals: ['self-correction', 'auto-retry', 'oscillation', 'correction loop', 'iterative refinement']
+  },
+  {
+    id: 'test-intelligence',
+    specialists: ['test-intelligence'],
+    evidenceTypes: ['test-plan', 'technical-review'],
+    signals: ['flakiness', 'failure analytics', 'root cause', 'test health', 'test intelligence', 'failure pattern']
   }
 ];
 

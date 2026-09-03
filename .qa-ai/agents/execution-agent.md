@@ -75,6 +75,7 @@ Produce `.qa-ai/output/execution-plan.md` (or configured `execution.planPath`), 
 - Execution summary is produced after run (or marked `not-run` for dry-run).
 - Result files referenced in summary exist within repository paths.
 - Artifacts validate with `node .qa-ai/scripts/validate-execution-plan.mjs` and `node .qa-ai/scripts/validate-execution-summary.mjs`.
+- Execution traceability report is generated with `node .qa-ai/scripts/execution-traceability.mjs` to link test results to RFs.
 
 ## Constraints
 

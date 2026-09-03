@@ -1,0 +1,87 @@
+name: Update Traceability from CI/CD
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'PR number to process (leave empty for latest merge)'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  update-traceability:
+    if: github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Determine PR number
+        id: pr-info
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            if [ -n "${{ inputs.pr_number }}" ]; then
+              echo "pr_number=${{ inputs.pr_number }}" >> $GITHUB_OUTPUT
+            else
+              echo "pr_number=" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "pr_number=${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Update traceability matrix
+        run: |
+          if [ -n "${{ steps.pr-info.outputs.pr_number }}" ]; then
+            node .github/scripts/update-traceability.mjs --pr ${{ steps.pr-info.outputs.pr_number }}
+          else
+            node .github/scripts/update-traceability.mjs --since "1 day ago"
+          fi
+
+      - name: Check for changes
+        id: git-check
+        run: |
+          git diff --exit-code .qa-ai/output/traceability-matrix.md || echo "changed=true" >> $GITHUB_OUTPUT
+
+      - name: Commit and push changes
+        if: steps.git-check.outputs.changed == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add .qa-ai/output/traceability-matrix.md
+          git commit -m "chore: update traceability matrix from CI/CD [skip ci]"
+          git push
+
+      - name: Create summary
+        if: always()
+        run: |
+          echo "## Traceability Update Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.git-check.outputs.changed }}" = "true" ]; then
+            echo "✅ Traceability matrix was updated with CI/CD metadata" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "ℹ️ No changes to traceability matrix" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**PR Number:** ${{ steps.pr-info.outputs.pr_number || 'N/A' }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Event:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY

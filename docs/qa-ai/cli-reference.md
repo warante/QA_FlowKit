@@ -183,6 +183,32 @@ the command.
 
 `validate-test-impact` parses the test impact analysis report `.qa-ai/output/test-impact-analysis.md`. It ensures all declared test cases and RFs exist in the traceability matrix, the selected list matches the union of the table's affected test cases, and all linked tests for affected RFs are selected according to the Superset Rule.
 
+## Traceability and observability scripts
+
+These scripts are available as `npm run` commands in the source repository and as standalone Node.js scripts in target repositories:
+
+| Command                             | Purpose                                                           |
+| ----------------------------------- | ----------------------------------------------------------------- |
+| `npm run qa:traceability-metrics`   | Compute traceability coverage metrics from the matrix             |
+| `npm run qa:execution-traceability` | Link test execution results to RFs via the traceability matrix    |
+| `npm run qa:change-impact`          | Predict affected RFs from git diff analysis                       |
+| `npm run qa:rf-dependency-graph`    | Build a dependency graph between RFs (JSON, Markdown, DOT)        |
+| `npm run qa:update-traceability`    | Update traceability artifacts from CI data                        |
+| `npm run qa:apm-intake`             | Fetch production signals from APM connectors (Datadog, New Relic) |
+
+Standalone usage in target repositories:
+
+```bash
+node .qa-ai/scripts/traceability-metrics.mjs
+node .qa-ai/scripts/execution-traceability.mjs
+node .qa-ai/scripts/change-impact.mjs --branch <branch-name>
+node .qa-ai/scripts/rf-dependency-graph.mjs
+node .github/scripts/update-traceability.mjs
+node .qa-ai/scripts/apm-intake.mjs --connector <name> --credentials <file>
+```
+
+See the [traceability and observability roadmap](traceability-observability-roadmap.md) for implementation details.
+
 ## Guidance and maintenance
 
 | Command                          | Purpose                                                          |

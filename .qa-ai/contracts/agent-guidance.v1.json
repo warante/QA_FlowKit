@@ -610,6 +610,25 @@
       "routingSignals": ["postman", "api"]
     },
     {
+      "path": ".qa-ai/agents/specialists/available/prompt-regression.md",
+      "category": "specialist",
+      "requiredSections": ["Artifact and handoff policy"],
+      "strategyFamily": "prompt-regression",
+      "canonicalVocabularies": ["evidence-types", "ai-techniques"],
+      "configKeys": ["aiTesting.enabled"],
+      "auxiliaryArtifacts": [
+        {
+          "path": ".qa-ai/output/prompt-regression-suite.md",
+          "condition": "multiple prompts or complex prompt chains require structured validation",
+          "linkedArtifact": ".qa-ai/output/test-design-proposal.md",
+          "evidenceType": "test-plan",
+          "gating": false
+        }
+      ],
+      "artifactPolicy": "contractual-with-auxiliary",
+      "routingSignals": ["prompt", "prompt-engineering", "prompt-version"]
+    },
+    {
       "path": ".qa-ai/agents/specialists/available/rest-assured.md",
       "category": "specialist",
       "requiredSections": ["Artifact and handoff policy"],
@@ -882,6 +901,25 @@
       "routingSignals": ["jira", "issue-tracker"]
     },
     {
+      "path": ".qa-ai/agents/specialists/available/llm-evaluation.md",
+      "category": "specialist",
+      "requiredSections": ["Artifact and handoff policy"],
+      "strategyFamily": "llm-evaluation",
+      "canonicalVocabularies": ["evidence-types", "ai-techniques"],
+      "configKeys": ["aiTesting.enabled", "aiTesting.requiredTechniques"],
+      "auxiliaryArtifacts": [
+        {
+          "path": ".qa-ai/output/llm-evaluation-plan.md",
+          "condition": "multiple LLM components or complex evaluation pipelines",
+          "linkedArtifact": ".qa-ai/output/test-design-proposal.md",
+          "evidenceType": "test-plan",
+          "gating": false
+        }
+      ],
+      "artifactPolicy": "contractual-with-auxiliary",
+      "routingSignals": ["llm", "genai", "chatbot", "rag", "hallucination"]
+    },
+    {
       "path": ".qa-ai/agents/specialists/available/maintainability.md",
       "category": "specialist",
       "requiredSections": ["Artifact and handoff policy"],
@@ -1018,6 +1056,25 @@
       "routingSignals": ["scalability", "capacity"]
     },
     {
+      "path": ".qa-ai/agents/specialists/available/self-correction-loop.md",
+      "category": "specialist",
+      "requiredSections": ["Artifact and handoff policy"],
+      "strategyFamily": "self-correction-loop",
+      "canonicalVocabularies": ["evidence-types"],
+      "configKeys": ["workflow.selfCorrection.enabled", "workflow.selfCorrection.maxIterations"],
+      "auxiliaryArtifacts": [
+        {
+          "path": ".qa-ai/output/self-correction-log.md",
+          "condition": "detailed iteration history is needed for audit",
+          "linkedArtifact": ".qa-ai/output/test-design-proposal.md",
+          "evidenceType": "test-plan",
+          "gating": false
+        }
+      ],
+      "artifactPolicy": "contractual-with-auxiliary",
+      "routingSignals": ["self-correction", "auto-retry", "oscillation"]
+    },
+    {
       "path": ".qa-ai/agents/specialists/available/test-data-strategy.md",
       "category": "specialist",
       "requiredSections": ["Artifact and handoff policy"],
@@ -1034,6 +1091,24 @@
       ],
       "artifactPolicy": "contractual-with-auxiliary",
       "routingSignals": ["test-data", "data-generation"]
+    },
+    {
+      "path": ".qa-ai/agents/specialists/available/test-intelligence.md",
+      "category": "specialist",
+      "requiredSections": ["Artifact and handoff policy"],
+      "strategyFamily": "test-intelligence",
+      "canonicalVocabularies": ["evidence-types"],
+      "auxiliaryArtifacts": [
+        {
+          "path": ".qa-ai/output/test-intelligence-report.md",
+          "condition": "multiple failure patterns require detailed analysis",
+          "linkedArtifact": ".qa-ai/output/result-analysis.md",
+          "evidenceType": "test-plan",
+          "gating": false
+        }
+      ],
+      "artifactPolicy": "contractual-with-auxiliary",
+      "routingSignals": ["flakiness", "failure-analytics", "root-cause", "test-health"]
     },
     {
       "path": ".qa-ai/agents/specialists/available/threat-modeling.md",

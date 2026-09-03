@@ -243,6 +243,26 @@ export const specialistCatalog = {
     categories: ['ai-testing', 'security'],
     aliases: ['ai-red-team', 'llm-red-team', 'adversarial-ai']
   },
+  'llm-evaluation': {
+    title: 'LLM Evaluation Specialist',
+    categories: ['ai-testing', 'llm'],
+    aliases: ['llm-evaluation', 'genai', 'chatbot', 'rag', 'hallucination']
+  },
+  'prompt-regression': {
+    title: 'Prompt Regression Specialist',
+    categories: ['ai-testing', 'prompt'],
+    aliases: ['prompt-regression', 'prompt-engineering', 'prompt-version']
+  },
+  'self-correction-loop': {
+    title: 'Self-Correction Loop Specialist',
+    categories: ['workflow', 'quality'],
+    aliases: ['self-correction', 'auto-retry', 'oscillation']
+  },
+  'test-intelligence': {
+    title: 'Test Intelligence Specialist',
+    categories: ['analytics', 'test-health'],
+    aliases: ['test-intelligence', 'flakiness', 'failure-analytics', 'root-cause', 'test-health']
+  },
   // On-demand strategy specialists (keyword / NFR / config routing)
   'analytics-tracking': {
     title: 'Analytics and Tracking Testing Specialist',

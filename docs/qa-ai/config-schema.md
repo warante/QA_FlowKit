@@ -279,6 +279,31 @@ Risk analysis runs after requirement normalization. In `advisory` mode it genera
 
 The learning loop proposes improvements to rules, agents, or workflows but never modifies them directly. Changes to `.qa-ai/rules/`, `.qa-ai/agents/` or `.qa-ai/workflows/` always require explicit approval.
 
+## `workflow` (experimental)
+
+| Key                                   | Type                   | Description                                                       |
+| ------------------------------------- | ---------------------- | ----------------------------------------------------------------- |
+| `selfCorrection.enabled`              | boolean                | Enable the self-correction loop for iterative refinement          |
+| `selfCorrection.maxIterations`        | integer                | Maximum correction iterations (1-10)                              |
+| `selfCorrection.phases`               | string[]               | Workflow phases where self-correction is active                   |
+| `selfCorrection.feedbackMode`         | `inline` \| `deferred` | When correction feedback is applied                               |
+| `selfCorrection.oscillationDetection` | boolean                | Detect and break correction oscillation cycles                    |
+| `selfCorrection.escalationOnFailure`  | boolean                | Escalate to human review when max iterations are reached          |
+| `selfCorrection.phaseLimits`          | object                 | Per-phase iteration limits (key: phase id, value: max iterations) |
+
+```yaml
+workflow:
+  selfCorrection:
+    enabled: true
+    maxIterations: 3
+    phases:
+      - gherkin
+      - test-design
+    feedbackMode: inline
+    oscillationDetection: true
+    escalationOnFailure: true
+```
+
 ## `validators` (experimental)
 
 Custom validators are repo-local Node.js scripts declared under `validators.custom`. They run after built-in phase
@@ -328,6 +353,11 @@ When enabled, agents add an `AI component` column to the `## Proposed tests` tab
 | [maestro-karate-mobile.yaml](../../.qa-ai/presets/maestro-karate-mobile.yaml)           | Maestro mobile + Karate API            |
 | [karate-full.yaml](../../.qa-ai/presets/karate-full.yaml)                               | Karate API + UI                        |
 | [selenium-jest-browserstack.yaml](../../.qa-ai/presets/selenium-jest-browserstack.yaml) | Alternate stack template               |
+| [cypress-full.yaml](../../.qa-ai/presets/cypress-full.yaml)                             | Cypress UI + API automation            |
+| [webdriverio-full.yaml](../../.qa-ai/presets/webdriverio-full.yaml)                     | WebdriverIO browser automation         |
+| [appium-full.yaml](../../.qa-ai/presets/appium-full.yaml)                               | Appium mobile automation               |
+| [postman-full.yaml](../../.qa-ai/presets/postman-full.yaml)                             | Postman API collections                |
+| [rest-assured-full.yaml](../../.qa-ai/presets/rest-assured-full.yaml)                   | REST Assured Java API testing          |
 
 Export/import profiles: `npx qa-flowkit config --export` / `--import`.
 

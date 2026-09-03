@@ -593,6 +593,33 @@
           "items": { "type": "string" }
         }
       }
+    },
+    "workflow": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-stability": "experimental",
+      "properties": {
+        "selfCorrection": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["enabled"],
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "maxIterations": { "type": "integer", "minimum": 1, "maximum": 10 },
+            "phases": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "feedbackMode": { "type": "string", "enum": ["inline", "deferred"] },
+            "oscillationDetection": { "type": "boolean" },
+            "escalationOnFailure": { "type": "boolean" },
+            "phaseLimits": {
+              "type": "object",
+              "additionalProperties": { "type": "integer", "minimum": 1, "maximum": 10 }
+            }
+          }
+        }
+      }
     }
   }
 }
