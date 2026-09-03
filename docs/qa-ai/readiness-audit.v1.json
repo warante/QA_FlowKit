@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "auditDate": "2026-06-25",
-  "qaFlowKitVersion": "1.0.0-rc.11",
+  "qaFlowKitVersion": "1.0.0-rc.12",
   "milestoneTarget": "M6",
   "task": "TASK-078",
   "decision": "PASS_WITH_ACTIONS",
