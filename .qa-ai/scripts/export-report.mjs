@@ -2,6 +2,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import { pathToFileURL } from 'node:url';
 import { resolveGlobs } from './lib/glob.mjs';
 import { parseJUnitXml, parseCucumberJson, extractTestIds } from './lib/execution-results.mjs';
 import { parseMarkdownTable, normalizeColumn } from './lib/markdown-table.mjs';
@@ -13,7 +14,6 @@ import {
   pathExists,
   readText,
   resolveRepoPath,
-  toPosixPath,
   ensureDir,
   relativeTo,
   manifestEntry,
@@ -560,7 +560,7 @@ async function main() {
   }
 }
 
-if (import.meta.url === `file:///${toPosixPath(process.argv[1])}`) {
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   main().catch((error) => {
     console.error(error);
     process.exit(1);

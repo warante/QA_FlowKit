@@ -63,6 +63,19 @@ Feature: Clean install smoke
 `,
     'utf8'
   );
+
+  const outputDir = path.join(targetRoot, '.qa-ai', 'output');
+  await fs.mkdir(outputDir, { recursive: true });
+  await fs.writeFile(
+    path.join(outputDir, 'traceability-matrix.md'),
+    `# Traceability Matrix
+
+| Requirement Source | RF | Feature File | Test Management Case ID | Type | Priority | Automation Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| Clean install | RF-101 | features/manual/RF-101-clean-install.feature | TC-101 | functional | medium | manual |
+`,
+    'utf8'
+  );
 }
 
 async function assertPrimaryCommandsFromTarballInstall(targetRoot) {

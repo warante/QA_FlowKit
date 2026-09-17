@@ -2,99 +2,101 @@
   "name": "qa-flowkit",
   "description": "QA FlowKit workflow skills, hooks and orchestrator agent / Skills, hooks y agente orquestador de QA FlowKit",
   "version": "1.0.0-rc.12",
-  "author": "warante",
+  "author": {
+    "name": "warante"
+  },
   "homepage": "https://github.com/warante/QA_FlowKit",
   "repository": "https://github.com/warante/QA_FlowKit",
   "license": "MIT",
   "skills": [
     {
       "name": "qa-add-tests",
-      "path": "skills/qa-add-tests.md",
+      "path": "skills/qa-add-tests/SKILL.md",
       "namespace": "qa-flowkit"
     },
     {
       "name": "qa-automation-plan",
-      "path": "skills/qa-automation-plan.md",
+      "path": "skills/qa-automation-plan/SKILL.md",
       "namespace": "qa-flowkit"
     },
     {
       "name": "qa-clean",
-      "path": "skills/qa-clean.md",
+      "path": "skills/qa-clean/SKILL.md",
       "namespace": "qa-flowkit"
     },
     {
       "name": "qa-config",
-      "path": "skills/qa-config.md",
+      "path": "skills/qa-config/SKILL.md",
       "namespace": "qa-flowkit"
     },
     {
       "name": "qa-coverage",
-      "path": "skills/qa-coverage.md",
+      "path": "skills/qa-coverage/SKILL.md",
       "namespace": "qa-flowkit"
     },
     {
       "name": "qa-doctor",
-      "path": "skills/qa-doctor.md",
+      "path": "skills/qa-doctor/SKILL.md",
       "namespace": "qa-flowkit"
     },
     {
       "name": "qa-enable-enterprise",
-      "path": "skills/qa-enable-enterprise.md",
+      "path": "skills/qa-enable-enterprise/SKILL.md",
       "namespace": "qa-flowkit"
     },
     {
       "name": "qa-execute",
-      "path": "skills/qa-execute.md",
+      "path": "skills/qa-execute/SKILL.md",
       "namespace": "qa-flowkit"
     },
     {
       "name": "qa-full-flow",
-      "path": "skills/qa-full-flow.md",
+      "path": "skills/qa-full-flow/SKILL.md",
       "namespace": "qa-flowkit"
     },
     {
       "name": "qa-gate",
-      "path": "skills/qa-gate.md",
+      "path": "skills/qa-gate/SKILL.md",
       "namespace": "qa-flowkit"
     },
     {
       "name": "qa-help",
-      "path": "skills/qa-help.md",
+      "path": "skills/qa-help/SKILL.md",
       "namespace": "qa-flowkit"
     },
     {
       "name": "qa-impact",
-      "path": "skills/qa-impact.md",
+      "path": "skills/qa-impact/SKILL.md",
       "namespace": "qa-flowkit"
     },
     {
       "name": "qa-init",
-      "path": "skills/qa-init.md",
+      "path": "skills/qa-init/SKILL.md",
       "namespace": "qa-flowkit"
     },
     {
       "name": "qa-quality",
-      "path": "skills/qa-quality.md",
+      "path": "skills/qa-quality/SKILL.md",
       "namespace": "qa-flowkit"
     },
     {
       "name": "qa-status",
-      "path": "skills/qa-status.md",
+      "path": "skills/qa-status/SKILL.md",
       "namespace": "qa-flowkit"
     },
     {
       "name": "qa-update-tests",
-      "path": "skills/qa-update-tests.md",
+      "path": "skills/qa-update-tests/SKILL.md",
       "namespace": "qa-flowkit"
     },
     {
       "name": "qa-validate-features",
-      "path": "skills/qa-validate-features.md",
+      "path": "skills/qa-validate-features/SKILL.md",
       "namespace": "qa-flowkit"
     },
     {
       "name": "qa-validate-karate-features",
-      "path": "skills/qa-validate-karate-features.md",
+      "path": "skills/qa-validate-karate-features/SKILL.md",
       "namespace": "qa-flowkit"
     }
   ],

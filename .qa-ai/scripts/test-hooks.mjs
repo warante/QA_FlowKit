@@ -270,7 +270,7 @@ test('Claude Settings: mergeClaudeSettings on clean repo', async () => {
 
     const postEditHook = settings.hooks.PostToolUse[0].hooks[0];
     assert.match(postEditHook.command, /post-edit-validate.mjs/);
-    assert.equal(postEditHook.timeout, 30000);
+    assert.equal(postEditHook.timeout, 30);
 
     const stopHook = settings.hooks.Stop[0].hooks[0];
     assert.match(stopHook.command, /stop-gate.mjs/);

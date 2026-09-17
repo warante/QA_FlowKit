@@ -38,7 +38,7 @@ Out of scope:
 | Boundary                                       | Current control                                                                                         |
 | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
 | User input and requirements into agent context | Untrusted-content scanner and rules requiring source analysis before design.                            |
-| Configured paths into filesystem operations    | `resolveRepoPath` rejects absolute paths and repository escapes in framework scripts.                   |
+| Configured paths into filesystem operations    | `resolveRepoPath` normalizes absolute paths inside the repo and rejects escapes in framework scripts.   |
 | Existing files into generated updates          | Safe writes skip existing files unless `--force` or a scoped harness approval is used.                  |
 | Harness run state into phase execution         | Workflow contract validates phase IDs, permissions, validators and output paths.                        |
 | Agent edits into completion                    | Claude hooks can run post-edit validation and stop gates; hookless hosts rely on documented validation. |

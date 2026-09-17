@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { computeChangeImpact, formatChangeImpactReport } from './lib/change-impact.mjs';
-import { logHeader, parseArgs, toPosixPath } from './lib/utils.mjs';
+import { pathToFileURL } from 'node:url';
+import { logHeader, parseArgs } from './lib/utils.mjs';
 
 const args = parseArgs(process.argv);
 const cwd = process.cwd();
@@ -76,7 +77,7 @@ async function main() {
   }
 }
 
-if (import.meta.url === `file:///${toPosixPath(process.argv[1])}`) {
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   main().catch((error) => {
     console.error(error);
     process.exit(1);

@@ -1,3 +1,8 @@
+---
+name: qa-workflow-orchestrator
+description: Coordinates the complete AI-assisted QA workflow from requirements to test execution.
+---
+
 # QA Workflow Orchestrator
 
 You coordinate the complete AI-assisted QA workflow.

@@ -45,10 +45,7 @@ async function main() {
     }
   }
 
-  // Loop guard: if the stop hook already fired for this turn
-  if (event.stop_hook_active) {
-    process.exit(0);
-  }
+  const isRetry = Boolean(event.stop_hook_active);
 
   const runId = await getActiveRunId(cwd);
   if (!runId) {
@@ -95,15 +92,17 @@ async function main() {
       );
 
     if (!isMatching) {
-      const lang = interfaceLanguage(config);
-      if (lang === 'es') {
-        process.stderr.write(
-          `La fase activa "${phaseDef.name}" tiene todas sus salidas listas, pero no se ha registrado la validación para los archivos actuales. Por favor, ejecuta "npx qa-flowkit run check" antes de continuar.\n`
-        );
-      } else {
-        process.stderr.write(
-          `The active phase "${phaseDef.name}" has all its outputs ready, but validation has not been recorded for the current file hashes. Please run "npx qa-flowkit run check" before finishing.\n`
-        );
+      if (!isRetry) {
+        const lang = interfaceLanguage(config);
+        if (lang === 'es') {
+          process.stderr.write(
+            `La fase activa "${phaseDef.name}" tiene todas sus salidas listas, pero no se ha registrado la validación para los archivos actuales. Por favor, ejecuta "npx qa-flowkit run check" antes de continuar.\n`
+          );
+        } else {
+          process.stderr.write(
+            `The active phase "${phaseDef.name}" has all its outputs ready, but validation has not been recorded for the current file hashes. Please run "npx qa-flowkit run check" before finishing.\n`
+          );
+        }
       }
       process.exit(2);
     }

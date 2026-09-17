@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { validateExecutionEvidence } from './lib/execution-evidence-validate.mjs';
-import { logHeader, parseArgs, toPosixPath } from './lib/utils.mjs';
+import { pathToFileURL } from 'node:url';
+import { logHeader, parseArgs } from './lib/utils.mjs';
 
 export { validateExecutionEvidence } from './lib/execution-evidence-validate.mjs';
 
@@ -87,7 +88,7 @@ async function main() {
 }
 
 // Only run as script if executed directly
-if (import.meta.url === `file:///${toPosixPath(process.argv[1])}`) {
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   main().catch((error) => {
     console.error(error);
     process.exit(1);
