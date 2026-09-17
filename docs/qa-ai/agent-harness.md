@@ -144,8 +144,8 @@ If the approved sync plan changes before or during `sync-apply`, the harness rem
 `approval_invalidated` event in `events.jsonl` and blocks the phase until `external-write:test-management` is approved
 again.
 
-Config-derived paths are resolved with `resolveRepoPath` at runtime. Absolute paths and paths that escape the
-repository are rejected before filesystem access.
+Config-derived paths are resolved with `resolveRepoPath` at runtime. Absolute paths inside the repository are
+normalized to relative; paths that escape the repository are rejected before filesystem access.
 
 An agent with unrestricted shell access can still act outside the harness. Strong tool-level enforcement is a later,
 optional MCP or tool-gateway capability.

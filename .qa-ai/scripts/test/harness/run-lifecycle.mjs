@@ -170,7 +170,7 @@ test('resolveHarnessRelativePath rejects absolute and escaping paths', async () 
     assert.throws(() => resolveHarnessRelativePath(cwd, '../outside'), /inside the repository|must stay/i);
     assert.throws(
       () => resolveHarnessRelativePath(cwd, process.platform === 'win32' ? 'C:\\outside' : '/outside'),
-      /absolute paths are not allowed/i
+      /outside the repository|inside the repository/i
     );
   } finally {
     await fs.rm(cwd, { recursive: true, force: true });

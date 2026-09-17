@@ -193,12 +193,21 @@ export function resolveRepoPath(cwd, relativePath, { label = 'path', allowRoot =
   if (!value) {
     throw new Error(`Invalid ${label}: path is empty.`);
   }
-  if (path.isAbsolute(value)) {
-    throw new Error(`Invalid ${label}: absolute paths are not allowed (${value}).`);
-  }
 
   const root = path.resolve(cwd);
-  const target = resolveInsideCwd(cwd, value);
+
+  let effectivePath = value;
+  if (path.isAbsolute(value)) {
+    const normalized = path.resolve(value);
+    const inside = normalized === root || normalized.startsWith(`${root}${path.sep}`);
+    if (!inside) {
+      throw new Error(`Invalid ${label}: absolute path is outside the repository (${value}).`);
+    }
+    effectivePath = path.relative(root, normalized);
+    if (!effectivePath) effectivePath = '.';
+  }
+
+  const target = resolveInsideCwd(cwd, effectivePath);
   if (!target.inside || (!allowRoot && target.resolved === root)) {
     throw new Error(`Invalid ${label}: path must stay inside the repository (${value}).`);
   }
