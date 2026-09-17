@@ -45,7 +45,7 @@ automation:
     framework: none
   api:
     framework: karate
-    specsPath: .qa-ai/tests/karate/.qa-ai/features/api
+    specsPath: .qa-ai/tests/karate/features/api
   mobile:
     framework: maestro
     flowsPath: .qa-ai/tests/maestro/flows

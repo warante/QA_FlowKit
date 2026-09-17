@@ -67,7 +67,7 @@ export class DatadogConnector {
       return {
         id: raw.id,
         date: attrs.created || attrs.modified || new Date().toISOString(),
-        area: attrs.fields?.severity || 'unknown',
+        area: attrs.tags?.area || attrs.service || 'unknown',
         severity: attrs.fields?.severity || 'warning',
         description: attrs.title || attrs.fields?.summary || ''
       };

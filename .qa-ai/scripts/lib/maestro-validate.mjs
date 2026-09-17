@@ -2,6 +2,8 @@ import path from 'node:path';
 
 const sequencePattern = /^\s*-\s+([A-Za-z][A-Za-z0-9]*):?/;
 const runFlowPattern = /^\s*-\s+runFlow:\s*["']?([^"'#\s]+)["']?\s*$/;
+const runFlowBlockPattern = /^\s*-\s+runFlow:\s*$/;
+const runFlowBlockFilePattern = /^\s+file:\s*["']?([^"'#\s]+)["']?\s*$/;
 
 export function validateMaestroFlowContent(content, filePath) {
   const errors = [];
@@ -31,14 +33,33 @@ export function validateMaestroFlowContent(content, filePath) {
   }
 
   const referencedFlows = [];
+  let inRunFlowBlock = false;
   for (const line of lines) {
-    const match = line.match(runFlowPattern);
-    if (!match) continue;
-    const normalized = match[1].replace(/\\/g, '/');
-    if (path.posix.isAbsolute(normalized) || normalized.split('/').includes('..')) {
-      errors.push(`runFlow target must stay inside the mobile test root: ${normalized}`);
-    } else {
-      referencedFlows.push(normalized);
+    const inlineMatch = line.match(runFlowPattern);
+    if (inlineMatch) {
+      const normalized = inlineMatch[1].replace(/\\/g, '/');
+      if (path.posix.isAbsolute(normalized) || normalized.split('/').includes('..')) {
+        errors.push(`runFlow target must stay inside the mobile test root: ${normalized}`);
+      } else {
+        referencedFlows.push(normalized);
+      }
+      continue;
+    }
+    if (runFlowBlockPattern.test(line)) {
+      inRunFlowBlock = true;
+      continue;
+    }
+    if (inRunFlowBlock) {
+      const fileMatch = line.match(runFlowBlockFilePattern);
+      if (fileMatch) {
+        const normalized = fileMatch[1].replace(/\\/g, '/');
+        if (path.posix.isAbsolute(normalized) || normalized.split('/').includes('..')) {
+          errors.push(`runFlow target must stay inside the mobile test root: ${normalized}`);
+        } else {
+          referencedFlows.push(normalized);
+        }
+      }
+      inRunFlowBlock = false;
     }
   }
 

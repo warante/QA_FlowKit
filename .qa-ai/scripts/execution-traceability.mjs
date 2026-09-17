@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { computeExecutionTraceability, formatExecutionTraceabilityReport } from './lib/execution-traceability.mjs';
-import { logHeader, parseArgs, toPosixPath } from './lib/utils.mjs';
+import { pathToFileURL } from 'node:url';
+import { logHeader, parseArgs } from './lib/utils.mjs';
 
 const args = parseArgs(process.argv);
 const cwd = process.cwd();
@@ -68,7 +69,7 @@ async function main() {
 }
 
 // Only run as script if executed directly
-if (import.meta.url === `file:///${toPosixPath(process.argv[1])}`) {
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   main().catch((error) => {
     console.error(error);
     process.exit(1);

@@ -10,7 +10,7 @@ format as auditable artifacts.
 
 ## Dimensions
 
-The shipped rubric is `rubricVersion: 1` and uses seven binary dimensions:
+The shipped rubric is `rubricVersion: 1` and uses eight binary dimensions:
 
 | Dimension                    | Purpose                                                                           |
 | ---------------------------- | --------------------------------------------------------------------------------- |

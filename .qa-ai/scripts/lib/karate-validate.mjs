@@ -36,6 +36,7 @@ const uiStepHints = [
 ];
 
 const idTagPattern = /^@(?:id|test|case):(.+)$/i;
+const xrayTagPattern = /^@TEST[_-]([A-Z0-9]+[_-]\d+)$/i;
 const rfTagPattern = /^@rf:(.+)$/i;
 
 export function parseKarateFeature(content) {
@@ -105,7 +106,13 @@ function scenarioHasUiHints(steps) {
 
 function caseIdsFromKarateTags(tags) {
   return tags
-    .map(({ tag }) => tag.match(idTagPattern)?.[1])
+    .map(({ tag }) => {
+      const idMatch = tag.match(idTagPattern);
+      if (idMatch) return idMatch[1];
+      const xrayMatch = tag.match(xrayTagPattern);
+      if (xrayMatch) return `TEST-${xrayMatch[1]}`;
+      return null;
+    })
     .filter(Boolean)
     .map(normalizeId);
 }

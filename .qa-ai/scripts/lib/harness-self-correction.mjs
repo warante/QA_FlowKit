@@ -1,4 +1,4 @@
-import { appendRunEvent, readRunSnapshot } from './harness-run-store.mjs';
+import { appendRunEvent } from './harness-run-store.mjs';
 import { loadQaAiConfig } from './utils.mjs';
 import { runPhaseValidators } from './harness-validation.mjs';
 import { getPhaseMap, loadWorkflowContract } from './harness-contract.mjs';
@@ -273,13 +273,8 @@ export async function executeSelfCorrectionLoop(cwd, runId, phaseId, initialVali
     const contract = await loadWorkflowContract(cwd);
     const phaseMap = getPhaseMap(contract);
     const phaseDef = phaseMap.get(phaseId);
-    const snapshot = await readRunSnapshot(cwd, runId);
 
-    currentResult = await runPhaseValidators(cwd, {
-      phaseDef,
-      config: configInfo.data,
-      snapshot
-    });
+    currentResult = await runPhaseValidators(cwd, configInfo.data, phaseDef);
 
     // Record the correction attempt result
     await recordCorrectionIteration(cwd, runId, phaseId, iteration, currentResult, 'correction_applied');
