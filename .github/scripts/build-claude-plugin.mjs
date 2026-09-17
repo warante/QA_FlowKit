@@ -109,7 +109,7 @@ function generatedHooks() {
             {
               type: 'command',
               command: hookCommand('.qa-ai/scripts/hooks/post-edit-validate.mjs'),
-              timeout: 30000
+              timeout: 30
             }
           ]
         }
@@ -157,7 +157,13 @@ async function generate(targetRoot, targetMarketplaceRoot) {
   await fs.mkdir(path.join(targetRoot, 'hooks'), { recursive: true });
   await fs.mkdir(targetMarketplaceRoot, { recursive: true });
 
-  await copyDir(path.join(adapterRoot, 'commands'), path.join(targetRoot, 'skills'));
+  // Copy skills as skills/<name>/SKILL.md
+  for (const file of commandFiles) {
+    const skillName = path.basename(file, '.md');
+    const skillDir = path.join(targetRoot, 'skills', skillName);
+    await fs.mkdir(skillDir, { recursive: true });
+    await fs.copyFile(path.join(commandsDir, file), path.join(skillDir, 'SKILL.md'));
+  }
   await copyDir(path.join(adapterRoot, 'agents'), path.join(targetRoot, 'agents'));
   await fs.writeFile(path.join(targetRoot, 'hooks', 'hooks.json'), `${JSON.stringify(generatedHooks(), null, 2)}\n`);
 
@@ -165,13 +171,15 @@ async function generate(targetRoot, targetMarketplaceRoot) {
     name: 'qa-flowkit',
     description: bilingualDescription,
     version: pkg.version,
-    author: 'warante',
+    author: {
+      name: 'warante'
+    },
     homepage: 'https://github.com/warante/QA_FlowKit',
     repository: 'https://github.com/warante/QA_FlowKit',
     license: 'MIT',
     skills: commandFiles.map((file) => ({
       name: path.basename(file, '.md'),
-      path: `skills/${file}`,
+      path: `skills/${path.basename(file, '.md')}/SKILL.md`,
       namespace: 'qa-flowkit'
     })),
     agents: agentFiles.map((file) => ({
@@ -184,12 +192,17 @@ async function generate(targetRoot, targetMarketplaceRoot) {
   await fs.writeFile(path.join(targetRoot, '.claude-plugin', 'plugin.json'), `${JSON.stringify(manifest, null, 2)}\n`);
 
   const marketplace = {
+    name: 'qa-flowkit-marketplace',
+    owner: 'warante',
     plugins: [
       {
         name: 'qa-flowkit',
         description: bilingualDescription,
         version: pkg.version,
-        path: './plugin'
+        source: {
+          type: 'local',
+          path: './plugin'
+        }
       }
     ]
   };
@@ -213,16 +226,17 @@ async function validateGenerated(root, marketplaceRoot) {
   const adapterSkillFiles = (await fs.readdir(path.join(adapterRoot, 'commands'))).filter((name) =>
     name.endsWith('.md')
   );
-  const generatedSkillFiles = (await fs.readdir(path.join(root, 'skills'))).filter((name) => name.endsWith('.md'));
-  if (generatedSkillFiles.length !== adapterSkillFiles.length) {
-    errors.push(`expected ${adapterSkillFiles.length} skills, found ${generatedSkillFiles.length}`);
-  }
-
+  // Check each skill directory has SKILL.md
   for (const file of adapterSkillFiles.sort()) {
-    if (!generatedSkillFiles.includes(file)) errors.push(`missing generated skill ${file}`);
-    const frontmatter = await parseFrontmatter(path.join(root, 'skills', file));
+    const skillName = path.basename(file, '.md');
+    const skillMdPath = path.join(root, 'skills', skillName, 'SKILL.md');
+    if (!(await pathExists(skillMdPath))) {
+      errors.push(`missing generated skill skills/${skillName}/SKILL.md`);
+      continue;
+    }
+    const frontmatter = await parseFrontmatter(skillMdPath);
     if (!/\S+\s*\/\s*\S+/.test(frontmatter.description || '')) {
-      errors.push(`skill ${file} description is not bilingual`);
+      errors.push(`skill ${skillName}/SKILL.md description is not bilingual`);
     }
     if (file === 'qa-gate.md' && frontmatter['disable-model-invocation'] !== 'true') {
       errors.push('qa-gate skill must keep disable-model-invocation: true');
@@ -231,7 +245,7 @@ async function validateGenerated(root, marketplaceRoot) {
 
   const hooks = await readJson(path.join(root, 'hooks', 'hooks.json'));
   if (!hooks.hooks?.PostToolUse || !hooks.hooks?.Stop) errors.push('plugin hooks must include PostToolUse and Stop');
-  if (!marketplace.plugins?.some((plugin) => plugin.name === 'qa-flowkit' && plugin.path === './plugin')) {
+  if (!marketplace.plugins?.some((plugin) => plugin.name === 'qa-flowkit' && plugin.source?.path === './plugin')) {
     errors.push('marketplace manifest must list qa-flowkit at ./plugin');
   }
 
@@ -239,7 +253,7 @@ async function validateGenerated(root, marketplaceRoot) {
     throw new Error(`Claude plugin validation failed:\n- ${errors.join('\n- ')}`);
   }
 
-  return { skills: generatedSkillFiles.length, agents: manifest.agents.length };
+  return { skills: adapterSkillFiles.length, agents: manifest.agents.length };
 }
 
 async function main() {
