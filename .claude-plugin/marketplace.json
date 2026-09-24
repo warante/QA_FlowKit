@@ -5,7 +5,7 @@
     {
       "name": "qa-flowkit",
       "description": "QA FlowKit workflow skills, hooks and orchestrator agent / Skills, hooks y agente orquestador de QA FlowKit",
-      "version": "1.0.0-rc.12",
+      "version": "1.0.0-rc.13",
       "source": {
         "type": "local",
         "path": "./plugin"
