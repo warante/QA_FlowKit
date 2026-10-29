@@ -15,6 +15,93 @@ import {
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 
+test('supported runtime stays aligned across package metadata, CI and both READMEs', async () => {
+  const pkg = JSON.parse(await fs.readFile(path.join(repoRoot, 'package.json'), 'utf8'));
+  const lock = JSON.parse(await fs.readFile(path.join(repoRoot, 'package-lock.json'), 'utf8'));
+  assert.equal(pkg.engines.node, '>=22.18.0');
+  assert.equal(lock.packages[''].engines.node, pkg.engines.node);
+  for (const name of ['README.md', 'README.es.md']) {
+    assert.match(await fs.readFile(path.join(repoRoot, name), 'utf8'), /Node\.js 22\.18\+/);
+  }
+  const workflows = await fs.readdir(path.join(repoRoot, '.github/workflows'));
+  for (const name of workflows.filter((file) => file.endsWith('.yml'))) {
+    const content = await fs.readFile(path.join(repoRoot, '.github/workflows', name), 'utf8');
+    assert.doesNotMatch(content, /node-version:\s*['"]?20\b|node:\s*\[[^\]]*['"]20['"]/, name);
+  }
+  const ci = await fs.readFile(path.join(repoRoot, '.github/workflows/ci.yml'), 'utf8');
+  assert.match(ci, /node: \['22', '24'\]/);
+  assert.match(ci, /node-version: '24'/);
+});
+
+test('modernization docs distinguish guardrails and evidence from host certification', async () => {
+  const compatibility = await fs.readFile(path.join(repoRoot, 'docs/qa-ai/agent-compatibility.md'), 'utf8');
+  assert.match(compatibility, /review and trust/);
+  assert.match(compatibility, /does not deny other tools/);
+  assert.doesNotMatch(compatibility, /Codex.*do not currently support project-level settings hooks/);
+  for (const [name, link] of [
+    ['README.md', 'modernization.md'],
+    ['README.es.md', 'modernization.es.md']
+  ]) {
+    assert.ok((await fs.readFile(path.join(repoRoot, name), 'utf8')).includes(link));
+  }
+  const guide = await fs.readFile(path.join(repoRoot, 'docs/qa-ai/modernization.md'), 'utf8');
+  assert.match(guide, /execute --record-evidence/);
+  assert.match(guide, /not signed/);
+  assert.match(guide, /remain pending/);
+});
+
+test('SARIF docs describe validation outcomes separately from execution and external uploads', async () => {
+  for (const name of ['modernization.md', 'modernization.es.md']) {
+    const guide = await fs.readFile(path.join(repoRoot, 'docs/qa-ai', name), 'utf8');
+    assert.match(guide, /validate-target --sarif/);
+    assert.match(guide, /\]\(sarif\.md\)/);
+  }
+  const guide = await fs.readFile(path.join(repoRoot, 'docs/qa-ai/sarif.md'), 'utf8');
+  for (const required of ['2.1.0', 'mutually exclusive', 'Exit code `0`', 'executionSuccessful', 'does not', 'UTF-8']) {
+    assert.ok(guide.includes(required), required);
+  }
+  assert.match(guide, /No live GitHub upload/);
+});
+
+test('PR summary docs preserve committed-only scope, exact links and pending verification', async () => {
+  for (const name of ['modernization.md', 'modernization.es.md']) {
+    const guide = await fs.readFile(path.join(repoRoot, 'docs/qa-ai', name), 'utf8');
+    assert.match(guide, /pr-summary --base origin\/main/);
+    assert.match(guide, /\]\(pr-impact-summary\.md\)/);
+  }
+  const guide = await fs.readFile(path.join(repoRoot, 'docs/qa-ai/pr-impact-summary.md'), 'utf8');
+  for (const phrase of [
+    'merge-base',
+    'exact, case-sensitive',
+    'not an exhaustive test selection',
+    'excluded',
+    '--force',
+    'not assessed',
+    'not registered'
+  ]) {
+    assert.ok(guide.includes(phrase), phrase);
+  }
+});
+
+test('modular installation docs keep core validators and distinguish payload selection from package splitting', async () => {
+  const guide = await fs.readFile(path.join(repoRoot, 'docs/qa-ai/modular-installation.md'), 'utf8');
+  for (const phrase of [
+    'full framework',
+    'single complete package',
+    'All validators',
+    'automation-presets',
+    'union',
+    '--force',
+    'install-modules.json',
+    'non-pruning'
+  ]) {
+    assert.ok(guide.includes(phrase), phrase);
+  }
+  for (const name of ['modernization.md', 'modernization.es.md', 'cli-reference.md']) {
+    assert.match(await fs.readFile(path.join(repoRoot, 'docs/qa-ai', name), 'utf8'), /\]\(modular-installation\.md\)/);
+  }
+});
+
 test('stale prerelease versions fail in evergreen docs but historical files stay outside the check', () => {
   const errors = findStaleEvergreenVersions(
     new Map([

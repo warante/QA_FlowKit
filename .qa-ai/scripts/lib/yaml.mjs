@@ -1,6 +1,6 @@
 /**
  * Strict, dependency-free YAML parser with located errors.
- * Zero runtime dependencies. Node 20/22 compatible.
+ * Zero runtime dependencies. Node 22/24 compatible.
  */
 
 function throwYAMLError(message, line, column, filename) {

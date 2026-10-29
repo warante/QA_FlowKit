@@ -77,7 +77,7 @@ Required scripts:
 - `.qa-ai/scripts/smoke-test.mjs`
 - `.qa-ai/scripts/sync-agent-adapters.mjs`
 
-Scripts must be dependency-light and runnable with Node.js 20+.
+Scripts must be dependency-light and runnable with Node.js 22.18+.
 
 ### Step 3 - Implement `init.mjs`
 

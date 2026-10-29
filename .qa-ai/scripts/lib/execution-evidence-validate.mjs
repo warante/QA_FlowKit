@@ -8,6 +8,7 @@ import { ARTIFACT_PATHS } from './artifact-paths.mjs';
 import { getTestManagementMappingFile } from './test-management-config.mjs';
 import { normalizeId } from './gherkin-validate.mjs';
 import { resolveGlobs } from './glob.mjs';
+import { validateExecutionProvenance } from './execution-provenance.mjs';
 
 function rowMarksAiComponent(row) {
   const values = Object.entries(row.values || {});
@@ -163,6 +164,9 @@ export async function validateExecutionEvidence(cwd, options = {}) {
 
   const configInfo = await loadQaAiConfig(cwd);
   const config = configInfo.data || {};
+  const provenance = await validateExecutionProvenance(cwd, config);
+  errors.push(...provenance.errors);
+  warnings.push(...provenance.warnings);
 
   const matrixPath =
     options.matrixPath || getConfigValue(config, 'traceability.matrixPath', ARTIFACT_PATHS.traceabilityMatrix);
@@ -174,7 +178,7 @@ export async function validateExecutionEvidence(cwd, options = {}) {
   const shouldValidateExecution = resultsPaths.length > 0;
 
   if (!shouldValidateExecution && !aiTestingEnabled) {
-    return { ok: true, errors: [], warnings: [], report: {} };
+    return { ok: errors.length === 0, errors, warnings, report: {} };
   }
 
   // 1. Resolve globs to find results files

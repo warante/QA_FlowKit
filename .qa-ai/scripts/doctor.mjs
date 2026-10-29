@@ -16,6 +16,7 @@ import { runLayoutChecks } from './lib/doctor/layout-checks.mjs';
 import { printFinalResult, printNextSteps, runPathChecks } from './lib/doctor/report.mjs';
 import { detectLegacyLayout } from './lib/project-paths.mjs';
 import { redactValidatorDiagnostics } from './lib/secret-patterns.mjs';
+import { readModuleInstallation, modulePathSelected } from './lib/module-installation.mjs';
 
 const cwd = process.cwd();
 const args = parseArgs(process.argv);
@@ -139,7 +140,16 @@ async function main() {
   logHeader(`QA FlowKit doctor${strict ? ' --strict' : ''}`);
   const configInfo = await loadQaAiConfig(cwd);
   const isFrameworkSourceRepo = await pathExists(path.join(cwd, 'docs/qa-ai/architecture.md'));
-  const checks = buildFrameworkChecks({ isFrameworkSourceRepo, strict });
+  const installation = await readModuleInstallation(cwd);
+  const checks = buildFrameworkChecks({ isFrameworkSourceRepo, strict }).filter(
+    (check) => !installation || check.paths.every((file) => modulePathSelected(file, installation.modules))
+  );
+  if (installation) {
+    console.log(`[PASS] installed modules: ${installation.modules.join(', ')}`);
+    for (const file of Object.keys(installation.files)) {
+      checks.push({ level: 'required', label: 'installed module file', paths: [`.qa-ai/${file}`] });
+    }
+  }
 
   if (configInfo.exists) {
     addArtifactChecks(checks, configInfo.data, strict, { sourceRepository: isFrameworkSourceRepo });

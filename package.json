@@ -166,7 +166,7 @@
   },
   "license": "MIT",
   "engines": {
-    "node": ">=20"
+    "node": ">=22.18.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

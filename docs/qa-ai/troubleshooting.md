@@ -30,7 +30,7 @@ A third-party dependency was accidentally imported. QA FlowKit uses only native 
 
 **Fix**
 
-Check that you are running Node.js 20 or later:
+Check that you are running Node.js 22.18 or later:
 
 ```bash
 node --version
@@ -920,7 +920,7 @@ Bloqueado Gherkin test design: falta aprobar la puerta "test-design". Ejecuta: n
 
 **Common causes**
 
-- Node.js version mismatch. The CI environment must use Node.js 20 or later.
+- Node.js version mismatch. The CI environment must use Node.js 22.18 or later.
 - Line ending differences. QA FlowKit ships with `.gitattributes` that enforces LF. Verify `.gitattributes` was committed and that Git is not converting line endings.
 - The `.qa-ai/` folder was not committed. Verify that `.gitignore` does not exclude it.
 
@@ -965,7 +965,7 @@ node .qa-ai/scripts/doctor.mjs
 **Cause**
 
 Older tooling or custom wrappers sometimes assume ASCII-only paths. QA FlowKit itself supports Unicode and spaced paths when
-Node.js 20+ is used directly.
+Node.js 22.18+ is used directly.
 
 **Fix**
 

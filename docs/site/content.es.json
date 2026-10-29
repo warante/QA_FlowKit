@@ -99,7 +99,7 @@
   },
   "signals": [
     {
-      "strong": "Node.js 20+",
+      "strong": "Node.js 22.18+",
       "span": "CLI nativo y scripts portables"
     },
     {

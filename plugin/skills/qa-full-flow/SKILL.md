@@ -1,7 +1,7 @@
 ---
 description: Guided full QA FlowKit workflow / Workflow completo guiado de QA FlowKit
 argument-hint: [optional requirement source]
-allowed-tools: [view_file, write_file, edit_file, list_dir, grep_search, glob, run_command]
+allowed-tools: Read Grep Glob
 ---
 
 !`npx qa-flowkit run status --json`

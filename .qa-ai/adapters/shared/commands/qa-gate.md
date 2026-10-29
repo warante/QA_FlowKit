@@ -1,7 +1,7 @@
 ---
 description: Release quality gate decision / Decisión de release gate
 argument-hint: [optional scope or RF ID]
-allowed-tools: [view_file, write_file, edit_file, list_dir, grep_search, glob, run_command]
+{{READ_TOOL_GRANTS}}
 disable-model-invocation: true
 ---
 

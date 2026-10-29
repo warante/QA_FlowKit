@@ -14,6 +14,7 @@ import {
 } from './lib/utils.mjs';
 import { mergeClaudeSettings } from './lib/claude-settings.mjs';
 import { formatUnknownNamesError, resolveAdapterSelection } from './lib/adapter-selection.mjs';
+import { readModuleInstallation, availableModuleAdapters, assertModuleAdapters } from './lib/module-installation.mjs';
 
 const cwd = process.cwd();
 const args = parseArgs(process.argv);
@@ -49,8 +50,8 @@ Supported agents: ${Object.keys(bootstrapMap).join(', ')}
 `);
 }
 
-function selectedAgents() {
-  return resolveAdapterSelection([...commaList(args.agents), ...commaList(args.agent)], Object.keys(bootstrapMap));
+function selectedAgents(available = Object.keys(bootstrapMap)) {
+  return resolveAdapterSelection([...commaList(args.agents), ...commaList(args.agent)], available);
 }
 
 async function main() {
@@ -66,12 +67,17 @@ async function main() {
     process.exit(1);
   }
 
-  const agents = selectedAgents();
+  const installation = await readModuleInstallation(cwd);
+  const available = installation
+    ? availableModuleAdapters(installation.modules).filter((name) => name in bootstrapMap)
+    : Object.keys(bootstrapMap);
+  const agents = selectedAgents(available);
   const unknownMessage = formatUnknownNamesError(agents, Object.keys(bootstrapMap), 'agent');
   if (unknownMessage) {
     console.error(unknownMessage);
     process.exit(1);
   }
+  await assertModuleAdapters(cwd, agents);
 
   if (agents.length === 0) {
     console.log('No agents selected.');
