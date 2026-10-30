@@ -71,19 +71,35 @@ export async function setupOpenCodePlugin(ctx, { runCheck = runOpenCodeCheck } =
     throw new Error('QA FlowKit requires OpenCode V2 plugin hooks (SDK 2.2.4 compatible).');
   }
   const registrations = [];
-  const continued = new Set();
-  const inFlight = new Set();
+  const sessions = new Map();
   const controller = new globalThis.AbortController();
+  let checkQueue = Promise.resolve();
   let disposed = false;
   async function belongs(sessionID) {
-    const session = await ctx.session.get({ sessionID });
-    const directory = await fs.realpath(session.location.directory);
-    return within(root, directory) && (await frameworkRoot(directory)) === root;
+    try {
+      const session = await ctx.session.get({ sessionID });
+      const directory = await fs.realpath(session.location.directory);
+      return within(root, directory) && (await frameworkRoot(directory)) === root;
+    } catch {
+      // SDK/filesystem errors can include credentials, paths or server response bodies.
+      throw new Error('QA FlowKit could not verify the session location; validation was not performed.');
+    }
   }
-  async function check(sessionID, kind, signal) {
-    if (disposed || !(await belongs(sessionID))) return null;
-    const result = await runCheck(root, kind, signal || controller.signal);
-    return disposed ? null : result;
+  function check(sessionID, kind) {
+    const pending = checkQueue.then(async () => {
+      if (disposed || !(await belongs(sessionID)) || disposed) return null;
+      let result;
+      try {
+        result = await runCheck(root, kind, controller.signal);
+      } catch {
+        result = { ok: false, diagnostic: 'QA FlowKit validation could not finish; verify manually.' };
+      }
+      if (disposed || !(await belongs(sessionID)) || disposed) return null;
+      return result;
+    });
+    // Serialize project checks, without letting one failed lookup poison the queue.
+    checkQueue = pending.catch(() => {});
+    return pending;
   }
   try {
     registrations.push(
@@ -100,29 +116,49 @@ export async function setupOpenCodePlugin(ctx, { runCheck = runOpenCodeCheck } =
     );
     registrations.push(
       await ctx.session.hook('prompt', (event) => {
-        continued.delete(event.sessionID);
+        const state = sessions.get(event.sessionID);
+        if (state) {
+          state.generation = Symbol();
+          state.continued = false;
+        }
       })
     );
     // Experimental in the published 2.2.4 SDK. One continuation per admitted user prompt.
     registrations.push(
       await ctx.session.hook('experimental.idle', async (event) => {
-        if (disposed || event.background?.length || continued.has(event.sessionID) || inFlight.has(event.sessionID))
-          return;
-        inFlight.add(event.sessionID);
+        if (disposed || event.background?.length) return;
+        let state = sessions.get(event.sessionID);
+        if (!state) {
+          // Install before any await so prompts arriving during location lookup invalidate this event too.
+          state = { generation: Symbol(), continued: false, inFlight: false };
+          sessions.set(event.sessionID, state);
+        }
+        if (state.continued || state.inFlight) return;
+        state.inFlight = true;
+        const generation = state.generation;
         try {
           const result = await check(event.sessionID, 'gate');
-          if (!result || result.ok) return;
-          continued.add(event.sessionID);
-          await ctx.session.synthetic({
-            sessionID: event.sessionID,
-            text: `QA FlowKit requires verification before completion. Run the applicable validators and qa-flowkit run check; do not approve gates automatically.\n${redactValidatorDiagnostics(result.diagnostic)}`
-          });
+          if (!result) {
+            sessions.delete(event.sessionID);
+            return;
+          }
+          if (result.ok || generation !== state.generation) return;
+          state.continued = true;
+          try {
+            await ctx.session.synthetic({
+              sessionID: event.sessionID,
+              text: `QA FlowKit requires verification before completion. Run the applicable validators and qa-flowkit run check; do not approve gates automatically.\n${redactValidatorDiagnostics(result.diagnostic)}`
+            });
+          } catch {
+            throw new Error('QA FlowKit could not deliver verification feedback; verify manually.');
+          }
         } finally {
-          inFlight.delete(event.sessionID);
+          state.inFlight = false;
         }
       })
     );
   } catch (error) {
+    disposed = true;
     controller.abort();
     await Promise.allSettled(registrations.map((registration) => registration.dispose()));
     throw error;
@@ -130,7 +166,7 @@ export async function setupOpenCodePlugin(ctx, { runCheck = runOpenCodeCheck } =
   return async () => {
     disposed = true;
     controller.abort();
-    continued.clear();
+    sessions.clear();
     await Promise.allSettled(registrations.map((registration) => registration.dispose()));
   };
 }

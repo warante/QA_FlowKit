@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
-import { getConfigValue, listFilesRecursive, resolveRepoPath } from './utils.mjs';
+import { assertNoInstallLinks, getConfigValue, listFilesRecursive } from './utils.mjs';
 
 export const MODULE_RECORD = '.qa-ai/state/install-modules.json';
 export const MODULE_ADAPTERS = ['claude', 'opencode', 'codex', 'cline', 'continue', 'aider', 'goose', 'gemini'];
@@ -104,22 +104,11 @@ function payloadPath(relative) {
 }
 
 async function safeTarget(cwd, relative) {
-  const absolute = resolveRepoPath(cwd, relative, { label: 'module installation path' });
-  let current = absolute;
-  while (current !== path.resolve(cwd)) {
-    try {
-      if ((await fs.lstat(current)).isSymbolicLink())
-        throw new Error('Module installation refuses symbolic links or junctions.');
-    } catch (error) {
-      if (error.code !== 'ENOENT') throw error;
-    }
-    current = path.dirname(current);
-  }
-  return absolute;
+  return assertNoInstallLinks(cwd, path.resolve(cwd, relative));
 }
 
 export async function readModuleInstallation(cwd) {
-  const target = path.join(cwd, MODULE_RECORD);
+  const target = await safeTarget(cwd, MODULE_RECORD);
   let stat;
   try {
     stat = await fs.lstat(target);
@@ -127,7 +116,6 @@ export async function readModuleInstallation(cwd) {
     if (error.code === 'ENOENT') return null;
     throw error;
   }
-  await safeTarget(cwd, MODULE_RECORD);
   if (!stat.isFile() || stat.size > 5 * 1024 * 1024) throw new Error('Invalid module installation record.');
   const record = JSON.parse(await fs.readFile(target, 'utf8'));
   if (
@@ -137,6 +125,7 @@ export async function readModuleInstallation(cwd) {
     !Array.isArray(record.modules) ||
     !record.modules.includes('core') ||
     record.modules.some((name) => !INSTALL_MODULES.includes(name)) ||
+    (record.version === 1 && record.modules.some((name) => RUNTIME_MODULES.includes(name))) ||
     new Set(record.modules).size !== record.modules.length ||
     !record.files ||
     typeof record.files !== 'object' ||
