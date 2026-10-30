@@ -118,11 +118,23 @@ async function main() {
     );
     runCli(modularTarget, ['doctor']);
     runCli(modularTarget, ['sync-adapters', '--adapters', 'all']);
+    await assertMissing(path.join(modularTarget, '.opencode/plugins/qa-flowkit'), 'OpenCode plugin must be opt-in');
+    runCli(modularTarget, ['sync-adapters', '--adapters', 'opencode', '--opencode-plugin']);
+    await assertExists(path.join(modularTarget, '.opencode/plugins/qa-flowkit/index.mjs'), 'opt-in V2 plugin entry');
+    await assertExists(path.join(modularTarget, '.opencode/plugins/qa-flowkit/package.json'), 'opt-in V2 SDK manifest');
+    await assertMissing(
+      path.join(modularTarget, '.qa-ai/scripts/lib/maestro-validate.mjs'),
+      'unselected runtime implementation'
+    );
     await assertMissing(
       path.join(modularTarget, '.qa-ai/adapters/claude'),
       'adapter renderer must not recreate excluded modules'
     );
     runCli(modularTarget, ['update', '--modules', 'automation-presets', '--skip-doctor']);
+    await assertExists(
+      path.join(modularTarget, '.qa-ai/scripts/lib/maestro-validate.mjs'),
+      'preset runtime dependency'
+    );
     await assertExists(path.join(modularTarget, '.qa-ai/presets/karate-full.yaml'), 'added automation presets');
     await assertMissing(path.join(modularTarget, '.qa-ai/adapters/claude'), 'update preserves adapter selection');
     runCli(modularTarget, ['doctor']);

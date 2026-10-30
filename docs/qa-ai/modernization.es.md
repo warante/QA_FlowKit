@@ -16,12 +16,13 @@ node .qa-ai/scripts/sync-agent-adapters.mjs --adapters codex
 ```
 
 La skill `qa-flowkit` se instala en la ruta nativa de Claude, Codex u OpenCode y carga la guía de la fase bajo demanda.
-El motor completo sigue instalado para validar sin conexión: la skill reduce el contexto inicial, no el paquete npm.
+La skill reduce el contexto inicial, no el paquete npm. La instalación completa conserva todo el runtime;
+la selección explícita de módulos permite omitir implementaciones opcionales.
 Los comandos y el plugin existentes siguen disponibles.
 
 Los hooks de Codex son opcionales: añade `--hooks` y revísalos y confía en ellos mediante `/hooks` en Codex.
 Los archivos existentes se conservan; `--hooks --force` mezcla los handlers de FlowKit sin eliminar los del usuario.
-OpenCode V2 admite plugins con hooks, pero FlowKit todavía no incluye un plugin de control para V2.
+OpenCode V2 dispone ahora de un plugin local opcional de FlowKit, descrito más abajo.
 Consulta la [compatibilidad de agentes](agent-compatibility.md).
 
 ## Evidencia ligada al commit
@@ -81,15 +82,27 @@ estructurados. No ejecuta tests, no deduce cobertura ni crea una PR. Guardar un 
 ## Instalación selectiva de módulos
 
 `npx qa-flowkit init --modules core,adapter-codex` copia solo el núcleo y los recursos opcionales seleccionados.
-La instalación completa sigue siendo la predeterminada. El núcleo conserva todos los validadores, reglas y agentes;
-`automation-presets` separa presets y la plantilla Karate, no desactiva comprobaciones de automatización.
+La instalación completa sigue siendo la predeterminada. El núcleo conserva los puntos de entrada de validación,
+reglas y agentes. Los módulos `runtime-automation`, `runtime-reporting`, `runtime-observability` y
+`runtime-development` separan implementaciones, informes, conectores y tests del framework. Un runtime configurado
+pero ausente hace fallar la validación con instrucciones de instalación; nunca la omite silenciosamente.
+`automation-presets` añade automáticamente `runtime-automation`. Los registros de instalación v1 conservan todos
+los runtimes al migrar a v2 para no perder capacidades.
 Las actualizaciones conservan o amplían la selección, sin retirar archivos, y protegen cambios locales salvo
 `--force`. El paquete npm sigue siendo único. Consulta los [límites y la guía modular](modular-installation.md).
+
+## Plugin de OpenCode V2
+
+`npx qa-flowkit sync-adapters --adapters opencode --opencode-plugin` genera el plugin local tras una petición explícita.
+Revisa sus archivos y la dependencia fijada del SDK 2.2.4 antes de confiar en él. Comprueba los artefactos después
+de las operaciones y devuelve diagnósticos si fallan; la operación ya ha ocurrido y no se revierte. El hook
+`experimental.idle` solicita como máximo una continuación de verificación por prompt, aislada por sesión. No es
+una sandbox, una aprobación de gate ni una certificación E2E real. Consulta la [guía técnica](opencode-v2-plugin.md).
 
 ## Validación pendiente
 
 Estos cambios no certifican E2E en hosts reales ni completan pilotos, revisión independiente, recorrido de migración
 o soak RC. Es necesario registrar evidencia real, con versiones y fechas, antes de cambiar esos estados.
 
-Las siguientes prioridades son pilotos medidos, separación más profunda de módulos de runtime y evaluación
+Las siguientes prioridades son pilotos medidos, evidencia en hosts reales y evaluación
 semántica revisada por personas usando el dataset existente. Detalles técnicos: [guía en inglés](modernization.md).

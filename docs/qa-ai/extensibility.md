@@ -42,6 +42,9 @@ validators:
 
 `doctor` rejects absolute paths, paths outside the repository, duplicate ids, built-in id shadowing and unknown phases.
 `blocking: false` turns failures into harness warnings and `validate-target --json` entries with status `warning`.
+Each custom-validator invocation, including its self-test, has a 30-second timeout and a 1 MiB output buffer limit.
+Process errors/timeouts fail validation; structured findings are normalized and secret-like diagnostics are redacted.
+These limits are not a sandbox: custom validators remain trusted repository code running as the local user.
 
 ## Add or change an agent adapter
 

@@ -16,7 +16,7 @@ import { runLayoutChecks } from './lib/doctor/layout-checks.mjs';
 import { printFinalResult, printNextSteps, runPathChecks } from './lib/doctor/report.mjs';
 import { detectLegacyLayout } from './lib/project-paths.mjs';
 import { redactValidatorDiagnostics } from './lib/secret-patterns.mjs';
-import { readModuleInstallation, modulePathSelected } from './lib/module-installation.mjs';
+import { readModuleInstallation, modulePathSelected, requiredRuntimeModules } from './lib/module-installation.mjs';
 
 const cwd = process.cwd();
 const args = parseArgs(process.argv);
@@ -160,6 +160,14 @@ async function main() {
   const pathResults = await runPathChecks(cwd, checks);
   let failed = pathResults.failed;
   let warned = pathResults.warned;
+  if (installation) {
+    for (const module of requiredRuntimeModules(configInfo.data || {})) {
+      if (!installation.modules.includes(module)) {
+        failed += 1;
+        console.log(`[FAIL] configured runtime missing: qa-flowkit update --modules ${module}`);
+      }
+    }
+  }
 
   const legacyResults = await checkLegacyArtifactAliases(cwd);
   warned += legacyResults.warned;

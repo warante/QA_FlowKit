@@ -13,7 +13,7 @@ import { createFeatureFolders } from './lib/init/directories.mjs';
 import { generatedDocs, localizeTemplate } from './lib/init/docs.mjs';
 import { printHelp } from './lib/init/help.mjs';
 import { availablePresets, isKarateConfigured } from './lib/init/presets.mjs';
-import { readModuleInstallation } from './lib/module-installation.mjs';
+import { readModuleInstallation, requiredRuntimeModules, assertInstalledModule } from './lib/module-installation.mjs';
 import { derivedProjectName, selectedQaContextPath } from './lib/init/project-name.mjs';
 import {
   COMPACT_CONFIG_PATH,
@@ -156,6 +156,7 @@ async function main() {
   });
   assertNoChangeMe(configContent);
   await assertValidConfig(configContent, cwd);
+  for (const module of requiredRuntimeModules(parseSimpleYaml(configContent))) await assertInstalledModule(cwd, module);
   if (
     installation &&
     !installation.modules.includes('automation-presets') &&

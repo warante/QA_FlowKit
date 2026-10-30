@@ -24,6 +24,9 @@ Compatibility levels and deprecations are defined in [Public Contracts](public-c
 Optional installation assets can be selected explicitly with `npx qa-flowkit init --modules core,adapter-codex`.
 Full installation remains the default. Module flags are experimental; see [modular installation](modular-installation.md)
 for additive updates, preserved files and the distinction between installation and root adapter generation.
+Runtime modules are `runtime-automation`, `runtime-reporting`, `runtime-observability` and `runtime-development`.
+Optional OpenCode V2 plugin generation uses `sync-adapters --adapters opencode --opencode-plugin`;
+see [the plugin guide](opencode-v2-plugin.md) before opting in.
 
 ```bash
 npx qa-flowkit@rc

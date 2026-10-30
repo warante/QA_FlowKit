@@ -10,7 +10,9 @@ import {
   moduleOption,
   readModuleInstallation,
   expandedModules,
-  copyModuleInstallation
+  copyModuleInstallation,
+  assertInstalledModule,
+  moduleForPath
 } from '../.qa-ai/scripts/lib/module-installation.mjs';
 
 const packageRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -380,6 +382,7 @@ async function main() {
   }
   if (command in commandMap) {
     await assertTargetFramework(command);
+    await assertInstalledModule(cwd, moduleForPath(`scripts/${commandMap[command]}`));
     runNodeScript(commandMap[command], args);
     return;
   }
