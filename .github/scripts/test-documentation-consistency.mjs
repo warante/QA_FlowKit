@@ -102,6 +102,35 @@ test('modular installation docs keep core validators and distinguish payload sel
   }
 });
 
+test('runtime and OpenCode V2 docs preserve fail-closed behavior and experimental boundaries', async () => {
+  const modular = await fs.readFile(path.join(repoRoot, 'docs/qa-ai/modular-installation.md'), 'utf8');
+  for (const phrase of [
+    'runtime-automation',
+    'runtime-reporting',
+    'runtime-observability',
+    'runtime-development',
+    'Version 1',
+    'version 2',
+    'never silently skipped'
+  ]) {
+    assert.ok(modular.includes(phrase), phrase);
+  }
+  const plugin = await fs.readFile(path.join(repoRoot, 'docs/qa-ai/opencode-v2-plugin.md'), 'utf8');
+  for (const phrase of [
+    '--opencode-plugin',
+    '2.2.4',
+    'experimental.idle',
+    'already happened',
+    'one',
+    'not real-host E2E certification'
+  ]) {
+    assert.ok(plugin.includes(phrase), phrase);
+  }
+  for (const name of ['modernization.md', 'modernization.es.md', 'agent-compatibility.md', 'cli-reference.md']) {
+    assert.match(await fs.readFile(path.join(repoRoot, 'docs/qa-ai', name), 'utf8'), /\]\(opencode-v2-plugin\.md\)/);
+  }
+});
+
 test('stale prerelease versions fail in evergreen docs but historical files stay outside the check', () => {
   const errors = findStaleEvergreenVersions(
     new Map([

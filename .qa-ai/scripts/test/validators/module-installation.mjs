@@ -63,7 +63,7 @@ test('module selection: core is implicit, all is explicit, updates are additive 
   assert.equal(moduleForPath('.qa-ai/adapters/codex/README.md'), 'adapter-codex');
   assert.equal(moduleForPath('.qa-ai/presets/karate-full.yaml'), 'automation-presets');
   assert.equal(moduleForPath('templates/karate-config.template.js'), 'automation-presets');
-  assert.equal(moduleForPath('.qa-ai/scripts/lib/karate-validate.mjs'), 'core');
+  assert.equal(moduleForPath('.qa-ai/scripts/lib/karate-validate.mjs'), 'runtime-automation');
   assert.deepEqual(availableModuleAdapters(['core']), ['generic']);
   assert.deepEqual(expandedModules({ modules: ['core', 'adapter-codex'] }, ['core']), ['core', 'adapter-codex']);
   assert.deepEqual(expandedModules(null, ['core']), INSTALL_MODULES);
@@ -119,7 +119,7 @@ test('modular update: dry-run preserves selection, expansion keeps user artifact
     assert.equal(await fs.readFile(path.join(cwd, MODULE_RECORD), 'utf8'), before);
     cli(cwd, ['update', '--modules', 'automation-presets', '--skip-doctor']);
     let record = await readModuleInstallation(cwd);
-    assert.deepEqual(record.modules, ['core', 'automation-presets', 'adapter-codex']);
+    assert.deepEqual(record.modules, ['core', 'runtime-automation', 'automation-presets', 'adapter-codex']);
     assert.equal(await exists(cwd, '.qa-ai/presets/karate-full.yaml'), true);
     assert.equal(await fs.readFile(path.join(cwd, '.qa-ai/qa-ai.config.yaml'), 'utf8'), config);
     assert.equal(await fs.readFile(path.join(cwd, '.qa-ai/output/human.md'), 'utf8'), 'Human evidence');

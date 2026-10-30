@@ -16,25 +16,37 @@ lists fail before installation writes. With no automation presets, project init 
 
 ## Payload boundaries
 
-| Module                                                                                  | Payload                                                                                                                                                 |
-| --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `core`                                                                                  | All scripts/validators, contracts, rules, agents/specialists, common templates/docs, shared adapter templates, generic AGENTS.md and manual-only preset |
-| `automation-presets`                                                                    | Other preset YAML files and the Karate config template                                                                                                  |
-| `adapter-claude`, `adapter-opencode`, `adapter-codex`                                   | Corresponding host-specific adapter templates                                                                                                           |
-| `adapter-cline`, `adapter-continue`, `adapter-aider`, `adapter-goose`, `adapter-gemini` | Corresponding host-specific adapter templates                                                                                                           |
+| Module                                                                                  | Payload                                                                                                                                                   |
+| --------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `core`                                                                                  | Validator entrypoints, harness, contracts, rules, all 77 guidance entries, common templates/docs, shared skills, generic AGENTS.md and manual-only preset |
+| `runtime-automation`                                                                    | Karate and Maestro validation implementations, loaded on demand by core entrypoints                                                                       |
+| `runtime-reporting`                                                                     | Export-report, PR summaries, QA metrics and their dedicated runtime libraries                                                                             |
+| `runtime-observability`                                                                 | APM intake command and Datadog/New Relic connector libraries                                                                                              |
+| `runtime-development`                                                                   | Framework regression tests and smoke runners (for source-repository maintenance)                                                                          |
+| `automation-presets`                                                                    | Other preset YAML files and the Karate config template                                                                                                    |
+| `adapter-claude`, `adapter-opencode`, `adapter-codex`                                   | Corresponding host-specific adapter templates                                                                                                             |
+| `adapter-cline`, `adapter-continue`, `adapter-aider`, `adapter-goose`, `adapter-gemini` | Corresponding host-specific adapter templates                                                                                                             |
 
-Every optional module depends on core. All validators and all 77 guidance entries remain available; shared imports
-and governance contracts are not removed. `automation-presets` provides scaffolding, not a runtime permission or
-capability switch. User-maintained automation config can use core, and configured-framework checks still run.
-Generating Karate scaffolding through init requires its template module.
+Every optional module depends on core. All validators retain their core entrypoints; Karate/Maestro implementations
+are loaded lazily only when configured. A configured framework without its runtime fails with an actionable
+`update --modules runtime-automation` diagnostic, including under `--allow-missing`. It is never silently skipped.
+All 77 guidance entries and governance contracts stay intact. `automation-presets` depends on `runtime-automation`;
+`runtime-development` includes the other runtime modules because the regression suite imports them. Development
+tests still require the source repository's bin/CI infrastructure; this module is not a standalone consumer test runner.
 
-This first split makes installation assets optional. Independently versioned packages, runtime libraries and
-specialist-guidance capability modules remain deferred until their import graph and contract references are separated.
+Runtime selection removes actual scripts and libraries. For example, core has no `karate-validate.mjs`,
+`maestro-validate.mjs`, APM connectors, export-report, PR-summary implementation or framework regression suite.
+`metrics`, `export-report` and `pr-summary` fail with instructions to add `runtime-reporting` when omitted.
+Shared execution evidence, secret scans, SARIF, the harness and release gates remain core, not optional permissions.
+Independent npm packages and selective specialist guidance remain outside this boundary.
 
 ## Detection and validation
 
 Explicitly selected installs record modules and original payload hashes in `.qa-ai/state/install-modules.json`.
-Absence means a legacy/full installation. Invalid, unknown or unsafe records fail closed. This is local installation
+New records use version 2. Version 1 records from asset-only installs are read compatibly: all four runtime modules
+are retained, since those files were previously core. The next modular update writes version 2 without pruning.
+Version 2 requires dependency closure and validates path ownership and SHA-256 strings. No record means legacy/full.
+Invalid, unknown or unsafe records fail closed. This is local installation
 metadata, not QA evidence, signed provenance, project configuration authority or approval.
 
 Doctor requires core plus the installed files; omitted optional templates do not cause missing-template errors.
@@ -63,3 +75,9 @@ Symlinks/junctions in module write paths are refused, including with `--force`.
 
 Tests cover fresh core installs, expansion, preserved user files, collisions, invalid metadata, adapter generation,
 doctor/target validation and installed npm packages. They do not certify live agent hosts.
+
+## OpenCode V2
+
+`adapter-opencode` includes the [opt-in V2 plugin](opencode-v2-plugin.md) template. Normal adapter sync does not enable
+it. The plugin's SDK dependency is separate from the dependency-free QA FlowKit CLI and is installed only when the
+host loads the opted-in local plugin package.

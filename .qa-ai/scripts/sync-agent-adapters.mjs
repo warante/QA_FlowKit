@@ -12,7 +12,7 @@ import {
   logHeader
 } from './lib/utils.mjs';
 import { mergeClaudeSettings } from './lib/claude-settings.mjs';
-import { syncNativeSkill, syncCodexHooks } from './lib/native-agent-adapters.mjs';
+import { syncNativeSkill, syncCodexHooks, syncOpenCodePlugin } from './lib/native-agent-adapters.mjs';
 import { syncAdapterCommands } from './lib/adapter-commands-sync.mjs';
 import { formatUnknownNamesError, resolveAdapterSelection } from './lib/adapter-selection.mjs';
 import { readModuleInstallation, availableModuleAdapters, assertModuleAdapters } from './lib/module-installation.mjs';
@@ -42,6 +42,7 @@ Options:
   --adapter <name>   Repeatable single adapter name
   --force            Overwrite existing adapter files
   --hooks            Opt in to Codex lifecycle hooks (review and trust with /hooks)
+  --opencode-plugin  Opt in to the OpenCode V2 plugin (experimental idle hook)
   --help             Show this help
 
 Supported adapters: ${Object.keys(adapterMap).join(', ')}
@@ -68,6 +69,8 @@ async function main() {
     process.exit(1);
   }
   await assertModuleAdapters(cwd, names);
+  if (args['opencode-plugin'] && !names.includes('opencode'))
+    throw new Error('--opencode-plugin requires the opencode adapter.');
   await syncAdapterCommands(
     path.join(cwd, '.qa-ai'),
     ['claude', 'opencode'].filter((name) => available.includes(name))
@@ -128,6 +131,7 @@ async function main() {
       const entry = await syncCodexHooks(cwd, force);
       if (entry) manifestEntries.push(entry);
     }
+    if (name === 'opencode' && args['opencode-plugin']) manifestEntries.push(...(await syncOpenCodePlugin(cwd, force)));
   }
 
   if (missing > 0) {

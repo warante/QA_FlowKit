@@ -19,8 +19,8 @@ node .qa-ai/scripts/sync-agent-adapters.mjs --adapters codex
 ```
 
 Use the generated `qa-flowkit` skill. It resolves configuration and the next phase before reading domain guidance.
-The skill alone does not slim an installation. All validation/runtime files remain available; optional installation
-assets can now be selected separately as described below. There is no new lite npm package.
+The skill alone does not slim an installation. A default/full install retains the complete runtime; explicit
+module selection can omit optional implementations as described below. There is no new lite npm package.
 Claude's existing slash commands/plugin and OpenCode's commands remain available.
 For Codex hooks, add `--hooks` and review/trust the configuration in Codex; see [agent compatibility](agent-compatibility.md).
 
@@ -84,8 +84,16 @@ See [PR impact summaries](pr-impact-summary.md) for merge-base semantics, option
 ## Selected installation assets
 
 `npx qa-flowkit init --modules core,adapter-codex` copies only core and the requested optional assets. Full installation
-remains the default; validators and governance are never removed. Updates retain/expand selections without pruning
-user files. See [modular installation](modular-installation.md) for payload boundaries and the remaining runtime split.
+remains the default; validator entrypoints and governance stay core. Optional runtime modules now separate
+Karate/Maestro implementations, reporting, APM intake and development tests. Configured missing runtimes fail closed.
+Updates retain/expand selections without pruning user files, including compatible version-1 metadata migration.
+See [modular installation](modular-installation.md) for dependencies and boundaries.
+
+## OpenCode V2 plugin
+
+`sync-adapters --adapters opencode --opencode-plugin` installs a local V2 plugin only after explicit opt-in.
+It adds post-operation validation feedback and a bounded experimental idle verification continuation, not a sandbox
+or approval. See [the V2 guide](opencode-v2-plugin.md) for the pinned SDK, loading, tests and remaining real-host evidence.
 
 ## Evidence still required from humans
 
@@ -93,5 +101,5 @@ No host is upgraded to real-host E2E support by these changes. Run fresh, dated 
 before changing support labels. Independent review, the migration walkthrough, prospective pilots and the RC soak
 remain pending until their real evidence is recorded; elapsed calendar time or a green CI run does not complete them.
 
-Next priorities are measured pilots and deeper runtime/capability module boundaries.
+Next priorities are measured pilots and evidence from real hosts before upgrading support claims.
 The existing Gherkin dataset should also be used for human-reviewed semantic evaluations, not just structural checks.

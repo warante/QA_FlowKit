@@ -204,9 +204,10 @@ Some agent hosts support native interception mechanisms (hooks) to run verificat
   `node .qa-ai/scripts/sync-agent-adapters.mjs --adapters codex --hooks`, then review and trust them with `/hooks`.
   Existing hook configuration is not overwritten without `--force`; user handlers are preserved when merging.
   The bridge translates patch paths and blocking stop decisions into the Codex protocol.
-- **OpenCode V2**: Native plugins offer hooks, but FlowKit does not yet ship a V2 enforcement plugin. Its adapter
-  uses commands and a portable skill; validators must still be run explicitly. Do not describe the host as incapable
-  of hooks just because the FlowKit adapter has not implemented them.
+- **OpenCode V2**: Commands and a portable skill remain the default. Opt in to the local plugin with
+  `sync-adapters --adapters opencode --opencode-plugin` for post-operation validation feedback and a bounded
+  experimental idle continuation. See [the plugin guide](opencode-v2-plugin.md) for SDK compatibility and limits.
+  Validators and protected CI gates remain necessary; this plugin is not a sandbox or real-host E2E certification.
 - **Other adapters**: Follow documented validation unless a specific native integration has been verified.
 
 Syncing the Claude, Codex or OpenCode adapter also installs the same compact `qa-flowkit` skill in

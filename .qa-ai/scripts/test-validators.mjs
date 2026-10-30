@@ -19,6 +19,8 @@ import './test/validators/execution-provenance.mjs';
 import './test/validators/sarif.mjs';
 import './test/validators/pr-summary.mjs';
 import './test/validators/module-installation.mjs';
+import './test/validators/runtime-modules.mjs';
+import './test/validators/opencode-v2-plugin.mjs';
 import './test/validators/healing-log.mjs';
 import './test/validators/test-impact.mjs';
 import './test/validators/specialist-routing.mjs';

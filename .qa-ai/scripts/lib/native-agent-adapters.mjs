@@ -1,5 +1,6 @@
 import path from 'node:path';
-import { copyDirSafe, manifestEntry, pathExists, readText, writeFileSafe } from './utils.mjs';
+import fs from 'node:fs/promises';
+import { copyDirSafe, manifestEntry, pathExists, readText, resolveRepoPath, writeFileSafe } from './utils.mjs';
 
 const SKILL_ROOTS = { claude: '.claude/skills', codex: '.agents/skills', opencode: '.opencode/skills' };
 
@@ -74,4 +75,38 @@ export async function syncCodexHooks(cwd, force = false) {
   await writeFileSafe(target, `${JSON.stringify(config, null, 2)}\n`, { force: exists });
   console.log('  configured .codex/hooks.json; review and trust these hooks with /hooks in Codex');
   return manifestEntry(cwd, target, { type: 'file', category: 'adapter', source: 'adapter:codex' });
+}
+
+export async function syncOpenCodePlugin(cwd, force = false) {
+  const source = path.join(cwd, '.qa-ai/adapters/shared/opencode-v2');
+  const relative = '.opencode/plugins/qa-flowkit';
+  const target = resolveRepoPath(cwd, relative, { label: 'OpenCode plugin' });
+  // Preflight both files; never replace a link, even with --force.
+  for (const relativePath of [
+    '.opencode',
+    '.opencode/plugins',
+    relative,
+    `${relative}/package.json`,
+    `${relative}/index.mjs`
+  ]) {
+    const file = path.join(cwd, relativePath);
+    try {
+      if ((await fs.lstat(file)).isSymbolicLink()) throw new Error('Refusing OpenCode plugin symlink.');
+    } catch (error) {
+      if (error.code !== 'ENOENT') throw error;
+    }
+  }
+  const results = await copyDirSafe(source, target, { force });
+  const entries = [];
+  for (const result of results) {
+    if ((result.type === 'file' && result.copied) || (result.type === 'dir' && result.created)) {
+      entries.push(
+        await manifestEntry(cwd, result.path, { type: result.type, category: 'adapter', source: 'adapter:opencode' })
+      );
+    }
+  }
+  console.log(
+    '  OpenCode V2 plugin installed; review its SDK dependency and experimental idle hook before enabling it.'
+  );
+  return entries;
 }

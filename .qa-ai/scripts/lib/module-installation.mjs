@@ -1,11 +1,26 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
-import { listFilesRecursive, resolveRepoPath } from './utils.mjs';
+import { getConfigValue, listFilesRecursive, resolveRepoPath } from './utils.mjs';
 
 export const MODULE_RECORD = '.qa-ai/state/install-modules.json';
 export const MODULE_ADAPTERS = ['claude', 'opencode', 'codex', 'cline', 'continue', 'aider', 'goose', 'gemini'];
-export const INSTALL_MODULES = ['core', 'automation-presets', ...MODULE_ADAPTERS.map((name) => `adapter-${name}`)];
+export const RUNTIME_MODULES = [
+  'runtime-automation',
+  'runtime-reporting',
+  'runtime-observability',
+  'runtime-development'
+];
+export const INSTALL_MODULES = [
+  'core',
+  ...RUNTIME_MODULES,
+  'automation-presets',
+  ...MODULE_ADAPTERS.map((name) => `adapter-${name}`)
+];
+const DEPENDENCIES = {
+  'automation-presets': ['runtime-automation'],
+  'runtime-development': ['runtime-automation', 'runtime-reporting', 'runtime-observability']
+};
 
 export function normalizeModules(value) {
   if (value === undefined || value === null) return [...INSTALL_MODULES];
@@ -18,7 +33,9 @@ export function normalizeModules(value) {
   }
   for (const name of requested)
     if (!INSTALL_MODULES.includes(name)) throw new Error(`Unknown installation module: ${name}`);
-  return INSTALL_MODULES.filter((name) => name === 'core' || requested.includes(name));
+  const selected = new Set(['core', ...requested]);
+  for (const name of selected) for (const dependency of DEPENDENCIES[name] || []) selected.add(dependency);
+  return INSTALL_MODULES.filter((name) => selected.has(name));
 }
 
 export function moduleOption(args) {
@@ -34,9 +51,26 @@ export function moduleOption(args) {
   return result;
 }
 
-/** Shared governance/runtime stays core; optional modules own only their installation assets. */
+/** Governance stays core; optional runtime implementations have explicit ownership. */
 export function moduleForPath(relative) {
   const file = relative.replaceAll('\\', '/').replace(/^\.qa-ai\//, '');
+  if (file.startsWith('adapters/shared/opencode-v2/')) return 'adapter-opencode';
+  if (['scripts/lib/karate-validate.mjs', 'scripts/lib/maestro-validate.mjs'].includes(file))
+    return 'runtime-automation';
+  if (
+    [
+      'scripts/export-report.mjs',
+      'scripts/pr-summary.mjs',
+      'scripts/qa-metrics.mjs',
+      'scripts/lib/pr-summary.mjs',
+      'scripts/lib/qa-metrics.mjs'
+    ].includes(file)
+  )
+    return 'runtime-reporting';
+  if (file === 'scripts/apm-intake.mjs' || file.startsWith('scripts/lib/apm-connectors/'))
+    return 'runtime-observability';
+  if (file.startsWith('scripts/test/') || /^scripts\/(?:test-[^/]+|smoke-[^/]+)\.mjs$/.test(file))
+    return 'runtime-development';
   const adapter = file.split('/');
   if (adapter[0] === 'adapters' && MODULE_ADAPTERS.includes(adapter[1])) return `adapter-${adapter[1]}`;
   if (
@@ -98,7 +132,7 @@ export async function readModuleInstallation(cwd) {
   const record = JSON.parse(await fs.readFile(target, 'utf8'));
   if (
     !record ||
-    record.version !== 1 ||
+    ![1, 2].includes(record.version) ||
     Object.keys(record).some((key) => !['version', 'modules', 'files'].includes(key)) ||
     !Array.isArray(record.modules) ||
     !record.modules.includes('core') ||
@@ -111,21 +145,23 @@ export async function readModuleInstallation(cwd) {
     Object.entries(record.files).some(
       ([file, hash]) =>
         !payloadPath(file) ||
-        !modulePathSelected(file, record.modules) ||
+        !modulePathSelected(file, record.version === 1 ? [...record.modules, ...RUNTIME_MODULES] : record.modules) ||
         typeof hash !== 'string' ||
         !/^[a-f0-9]{64}$/.test(hash)
     )
   ) {
     throw new Error('Invalid module installation record; refusing to infer a partial installation.');
   }
+  if (record.version === 1) return { ...record, modules: normalizeModules([...record.modules, ...RUNTIME_MODULES]) };
+  if (normalizeModules(record.modules).some((name) => !record.modules.includes(name))) {
+    throw new Error('Module installation record is missing required dependencies.');
+  }
   return record;
 }
 
 export function expandedModules(installed, requested) {
   const current = installed?.modules || INSTALL_MODULES;
-  return requested
-    ? INSTALL_MODULES.filter((name) => current.includes(name) || requested.includes(name))
-    : [...current];
+  return normalizeModules(requested ? [...current, ...requested] : current);
 }
 
 function digest(bytes) {
@@ -171,7 +207,7 @@ export async function copyModuleInstallation(sourceFramework, cwd, modules, { fo
     if (exists) throw new Error('Module installation record already exists. Use update or explicitly approve --force.');
   }
   const record = {
-    version: 1,
+    version: 2,
     modules: selection,
     files: Object.fromEntries(entries.map((entry) => [entry.relative, entry.sha256]))
   };
@@ -194,4 +230,24 @@ export async function assertModuleAdapters(cwd, names) {
     if (!available.includes(name))
       throw new Error(`Adapter ${name} is not installed. Add it with qa-flowkit update --modules adapter-${name}.`);
   }
+}
+
+export async function assertInstalledModule(cwd, module) {
+  const record = await readModuleInstallation(cwd);
+  if (record && !record.modules.includes(module)) {
+    throw new Error(`Missing module ${module}. Install it with: qa-flowkit update --modules ${module}`);
+  }
+}
+
+export function requiredRuntimeModules(config) {
+  const frameworks = ['automation.api.framework', 'automation.ui.framework', 'automation.mobile.framework'];
+  return frameworks.some((key) =>
+    ['karate', 'maestro'].includes(
+      String(getConfigValue(config, key, ''))
+        .trim()
+        .toLowerCase()
+    )
+  )
+    ? ['runtime-automation']
+    : [];
 }
