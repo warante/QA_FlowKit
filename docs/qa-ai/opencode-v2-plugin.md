@@ -29,12 +29,16 @@ No new root runtime dependency is added to QA FlowKit.
   requires explicit user intervention; the plugin does not spin, approve gates, or claim verification succeeded.
 - `session.prompt`: resets the one-continuation budget for the admitted user prompt. Sessions are isolated; the
   plugin resolves the session location instead of assuming every event belongs to its installation directory.
+  A new prompt invalidates pending idle feedback, including during location lookup. A session moved out of the
+  project while validation runs does not receive the old project's feedback.
 - Cleanup cancels pending checks, suppresses late feedback and disposes all registrations. A partial setup failure
   disposes earlier registrations before propagating.
 
 Only fixed Node script paths and fixed arguments are executed, with no shell interpolation. Each child has a timeout
 and output limit. Core validators still honor the project's configured custom validators; review these as executable
-repository code before opting in. Plugin installation requires an initialized project. Nested sessions use the
+repository code before opting in. Checks are serialized per plugin instance to avoid parallel validator-process bursts.
+SDK lookup/delivery failures expose fixed diagnostics, not raw server errors. Plugin installation requires an initialized
+project. Nested sessions use the
 nearest initialized framework without crossing a Git boundary; sessions outside the plugin's root or in a separately
 initialized nested project are ignored.
 

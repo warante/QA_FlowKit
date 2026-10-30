@@ -131,6 +131,14 @@ test('runtime and OpenCode V2 docs preserve fail-closed behavior and experimenta
   }
 });
 
+test('security hardening docs distinguish bounded checks from sandboxing', async () => {
+  const extensions = await fs.readFile(path.join(repoRoot, 'docs/qa-ai/extensibility.md'), 'utf8');
+  for (const phrase of ['30-second timeout', '1 MiB', 'not a sandbox']) assert.ok(extensions.includes(phrase), phrase);
+  const plugin = await fs.readFile(path.join(repoRoot, 'docs/qa-ai/opencode-v2-plugin.md'), 'utf8');
+  for (const phrase of ['invalidates pending idle feedback', 'serialized per plugin instance', 'not raw server errors'])
+    assert.ok(plugin.includes(phrase), phrase);
+});
+
 test('stale prerelease versions fail in evergreen docs but historical files stay outside the check', () => {
   const errors = findStaleEvergreenVersions(
     new Map([

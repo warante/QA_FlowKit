@@ -194,6 +194,11 @@ function validateKey(key, lineNum, colNum, filename) {
   }
 }
 
+// YAML mappings are data: never invoke Object.prototype.__proto__ setters.
+function setMappingValue(mapping, key, value) {
+  Object.defineProperty(mapping, key, { value, writable: true, enumerable: true, configurable: true });
+}
+
 function collectBlockScalar(rawLines, startIndex, parentIndent, operator, lineNum, filename) {
   const contentLines = [];
   let i = startIndex;
@@ -339,26 +344,25 @@ export function parseYaml(content, filename = 'inline') {
         if (rest) {
           if (rest === '|' || rest === '>') {
             const blockRes = collectBlockScalar(rawLines, i + 1, indent + 2, rest, i + 1, filename);
-            item[key] = blockRes.content;
+            setMappingValue(item, key, blockRes.content);
             i = blockRes.nextIndex;
           } else {
-            item[key] = parseScalar(rest, i + 1, filename);
+            setMappingValue(item, key, parseScalar(rest, i + 1, filename));
             i++;
           }
           parent.push(item);
           stack.push({ indent, value: item, type: 'map' });
         } else {
           const nextLineInfo = getNextLineInfo(rawLines, i + 1);
-          if (!nextLineInfo) {
-            item[key] = {};
-          } else if (nextLineInfo.indent <= indent) {
-            item[key] = {};
+          if (!nextLineInfo || nextLineInfo.indent <= indent) {
+            setMappingValue(item, key, null);
+            parent.push(item);
           } else {
             const child =
               nextLineInfo.text.startsWith('-') && (nextLineInfo.text.length === 1 || /\s/.test(nextLineInfo.text[1]))
                 ? []
                 : {};
-            item[key] = child;
+            setMappingValue(item, key, child);
             parent.push(item);
             stack.push({ indent, value: item, type: 'map' });
             stack.push({ indent: indent + 2, value: child, type: Array.isArray(child) ? 'seq' : 'map' });
@@ -401,25 +405,26 @@ export function parseYaml(content, filename = 'inline') {
       if (rest) {
         if (rest === '|' || rest === '>') {
           const blockRes = collectBlockScalar(rawLines, i + 1, indent, rest, i + 1, filename);
-          parent[key] = blockRes.content;
+          setMappingValue(parent, key, blockRes.content);
           i = blockRes.nextIndex;
         } else {
-          parent[key] = parseScalar(rest, i + 1, filename);
+          setMappingValue(parent, key, parseScalar(rest, i + 1, filename));
           i++;
         }
       } else {
         const nextLineInfo = getNextLineInfo(rawLines, i + 1);
         if (!nextLineInfo) {
-          parent[key] = {};
+          setMappingValue(parent, key, null);
+          i++;
         } else if (nextLineInfo.indent <= indent) {
-          parent[key] = null;
+          setMappingValue(parent, key, null);
           i++;
         } else {
           const child =
             nextLineInfo.text.startsWith('-') && (nextLineInfo.text.length === 1 || /\s/.test(nextLineInfo.text[1]))
               ? []
               : {};
-          parent[key] = child;
+          setMappingValue(parent, key, child);
           stack.push({ indent, value: child, type: Array.isArray(child) ? 'seq' : 'map' });
           i++;
         }

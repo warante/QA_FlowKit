@@ -122,7 +122,7 @@ test('OpenCode V2: opt-in generation preserves user files and refuses linked plu
       path.dirname(entry),
       process.platform === 'win32' ? 'junction' : 'dir'
     );
-    await assert.rejects(syncOpenCodePlugin(cwd, true), /symlink/);
+    await assert.rejects(syncOpenCodePlugin(cwd, true), /symbolic links|repository/);
   });
 });
 
@@ -187,5 +187,147 @@ test('OpenCode V2: unloading cancels pending checks and prevents late feedback',
     await pending;
     assert.equal(event.result.content, 'original');
     assert.deepEqual(ctx.notices, []);
+  });
+});
+
+test('OpenCode V2: a new prompt invalidates an in-flight idle result', async () => {
+  await withTempWorkspace('qa-opencode-stale-', async (cwd) => {
+    await fs.mkdir(path.join(cwd, '.qa-ai'));
+    await fs.writeFile(path.join(cwd, '.qa-ai/qa-ai.config.yaml'), 'version: 1');
+    const ctx = context(cwd);
+    let release;
+    let started;
+    const ready = new Promise((resolve) => {
+      started = resolve;
+    });
+    let calls = 0;
+    const cleanup = await setupOpenCodePlugin(ctx, {
+      runCheck: async () => {
+        calls++;
+        if (calls > 1) return { ok: false, diagnostic: 'current' };
+        started();
+        return new Promise((resolve) => {
+          release = resolve;
+        });
+      }
+    });
+    try {
+      const idle = ctx.hooks.get('session:experimental.idle');
+      const pending = idle({ sessionID: 'one' });
+      await ready;
+      await ctx.hooks.get('session:prompt')({ sessionID: 'one' });
+      release({ ok: false, diagnostic: 'stale' });
+      await pending;
+      assert.equal(ctx.notices.length, 0);
+      await idle({ sessionID: 'one' });
+      assert.equal(ctx.notices.length, 1);
+      assert.match(ctx.notices[0].text, /current/);
+    } finally {
+      await cleanup();
+    }
+  });
+});
+
+test('OpenCode V2: checks serialize across sessions and lookup failures cannot leak SDK errors or poison the queue', async () => {
+  await withTempWorkspace('qa-opencode-queue-', async (cwd) => {
+    await fs.mkdir(path.join(cwd, '.qa-ai'));
+    await fs.writeFile(path.join(cwd, '.qa-ai/qa-ai.config.yaml'), 'version: 1');
+    const ctx = context(cwd);
+    const token = `ghp_${'b'.repeat(36)}`;
+    ctx.session.get = async ({ sessionID }) => {
+      if (sessionID === 'invalid') throw new Error(token);
+      return { location: { directory: cwd } };
+    };
+    let active = 0;
+    let maximum = 0;
+    let release;
+    let started;
+    const ready = new Promise((resolve) => {
+      started = resolve;
+    });
+    const cleanup = await setupOpenCodePlugin(ctx, {
+      runCheck: async () => {
+        active++;
+        maximum = Math.max(maximum, active);
+        if (!release) {
+          started();
+          await new Promise((resolve) => {
+            release = resolve;
+          });
+        }
+        active--;
+        throw new Error(token);
+      }
+    });
+    try {
+      const after = ctx.hooks.get('tool:execute.after');
+      const event = (sessionID) => ({ tool: 'write', sessionID, status: 'completed', result: { content: 'written' } });
+      await assert.rejects(
+        after(event('invalid')),
+        (error) => !error.message.includes(token) && /location/.test(error.message)
+      );
+      const first = event('one');
+      const second = event('two');
+      const pending = after(first);
+      await ready;
+      const queued = after(second);
+      release();
+      await Promise.all([pending, queued]);
+      assert.equal(maximum, 1);
+      for (const item of [first, second]) {
+        assert.match(item.result.content, /FAILED/);
+        assert.ok(!JSON.stringify(item).includes(token));
+      }
+      ctx.session.synthetic = async () => {
+        throw new Error(token);
+      };
+      const idle = ctx.hooks.get('session:experimental.idle');
+      await assert.rejects(
+        idle({ sessionID: 'one' }),
+        (error) => !error.message.includes(token) && /deliver/.test(error.message)
+      );
+      await idle({ sessionID: 'one' }); // Failed delivery does not create an automatic retry loop.
+    } finally {
+      await cleanup();
+    }
+  });
+});
+
+test('OpenCode V2: prompt during location lookup and session moves suppress stale feedback', async () => {
+  await withTempWorkspace('qa-opencode-location-race-', async (cwd) => {
+    await fs.mkdir(path.join(cwd, '.qa-ai'));
+    await fs.writeFile(path.join(cwd, '.qa-ai/qa-ai.config.yaml'), 'version: 1');
+    const ctx = context(cwd);
+    let release;
+    let started;
+    const ready = new Promise((resolve) => {
+      started = resolve;
+    });
+    let reads = 0;
+    ctx.session.get = async () => {
+      if (++reads === 1) {
+        started();
+        await new Promise((resolve) => {
+          release = resolve;
+        });
+      }
+      return { location: { directory: cwd } };
+    };
+    const cleanup = await setupOpenCodePlugin(ctx, { runCheck: async () => ({ ok: false, diagnostic: 'invalid' }) });
+    try {
+      const idle = ctx.hooks.get('session:experimental.idle');
+      const pending = idle({ sessionID: 'one' });
+      await ready;
+      await ctx.hooks.get('session:prompt')({ sessionID: 'one' });
+      release();
+      await pending;
+      assert.equal(ctx.notices.length, 0);
+      reads = 0;
+      ctx.session.get = async () => ({ location: { directory: ++reads === 1 ? cwd : path.dirname(cwd) } });
+      await idle({ sessionID: 'moved' });
+      assert.equal(ctx.notices.length, 0);
+    } finally {
+      await cleanup();
+    }
   });
 });

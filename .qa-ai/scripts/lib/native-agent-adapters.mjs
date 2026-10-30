@@ -1,13 +1,12 @@
 import path from 'node:path';
-import fs from 'node:fs/promises';
-import { copyDirSafe, manifestEntry, pathExists, readText, resolveRepoPath, writeFileSafe } from './utils.mjs';
+import { assertNoInstallLinks, copyDirSafe, manifestEntry, pathExists, readText, writeFileSafe } from './utils.mjs';
 
 const SKILL_ROOTS = { claude: '.claude/skills', codex: '.agents/skills', opencode: '.opencode/skills' };
 
 export async function syncNativeSkill(cwd, adapter, force = false) {
-  if (!SKILL_ROOTS[adapter]) return [];
+  if (!Object.hasOwn(SKILL_ROOTS, adapter)) return [];
   const source = path.join(cwd, '.qa-ai/adapters/shared/skills/qa-flowkit');
-  const target = path.join(cwd, SKILL_ROOTS[adapter], 'qa-flowkit');
+  const target = await assertNoInstallLinks(cwd, path.join(cwd, SKILL_ROOTS[adapter], 'qa-flowkit'));
   const results = await copyDirSafe(source, target, { force });
   const entries = [];
   for (const result of results) {
@@ -34,7 +33,7 @@ export function codexHookCommand(hook) {
 }
 
 export async function syncCodexHooks(cwd, force = false) {
-  const target = path.join(cwd, '.codex/hooks.json');
+  const target = await assertNoInstallLinks(cwd, path.join(cwd, '.codex/hooks.json'));
   const exists = await pathExists(target);
   if (exists && !force) {
     console.log('  skipped .codex/hooks.json (use --hooks --force to merge; existing hooks are preserved)');
@@ -80,22 +79,9 @@ export async function syncCodexHooks(cwd, force = false) {
 export async function syncOpenCodePlugin(cwd, force = false) {
   const source = path.join(cwd, '.qa-ai/adapters/shared/opencode-v2');
   const relative = '.opencode/plugins/qa-flowkit';
-  const target = resolveRepoPath(cwd, relative, { label: 'OpenCode plugin' });
+  const target = await assertNoInstallLinks(cwd, path.join(cwd, relative));
   // Preflight both files; never replace a link, even with --force.
-  for (const relativePath of [
-    '.opencode',
-    '.opencode/plugins',
-    relative,
-    `${relative}/package.json`,
-    `${relative}/index.mjs`
-  ]) {
-    const file = path.join(cwd, relativePath);
-    try {
-      if ((await fs.lstat(file)).isSymbolicLink()) throw new Error('Refusing OpenCode plugin symlink.');
-    } catch (error) {
-      if (error.code !== 'ENOENT') throw error;
-    }
-  }
+  for (const name of ['package.json', 'index.mjs']) await assertNoInstallLinks(cwd, path.join(target, name));
   const results = await copyDirSafe(source, target, { force });
   const entries = [];
   for (const result of results) {

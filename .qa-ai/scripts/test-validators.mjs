@@ -21,6 +21,7 @@ import './test/validators/pr-summary.mjs';
 import './test/validators/module-installation.mjs';
 import './test/validators/runtime-modules.mjs';
 import './test/validators/opencode-v2-plugin.mjs';
+import './test/validators/security-hardening.mjs';
 import './test/validators/healing-log.mjs';
 import './test/validators/test-impact.mjs';
 import './test/validators/specialist-routing.mjs';

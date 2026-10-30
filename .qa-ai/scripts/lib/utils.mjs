@@ -51,11 +51,13 @@ export async function ensureDir(dirPath) {
 }
 
 export async function writeFileSafe(filePath, content, { force = false } = {}) {
-  if (!force && (await pathExists(filePath))) {
-    return { type: 'file', written: false, reason: 'exists', path: filePath };
-  }
   await ensureDir(path.dirname(filePath));
-  await fs.writeFile(filePath, content, 'utf8');
+  try {
+    await fs.writeFile(filePath, content, { encoding: 'utf8', flag: force ? 'w' : 'wx' });
+  } catch (error) {
+    if (!force && error.code === 'EEXIST') return { type: 'file', written: false, reason: 'exists', path: filePath };
+    throw error;
+  }
   return { type: 'file', written: true, path: filePath };
 }
 
@@ -74,16 +76,19 @@ export async function readTextIfExists(filePath) {
 }
 
 export async function copyFileSafe(source, target, { force = false } = {}) {
-  if (!force && (await pathExists(target))) {
-    return { type: 'file', copied: false, reason: 'exists', path: target };
-  }
   await ensureDir(path.dirname(target));
-  await fs.copyFile(source, target);
+  try {
+    await fs.copyFile(source, target, force ? 0 : fsSync.constants.COPYFILE_EXCL);
+  } catch (error) {
+    if (!force && error.code === 'EEXIST') return { type: 'file', copied: false, reason: 'exists', path: target };
+    throw error;
+  }
   return { type: 'file', copied: true, path: target };
 }
 
 export async function copyDirSafe(sourceDir, targetDir, { force = false } = {}) {
   if (!(await pathExists(sourceDir))) return [];
+  await assertNoInstallLinks(targetDir, targetDir);
   const results = [];
   const dirResult = await ensureDir(targetDir);
   if (dirResult.created) results.push(dirResult);
@@ -92,6 +97,7 @@ export async function copyDirSafe(sourceDir, targetDir, { force = false } = {}) 
   for (const item of items) {
     const source = path.join(sourceDir, item.name);
     const target = path.join(targetDir, item.name);
+    await assertNoInstallLinks(targetDir, target);
     if (item.isDirectory()) {
       results.push(...(await copyDirSafe(source, target, { force })));
     } else if (item.isFile()) {
@@ -99,6 +105,23 @@ export async function copyDirSafe(sourceDir, targetDir, { force = false } = {}) 
     }
   }
   return results;
+}
+
+/** Installation destinations must never traverse links, including links within the repository. */
+export async function assertNoInstallLinks(cwd, target) {
+  const root = path.resolve(cwd);
+  const absolute = resolveRepoPath(root, path.resolve(target), { label: 'installation path', allowRoot: true });
+  let current = absolute;
+  for (;;) {
+    try {
+      if ((await fs.lstat(current)).isSymbolicLink())
+        throw new Error('Installation refuses symbolic links or junctions.');
+    } catch (error) {
+      if (error.code !== 'ENOENT') throw error;
+    }
+    if (current === root) return absolute;
+    current = path.dirname(current);
+  }
 }
 
 export async function listFilesRecursive(dirPath, predicate = () => true) {
