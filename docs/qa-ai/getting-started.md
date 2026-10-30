@@ -4,7 +4,7 @@ Step-by-step setup flows for each user type. Pick the one that matches your situ
 
 ## 5-minute agent-first start
 
-From your **target** repository root (Node.js 20+):
+From your **target** repository root (Node.js 22.18+, Node.js 24 recommended):
 
 ```bash
 npx qa-flowkit
@@ -127,7 +127,7 @@ npm run test:e2e-quick
 
 PowerShell uses the same command. The E2E creates a temporary target repository, performs clean init, completes every
 quick-track phase, proves the intentional validator failure, corrects it and runs strict target validation. CI runs
-this scenario on Ubuntu and Windows with Node.js 20 and 22.
+this scenario on Ubuntu and Windows with Node.js 22 and 24.
 
 Fixture: [`test/fixtures/quick-path/`](../../test/fixtures/quick-path/). Demo hub:
 [demo.md](demo.md) · [demo-script.md](demo-script.md) · [demo-transcript.md](demo-transcript.md). Pilot notes:
@@ -173,7 +173,7 @@ Use this flow when your team writes Gherkin test cases and tracks traceability w
 
 **Prerequisites**
 
-- Node.js 20 or later.
+- Node.js 22.18 or later.
 - A copy of the QA FlowKit source repository (or just the `.qa-ai/` folder).
 - A target repository where you want to add the QA AI workflow.
 
@@ -260,7 +260,7 @@ Use this flow when your repository includes test automation code (WebdriverIO, P
 
 **Prerequisites**
 
-- Node.js 20 or later.
+- Node.js 22.18 or later.
 - A copy of the `.qa-ai/` folder from QA FlowKit.
 - An existing QA/automation repository (the target repo).
 - Know which UI and API frameworks your team uses.
@@ -371,7 +371,7 @@ Use this alternative when you copied `.qa-ai/` manually and want Claude Code or 
 
 **Prerequisites**
 
-- Node.js 20 or later.
+- Node.js 22.18 or later.
 - A copy of the `.qa-ai/` folder from QA FlowKit.
 - Claude Code or OpenCode installed and configured for the target repository.
 
@@ -477,7 +477,7 @@ Use this flow when you are contributing to the QA FlowKit source repository, add
 
 **Prerequisites**
 
-- Node.js 20 or later.
+- Node.js 22.18 or later.
 - Git clone of the `QA_FlowKit` repository.
 
 **Agent and release instructions**

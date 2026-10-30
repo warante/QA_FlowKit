@@ -390,6 +390,16 @@
         "planPath": { "type": "string" },
         "summaryPath": { "type": "string" },
         "resultsIndexPath": { "type": "string" },
+        "provenance": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "mode": { "type": "string", "enum": ["off", "advisory", "strict"] },
+            "manifestPath": { "type": "string" },
+            "environment": { "type": "string", "pattern": "^[a-zA-Z0-9._-]+$" },
+            "maxAgeHours": { "type": "number", "minimum": 0.01 }
+          }
+        },
         "resultsPaths": {
           "type": "array",
           "items": { "type": "string" }

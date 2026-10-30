@@ -7,12 +7,116 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { mergeClaudeSettings } from './lib/claude-settings.mjs';
+import { syncNativeSkill, syncCodexHooks, codexHookCommand } from './lib/native-agent-adapters.mjs';
 import { QA_OUTPUT_DIR, DEFAULT_FEATURE_PATH, ARTIFACT_PATHS } from './lib/artifact-paths.mjs';
 import { COMPACT_CONFIG_PATH } from './lib/project-paths.mjs';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const postEditScript = path.join(repoRoot, '.qa-ai/scripts/hooks/post-edit-validate.mjs');
 const stopGateScript = path.join(repoRoot, '.qa-ai/scripts/hooks/stop-gate.mjs');
+
+test('Native skills: use discoverable paths and preserve user edits unless forced', async (t) => {
+  const cwd = await createTempRepo();
+  t.after(() => fs.rm(cwd, { recursive: true, force: true }));
+  for (const [adapter, folder] of [
+    ['codex', '.agents'],
+    ['opencode', '.opencode'],
+    ['claude', '.claude']
+  ]) {
+    const entries = await syncNativeSkill(cwd, adapter);
+    const file = path.join(cwd, folder, 'skills/qa-flowkit/SKILL.md');
+    assert.ok(entries.some((entry) => entry.path.endsWith('qa-flowkit/SKILL.md')));
+    assert.match(await fs.readFile(file, 'utf8'), /name: qa-flowkit/);
+    await fs.writeFile(file, 'user-owned skill');
+    assert.deepEqual(await syncNativeSkill(cwd, adapter), []);
+    assert.equal(await fs.readFile(file, 'utf8'), 'user-owned skill');
+    await syncNativeSkill(cwd, adapter, true);
+    assert.match(await fs.readFile(file, 'utf8'), /name: qa-flowkit/);
+  }
+  assert.deepEqual(await syncNativeSkill(cwd, 'generic'), []);
+});
+
+test('Codex hooks: opt-in configuration is idempotent and preserves shared user groups', async (t) => {
+  const cwd = await createTempRepo();
+  t.after(() => fs.rm(cwd, { recursive: true, force: true }));
+  const entry = await syncCodexHooks(cwd);
+  assert.equal(entry.path, '.codex/hooks.json');
+  const file = path.join(cwd, entry.path);
+  const hooks = JSON.parse(await fs.readFile(file, 'utf8'));
+  hooks.hooks.Stop[0].hooks.push({ type: 'command', command: 'user-owned-hook' });
+  hooks.hooks.SessionStart = [{ hooks: [{ type: 'command', command: 'startup' }] }];
+  await fs.writeFile(file, JSON.stringify(hooks));
+  assert.equal(await syncCodexHooks(cwd), null);
+  await syncCodexHooks(cwd, true);
+  await syncCodexHooks(cwd, true);
+  const updated = JSON.parse(await fs.readFile(file, 'utf8'));
+  assert.equal(updated.hooks.PostToolUse.length, 1);
+  assert.equal(updated.hooks.Stop.length, 2);
+  assert.equal(updated.hooks.Stop[0].hooks[0].command, 'user-owned-hook');
+  assert.equal(updated.hooks.SessionStart[0].hooks[0].command, 'startup');
+  await fs.writeFile(file, '{invalid');
+  await assert.rejects(syncCodexHooks(cwd, true));
+  assert.equal(await fs.readFile(file, 'utf8'), '{invalid');
+  assert.throws(() => codexHookCommand('bad'), /Unknown/);
+});
+
+test('Codex hooks: apply_patch paths from nested cwd produce a blocking JSON decision', async (t) => {
+  const cwd = await createTempRepo();
+  t.after(() => fs.rm(cwd, { recursive: true, force: true }));
+  const nested = path.join(cwd, 'nested folder');
+  await fs.mkdir(nested);
+  const feature = `${DEFAULT_FEATURE_PATH}/functional/invalid.feature`;
+  await fs.writeFile(path.join(cwd, feature), 'Feature: Invalid\n');
+  const wrapper = path.join(cwd, '.qa-ai/scripts/hooks/codex-hook.mjs');
+  const payload = {
+    cwd: nested,
+    tool_name: 'apply_patch',
+    tool_input: { command: `*** Begin Patch\n*** Update File: ../${feature}\n*** End Patch` }
+  };
+  const result = spawnSync(process.execPath, [wrapper, 'post-edit'], {
+    cwd: nested,
+    input: JSON.stringify(payload),
+    encoding: 'utf8',
+    timeout: 10000
+  });
+  assert.equal(result.status, 0);
+  assert.equal(JSON.parse(result.stdout).decision, 'block');
+  assert.match(JSON.parse(result.stdout).reason, /FAILED/);
+  const launched = spawnSync(codexHookCommand('post-edit'), {
+    cwd: nested,
+    input: JSON.stringify(payload),
+    encoding: 'utf8',
+    timeout: 10000,
+    shell: true
+  });
+  assert.equal(launched.status, 0);
+  assert.equal(JSON.parse(launched.stdout).decision, 'block');
+  const unrelated = runHook(wrapper, cwd, payload);
+  assert.equal(unrelated.status, 1); // Missing explicit hook name is never silently accepted.
+});
+
+test('Codex hooks: Stop converts the gate decision and prevents repeated continuations', async (t) => {
+  const cwd = await createTempRepo();
+  t.after(() => fs.rm(cwd, { recursive: true, force: true }));
+  const hook = path.join(cwd, '.qa-ai/scripts/hooks/codex-hook.mjs');
+  await fs.writeFile(
+    path.join(cwd, '.qa-ai/scripts/hooks/stop-gate.mjs'),
+    "process.stderr.write('Run check first'); process.exit(2);"
+  );
+  const invoke = (payload, env = {}) =>
+    spawnSync(process.execPath, [hook, 'stop'], {
+      cwd,
+      input: JSON.stringify(payload),
+      encoding: 'utf8',
+      env: { ...process.env, ...env },
+      timeout: 10000
+    });
+  const first = invoke({});
+  assert.equal(first.status, 0);
+  assert.deepEqual(JSON.parse(first.stdout), { decision: 'block', reason: 'Run check first' });
+  assert.equal(invoke({ stop_hook_active: true }).stdout, '');
+  assert.equal(invoke({}, { QA_FLOWKIT_DISABLE_HOOKS: '1' }).stdout, '');
+});
 
 function runHook(scriptPath, cwd, payload, env = {}) {
   const result = spawnSync(process.execPath, [scriptPath], {

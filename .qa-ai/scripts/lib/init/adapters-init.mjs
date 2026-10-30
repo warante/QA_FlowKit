@@ -2,6 +2,7 @@ import path from 'node:path';
 import { defaultInitAdapters } from '../detect-adapters.mjs';
 import { commaList, pathExists } from '../utils.mjs';
 import { githubRepositorySlug } from '../package-origin.mjs';
+import { readModuleInstallation, availableModuleAdapters, assertModuleAdapters } from '../module-installation.mjs';
 
 export function shouldPromptForAdapters(args) {
   return Boolean(process.stdin.isTTY && process.stdout.isTTY && !process.env.CI && !args['no-interactive']);
@@ -71,8 +72,20 @@ export async function promptAdapterSelection(defaultAdapters, args) {
 export async function selectedAdapters(cwd, args) {
   if (args['no-adapters']) return [];
   const requested = [...commaList(args.adapters), ...commaList(args.adapter)].map((name) => name.toLowerCase());
-  if (requested.length === 0) return promptAdapterSelection(await defaultInitAdapters(cwd), args);
-  if (requested.includes('all')) return ['all'];
+  const installation = await readModuleInstallation(cwd);
+  const available = availableModuleAdapters(installation?.modules);
+  if (requested.length === 0) {
+    const defaults = (await defaultInitAdapters(cwd)).filter((name) => !installation || available.includes(name));
+    const selected = await promptAdapterSelection(defaults, args);
+    const names = selected.includes('all') ? (installation ? available : ['all']) : selected;
+    await assertModuleAdapters(
+      cwd,
+      names.filter((name) => name !== 'all')
+    );
+    return names;
+  }
+  if (requested.includes('all')) return installation ? available : ['all'];
+  await assertModuleAdapters(cwd, requested);
   return [...new Set(requested)];
 }
 

@@ -1,6 +1,6 @@
 /**
  * Structured Gherkin parser (tokenizer + AST generator).
- * Zero dependencies. Runs on Node 20/22.
+ * Zero dependencies. Runs on Node 22/24.
  */
 
 function getKeywords(language) {

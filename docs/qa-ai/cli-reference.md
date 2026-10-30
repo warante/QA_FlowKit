@@ -21,6 +21,13 @@ Compatibility levels and deprecations are defined in [Public Contracts](public-c
 
 ### Framework install (default command)
 
+Optional installation assets can be selected explicitly with `npx qa-flowkit init --modules core,adapter-codex`.
+Full installation remains the default. Module flags are experimental; see [modular installation](modular-installation.md)
+for additive updates, preserved files and the distinction between installation and root adapter generation.
+Runtime modules are `runtime-automation`, `runtime-reporting`, `runtime-observability` and `runtime-development`.
+Optional OpenCode V2 plugin generation uses `sync-adapters --adapters opencode --opencode-plugin`;
+see [the plugin guide](opencode-v2-plugin.md) before opting in.
+
 ```bash
 npx qa-flowkit@rc
 ```
@@ -236,6 +243,17 @@ Options:
 - `--fixed-uuid <uuid_seed>`: sets a seed for generating deterministic UUIDs.
 
 For details, see [Reporting Exporters](reporting.md).
+
+### `pr-summary` (experimental)
+
+```bash
+npx qa-flowkit pr-summary --base origin/main [--head HEAD] [--json]
+```
+
+Summarizes the committed merge-base-to-head diff and exact matrix links; unmapped files remain visible for review.
+It does not execute tests, infer coverage, approve gates or create a PR. Output is stdout by default;
+`--output <file>` writes Markdown to an existing repository directory and requires `--force` to replace a file.
+See [PR impact summaries](pr-impact-summary.md) for snapshot semantics, warnings and safety limitations.
 
 ### `metrics`
 

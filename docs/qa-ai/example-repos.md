@@ -7,7 +7,7 @@ They must not require credentials, private services or external writes.
 
 | Example                                                          | Track      | Support status | Evidence                                                                                        |
 | ---------------------------------------------------------------- | ---------- | -------------- | ----------------------------------------------------------------------------------------------- |
-| [Manual-only](../../examples/manual-only/)                       | `quick`    | Maintained     | Packed install plus strict validation on Ubuntu/Windows and Node.js 20/22                       |
+| [Manual-only](../../examples/manual-only/)                       | `quick`    | Maintained     | Packed install plus strict validation on Ubuntu/Windows and Node.js 22/24                       |
 | [Playwright UI + API](../../examples/playwright-full/)           | `standard` | In validation  | Local resumable run and Chromium UI/API passed; Ubuntu/Windows runtime jobs are configured      |
 | [Karate full](../../examples/karate-full/)                       | `standard` | In validation  | Structural validation passed; Java 21 runtime jobs are configured for Ubuntu/Windows            |
 | [Maestro + Karate mobile](../../examples/maestro-karate-mobile/) | `standard` | In validation  | Structural validation passed; Karate runtime jobs and separate mobile-host evidence are defined |
@@ -93,7 +93,7 @@ Fixtures may omit explanatory material. Public examples must be understandable w
 - Compatibility claims come from named CI checks, not only generated adapter or preset files.
 
 The `Example compatibility` workflow runs every Monday against `qa-flowkit@rc` on Ubuntu and Windows with Node.js
-20 and 22. It can also be dispatched manually for `rc` or `latest`. Those channels are not added to the schedule
+22 and 24. It can also be dispatched manually for `rc` or `latest`. Those channels are not added to the schedule
 until their lifecycle phase begins, avoiding false support claims for unpublished channels.
 
 Run the same compatibility inventory against the current source package:
@@ -155,7 +155,7 @@ jobs:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: '24'
       - name: Validate target repository
         run: npx --yes qa-flowkit@rc validate-target
 ```

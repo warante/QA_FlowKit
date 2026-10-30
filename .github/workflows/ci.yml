@@ -25,7 +25,7 @@ jobs:
       - name: Setup Node.js with npm release-age policy
         uses: ./.github/actions/setup-node-with-npm-policy
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Install dependencies
         run: npm ci --ignore-scripts
@@ -73,7 +73,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Check generated plugin drift
         run: node .github/scripts/build-claude-plugin.mjs --check
@@ -98,7 +98,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Run golden target validation
         run: node .github/scripts/run-golden-target-validation.mjs
@@ -115,7 +115,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Run karate target validation
         run: node .github/scripts/run-karate-target-validation.mjs
@@ -140,7 +140,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: '22'
+          node-version: '24'
 
       - name: Setup Java
         uses: actions/setup-java@v6.1.0
@@ -171,7 +171,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: '22'
+          node-version: '24'
 
       - name: Validate and execute Playwright UI + API example
         run: npm run test:e2e-playwright -- --runtime
@@ -196,7 +196,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: '22'
+          node-version: '24'
 
       - name: Setup Java
         uses: actions/setup-java@v6.1.0
@@ -217,7 +217,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-        node: ['20', '22']
+        node: ['22', '24']
 
     steps:
       - name: Checkout
@@ -243,7 +243,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-        node: ['20', '22']
+        node: ['22', '24']
 
     steps:
       - name: Checkout
@@ -269,7 +269,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-        node: ['20', '22']
+        node: ['22', '24']
 
     steps:
       - name: Checkout
@@ -295,7 +295,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-        node: ['20', '22']
+        node: ['22', '24']
 
     steps:
       - name: Checkout
@@ -321,7 +321,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-        node: ['20', '22']
+        node: ['22', '24']
 
     steps:
       - name: Checkout
@@ -352,7 +352,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Run release dry-run validation
         run: npm run test:e2e-release-dry-run
@@ -372,7 +372,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Run stable config rehearsal
         run: npm run test:e2e-stable-config-rehearsal
@@ -390,7 +390,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Run stable Release PR rehearsal
         run: npm run test:e2e-stable-release-pr-rehearsal
@@ -433,7 +433,7 @@ jobs:
       - name: Setup Node.js with npm release-age policy
         uses: ./.github/actions/setup-node-with-npm-policy
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Check dependency policy
         run: node .github/scripts/verify-dependency-policy.mjs
@@ -486,7 +486,7 @@ jobs:
       - name: Setup Node.js with npm release-age policy
         uses: ./.github/actions/setup-node-with-npm-policy
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Install dependencies
         run: npm ci --ignore-scripts
@@ -525,7 +525,7 @@ jobs:
           - os: ubuntu-latest
             node: '22'
           - os: windows-latest
-            node: '20'
+            node: '24'
           - os: windows-latest
             node: '22'
 

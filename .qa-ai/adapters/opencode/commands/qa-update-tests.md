@@ -1,7 +1,6 @@
 ---
 description: Review and update QA tests after RF changes / Revisar y actualizar pruebas tras cambios de RF
 argument-hint: [updated requirement source or RF ID]
-allowed-tools: [view_file, write_file, edit_file, list_dir, grep_search, glob, run_command]
 ---
 
 !`node .qa-ai/scripts/show-config.mjs --json`

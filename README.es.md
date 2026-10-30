@@ -1,7 +1,7 @@
 # QA FlowKit
 
 [![Licencia: MIT](https://img.shields.io/badge/licencia-MIT-green.svg)](LICENSE)
-[![Node.js 20+](https://img.shields.io/badge/node.js-20%2B-339933.svg)](package.json)
+[![Node.js 22.18+](https://img.shields.io/badge/node.js-22.18%2B-339933.svg)](package.json)
 [![Estado: RC](https://img.shields.io/badge/estado-RC-yellow.svg)](docs/qa-ai/stability-policy.md)
 [![CI](https://github.com/warante/QA_FlowKit/actions/workflows/ci.yml/badge.svg)](https://github.com/warante/QA_FlowKit/actions/workflows/ci.yml)
 [![versión npm](https://img.shields.io/npm/v/qa-flowkit.svg)](https://www.npmjs.com/package/qa-flowkit)
@@ -9,6 +9,10 @@
 Convierte el trabajo de QA asistido por IA en un workflow de repositorio repetible y revisable.
 
 Idioma: [English](README.md) | **Español**
+
+FlowKit complementa a los agentes y ejecutores de tests: controla trazabilidad y evidencia, no sustituye la generación
+de pruebas. Consulta las skills nativas, los hooks opcionales de Codex y la evidencia ligada al commit en la
+[guía de modernización](docs/qa-ai/modernization.es.md).
 
 QA FlowKit coordina un agente de código mientras scripts deterministas controlan el proceso:
 

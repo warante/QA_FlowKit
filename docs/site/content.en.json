@@ -76,7 +76,7 @@
     ]
   },
   "signals": [
-    { "strong": "Node.js 20+", "span": "Native CLI and portable scripts" },
+    { "strong": "Node.js 22.18+", "span": "Native CLI and portable scripts" },
     { "strong": "RC ready", "span": "Release-please and npm publishing workflow" },
     { "strong": "Agent ready", "span": "Claude Code, OpenCode, Codex Desktop and more" }
   ],
