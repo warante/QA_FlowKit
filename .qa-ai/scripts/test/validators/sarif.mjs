@@ -110,8 +110,21 @@ test('SARIF CLI: preserves exit codes, emits pure SARIF and matches JSON finding
     await fs.cp(path.join(repoRoot, '.qa-ai'), path.join(cwd, '.qa-ai'), {
       recursive: true,
       filter: (source) =>
-        !['state', 'output', 'features'].includes(path.relative(path.join(repoRoot, '.qa-ai'), source))
+        !['state', 'output', 'features', 'qa-ai.config.yaml', 'agents/specialists/active.md'].includes(
+          path.relative(path.join(repoRoot, '.qa-ai'), source).replaceAll('\\', '/')
+        )
     });
+    // A clean checkout has no ignored project config or active-specialist cache.
+    // Initialize this target explicitly rather than borrowing local dogfooding state.
+    await assert.rejects(fs.access(path.join(cwd, '.qa-ai/qa-ai.config.yaml')), { code: 'ENOENT' });
+    await assert.rejects(fs.access(path.join(cwd, '.qa-ai/agents/specialists/active.md')), { code: 'ENOENT' });
+    const initialized = runValidatorScript('init.mjs', cwd, [
+      '--preset',
+      'manual-only',
+      '--no-adapters',
+      '--no-interactive'
+    ]);
+    assert.equal(initialized.exitCode, 0, initialized.stdout || initialized.stderr);
     await fs.mkdir(path.join(cwd, '.qa-ai/features'), { recursive: true });
     await fs.mkdir(path.join(cwd, '.qa-ai/output'), { recursive: true });
     const flags = ['--allow-empty', '--allow-missing', '--no-strict-doctor', '--no-scan-secrets'];
