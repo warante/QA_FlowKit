@@ -85,6 +85,10 @@ After the agent creates or updates QA artifacts, run `npx qa-flowkit validate-ta
 
 ## Demo
 
+> The published video is historical and has not been regenerated for the current compact layout. Use
+> [Getting Started](docs/qa-ai/getting-started.md) and [real CLI transcripts](docs/qa-ai/terminal-transcripts.md)
+> for current commands. The replacement preview is separate and pending review.
+
 | Format                                                       | Description                                                       |
 | ------------------------------------------------------------ | ----------------------------------------------------------------- |
 | [Recorded video](docs/qa-ai/media/qa-flowkit-rf101-demo.mp4) | Two-minute RF-101 quick-track demo with English and Spanish audio |

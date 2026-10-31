@@ -6,6 +6,7 @@ import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
+import { displayArgs, transcriptFromCapture } from './capture-onboarding.mjs';
 import {
   findBrokenLocalMarkdownLinks,
   findStaleEvergreenVersions,
@@ -15,6 +16,77 @@ import {
 } from './lib/documentation-consistency.mjs';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
+
+test('onboarding manuals use compact config and explain scenario layout rather than the pre-npm product', async () => {
+  for (const name of ['getting-started.md', 'workflow.md', 'implementation-guide-for-codex.md']) {
+    const content = await fs.readFile(path.join(repoRoot, 'docs/qa-ai', name), 'utf8');
+    for (const phrase of ['.qa-ai/qa-ai.config.yaml', 'one-per-file', 'multiple-per-file']) {
+      assert.ok(content.includes(phrase), `${name}: ${phrase}`);
+    }
+    assert.doesNotMatch(
+      content,
+      /All seven steps|The first version is folder-copy based|must.*later migrated to an npm CLI/
+    );
+  }
+});
+
+test('capture displays quoted arguments and preserves diagnostics without inventing agent evidence', () => {
+  assert.equal(displayArgs(['--note', 'RF-101 approved']), '--note "RF-101 approved"');
+  const markdown = transcriptFromCapture({
+    sourceCommit: 'abc123',
+    node: 'v24',
+    commands: [
+      {
+        id: 'invalid',
+        command: 'qa-flowkit run check --json',
+        exitCode: 1,
+        selectedFields: true,
+        stdout: '{"ok":false,"phaseId":"gherkin","diagnostics":"Missing @manual"}',
+        stderr: ''
+      }
+    ]
+  });
+  for (const phrase of [
+    'Missing @manual',
+    'Exit code: 1',
+    'fixture replay',
+    'not the npm registry',
+    'selected actual fields'
+  ]) {
+    assert.ok(markdown.includes(phrase), phrase);
+  }
+});
+
+test('current tutorial distinguishes the silent rendered preview from historical published media', async () => {
+  const script = await fs.readFile(path.join(repoRoot, 'docs/qa-ai/demo-script.md'), 'utf8');
+  for (const phrase of ['Node.js 22.18+', 'rendered CLI', 'fixture', 'advisory', 'capture-onboarding.mjs'])
+    assert.ok(script.includes(phrase), phrase);
+  assert.doesNotMatch(script, /Node.js 20\+|validatedFiles/);
+  const demo = await fs.readFile(path.join(repoRoot, 'docs/qa-ai/demo.md'), 'utf8');
+  assert.match(demo, /Published media is historical/);
+  for (const [name, phrase] of [
+    ['README.md', 'published video is historical'],
+    ['README.es.md', 'vídeo publicado es histórico']
+  ]) {
+    assert.ok((await fs.readFile(path.join(repoRoot, name), 'utf8')).includes(phrase), name);
+  }
+  for (const [locale, phrase] of [
+    ['en', 'Historical'],
+    ['es', 'histórica']
+  ]) {
+    const content = JSON.parse(await fs.readFile(path.join(repoRoot, `docs/site/content.${locale}.json`), 'utf8'));
+    assert.ok(content.demo.eyebrow.includes(phrase), locale);
+  }
+  const instructions = await fs.readFile(
+    path.join(repoRoot, 'docs/qa-ai/media/regenerate-rf101-video-prompt.md'),
+    'utf8'
+  );
+  assert.match(instructions, /--capture/);
+  assert.doesNotMatch(instructions, /### Nuevo guion|Node.js 20\+/);
+  const renderer = await fs.readFile(path.join(repoRoot, '.github/scripts/render-rf101-demo.py'), 'utf8');
+  for (const phrase of ['--capture', 'exist_ok=False', 'PREVIEW / rendered CLI', 'Text overflow', '"-an"'])
+    assert.ok(renderer.includes(phrase), phrase);
+});
 
 test('supported runtime stays aligned across package metadata, CI and both READMEs', async () => {
   const pkg = JSON.parse(await fs.readFile(path.join(repoRoot, 'package.json'), 'utf8'));

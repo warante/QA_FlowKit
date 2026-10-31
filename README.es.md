@@ -88,6 +88,10 @@ gate del repositorio.
 
 ## Demo
 
+> El vídeo publicado es histórico y no se ha regenerado para el layout compacto actual. Consulta
+> [Primeros pasos](docs/qa-ai/getting-started.md) y las [transcripciones reales](docs/qa-ai/terminal-transcripts.md)
+> para los comandos vigentes. El preview nuevo es independiente y está pendiente de revisión.
+
 | Formato                                                     | Descripción                                                          |
 | ----------------------------------------------------------- | -------------------------------------------------------------------- |
 | [Video grabado](docs/qa-ai/media/qa-flowkit-rf101-demo.mp4) | Demo quick-track RF-101 de dos minutos con audio en inglés y español |

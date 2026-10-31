@@ -438,9 +438,9 @@
     ]
   },
   "demo": {
-    "eyebrow": "Ruta RF-101 grabada",
+    "eyebrow": "Grabación histórica RF-101",
     "title": "Mira el quick track fallar, recuperarse y pasar",
-    "intro": "El demo de dos minutos sigue un requisito de login desde la configuracion con slash commands hasta validacion determinista, un fallo intencionado por tag faltante, correccion sin reiniciar, trazabilidad y un target gate aprobado. No usa credenciales ni escrituras en servicios externos.",
+    "intro": "Esta grabación histórica de dos minutos muestra el fallo y la corrección RF-101, no el layout compacto actual. El vídeo, audio y subtítulos publicados siguen intactos hasta revisar un preview independiente. Consulta las notas del demo para las guías vigentes y transcripciones reales; no certifica una sesión de agente.",
     "poster": "../qa-ai/media/qa-flowkit-rf101-demo-thumbnail.png",
     "video_src": "../qa-ai/media/qa-flowkit-rf101-demo.mp4",
     "captions_en": "../qa-ai/media/qa-flowkit-rf101-demo.en.vtt",

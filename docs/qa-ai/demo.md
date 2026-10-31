@@ -1,5 +1,10 @@
 # RF-101 Quick-Path Demo
 
+> **Published media is historical.** The MP4/GIF, audio and caption tracks below have not been regenerated for the
+> current compact layout. Use the updated [beginner script](demo-script.md) and real
+> [terminal transcripts](terminal-transcripts.md) for current commands. A separately labelled rendered CLI preview
+> is for review only; it does not replace the published media or demonstrate a live agent session.
+
 This is the recorded and reproducible demo for QA FlowKit's five-minute path. It uses no external services,
 credentials or model execution in the product workflow.
 
@@ -65,7 +70,7 @@ Verification: `npm run test:product-demo`.
 
 - The workflow can start from a clean target repository.
 - State persists across phase commands.
-- A deterministic validator rejects invalid AI output.
+- A deterministic validator rejects the deliberately invalid fixture (no AI output is generated during replay).
 - The same phase can be corrected and resumed.
 - Final Gherkin and traceability pass the strict target gate.
 - No Jira, TestRail, network service or secret is required.

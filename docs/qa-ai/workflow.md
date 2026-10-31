@@ -1,5 +1,9 @@
 # QA AI Workflow
 
+Read runtime configuration only from `.qa-ai/qa-ai.config.yaml`. New installations default to compact paths:
+`.qa-ai/output/`, `.qa-ai/features/` and `.qa-ai/tests/`; explicit configured paths can differ.
+Use `run start`, `run next` and `run check` to follow the selected track; checks validate artifacts, not model execution.
+
 `.qa-ai/contracts/workflow.v1.json` is the only source of truth for phase order and inclusion. The sections below
 describe phase responsibilities and artifacts; they are not an independent numbered sequence. Runtime progress numbers
 are calculated from the selected track.
@@ -100,13 +104,13 @@ Requirements:
 
 Outputs:
 
-- `.feature` files under `features/`.
+- `.feature` files under the configured `gherkin.featurePath` (default `.qa-ai/features/`).
 
 Requirements:
 
 - Use the configured Gherkin language: English (`en`) or Spanish (`es`).
 - Spanish `.feature` files include `# language: es`.
-- One scenario per file.
+- Follow `gherkin.scenarioLayout`: `one-per-file` requires one scenario; `multiple-per-file` permits cohesive scenarios and requires unique scenario-level `@id:` tags when more than one scenario exists.
 - Configured acceptance criteria label after the Feature narrative.
 - Manual tests also have feature files.
 - Unit tests are excluded.
@@ -159,8 +163,8 @@ Requirements:
 
 - Analyze repo conventions.
 - Decide what is automatable.
-- UI/E2E framework: use `automation.ui.framework` from `qa-ai.config.yaml`.
-- API/integration framework: use `automation.api.framework` from `qa-ai.config.yaml`.
+- UI/E2E framework: use `automation.ui.framework` from `.qa-ai/qa-ai.config.yaml`.
+- API/integration framework: use `automation.api.framework` from `.qa-ai/qa-ai.config.yaml`.
 - Provide technical proposal before coding.
 - Run `validate-test-coverage.mjs` after per-RF design and feature generation when coverage mode is enabled.
 - When `normalized-requirements.md` lists source non-functional requirements (NFR), ensure matching rows exist in

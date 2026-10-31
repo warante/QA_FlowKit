@@ -55,14 +55,14 @@ When the repository is already initialized and you need audit-style release evid
 /qa-help
 ```
 
-That command (after adapter sync) asks for approval and sets `project.qaTrack: enterprise` in `qa-ai.config.yaml`.
+That command (after adapter sync) asks for approval and sets `project.qaTrack: enterprise` in `.qa-ai/qa-ai.config.yaml`.
 When the workflow is complete, record the decision with `/qa-gate` and run `npx qa-flowkit validate-target`.
 
 Advanced alternatives at init or by hand:
 
 ```bash
 node .qa-ai/scripts/init.mjs --preset playwright-full --qa-track enterprise
-# or edit qa-ai.config.yaml → project.qaTrack: enterprise
+# or edit .qa-ai/qa-ai.config.yaml → project.qaTrack: enterprise
 ```
 
 See [QA Help and Workflow Tracks](qa-help.md) and [Release Quality Gate](release-gate.md).
@@ -92,7 +92,7 @@ npx qa-flowkit run next
 ```
 
 1. Save the requirement as `requirements/RF-101-login.md`.
-2. Open the repo in your AI coding tool and ask it to read `AGENTS.md`, `qa-ai.config.yaml` and the phase packet.
+2. Open the repo in your AI coding tool and ask it to read its generated adapter instructions, `.qa-ai/qa-ai.config.yaml` and the phase packet.
 3. After each generated output, run `npx qa-flowkit run check`, then `npx qa-flowkit run next`.
 4. Before Gherkin generation, approve the quick-path proposal with
    `npx qa-flowkit run approve test-design --note "RF-101 design approved"`.
@@ -103,7 +103,7 @@ Expected artifacts:
 ```text
 .qa-ai/output/requirement-analysis.md
 .qa-ai/output/normalized-requirements.md
-features/functional/RF-101-TC-001-login.feature
+.qa-ai/features/manual/RF-101-TC-001-login.feature
 .qa-ai/output/traceability-matrix.md
 .qa-ai/output/pr-summary.md
 ```
@@ -154,8 +154,8 @@ npx qa-flowkit validate-features
 npx qa-flowkit validate-karate-features
 ```
 
-- **Design** Gherkin stays under `features/` (`validate-features`).
-- **Executable** Karate tests live under `tests/karate/features/api` and `.../ui` (`validate-karate-features`).
+- **Design** Gherkin stays under `.qa-ai/features/` (`validate-features`).
+- **Executable** Karate tests use the configured automation paths, normally `.qa-ai/tests/karate/features/api` and `.../ui` (`validate-karate-features`).
 - Reference fixture: [test/fixtures/karate-target/](../../test/fixtures/karate-target/).
 
 ---
@@ -177,11 +177,13 @@ Use this flow when your team writes Gherkin test cases and tracks traceability w
 - A copy of the QA FlowKit source repository (or just the `.qa-ai/` folder).
 - A target repository where you want to add the QA AI workflow.
 
-**Step 1 — Copy the framework folder**
+**Step 1 — Install the framework (or copy it)**
 
 From the target repository root:
 
 ```bash
+npx qa-flowkit
+# Alternatively, copy the framework from a source checkout:
 # Unix/macOS
 cp -R /path/to/QA_FlowKit/.qa-ai .qa-ai
 
@@ -197,7 +199,8 @@ node .qa-ai/scripts/init.mjs --preset manual-only --interface-language en --gher
 
 Use `--interface-language es --gherkin-language es` if your team writes requirements and Gherkin in Spanish.
 
-What this creates (compact layout):
+Select the generic adapter when you need `AGENTS.md`, or pass `--adapters generic` explicitly.
+What this creates with the generic adapter (compact layout):
 
 ```text
 .qa-ai/qa-ai.config.yaml
@@ -207,8 +210,10 @@ AGENTS.md
 ```
 
 Feature type subfolders (`functional/`, `api/`, etc.) are created lazily when the first `.feature` file is written, not during `init`.
-No root-level `qa-ai.config.yaml`, `.qa-ai/output/`, `features/` or `tests/` folders are created by default.
-Legacy root layouts remain supported when already present or explicitly configured.
+No root-level `qa-ai.config.yaml`, `qa-ai-output/`, `features/` or `tests/` folders are created by default.
+Explicit configured artifact paths can differ. A root config is legacy migration input only, never runtime input.
+Check the effective `gherkin.scenarioLayout` in `.qa-ai/qa-ai.config.yaml`: `one-per-file` requires one scenario;
+`multiple-per-file` permits cohesive scenarios with unique scenario-level `@id:` tags when there is more than one.
 
 **Step 3 — Verify setup**
 
@@ -223,7 +228,7 @@ All checks should pass. A warning for missing automation config files is expecte
 With any supported agent (Claude Code, OpenCode, Codex, etc.), start with:
 
 ```text
-Read AGENTS.md, qa-ai.config.yaml, .qa-ai/workflows/command-interaction.md and .qa-ai/workflows/full-flow.md. Resolve the configured interface language before responding. Use the host's selectable question tool for closed choices when available; otherwise show numbered options. Follow .qa-ai/rules/ before making changes.
+Read the generated adapter instructions, .qa-ai/qa-ai.config.yaml, .qa-ai/workflows/command-interaction.md and .qa-ai/workflows/full-flow.md. Resolve the configured interface language before responding. Use the host's selectable question tool for closed choices when available; otherwise show numbered options. Follow .qa-ai/rules/ before making changes.
 ```
 
 Then provide a requirement (RF or user story) and run the full QA flow.
@@ -249,7 +254,7 @@ node .qa-ai/scripts/validate-traceability.mjs
 **What to do next**
 
 - Add more requirements and repeat from Step 4.
-- Configure a test management tool in `qa-ai.config.yaml` (e.g. `testManagement.tool: testrail`) to enable sync plan generation.
+- Configure a test management tool in `.qa-ai/qa-ai.config.yaml` (e.g. `tools.testManagement: testrail`) to enable local sync plan proposals, not external writes.
 - Review the [Workflow](workflow.md) document for the full step-by-step QA process.
 
 ---
@@ -318,7 +323,7 @@ Future agent sessions will read `.qa-ai/output/qa-knowledge-summary.md` and `.qa
 Start the agent with:
 
 ```text
-Read AGENTS.md, qa-ai.config.yaml and .qa-ai/workflows/full-flow.md. Follow .qa-ai/rules/ before making changes.
+Read the generated adapter instructions, .qa-ai/qa-ai.config.yaml and .qa-ai/workflows/full-flow.md. Follow .qa-ai/rules/ before making changes.
 ```
 
 Then provide a requirement and request the full flow. The agent works through requirements intake, test design, sync plan proposal, traceability matrix, automation feasibility, implementation plan and a PR-ready summary.
@@ -500,23 +505,16 @@ Match CI before opening a PR:
 ```bash
 npm run lint
 npm run format:check
+npm run docs:check
 npm run validate:oss-extraction
 node .github/scripts/verify-npm-pack.mjs
 ```
 
 CI job `Validate starter` runs `npm run validate:core` only because scenario E2E jobs are already `needs:` prerequisites. Locally, `validate:oss-extraction` still runs the full gate (`core` + `e2e`). Measure split timings with `npm run validate:timing`.
 
-`validate:oss-extraction` (full) runs in order:
-
-1. `doctor.mjs` — validates the framework folder itself
-2. `validate-features.mjs --allow-empty` — allows no feature files in the source repo
-3. `validate-traceability.mjs --allow-empty --allow-missing` — allows missing workflow artifacts
-4. `validate-sync-plan.mjs --allow-empty --allow-missing` — same
-5. `validate-active-specialists.mjs --allow-missing` — allows missing active specialist index
-6. `test-validators.mjs` — native Node unit tests for shared validator helpers
-7. `smoke-test.mjs` — copy-folder install, adapters, no-overwrite and unsafe path rejection
-
-All seven steps must pass before opening a PR.
+`validate:oss-extraction` runs the maintained full suite: validators, harness, adapters, security,
+documentation, package smoke tests and scenario E2E. Its step count changes with the product; use its actual final
+summary rather than a fixed seven-step checklist. All checks above must pass before opening a PR.
 
 **Step 3 — Run individual scripts during development**
 
@@ -531,7 +529,8 @@ All seven steps must pass before opening a PR.
 
 **Step 4 — Check strict mode separately**
 
-`doctor --strict` is designed for initialized target repos, not the source repo. Do not run it against the source repository without a `qa-ai.config.yaml`. It is tested through smoke tests, which you can run directly:
+`doctor --strict` is designed for initialized target repos, not the source repository's maintenance configuration.
+It is tested through smoke tests, which you can run directly:
 
 ```bash
 node .qa-ai/scripts/smoke-test.mjs

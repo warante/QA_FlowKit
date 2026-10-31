@@ -55,12 +55,12 @@ No preset sets `enterprise` by default. Use one of:
 node .qa-ai/scripts/init.mjs --preset playwright-full --qa-track enterprise
 
 # Manual
-# qa-ai.config.yaml → project.qaTrack: enterprise
+# .qa-ai/qa-ai.config.yaml → project.qaTrack: enterprise
 ```
 
 ## How `qa-help` decides the next step
 
-1. Reads `qa-ai.config.yaml` and `project.qaTrack`.
+1. Reads `.qa-ai/qa-ai.config.yaml` and `project.qaTrack`.
 2. Checks which workflow artifacts and `.feature` files exist.
 3. Applies track-based skips (for example, `quick` skips test-management sync and automation implementation).
 4. Applies config-based skips (for example, `tools.testManagement: none`).

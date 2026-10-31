@@ -22,7 +22,7 @@
     },
     "durationSeconds": 115,
     "resolution": "1920x1080",
-    "notes": "Two-minute-or-shorter RF-101 terminal demo with English and Spanish audio tracks."
+    "notes": "Historical published RF-101 terminal demo with English and Spanish audio tracks. Not regenerated for the current compact layout; see demo-script.md and terminal-transcripts.md. Published assets remain unchanged pending separate preview review."
   },
   "humanValidation": {
     "productManagerReview": "pending",

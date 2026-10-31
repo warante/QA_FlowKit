@@ -59,9 +59,9 @@
     "terminal_code": "npx qa-flowkit\n\nopen your AI CLI and run guided setup:\n\n/qa-init\n/qa-full-flow"
   },
   "demo": {
-    "eyebrow": "Recorded RF-101 path",
+    "eyebrow": "Historical RF-101 recording",
     "title": "Watch the quick track fail, recover and pass",
-    "intro": "The two-minute demo follows one login requirement through slash-command setup, deterministic validation, an intentional missing-tag failure, correction without restart, traceability and a passing target gate. No credentials or external service writes are used.",
+    "intro": "This historical two-minute recording shows the RF-101 failure-and-correction story, not the current compact layout. Published video, audio and captions remain unchanged pending separate preview review. Follow the demo notes for current guides and real CLI transcripts; this is not live-agent certification.",
     "poster": "qa-ai/media/qa-flowkit-rf101-demo-thumbnail.png",
     "video_src": "qa-ai/media/qa-flowkit-rf101-demo.mp4",
     "captions_en": "qa-ai/media/qa-flowkit-rf101-demo.en.vtt",

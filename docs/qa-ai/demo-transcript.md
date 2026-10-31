@@ -1,9 +1,18 @@
 # RF-101 Demo Transcript and Captions
 
+> The caption timing below describes the **historical published video**, not a new recording.
+> Its MP4, audio and VTT assets remain unchanged. Current commands are in
+> [Terminal Transcripts](terminal-transcripts.md); the replacement storyboard is in [demo-script.md](demo-script.md).
+> The new silent preview uses bilingual on-screen text and a generated external VTT, not bilingual audio.
+
 Accessible narration for the TASK-057 recorded demo. Pair with [`demo-script.md`](demo-script.md) when regenerating the
 video, or use this file with [`demo.md`](demo.md) for a text-first walkthrough.
 
 ## Alt text
+
+**Current preview:** A visibly labelled rendered CLI walkthrough replays RF-101 fixtures from a locally installed
+tarball. It shows compact `.qa-ai/` paths, actual approval fields, the missing-`@manual` diagnostic and exit code 1,
+the correction with its advisory folder warning, and completed local validation. It is not a live OpenCode session.
 
 **Static workflow diagram:** A left-to-right flow labeled RF-101 login requirement passes through intake, normalization,
 Gherkin design, traceability and PR summary. A validator rejects Gherkin missing the manual tag, the feature is
