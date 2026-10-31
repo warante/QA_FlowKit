@@ -246,10 +246,10 @@
   "commands": {
     "eyebrow": "Superficie de comandos",
     "title": "Comandos CLI y de agente",
-    "intro": "Ejecuta la configuración inicial y la validación desde la terminal. Impulsa el flujo QA desde tu herramienta de IA con comandos slash generados.",
+    "intro": "Instala una vez desde la terminal. Configura, valida y usa QA FlowKit dentro del CLI del modelo con comandos barra; el agente gestiona los scripts internos. Los comandos directos de terminal son alternativas para CI y diagnóstico.",
     "agent_group_title": "En tu agente IA",
     "agent_group_note": "Comandos slash generados en <code>.claude/commands/</code> o <code>.opencode/commands/</code> tras el init. Cada tarjeta enlaza a la definición del comando en el framework.",
-    "terminal_group_title": "En tu terminal",
+    "terminal_group_title": "Alternativas de terminal (instalación, CI y diagnóstico)",
     "note_prefix": "Referencias completas:",
     "note_links": [
       {
@@ -355,7 +355,7 @@
     "terminal_commands": [
       {
         "code": "npx qa-flowkit",
-        "description": "Copia <code>.qa-ai/</code> en el repositorio. Luego configura con <code>/qa-init</code> o <code>node .qa-ai/scripts/init.mjs</code>."
+        "description": "Instala el framework y selecciona el adaptador de tu agente. Después abre el CLI del modelo y configura con <code>/qa-init</code>; continúa ahí para el resto del workflow."
       },
       {
         "code": "npx qa-flowkit doctor",

@@ -63,18 +63,11 @@ Abre el repositorio en tu CLI de IA y ejecuta la configuracion guiada:
 /qa-init
 ```
 
-O configura directamente desde la terminal:
-
-```bash
-node .qa-ai/scripts/init.mjs
-npx qa-flowkit doctor # opcional
-```
-
-Usa la superficie de comandos generada:
+A partir de aquí, continúa dentro del CLI del modelo. Comprueba la configuración y elige el siguiente paso:
 
 ```text
 /qa-help
-/qa-add-tests
+/qa-doctor
 /qa-full-flow
 ```
 
@@ -82,9 +75,12 @@ Usa la superficie de comandos generada:
 commands de proyecto mediante adaptadores generados; para agentes sin soporte de slash commands, usa las instrucciones
 de adaptador generadas (`AGENTS.md`, `GEMINI.md`, `.codex/README.md`, etc.).
 
-Durante la línea RC, fija instalaciones reproducibles o CI a `npx qa-flowkit@rc ...` cuando necesites el canal `rc`
-explícitamente. Cuando el agente cree o actualice artefactos QA, ejecuta `npx qa-flowkit validate-target` como quality
-gate del repositorio.
+Usa `/qa-add-tests` en lugar del flujo completo para un requisito nuevo y `/qa-status` para revisar el resultado.
+Para aportar las prácticas del equipo, usa `/qa-init --qa-context qa-ai-knowledge` dentro de la sesión del modelo.
+El agente ejecuta los scripts y validadores internos; los comandos directos de terminal son alternativas para CI y diagnóstico.
+Consulta la [guía rápida centrada en el agente](docs/qa-ai/getting-started.es.md) o la
+[referencia separada de terminal y mantenimiento](docs/qa-ai/terminal-setup-and-maintenance.md).
+Durante la línea RC, puedes instalar con `npx qa-flowkit@rc` si necesitas ese canal explícitamente.
 
 ## Demo
 
@@ -96,7 +92,7 @@ gate del repositorio.
 | ----------------------------------------------------------- | -------------------------------------------------------------------- |
 | [Video grabado](docs/qa-ai/media/qa-flowkit-rf101-demo.mp4) | Demo quick-track RF-101 de dos minutos con audio en inglés y español |
 | [Recorrido estático](docs/qa-ai/demo.md)                    | Historia RF-101, fixtures y salida E2E esperada                      |
-| [Guion de grabación](docs/qa-ai/demo-script.md)             | Guion de demo terminal de dos minutos para mantenedores              |
+| [Guion de grabación](docs/qa-ai/demo-script.md)             | Guion del tutorial ilustrado centrado en el agente, para revisión    |
 | [Transcripción y subtítulos](docs/qa-ai/demo-transcript.md) | Texto alternativo, subtítulos y fallback reproducible                |
 | `npm run test:e2e-quick`                                    | Repetición automatizada en un repositorio destino temporal limpio    |
 

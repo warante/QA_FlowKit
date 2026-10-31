@@ -2,7 +2,10 @@
 
 Read runtime configuration only from `.qa-ai/qa-ai.config.yaml`. New installations default to compact paths:
 `.qa-ai/output/`, `.qa-ai/features/` and `.qa-ai/tests/`; explicit configured paths can differ.
-Use `run start`, `run next` and `run check` to follow the selected track; checks validate artifacts, not model execution.
+The user starts `/qa-full-flow` inside the model's CLI (or the matching native skill in hosts without project slash
+commands). The agent uses the internal harness to follow the selected track and validate artifacts; the user does
+not need to drive phases from a separate terminal. Direct commands remain optional CI/diagnostic alternatives in
+the [terminal reference](terminal-setup-and-maintenance.md). Artifact checks are not proof of model execution.
 
 `.qa-ai/contracts/workflow.v1.json` is the only source of truth for phase order and inclusion. The sections below
 describe phase responsibilities and artifacts; they are not an independent numbered sequence. Runtime progress numbers

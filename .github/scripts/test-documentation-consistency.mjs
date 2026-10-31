@@ -18,7 +18,7 @@ import {
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 
 test('onboarding manuals use compact config and explain scenario layout rather than the pre-npm product', async () => {
-  for (const name of ['getting-started.md', 'workflow.md', 'implementation-guide-for-codex.md']) {
+  for (const name of ['terminal-setup-and-maintenance.md', 'workflow.md', 'implementation-guide-for-codex.md']) {
     const content = await fs.readFile(path.join(repoRoot, 'docs/qa-ai', name), 'utf8');
     for (const phrase of ['.qa-ai/qa-ai.config.yaml', 'one-per-file', 'multiple-per-file']) {
       assert.ok(content.includes(phrase), `${name}: ${phrase}`);
@@ -57,9 +57,74 @@ test('capture displays quoted arguments and preserves diagnostics without invent
   }
 });
 
-test('current tutorial distinguishes the silent rendered preview from historical published media', async () => {
+test('quick starts keep terminal installation separate from in-model slash commands in both languages', async () => {
+  for (const name of ['getting-started.md', 'getting-started.es.md']) {
+    const content = await fs.readFile(path.join(repoRoot, 'docs/qa-ai', name), 'utf8');
+    assert.match(content, /Node\.js 22\.18\+/);
+    for (const command of [
+      '/qa-init',
+      '/qa-init --qa-context qa-ai-knowledge',
+      '/qa-doctor',
+      '/qa-help',
+      '/qa-full-flow',
+      '/qa-status'
+    ]) {
+      assert.ok(content.includes(command), `${name}: ${command}`);
+    }
+    const shellBlocks = [...content.matchAll(/```bash\n([\s\S]*?)```/g)];
+    assert.equal(shellBlocks.length, 1, `${name}: only installation belongs in the terminal`);
+    assert.equal(shellBlocks[0][1].trim(), 'npx qa-flowkit');
+    assert.doesNotMatch(content, /node \.qa-ai\/scripts\/|npx qa-flowkit (?:doctor|run|validate-target)/);
+    assert.match(content, /terminal-setup-and-maintenance\.md/);
+  }
+  for (const [name, heading] of [
+    ['README.md', '## Five-Minute Start'],
+    ['README.es.md', '## Inicio En Cinco Minutos']
+  ]) {
+    const content = await fs.readFile(path.join(repoRoot, name), 'utf8');
+    const quickStart = content.split(heading)[1].split('## Demo')[0];
+    assert.doesNotMatch(quickStart, /node \.qa-ai\/scripts\/|npx qa-flowkit (?:doctor|run|validate-target)/);
+    assert.match(quickStart, /\/qa-init --qa-context qa-ai-knowledge/);
+  }
+});
+
+test('agent-first storyboard only installs in the terminal and uses real slash commands thereafter', async () => {
+  const data = JSON.parse(await fs.readFile(path.join(repoRoot, 'docs/qa-ai/agent-first-storyboard.v1.json'), 'utf8'));
+  assert.equal(data.kind, 'illustrated-agent-first-tutorial');
+  assert.equal(data.liveModelSession, false);
+  const record = JSON.parse(await fs.readFile(path.join(repoRoot, 'docs/qa-ai/demo.v1.json'), 'utf8'));
+  assert.equal(record.replacementTutorial.status, 'pending-review');
+  assert.equal(record.replacementTutorial.liveModelSession, false);
+  assert.equal(record.replacementTutorial.durationSeconds, data.durationSeconds);
+  assert.deepEqual(record.replacementTutorial.audioLanguages, ['es', 'en']);
+  assert.equal(
+    data.scenes.reduce((sum, scene) => sum + scene.duration, 0),
+    data.durationSeconds
+  );
+  assert.ok(data.durationSeconds <= 120);
+  assert.deepEqual(data.scenes[0].commands, ['npx qa-flowkit']);
+  for (const [index, scene] of data.scenes.entries()) {
+    assert.equal(scene.surface, index === 0 ? 'terminal' : 'model-cli');
+    for (const locale of ['es', 'en']) {
+      assert.ok(scene.title[locale] && scene.notes[locale].length && scene.narration[locale], `${scene.id}/${locale}`);
+    }
+    if (index === 0) continue;
+    for (const command of scene.commands) {
+      const name = command.split(' ')[0];
+      assert.match(name, /^\/qa-[a-z-]+$/);
+      assert.ok(await fs.stat(path.join(repoRoot, '.qa-ai/adapters/shared/commands', `${name.slice(1)}.md`)));
+    }
+  }
+});
+
+test('current tutorial distinguishes illustrated agent-first guidance from historical published media', async () => {
   const script = await fs.readFile(path.join(repoRoot, 'docs/qa-ai/demo-script.md'), 'utf8');
-  for (const phrase of ['Node.js 22.18+', 'rendered CLI', 'fixture', 'advisory', 'capture-onboarding.mjs'])
+  for (const phrase of [
+    'Node.js 22.18+',
+    'illustrated tutorial',
+    '/qa-init --qa-context qa-ai-knowledge',
+    'agent-first-storyboard.v1.json'
+  ])
     assert.ok(script.includes(phrase), phrase);
   assert.doesNotMatch(script, /Node.js 20\+|validatedFiles/);
   const demo = await fs.readFile(path.join(repoRoot, 'docs/qa-ai/demo.md'), 'utf8');
@@ -81,10 +146,18 @@ test('current tutorial distinguishes the silent rendered preview from historical
     path.join(repoRoot, 'docs/qa-ai/media/regenerate-rf101-video-prompt.md'),
     'utf8'
   );
-  assert.match(instructions, /--capture/);
+  assert.match(instructions, /render-agent-first-demo\.py --storyboard/);
   assert.doesNotMatch(instructions, /### Nuevo guion|Node.js 20\+/);
-  const renderer = await fs.readFile(path.join(repoRoot, '.github/scripts/render-rf101-demo.py'), 'utf8');
-  for (const phrase of ['--capture', 'exist_ok=False', 'PREVIEW / rendered CLI', 'Text overflow', '"-an"'])
+  const renderer = await fs.readFile(path.join(repoRoot, '.github/scripts/render-agent-first-demo.py'), 'utf8');
+  for (const phrase of [
+    '--storyboard',
+    'exist_ok=False',
+    'No live model session',
+    'text overflow',
+    'Narration too long',
+    'language=spa',
+    'language=eng'
+  ])
     assert.ok(renderer.includes(phrase), phrase);
 });
 

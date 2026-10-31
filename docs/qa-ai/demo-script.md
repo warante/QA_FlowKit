@@ -1,74 +1,77 @@
-# RF-101 Demo Recording Script
+# RF-101 Agent-First Tutorial Script
 
 ## Goal
 
-Prepare a two-minute-or-shorter beginner CLI walkthrough of intake, normalize, Gherkin, traceability and PR preparation.
-Use real captured output, including a deterministic failure and correction. The preview is a **rendered CLI
-walkthrough**, not an OpenCode recording, agent execution or independent human review.
-The existing published video remains historical and unchanged until the preview is reviewed.
+Show the intended user journey: **install once in the terminal, then configure and work inside the model's CLI using
+slash commands**. The agent handles internal scripts, phase progression and validation. Do not teach users to drive
+`run start`, `run next`, `run check` or `node` scripts as the main path.
+
+This replacement is an **illustrated tutorial**, not a captured model session. Display user commands and guidance,
+never invented model replies or passing test output. The previous CLI fixture preview is not the product tutorial.
+Keep published media unchanged until the replacement preview is reviewed.
 
 ## Prerequisites
 
 - Node.js 22.18+; Node.js 24 recommended.
-- A source checkout with dependencies installed, a local npm tarball and clean isolated targets.
-- Python with Pillow and FFmpeg for rendering only, installed outside the repository.
-- No credentials, remote tools or model session are needed for fixture replay.
+- A target repository and a coding agent with a matching slash-command adapter.
+- For rendering only: external Python environment with Pillow, FFmpeg, and installed Spanish/English Windows SAPI voices.
+- No model invocation or credentials are needed to render instructional cards; this is not live-host verification.
 
 ## Recording setup
 
-Capture actual output before composing frames:
+Production storyboard, narration and durations: [agent-first-storyboard.v1.json](agent-first-storyboard.v1.json).
+It defines eight cards spanning 115 seconds, Spanish and English narration, and both caption tracks.
+The renderer checks that every shown slash command has a canonical command template.
 
-```bash
-node .github/scripts/capture-onboarding.mjs --output <new-capture.json>
-```
+- Keep the illustrated/non-live preview label visible throughout.
+- Only the first card shows the operating-system terminal: `npx qa-flowkit`.
+- Every subsequent command appears under “Inside the model's CLI”.
+- Describe approvals as decisions the user must make, not decisions that happened during rendering.
+- Do not show fabricated chat, JSON, validator successes or filesystem evidence.
 
-The helper installs a locally packed package, not an npm registry release. Displayed `qa-flowkit` is an alias for
-that installed Node entrypoint. JSON is explicitly labelled as selected fields; preserve actual diagnostics and
-warnings. Quote multiword arguments and remove private paths. Never simulate slash-command or model responses.
-Keep the “PREVIEW / rendered CLI / fixture replay” label visible. Do not overwrite published media or captions.
+## Scene 1 — Install once (0–10 seconds)
 
-## Scene 1 — Install and configure (0–20 seconds)
+In the project repository, show `npx qa-flowkit`. Tell the user to select the matching agent adapter.
+This is the only terminal operation in the beginner journey.
 
-Show installation (`qa-flowkit init --no-adapters`) and manual-only quick-track configuration from the capture.
-Explain the public equivalent: `npx qa-flowkit`, then `node .qa-ai/scripts/init.mjs --preset manual-only --qa-track quick`.
-Show `.qa-ai/qa-ai.config.yaml`, `.qa-ai/output/` and `.qa-ai/features/`, not root-layout defaults.
+## Scene 2 — Configure inside the model (10–42 seconds)
 
-## Scene 2 — Source and governed phases (20–40 seconds)
+Open the same repository in the model's CLI. Show `/qa-init` (10–28 seconds).
+Explain the guided questions: language, templates, requirements, tools and review of proposed configuration.
 
-Show `requirements/RF-101-login.md`, `run start --rf RF-101`, then captured intake/normalize checks.
-Explicitly say the helper copies reviewed fixtures between `run next` and `run check`; no agent generated them here.
+Then show `/qa-init --qa-context qa-ai-knowledge` (28–42 seconds) as an **alternative starting form** for an existing
+local QA knowledge folder, not a mandatory second initialization. The agent summarizes context and requests approval
+for inferred defaults. Never replace this scene with the raw underlying init script.
 
-## Scene 3 — Approval and intentional failure (40–65 seconds)
+## Scene 3 — Check setup and choose a task (42–76 seconds)
 
-Explain that real users review the design first. In this deterministic replay the helper records the fixture's
-`test-design` approval. Show the actual `approvals` fields, not invented `ok`/`gate` output.
-The invalid fixture lacks `@manual`. Show `run check --json`, `ok: false`, `phaseId: gherkin`, the actual missing-tag
-diagnostic and exit code 1.
+Show `/qa-doctor`, then `/qa-help` (42–54 seconds), both inside the model.
+Then show `/qa-full-flow requirements/RF-101-login.md` (54–76 seconds).
+The user supplies an existing requirement file or pasted text and confirms the official RF ID. The agent guides
+intake, normalize, Gherkin design, traceability and PR preparation according to the configured track.
 
-## Scene 4 — Correct and recheck (65–85 seconds)
+## Scene 4 — Review and validate in the conversation (76–102 seconds)
 
-The helper replaces the invalid fixture with the corrected version containing `@manual:true`.
-Show the captured passing check, then the feature validator warning: the historical fixture is in `functional/`
-instead of the recommended `manual/`. Explain that this warning is advisory, not a hidden failure.
+Show a guidance card, **not a simulated model response**, explaining review and approval (76–90 seconds).
+The agent handles internal scripts; the user stays in the conversation.
+Then show `/qa-validate-features` (90–102 seconds). Explain that issues can be discussed and corrected in-session.
+Do not pretend a failure was observed or corrected in a real session: this video illustrates the usage pattern.
+Artifact validation does not prove automated login tests were executed.
 
-## Scene 5 — Traceability and final gate (85–110 seconds)
+## Scene 5 — Outcome and next requirement (102–115 seconds)
 
-Show captured traceability/PR checks, completed run status and `validate-target` success.
-Paths belong under `.qa-ai/output/` and `.qa-ai/features/`. Completion means local artifact validation, not executed
-login tests, a posted GitHub PR or external synchronization.
+Show `/qa-status` and `/qa-help`. Mention `/qa-add-tests` as an alternative to the full workflow when adding tests
+for another requirement, not an extra mandatory step for the same task.
 
-## Closing (110–115 seconds)
+## Closing
 
-Point to [Getting Started](getting-started.md) and [Terminal Transcripts](terminal-transcripts.md).
-Keep modules, hooks, provenance and SARIF in the separate [advanced guide](modernization.md).
+Link the current [English quick start](getting-started.md) and [Spanish quick start](getting-started.es.md).
+Direct scripts, CI, fixture replay and contributor checks live in the separate
+[terminal and maintenance reference](terminal-setup-and-maintenance.md).
 
 ## Replay without recording
 
-```bash
-npm run test:e2e-quick
-node .github/scripts/capture-onboarding.mjs --output <new-capture.json>
-```
-
-The E2E and capture use deterministic RF-101 fixtures. Neither is live-host E2E or model-support certification.
-See [demo.md](demo.md), [demo-transcript.md](demo-transcript.md) and
-[preview generation instructions](media/regenerate-rf101-video-prompt.md).
+Follow the quick start inside an actual model session to try the journey. To regenerate the illustrated preview,
+see [rendering instructions](media/regenerate-rf101-video-prompt.md). The deterministic `test:e2e-quick` fixture
+replay remains developer evidence only, not a recording of the slash-command journey.
+See [demo.md](demo.md) and [accessible narration](demo-transcript.md).

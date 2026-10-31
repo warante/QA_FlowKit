@@ -3,7 +3,21 @@
 > **Published media is historical.** The MP4/GIF, audio and caption tracks below have not been regenerated for the
 > current compact layout. Use the updated [beginner script](demo-script.md) and real
 > [terminal transcripts](terminal-transcripts.md) for current commands. A separately labelled rendered CLI preview
-> is for review only; it does not replace the published media or demonstrate a live agent session.
+> is superseded by the agent-first tutorial proposal below; no preview replaces published media without review.
+
+## Current user tutorial — inside the model
+
+The intended journey is **terminal installation only, then slash commands inside the model's CLI**:
+`/qa-init` → `/qa-doctor` → `/qa-help` → `/qa-full-flow` → review → `/qa-status`.
+Use `/qa-init --qa-context qa-ai-knowledge` for a context-aware start and `/qa-add-tests` for another requirement.
+Read the [English quick start](getting-started.md) or [guía rápida](getting-started.es.md).
+
+The replacement [script](demo-script.md), [bilingual storyboard](agent-first-storyboard.v1.json) and
+[accessible transcript](demo-transcript.md) describe an **illustrated tutorial**, not a live recorded model session.
+Its new preview has Spanish/English narration and captions, remains separate pending review, and supersedes the
+rejected CLI-only fixture preview as the tutorial proposal. No model replies or validation results are fabricated.
+
+## Developer fixture replay — not the user journey
 
 This is the recorded and reproducible demo for QA FlowKit's five-minute path. It uses no external services,
 credentials or model execution in the product workflow.
@@ -17,7 +31,7 @@ Machine-readable status: [`demo.v1.json`](demo.v1.json) (`recorded`).
 | [Thumbnail](media/qa-flowkit-rf101-demo-thumbnail.png)          | Poster image for README, docs and landing pages           |
 | [English captions](media/qa-flowkit-rf101-demo.en.vtt)          | External WebVTT caption track                             |
 | [Spanish captions](media/qa-flowkit-rf101-demo.es.vtt)          | External WebVTT caption track                             |
-| [Recording script](demo-script.md)                              | Two-minute terminal capture script for maintainers        |
+| [Recording script](demo-script.md)                              | Illustrated agent-first replacement tutorial script       |
 | [Transcript and captions](demo-transcript.md)                   | Accessible narration, alt text and caption track          |
 | [Getting started](getting-started.md#deterministic-rf-101-demo) | Evaluator-facing walkthrough                              |
 | [`test/fixtures/quick-path/`](../../test/fixtures/quick-path/)  | Public RF-101 input, invalid feature and expected outputs |

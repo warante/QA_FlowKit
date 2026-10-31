@@ -4,19 +4,14 @@ QA FlowKit includes guided next-step recommendations inspired by [BMAD Method `b
 
 ## Quick commands
 
-```bash
-node .qa-ai/scripts/qa-help.mjs
-npm run qa:help
-```
-
-In Claude Code or OpenCode (after adapter sync):
+Inside your model's CLI, with the matching adapter installed:
 
 ```text
 /qa-help
 /qa-help where do I start for manual QA?
 ```
 
-Machine-readable output:
+Terminal/CI alternative (not the primary user journey), including machine-readable output:
 
 ```bash
 node .qa-ai/scripts/qa-help.mjs --json
@@ -47,16 +42,12 @@ with `/qa-enable-enterprise` in your agent (or `--qa-track enterprise` / manual 
 
 No preset sets `enterprise` by default. Use one of:
 
-```bash
-# Preferred after the repository is initialized (agent session)
+```text
 /qa-enable-enterprise
-
-# Advanced at init time
-node .qa-ai/scripts/init.mjs --preset playwright-full --qa-track enterprise
-
-# Manual
-# .qa-ai/qa-ai.config.yaml → project.qaTrack: enterprise
 ```
+
+For scripting or manual configuration alternatives, see the
+[terminal and maintenance reference](terminal-setup-and-maintenance.md#enterprise-governance-after-init).
 
 ## How `qa-help` decides the next step
 

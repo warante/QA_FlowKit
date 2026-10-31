@@ -1,0 +1,167 @@
+{
+  "schemaVersion": 1,
+  "kind": "illustrated-agent-first-tutorial",
+  "durationSeconds": 115,
+  "liveModelSession": false,
+  "scenes": [
+    {
+      "id": "install",
+      "duration": 10,
+      "surface": "terminal",
+      "title": { "es": "1. Instala una vez", "en": "1. Install once" },
+      "commands": ["npx qa-flowkit"],
+      "notes": {
+        "es": ["Desde el repositorio de tu proyecto.", "Selecciona el adaptador de tu agente."],
+        "en": ["From your project repository.", "Select the adapter for your coding agent."]
+      },
+      "narration": {
+        "es": "Instala QA FlowKit desde la terminal de tu proyecto y selecciona el adaptador de tu agente. Este es el único paso de terminal del recorrido.",
+        "en": "Install QA FlowKit from your project terminal and select your agent adapter. This is the only terminal step in the walkthrough."
+      }
+    },
+    {
+      "id": "init",
+      "duration": 18,
+      "surface": "model-cli",
+      "title": { "es": "2. Abre el CLI del modelo y configura", "en": "2. Open your model's CLI and configure" },
+      "commands": ["/qa-init"],
+      "notes": {
+        "es": [
+          "Abre el mismo repositorio dentro de tu agente.",
+          "Responde a las preguntas y revisa la configuración propuesta."
+        ],
+        "en": [
+          "Open the same repository inside your coding agent.",
+          "Answer the questions and review the proposed settings."
+        ]
+      },
+      "narration": {
+        "es": "Ahora abre el mismo repositorio en el CLI del modelo. Escribe barra qa init. El agente te preguntará por idiomas, plantilla, fuentes y herramientas. Revisa su propuesta antes de aprobar cambios.",
+        "en": "Now open the same repository in your model's CLI. Enter slash qa init. The agent asks about languages, templates, sources and tools. Review its proposal before approving changes."
+      }
+    },
+    {
+      "id": "context",
+      "duration": 14,
+      "surface": "model-cli",
+      "title": { "es": "Contexto del equipo, sin salir del modelo", "en": "Team context, without leaving the model" },
+      "commands": ["/qa-init --qa-context qa-ai-knowledge"],
+      "notes": {
+        "es": [
+          "Alternativa al inicio anterior si ya tienes una carpeta de prácticas QA.",
+          "El agente resume el contexto; tú apruebas las inferencias."
+        ],
+        "en": [
+          "Alternative start when you already have a local QA knowledge folder.",
+          "The agent summarizes context; you approve inferred defaults."
+        ]
+      },
+      "narration": {
+        "es": "Si tienes una carpeta con las prácticas QA del equipo, puedes iniciar con esta alternativa, también dentro del modelo. El agente resume el contexto y pide aprobación para las decisiones inferidas.",
+        "en": "If you have a local folder of team QA practices, you can start with this alternative, still inside the model. The agent summarizes context and asks approval for inferred decisions."
+      }
+    },
+    {
+      "id": "health",
+      "duration": 12,
+      "surface": "model-cli",
+      "title": { "es": "3. Comprueba y descubre el siguiente paso", "en": "3. Check setup and discover the next step" },
+      "commands": ["/qa-doctor", "/qa-help"],
+      "notes": {
+        "es": ["Doctor comprueba la configuración.", "Help recomienda qué hacer según tu repositorio."],
+        "en": ["Doctor checks your setup.", "Help recommends what to do for your repository."]
+      },
+      "narration": {
+        "es": "Sin salir del CLI del modelo, usa barra qa doctor para comprobar la configuración. Después, barra qa help recomienda el siguiente paso según el estado de tu repositorio.",
+        "en": "Stay inside the model's CLI. Use slash qa doctor to check setup. Then slash qa help recommends the next step based on your repository's current state."
+      }
+    },
+    {
+      "id": "flow",
+      "duration": 22,
+      "surface": "model-cli",
+      "title": { "es": "4. Trabaja con el requisito RF-101", "en": "4. Work through requirement RF-101" },
+      "commands": ["/qa-full-flow requirements/RF-101-login.md"],
+      "notes": {
+        "es": [
+          "Indica un archivo existente o pega el requisito cuando te lo pida.",
+          "Confirma el RF oficial y revisa el plan del agente."
+        ],
+        "en": [
+          "Provide an existing file or paste the requirement when asked.",
+          "Confirm the official RF ID and review the agent's plan."
+        ]
+      },
+      "narration": {
+        "es": "Para recorrer el workflow, usa barra qa full flow con tu archivo de requisitos. También puedes aportar el texto cuando el agente lo solicite. Confirma el identificador oficial RF ciento uno. El agente presentará el plan y te guiará por las fases.",
+        "en": "To follow the workflow, use slash qa full flow with your requirements file. You can also supply the text when the agent asks. Confirm the official identifier RF one hundred and one. The agent presents a plan and guides you through the phases."
+      }
+    },
+    {
+      "id": "review",
+      "duration": 14,
+      "surface": "model-cli",
+      "title": {
+        "es": "Revisa y aprueba dentro de la conversación",
+        "en": "Review and approve inside the conversation"
+      },
+      "commands": [],
+      "notes": {
+        "es": [
+          "Revisa la propuesta de pruebas antes de generar los archivos finales.",
+          "El agente ejecuta los scripts internos; tú decides las aprobaciones."
+        ],
+        "en": [
+          "Review the test proposal before final files are generated.",
+          "The agent runs internal scripts; you decide what to approve."
+        ]
+      },
+      "narration": {
+        "es": "Revisa el diseño de pruebas y responde a las solicitudes de aprobación dentro de la conversación. No necesitas ejecutar manualmente los scripts internos ni avanzar las fases desde otra terminal.",
+        "en": "Review the test design and respond to approval requests inside the conversation. You do not need to run internal scripts manually or advance phases from another terminal."
+      }
+    },
+    {
+      "id": "validate",
+      "duration": 12,
+      "surface": "model-cli",
+      "title": { "es": "5. Valida las pruebas desde el modelo", "en": "5. Validate tests from the model" },
+      "commands": ["/qa-validate-features"],
+      "notes": {
+        "es": [
+          "Pide al agente que explique y corrija los problemas detectados.",
+          "Validar artefactos no equivale a ejecutar las pruebas de login."
+        ],
+        "en": [
+          "Ask the agent to explain and correct reported problems.",
+          "Artifact validation is not execution of the login tests."
+        ]
+      },
+      "narration": {
+        "es": "Para revisar Gherkin, usa barra qa validate features. Si hay problemas, pide al agente que los explique y corrija. Validar estos archivos no significa haber ejecutado las pruebas de login.",
+        "en": "To check Gherkin, use slash qa validate features. If issues appear, ask the agent to explain and correct them. Validating these files does not mean the login tests were executed."
+      }
+    },
+    {
+      "id": "status",
+      "duration": 13,
+      "surface": "model-cli",
+      "title": { "es": "Consulta el resultado y continúa", "en": "Review the outcome and continue" },
+      "commands": ["/qa-status", "/qa-help"],
+      "notes": {
+        "es": [
+          "Para otro requisito: /qa-add-tests, como alternativa al flujo completo.",
+          "Guía rápida: docs/qa-ai/getting-started.es.md"
+        ],
+        "en": [
+          "For another requirement: /qa-add-tests instead of the full flow.",
+          "Quick start: docs/qa-ai/getting-started.md"
+        ]
+      },
+      "narration": {
+        "es": "Consulta barra qa status para conocer el resultado y lo pendiente. Barra qa help propone cómo continuar. Para añadir pruebas de otro requisito, usa barra qa add tests.",
+        "en": "Use slash qa status to review outcomes and pending work. Slash qa help recommends how to continue. To add tests for another requirement, use slash qa add tests."
+      }
+    }
+  ]
+}

@@ -1,37 +1,43 @@
-# Regenerar el preview RF-101
+# Regenerar el tutorial centrado en el agente
 
-Lee `AGENTS.md`, `.qa-ai/qa-ai.config.yaml`, [el guion vigente](../demo-script.md),
-[las transcripciones reales](../terminal-transcripts.md) y [el estado del vídeo](../demo.v1.json).
-No copies un segundo guion aquí: `demo-script.md` es la fuente del storyboard.
+## Recorrido obligatorio
 
-## Límites
+Lee `AGENTS.md`, `.qa-ai/qa-ai.config.yaml`, [la guía rápida](../getting-started.es.md),
+[el guion](../demo-script.md) y [el storyboard bilingüe](../agent-first-storyboard.v1.json).
 
-- Conserva el MP4, GIF, miniatura, audios y VTT publicados hasta la revisión y aprobación del preview.
-- Etiqueta permanentemente la prueba como **PREVIEW / rendered CLI / fixture replay**.
-- No simules una sesión de OpenCode, ejecución de un modelo, revisión humana independiente ni llamadas externas.
-- Captura el paquete local instalado en destinos limpios con Node.js 22.18+ (24 recomendado). No afirmes haber
-  verificado la versión del registro npm si solo se ha probado un tarball local.
-- Mantén los binarios, dependencias Python, modelos de voz y medios temporales fuera del repositorio.
+La terminal solo muestra la instalación. Todo lo demás se explica **dentro del CLI del modelo** mediante comandos
+barra: `/qa-init`, `/qa-doctor`, `/qa-help`, `/qa-full-flow`, `/qa-validate-features` y `/qa-status`.
+El ejemplo de contexto es `/qa-init --qa-context qa-ai-knowledge`, nunca el script interno como camino principal.
+Los scripts siguen siendo alternativas válidas de CI, diagnóstico y mantenimiento, separadas de la guía rápida.
 
-## Captura y renderizado
+## Generar la versión de revisión
 
-Desde el checkout, elige rutas nuevas externas al repositorio:
+Instala Pillow e imageio-ffmpeg en un entorno virtual externo al repositorio. En Windows, el renderer usa las voces
+SAPI locales `es-ES` y `en-US`; comprueba que estén instaladas. Elige un directorio de salida nuevo:
 
 ```bash
-node .github/scripts/capture-onboarding.mjs --output <capture.json>
-python .github/scripts/render-rf101-demo.py --capture <capture.json> --output-dir <preview-directory>
+python .github/scripts/render-agent-first-demo.py --storyboard docs/qa-ai/agent-first-storyboard.v1.json --output-dir <new-external-preview-directory>
 ```
 
-Instala Pillow e imageio-ffmpeg en un entorno virtual temporal si no están disponibles. El preview no requiere voz:
-no anuncies pistas bilingües de audio si solo contiene texto y subtítulos. Conserva los diagnósticos, el código de
-salida 1 del fallo intencionado y la advertencia de carpeta del fixture corregido.
-Los campos JSON seleccionados son extractos reales; las copias de fixtures deben explicarse, no atribuirse al agente.
+Se generan MP4 H.264 a 1080p, dos pistas AAC (español predeterminado e inglés), subtítulos incrustados y VTT externos,
+miniatura y GIF de revisión. La narración no se recorta: si supera una escena, el renderer falla para que se corrija
+el texto o el tiempo. No añadas entornos, binarios ni audio temporal al repositorio.
 
-## Revisión antes de publicar
+## Honestidad del material
 
-1. Reproduce `npm run test:e2e-quick` y los tests documentales/del producto.
-2. Inspecciona fotogramas de instalación, fallo, corrección y cierre: tipografía legible, sin texto cortado ni rutas privadas.
-3. Comprueba resolución, duración, códec, pistas reales y sincronización de subtítulos con las herramientas disponibles.
-4. Entrega la ruta del preview y sus limitaciones. El preview no modifica el estado `published` del vídeo histórico.
-5. Solo después de aprobación explícita, prepara los assets finales, revisiones de accesibilidad y audio, y actualiza
-   metadatos, README y landing en una operación coordinada. No declares pilotos, live-host E2E o soak RC completados.
+- Es una **guía visual ilustrada**, no una sesión grabada del modelo. Mantén la etiqueta visible.
+- Muestra comandos del usuario y notas didácticas; no inventes respuestas del agente ni resultados de validación.
+- No uses la captura CLI de fixtures como tutorial de uso. El helper `render-rf101-demo.py --capture` queda únicamente
+  para inspección técnica del replay determinista, no para producir este tutorial.
+- No afirmes que hubo ejecución de modelos, aprobación humana, tests de login ejecutados o escrituras externas.
+
+## Revisar antes de sustituir los medios publicados
+
+1. Revisa las guías y verifica que los comandos mostrados existen en los adaptadores canónicos.
+2. Inspecciona los fotogramas de instalación, configuración, contexto, trabajo y cierre; no debe haber scripts internos
+   tras la instalación, texto cortado ni mensajes que parezcan respuestas reales del modelo.
+3. Decodifica el vídeo completo y comprueba resolución, duración, dos pistas de audio, idiomas y subtítulos.
+4. Escucha ambas narraciones y revisa su sincronización. Si no se ha hecho una escucha humana, declárala pendiente.
+5. Entrega el preview. Conserva MP4, GIF, miniatura y VTT publicados hasta obtener aprobación de sustitución.
+6. Solo tras aprobarlo, actualiza conjuntamente assets, metadatos, README y landing. Esto no certifica live-host E2E,
+   pilotos ni readiness de release.
