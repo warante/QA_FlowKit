@@ -139,7 +139,7 @@
       },
       "narration": {
         "es": "Para revisar Gherkin, usa barra qa validate features. Si hay problemas, pide al agente que los explique y corrija. Validar estos archivos no significa haber ejecutado las pruebas de login.",
-        "en": "To check Gherkin, use slash qa validate features. If issues appear, ask the agent to explain and correct them. Validating these files does not mean the login tests were executed."
+        "en": "To check Gherkin, use slash qa validate features. Ask the agent to explain and correct any issues. Validating these files does not mean the login tests ran."
       }
     },
     {

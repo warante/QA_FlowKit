@@ -8,13 +8,16 @@ slash commands**. The agent handles internal scripts, phase progression and vali
 
 This replacement is an **illustrated tutorial**, not a captured model session. Display user commands and guidance,
 never invented model replies or passing test output. The previous CLI fixture preview is not the product tutorial.
-Keep published media unchanged until the replacement preview is reviewed.
+The bilingual cut has been reviewed and approved by the user and is now the repository's published tutorial.
+For future regenerations, keep published media unchanged until the next replacement is approved.
 
 ## Prerequisites
 
 - Node.js 22.18+; Node.js 24 recommended.
 - A target repository and a coding agent with a matching slash-command adapter.
-- For rendering only: external Python environment with Pillow, FFmpeg, and installed Spanish/English Windows SAPI voices.
+- For rendering only: external Python environment with Pillow/FFmpeg and local neural narration models.
+  Spanish uses the user-selected **Piper `es_ES-sharvard-medium`, female speaker**; English uses Kokoro `af_heart`.
+  Windows SAPI voices are no longer used.
 - No model invocation or credentials are needed to render instructional cards; this is not live-host verification.
 
 ## Recording setup

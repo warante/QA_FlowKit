@@ -108,9 +108,8 @@ Indica un archivo de requisitos existente o pega el requisito cuando te lo pida,
 El agente te guiará por la generación y validación. Las carpetas predeterminadas son `.qa-ai/output/` y `.qa-ai/features/`.
 
 El replay automático con fixtures sirve para verificar el framework, **no es el recorrido de usuario ni una sesión
-grabada del modelo**. El [vídeo histórico](demo.md) y el preview CLI anterior no representan este enfoque. La nueva
-versión es una guía visual ilustrada de comandos barra, no una sesión grabada del modelo; se revisa por separado
-antes de sustituir los medios publicados.
+grabada del modelo**. El [tutorial aprobado](demo.md) es una guía visual ilustrada de comandos barra, con audio y
+subtítulos en castellano e inglés; no es una sesión real grabada del modelo.
 
 ## Alternativas opcionales
 

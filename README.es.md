@@ -84,22 +84,22 @@ Durante la línea RC, puedes instalar con `npx qa-flowkit@rc` si necesitas ese c
 
 ## Demo
 
-> El vídeo publicado es histórico y no se ha regenerado para el layout compacto actual. Consulta
-> [Primeros pasos](docs/qa-ai/getting-started.md) y las [transcripciones reales](docs/qa-ai/terminal-transcripts.md)
-> para los comandos vigentes. El preview nuevo es independiente y está pendiente de revisión.
+> El tutorial ilustrado bilingüe muestra **la instalación en terminal y después los comandos barra dentro del CLI del modelo**.
+> El castellano es la pista predeterminada; selecciona inglés en el menú de audio del reproductor.
+> Es una guía ilustrada, no una sesión real grabada. [Guía rápida](docs/qa-ai/getting-started.es.md).
 
 | Formato                                                     | Descripción                                                          |
 | ----------------------------------------------------------- | -------------------------------------------------------------------- |
 | [Video grabado](docs/qa-ai/media/qa-flowkit-rf101-demo.mp4) | Demo quick-track RF-101 de dos minutos con audio en inglés y español |
 | [Recorrido estático](docs/qa-ai/demo.md)                    | Historia RF-101, fixtures y salida E2E esperada                      |
-| [Guion de grabación](docs/qa-ai/demo-script.md)             | Guion del tutorial ilustrado centrado en el agente, para revisión    |
+| [Guion de grabación](docs/qa-ai/demo-script.md)             | Guion del tutorial ilustrado aprobado, centrado en el agente         |
 | [Transcripción y subtítulos](docs/qa-ai/demo-transcript.md) | Texto alternativo, subtítulos y fallback reproducible                |
 | `npm run test:e2e-quick`                                    | Repetición automatizada en un repositorio destino temporal limpio    |
 
 [![Miniatura del demo grabado RF-101](docs/qa-ai/media/qa-flowkit-rf101-demo-thumbnail.png)](docs/qa-ai/media/qa-flowkit-rf101-demo.mp4)
 
-El demo grabado RF-101 muestra el quick track desde la ingesta del requisito hasta un fallo intencionado del validador,
-corrección sin reiniciar, trazabilidad y un target gate aprobado. Las pistas de subtítulos externas están disponibles
+El tutorial aprobado muestra `/qa-init`, contexto opcional, `/qa-doctor`, `/qa-help`, `/qa-full-flow`, revisión,
+validación y `/qa-status`. No inventa respuestas del modelo ni resultados correctos. Los subtítulos externos están disponibles
 en [inglés](docs/qa-ai/media/qa-flowkit-rf101-demo.en.vtt) y
 [español](docs/qa-ai/media/qa-flowkit-rf101-demo.es.vtt).
 

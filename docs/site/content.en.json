@@ -59,9 +59,9 @@
     "terminal_code": "npx qa-flowkit\n\nopen your AI CLI and run guided setup:\n\n/qa-init\n/qa-full-flow"
   },
   "demo": {
-    "eyebrow": "Historical RF-101 recording",
-    "title": "Watch the quick track fail, recover and pass",
-    "intro": "This historical two-minute recording shows the RF-101 failure-and-correction story, not the current compact layout. Published video, audio and captions remain unchanged pending separate preview review. Follow the demo notes for current guides and real CLI transcripts; this is not live-agent certification.",
+    "eyebrow": "Bilingual agent-first tutorial",
+    "title": "Install once, then work inside your model's CLI",
+    "intro": "The approved illustrated tutorial shows terminal installation, then slash commands inside the model: guided setup, team context, workflow, review and validation. Choose Castilian Spanish or English in your player's audio menu; both have subtitles. This is an illustrated guide, not a live model recording.",
     "poster": "qa-ai/media/qa-flowkit-rf101-demo-thumbnail.png",
     "video_src": "qa-ai/media/qa-flowkit-rf101-demo.mp4",
     "captions_en": "qa-ai/media/qa-flowkit-rf101-demo.en.vtt",

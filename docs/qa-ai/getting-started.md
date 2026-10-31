@@ -114,9 +114,8 @@ let the agent guide generation and validation. The default artifact folders are 
 The automated fixture replay is a **maintainer verification tool**, not the user journey or a recording of the model.
 See the [terminal/CI alternative](terminal-setup-and-maintenance.md#reproduce-the-verified-path) and
 [captured CLI transcripts](terminal-transcripts.md) if you need to inspect that lower-level evidence.
-The historical [demo](demo.md), [script](demo-script.md) and [transcript](demo-transcript.md) are not a verified
-recording of this agent-first journey. The replacement is an explicitly illustrated slash-command tutorial,
-not a captured model session; it remains separate from published media until reviewed.
+The approved bilingual [tutorial](demo.md), [script](demo-script.md) and [transcript](demo-transcript.md) illustrate
+the slash-command journey. The video has Spanish (Spain) and English audio/subtitles; it is not a captured model session.
 
 ## Optional alternatives — not required for the quick start
 

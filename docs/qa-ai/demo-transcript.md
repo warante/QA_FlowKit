@@ -1,7 +1,7 @@
 # Agent-First Tutorial Transcript and Captions
 
 This transcript describes the new **illustrated tutorial**, not a real recorded model session.
-The historical published MP4 and its captions remain separate until the replacement preview is approved.
+The user-approved bilingual MP4 and its matching caption tracks are now included in the repository.
 The rejected CLI fixture preview is not the intended user journey.
 
 ## Alt text
@@ -9,7 +9,8 @@ The rejected CLI fixture preview is not the intended user journey.
 Instructional cards show one installation command in the terminal, followed by slash commands inside the model's
 CLI: guided setup, optional team context, setup health, recommended next action, RF-101 workflow, review, validation
 and status. There are no invented model replies or test results. Spanish and English narration and captions accompany
-the preview; its permanent label identifies it as illustrated and non-live.
+the video; the approved cut retains its preview label and explicitly identifies the presentation as non-live. Spanish narration uses the selected
+female Castilian Piper Sharvard voice; English uses the female Kokoro `af_heart` voice, not Windows SAPI.
 
 ## Captions
 
@@ -34,7 +35,7 @@ Read the [quick start](getting-started.md) or [guía rápida](getting-started.es
 your own model session. [demo-script.md](demo-script.md) explains the cards and the split between installation,
 agent use and optional terminal alternatives.
 
-The historical media and VTT are still linked from [demo.md](demo.md); their captions do not describe this preview.
+The current MP4 and matching English/Spanish VTT are linked from [demo.md](demo.md).
 
 ## Claims to avoid
 

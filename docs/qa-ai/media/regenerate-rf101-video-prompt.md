@@ -12,15 +12,31 @@ Los scripts siguen siendo alternativas válidas de CI, diagnóstico y mantenimie
 
 ## Generar la versión de revisión
 
-Instala Pillow e imageio-ffmpeg en un entorno virtual externo al repositorio. En Windows, el renderer usa las voces
-SAPI locales `es-ES` y `en-US`; comprueba que estén instaladas. Elige un directorio de salida nuevo:
+Usa un entorno Python 3.12 externo al repositorio para `piper-tts`, `kokoro-onnx` y `soundfile`.
+Para renderizar necesitas Pillow e imageio-ffmpeg. Los modelos y las voces también quedan fuera del repositorio.
+La voz aprobada de castellano es **Piper `es_ES-sharvard-medium`, hablante `F`**; la inglesa es Kokoro `af_heart`.
+No uses las voces SAPI de Windows ni las voces españolas genéricas de Kokoro descartadas por su acento.
+
+Primero genera los clips de narración en un directorio nuevo:
 
 ```bash
-python .github/scripts/render-agent-first-demo.py --storyboard docs/qa-ai/agent-first-storyboard.v1.json --output-dir <new-external-preview-directory>
+python .github/scripts/synthesize-agent-first-audio.py --storyboard docs/qa-ai/agent-first-storyboard.v1.json --spanish-model <es_ES-sharvard-medium.onnx> --english-model <kokoro-v1.0.onnx> --english-voices <voices-v1.0.bin> --output-dir <new-narration-directory>
+```
+
+El modelo español necesita su archivo `.onnx.json` contiguo. La ficha del modelo y la atribución del corpus están en
+[Hugging Face](https://huggingface.co/rhasspy/piper-voices/blob/main/es/es_ES/sharvard/medium/MODEL_CARD) y
+[SHARVARD](https://datashare.ed.ac.uk/handle/10283/574) (CC BY 3.0). Conserva esta procedencia al distribuir la narración.
+El helper registra voces, hashes de modelos/clips y el texto pronunciado en `narration.json`; solo adapta la lectura
+de siglas y comandos, no su significado. Después renderiza en otro directorio nuevo:
+
+```bash
+python .github/scripts/render-agent-first-demo.py --storyboard docs/qa-ai/agent-first-storyboard.v1.json --narration-dir <new-narration-directory> --output-dir <new-external-preview-directory>
 ```
 
 Se generan MP4 H.264 a 1080p, dos pistas AAC (español predeterminado e inglés), subtítulos incrustados y VTT externos,
-miniatura y GIF de revisión. La narración no se recorta: si supera una escena, el renderer falla para que se corrija
+miniatura y GIF de revisión. También se exportan `agent-first.es.mp4` y `agent-first.en.mp4`, con una sola pista cada
+uno, para reproductores que no permiten cambiar el idioma. En el MP4 bilingüe selecciona la pista en el menú de audio.
+La narración no se recorta: si supera una escena, el renderer falla para que se corrija
 el texto o el tiempo. No añadas entornos, binarios ni audio temporal al repositorio.
 
 ## Honestidad del material

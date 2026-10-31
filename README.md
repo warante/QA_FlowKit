@@ -82,22 +82,22 @@ During the RC line, use `npx qa-flowkit@rc` at installation if you need that cha
 
 ## Demo
 
-> The published video is historical and has not been regenerated for the current compact layout. Use
-> [Getting Started](docs/qa-ai/getting-started.md) and [real CLI transcripts](docs/qa-ai/terminal-transcripts.md)
-> for current commands. The replacement preview is separate and pending review.
+> The bilingual illustrated tutorial shows **terminal installation, then slash commands inside the model's CLI**.
+> Spanish (Spain) is the default audio track; select English in your player's audio menu.
+> It is an illustrated guide, not a live model recording. [Quick start](docs/qa-ai/getting-started.md).
 
 | Format                                                       | Description                                                       |
 | ------------------------------------------------------------ | ----------------------------------------------------------------- |
 | [Recorded video](docs/qa-ai/media/qa-flowkit-rf101-demo.mp4) | Two-minute RF-101 quick-track demo with English and Spanish audio |
 | [Static walkthrough](docs/qa-ai/demo.md)                     | RF-101 story, fixtures and expected E2E output                    |
-| [Recording script](docs/qa-ai/demo-script.md)                | Illustrated agent-first tutorial script for review                |
+| [Recording script](docs/qa-ai/demo-script.md)                | Script for the approved illustrated agent-first tutorial          |
 | [Transcript and captions](docs/qa-ai/demo-transcript.md)     | Alt text, captions and replay fallback                            |
 | `npm run test:e2e-quick`                                     | One-command automated replay from a clean temporary target        |
 
 [![RF-101 recorded demo thumbnail](docs/qa-ai/media/qa-flowkit-rf101-demo-thumbnail.png)](docs/qa-ai/media/qa-flowkit-rf101-demo.mp4)
 
-The recorded RF-101 demo shows the quick track from requirement intake through an intentional validator failure,
-correction without restart, traceability and a passing target gate. External caption tracks are available in
+The approved tutorial shows `/qa-init`, optional team context, `/qa-doctor`, `/qa-help`, `/qa-full-flow`, review,
+validation and `/qa-status`. It does not invent model replies or passing results. External caption tracks are available in
 [English](docs/qa-ai/media/qa-flowkit-rf101-demo.en.vtt) and
 [Spanish](docs/qa-ai/media/qa-flowkit-rf101-demo.es.vtt).
 

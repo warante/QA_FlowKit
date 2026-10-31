@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """Render an illustrated slash-command tutorial, never a fabricated model session.
 
-Windows narration uses installed SAPI voices. Pillow/FFmpeg and output stay external.
+Uses reviewed pre-generated bilingual narration. Models, audio and output stay external.
 """
 from __future__ import annotations
 
 import argparse
 import array
+import hashlib
 import json
 from pathlib import Path
 import shutil
@@ -17,28 +18,6 @@ import wave
 from PIL import Image, ImageDraw, ImageFont
 
 WIDTH, HEIGHT, FPS = 1920, 1080, 24
-SPEECH_SCRIPT = r'''
-param([string]$Storyboard, [string]$Output)
-$ErrorActionPreference = 'Stop'
-Add-Type -AssemblyName System.Speech
-$data = Get-Content -LiteralPath $Storyboard -Raw -Encoding UTF8 | ConvertFrom-Json
-$synth = New-Object System.Speech.Synthesis.SpeechSynthesizer
-try {
-  $synth.Rate = 1
-  foreach ($lang in @('es', 'en')) {
-    $culture = if ($lang -eq 'es') { 'es-ES' } else { 'en-US' }
-    $voice = $synth.GetInstalledVoices() | Where-Object { $_.Enabled -and $_.VoiceInfo.Culture.Name -eq $culture } | Select-Object -First 1
-    if (-not $voice) { throw "No installed voice for $culture" }
-    $synth.SelectVoice($voice.VoiceInfo.Name)
-    foreach ($scene in $data.scenes) {
-      $file = Join-Path $Output ($scene.id + '-' + $lang + '.wav')
-      $synth.SetOutputToWaveFile($file)
-      $synth.Speak([string]$scene.narration.$lang)
-      $synth.SetOutputToNull()
-    }
-  }
-} finally { $synth.Dispose() }
-'''
 
 
 def font(size, mono=False):
@@ -96,6 +75,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--storyboard", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
+    parser.add_argument("--narration-dir", type=Path, required=True)
     parser.add_argument("--ffmpeg", type=Path)
     args = parser.parse_args()
     root = Path(__file__).resolve().parents[2]
@@ -124,17 +104,27 @@ def main():
     if not ffmpeg:
         import imageio_ffmpeg
         ffmpeg = imageio_ffmpeg.get_ffmpeg_exe()
-    script = output / "narrate.ps1"
-    script.write_text(SPEECH_SCRIPT, encoding="utf-8-sig")
-    subprocess.run(["powershell", "-NoProfile", "-NonInteractive", "-File", str(script),
-                    "-Storyboard", str(args.storyboard.resolve()), "-Output", str(output)], check=True)
+    manifest = json.loads((args.narration_dir / "narration.json").read_text(encoding="utf-8"))
+    if manifest["storyboard"] != data:
+        raise ValueError("Narration was generated from a different storyboard")
+    if manifest["spanish"]["voice"] != "es_ES-sharvard-medium" or manifest["spanish"]["speaker"] != "F":
+        raise ValueError("Expected the selected female Castilian narration")
+    clips = {(clip["scene"], clip["language"]): clip for clip in manifest["clips"]}
+    for scene in data["scenes"]:
+        for language in ("es", "en"):
+            name = f'{scene["id"]}-{language}.wav'
+            actual = hashlib.sha256((args.narration_dir / name).read_bytes()).hexdigest()
+            if actual != clips[(scene["id"], language)]["sha256"]:
+                raise ValueError(f"Narration hash mismatch: {name}")
+            shutil.copyfile(args.narration_dir / name, output / name)
+    shutil.copyfile(args.narration_dir / "narration.json", output / "narration.json")
     # Never truncate narration to fit the storyboard silently.
     for scene in data["scenes"]:
         for language in ("es", "en"):
             with wave.open(str(output / f'{scene["id"]}-{language}.wav')) as audio:
                 seconds = audio.getnframes() / audio.getframerate()
                 if audio.getsampwidth() != 2:
-                    raise ValueError("Expected 16-bit SAPI narration")
+                    raise ValueError("Expected 16-bit narration")
                 samples = array.array("h", audio.readframes(audio.getnframes()))
                 if seconds < 1 or not samples or max(abs(sample) for sample in samples) <= 100:
                     raise ValueError(f'Empty or silent narration: {scene["id"]}/{language}')
@@ -165,11 +155,15 @@ def main():
     subprocess.run([str(ffmpeg), "-hide_banner", "-loglevel", "error", "-n", "-f", "concat", "-safe", "0", "-i", str(listing),
                     "-i", str(output / "agent-first.es.vtt"), "-i", str(output / "agent-first.en.vtt"),
                     "-map", "0", "-map", "1:s", "-map", "2:s", "-c", "copy", "-c:s", "mov_text",
-                    "-metadata:s:a:0", "language=spa", "-metadata:s:a:0", "title=Español",
-                    "-metadata:s:a:1", "language=eng", "-metadata:s:a:1", "title=English",
+                    "-metadata:s:a:0", "language=spa", "-metadata:s:a:0", "title=Español (España) - femenina",
+                    "-metadata:s:a:1", "language=eng", "-metadata:s:a:1", "title=English (US) - female",
                     "-disposition:a:0", "default", "-disposition:a:1", "0",
                     "-metadata:s:s:0", "language=spa", "-metadata:s:s:1", "language=eng",
                     "-disposition:s:0", "0", "-disposition:s:1", "0", "-movflags", "+faststart", str(video)], check=True)
+    for index, language in enumerate(("es", "en")):
+        subprocess.run([str(ffmpeg), "-hide_banner", "-loglevel", "error", "-n", "-i", str(video),
+                        "-map", "0:v:0", "-map", f"0:a:{index}", "-map", f"0:s:{index}", "-c", "copy",
+                        "-movflags", "+faststart", str(output / f"agent-first.{language}.mp4")], check=True)
     images[1].save(output / "agent-first-thumbnail.png")
     thumbnails = [image.resize((768, 432)) for image in images]
     thumbnails[0].save(output / "agent-first-preview.gif", save_all=True, append_images=thumbnails[1:],

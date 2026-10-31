@@ -1,43 +1,25 @@
 WEBVTT
 
-00:00:00.000 --> 00:00:06.000
-RF-101 starts as one login requirement and finishes as validated QA evidence.
+00:00:00.000 --> 00:00:10.000
+Install QA FlowKit from your project terminal and select your agent adapter. This is the only terminal step in the walkthrough.
 
-00:00:06.000 --> 00:00:14.000
-Install once, open OpenCode, then run /qa-init for the guided setup.
+00:00:10.000 --> 00:00:28.000
+Now open the same repository in your model's CLI. Enter slash qa init. The agent asks about languages, templates, sources and tools. Review its proposal before approving changes.
 
-00:00:14.000 --> 00:00:22.000
-/qa-full-flow opens a governed run that can pause and resume by phase.
+00:00:28.000 --> 00:00:42.000
+If you have a local folder of team QA practices, you can start with this alternative, still inside the model. The agent summarizes context and asks approval for inferred decisions.
 
-00:00:22.000 --> 00:00:30.000
-The public RF-101 fixture stays in the target repository.
+00:00:42.000 --> 00:00:54.000
+Stay inside the model's CLI. Use slash qa doctor to check setup. Then slash qa help recommends the next step based on your repository's current state.
 
-00:00:30.000 --> 00:00:38.000
-The agent writes analysis artifacts, then a deterministic check returns ok true.
+00:00:54.000 --> 00:01:16.000
+To follow the workflow, use slash qa full flow with your requirements file. You can also supply the text when the agent asks. Confirm the official identifier RF one hundred and one. The agent presents a plan and guides you through the phases.
 
-00:00:38.000 --> 00:00:46.000
-Design approval is recorded before generating or accepting Gherkin.
+00:01:16.000 --> 00:01:30.000
+Review the test design and respond to approval requests inside the conversation. You do not need to run internal scripts manually or advance phases from another terminal.
 
-00:00:46.000 --> 00:00:55.000
-The invalid fixture is missing the required @manual:true tag.
+00:01:30.000 --> 00:01:42.000
+To check Gherkin, use slash qa validate features. Ask the agent to explain and correct any issues. Validating these files does not mean the login tests ran.
 
-00:00:55.000 --> 00:01:05.000
-run check exits non-zero and keeps the Gherkin phase active.
-
-00:01:05.000 --> 00:01:14.000
-The corrected fixture adds @manual:true, then the same run retries validation.
-
-00:01:14.000 --> 00:01:22.000
-The same Gherkin gate now passes with ok true.
-
-00:01:22.000 --> 00:01:31.000
-Traceability links RF-101, TC-001 and the acceptance criterion.
-
-00:01:31.000 --> 00:01:39.000
-The PR summary is generated and the run status becomes completed.
-
-00:01:39.000 --> 00:01:48.000
-The final target gate passes without credentials or external service writes.
-
-00:01:48.000 --> 00:01:55.000
-Replay the same path with npm run test:e2e-quick from the source repository.
+00:01:42.000 --> 00:01:55.000
+Use slash qa status to review outcomes and pending work. Slash qa help recommends how to continue. To add tests for another requirement, use slash qa add tests.

@@ -6,6 +6,7 @@ import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { displayArgs, transcriptFromCapture } from './capture-onboarding.mjs';
 import {
   findBrokenLocalMarkdownLinks,
@@ -93,10 +94,24 @@ test('agent-first storyboard only installs in the terminal and uses real slash c
   assert.equal(data.kind, 'illustrated-agent-first-tutorial');
   assert.equal(data.liveModelSession, false);
   const record = JSON.parse(await fs.readFile(path.join(repoRoot, 'docs/qa-ai/demo.v1.json'), 'utf8'));
-  assert.equal(record.replacementTutorial.status, 'pending-review');
+  assert.equal(record.replacementTutorial.status, 'approved');
+  assert.equal(record.humanValidation.tutorialReview, 'approved_by_user');
+  assert.equal(record.recordedMedia.kind, data.kind);
+  assert.equal(record.recordedMedia.liveModelSession, false);
+  assert.deepEqual(record.recordedMedia.audioLanguages, ['es-ES', 'en-US']);
+  const video = await fs.readFile(path.join(repoRoot, record.recordedMedia.path));
+  assert.equal(createHash('sha256').update(video).digest('hex'), record.recordedMedia.sha256);
+  for (const locale of ['es', 'en']) {
+    const captions = await fs.readFile(path.join(repoRoot, record.recordedMedia.captions[locale]), 'utf8');
+    assert.equal((captions.match(/ --> /g) || []).length, data.scenes.length);
+    for (const scene of data.scenes) assert.ok(captions.includes(scene.narration[locale]), `${scene.id}/${locale}`);
+  }
+  assert.ok(await fs.stat(path.join(repoRoot, record.recordedMedia.attribution)));
   assert.equal(record.replacementTutorial.liveModelSession, false);
   assert.equal(record.replacementTutorial.durationSeconds, data.durationSeconds);
   assert.deepEqual(record.replacementTutorial.audioLanguages, ['es', 'en']);
+  assert.match(record.replacementTutorial.voices.es, /es_ES-sharvard-medium, speaker F/);
+  assert.match(record.replacementTutorial.voices.en, /af_heart/);
   assert.equal(
     data.scenes.reduce((sum, scene) => sum + scene.duration, 0),
     data.durationSeconds
@@ -117,7 +132,7 @@ test('agent-first storyboard only installs in the terminal and uses real slash c
   }
 });
 
-test('current tutorial distinguishes illustrated agent-first guidance from historical published media', async () => {
+test('published tutorial preserves approved agent-first guidance without live-model claims', async () => {
   const script = await fs.readFile(path.join(repoRoot, 'docs/qa-ai/demo-script.md'), 'utf8');
   for (const phrase of [
     'Node.js 22.18+',
@@ -128,16 +143,16 @@ test('current tutorial distinguishes illustrated agent-first guidance from histo
     assert.ok(script.includes(phrase), phrase);
   assert.doesNotMatch(script, /Node.js 20\+|validatedFiles/);
   const demo = await fs.readFile(path.join(repoRoot, 'docs/qa-ai/demo.md'), 'utf8');
-  assert.match(demo, /Published media is historical/);
+  assert.match(demo, /user-approved bilingual illustrated tutorial/);
   for (const [name, phrase] of [
-    ['README.md', 'published video is historical'],
-    ['README.es.md', 'vídeo publicado es histórico']
+    ['README.md', 'bilingual illustrated tutorial'],
+    ['README.es.md', 'tutorial ilustrado bilingüe']
   ]) {
     assert.ok((await fs.readFile(path.join(repoRoot, name), 'utf8')).includes(phrase), name);
   }
   for (const [locale, phrase] of [
-    ['en', 'Historical'],
-    ['es', 'histórica']
+    ['en', 'Bilingual'],
+    ['es', 'bilingüe']
   ]) {
     const content = JSON.parse(await fs.readFile(path.join(repoRoot, `docs/site/content.${locale}.json`), 'utf8'));
     assert.ok(content.demo.eyebrow.includes(phrase), locale);
@@ -156,9 +171,16 @@ test('current tutorial distinguishes illustrated agent-first guidance from histo
     'text overflow',
     'Narration too long',
     'language=spa',
-    'language=eng'
+    'language=eng',
+    '--narration-dir',
+    'Narration hash mismatch'
   ])
     assert.ok(renderer.includes(phrase), phrase);
+  assert.doesNotMatch(renderer, /SpeechSynthesizer|SPEECH_SCRIPT/);
+  const synthesizer = await fs.readFile(path.join(repoRoot, '.github/scripts/synthesize-agent-first-audio.py'), 'utf8');
+  for (const phrase of ['es_ES', 'sharvard', 'speaker_id_map', '"F"', 'af_heart', 'speed=1.0', 'narration.json']) {
+    assert.ok(synthesizer.includes(phrase), phrase);
+  }
 });
 
 test('supported runtime stays aligned across package metadata, CI and both READMEs', async () => {
