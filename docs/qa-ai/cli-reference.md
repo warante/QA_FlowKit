@@ -147,6 +147,35 @@ npx qa-flowkit run next
 npx qa-flowkit run check
 ```
 
+## Test execution
+
+`execute` runs only the test commands declared in `.qa-ai/qa-ai.config.yaml`, using no shell interpolation.
+Configured commands remain trusted executable code, not sandboxed operations.
+
+```bash
+npx qa-flowkit execute --dry-run --json
+npx qa-flowkit execute --record-evidence
+```
+
+| Option              | Behavior                                                                                             |
+| ------------------- | ---------------------------------------------------------------------------------------------------- |
+| `--plan <path>`     | Override the configured execution plan path                                                          |
+| `--id <id>`         | Select a configured command; repeat to select several                                                |
+| `--json`            | Emit machine-readable execution results                                                              |
+| `--dry-run`         | Show the configured command plan without running commands or writing provenance                      |
+| `--record-evidence` | Record commit, configuration hash, environment label, timestamps, command outcomes and result hashes |
+| `--force`           | Replace an existing provenance record; requires `--record-evidence`                                  |
+
+Recording requires configured execution commands and result/eval-result paths, an accessible Git commit and refreshed
+result files. Commit configuration and source/test changes before recording. A selected subset must still include
+all required commands for provenance to pass. A new record is marked `running` before execution, so interrupted or
+failed reruns cannot leave an old passing record as evidence. Use `--record-evidence --force` only after approving
+replacement of an existing record. The provenance record contains command IDs/statuses, not command output.
+
+`execution.provenance.mode` controls validation (`off`, `advisory`, `strict`); it does not itself record or execute
+tests. `validate-execution-evidence` checks the enabled policy. See
+[the configuration reference](config-schema.md#executionprovenance) and [evidence limits](modernization.md#commit-bound-execution-evidence-opt-in).
+
 ## Validation commands
 
 | Command                       | Purpose                                                            |
@@ -172,6 +201,18 @@ npx qa-flowkit run check
 | `validate-release-gate`       | Validate enterprise release evidence and decision                  |
 | `validate-healing-log`        | Validate governed test healing log                                 |
 | `validate-test-impact`        | Validate governed test impact analysis report                      |
+
+### SARIF output
+
+```bash
+npx qa-flowkit validate-target --sarif
+```
+
+`--sarif` emits SARIF 2.1.0 to stdout instead of text. It is mutually exclusive with `--json` and uses the same
+validation pipeline and flags. Exit code `0` means validation passed; `1` means failure or inability to finish.
+SARIF exports validation findings, not proof that tests ran or gates were approved. The command does not write a file
+or upload results; any redirection, artifact storage or code-scanning upload is a separate explicit operation.
+See [SARIF validation output](sarif.md) for redaction, safe locations and CI consumption.
 
 `validate-untrusted-content` warns by default, supports `--strict` to fail on findings, and supports `--json` for
 machine-readable `file`, `line`, `pattern` and `excerpt` findings. `validate-target` includes this scanner in warn

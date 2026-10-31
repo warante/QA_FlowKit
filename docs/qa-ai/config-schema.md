@@ -188,6 +188,7 @@ testDesign:
 | `evalResultsPaths`        | string[] | Repo-relative globs to AI eval JSON evidence files.                 |
 | `commands`                | array    | Configured test execution commands (see below)                      |
 | `quarantine.mappingField` | string   | Boolean field name inside the test-management mapping entries.      |
+| `provenance`              | object   | Optional commit-bound execution evidence policy (see below)         |
 
 Each command in `execution.commands`:
 
@@ -201,6 +202,28 @@ Each command in `execution.commands`:
 | `required`       | boolean  | Whether the command must succeed                  |
 | `timeoutSeconds` | integer  | Maximum execution time in seconds                 |
 | `resultPaths`    | string[] | Glob patterns for result files produced           |
+
+### `execution.provenance`
+
+This policy is independent of `execution.mode`. It is opt-in: omitting it preserves existing behavior.
+
+| Key            | Type   | Behavior / runtime default                                                          |
+| -------------- | ------ | ----------------------------------------------------------------------------------- |
+| `mode`         | enum   | `off` (default), `advisory` or `strict`                                             |
+| `manifestPath` | string | Repository-local record path; default `.qa-ai/output/execution-provenance.json`     |
+| `environment`  | string | Declared environment label; default `local`; letters, digits, `.`, `_` and `-` only |
+| `maxAgeHours`  | number | Maximum record age; default `24`; schema minimum `0.01`                             |
+
+`execute --record-evidence` records the run; setting the policy alone does not execute tests or create a record.
+Recording requires configured `execution.commands` and `execution.resultsPaths` or `execution.evalResultsPaths`.
+Commit configuration and source/test changes first. The record binds command outcomes and result hashes to Git HEAD,
+the QA configuration hash, timestamps and the declared environment. Strict mode rejects missing, stale, interrupted,
+failed or mismatched records, including under `--allow-missing`; advisory mode reports warnings instead.
+The source working tree must be clean; Git-ignored files are outside that cleanliness check. The environment label
+is a declaration, not verified host identity, and the local record is not signed or tamper-proof.
+
+See [commit-bound evidence setup](modernization.md#commit-bound-execution-evidence-opt-in) and
+[CLI recording flags](cli-reference.md#test-execution) for recording, replacement and dry-run semantics.
 
 ## `risk` (experimental)
 

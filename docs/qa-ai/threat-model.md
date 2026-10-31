@@ -35,15 +35,15 @@ Out of scope:
 
 ## Trust Boundaries
 
-| Boundary                                       | Current control                                                                                         |
-| ---------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| User input and requirements into agent context | Untrusted-content scanner and rules requiring source analysis before design.                            |
-| Configured paths into filesystem operations    | `resolveRepoPath` normalizes absolute paths inside the repo and rejects escapes in framework scripts.   |
-| Existing files into generated updates          | Safe writes skip existing files unless `--force` or a scoped harness approval is used.                  |
-| Harness run state into phase execution         | Workflow contract validates phase IDs, permissions, validators and output paths.                        |
-| Agent edits into completion                    | Claude hooks can run post-edit validation and stop gates; hookless hosts rely on documented validation. |
-| Local artifacts into external systems          | Proposal-first sync artifacts; governed apply requires an explicit recorded approval gate.              |
-| Source repo into npm                           | CI validation, package allowlist, release-please and npm provenance in release workflows.               |
+| Boundary                                       | Current control                                                                                                                                              |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| User input and requirements into agent context | Untrusted-content scanner and rules requiring source analysis before design.                                                                                 |
+| Configured paths into filesystem operations    | `resolveRepoPath` normalizes absolute paths inside the repo and rejects escapes in framework scripts.                                                        |
+| Existing files into generated updates          | Safe writes skip existing files unless `--force` or a scoped harness approval is used.                                                                       |
+| Harness run state into phase execution         | Workflow contract validates phase IDs, permissions, validators and output paths.                                                                             |
+| Agent edits into completion                    | Claude hooks, opt-in Codex hooks and the opt-in OpenCode V2 plugin provide host-specific feedback; configurations without hooks require explicit validation. |
+| Local artifacts into external systems          | Proposal-first sync artifacts; governed apply requires an explicit recorded approval gate.                                                                   |
+| Source repo into npm                           | CI validation, package allowlist, release-please and npm provenance in release workflows.                                                                    |
 
 ## Actors
 
@@ -60,12 +60,29 @@ Out of scope:
 
 QA FlowKit mixes four kinds of controls. Public docs must not describe one layer as if it were another.
 
-| Layer                     | Provided by FlowKit                                                              | Verified by                                                                | Not guaranteed against                                        |
-| ------------------------- | -------------------------------------------------------------------------------- | -------------------------------------------------------------------------- | ------------------------------------------------------------- |
-| Harness enforcement       | Run gates, approvals, modify-existing blocks, validator ordering in `run check`  | `npm run test:e2e-quick`, harness tests in `test-harness.mjs`              | An agent with unrestricted shell that never calls the CLI     |
-| Validator detection       | Exit codes, strict mode, path checks, secret-like scans, untrusted-content rules | `npm run validate:oss-extraction`, `npm run test:e2e-adversarial`, CI jobs | Hosts that skip validators or ignore non-zero exits           |
-| Prompt and rule guidance  | `AGENTS.md`, `.qa-ai/rules/*.rules.md`, adapter command templates                | Adapter parity checks, `docs:check`, human review                          | Model or host behavior that ignores repository instructions   |
-| Host and tool enforcement | Optional Claude hooks; user-approved MCP/tool execution outside FlowKit scripts  | Documented host setup; pilot evidence for selected adapters                | Any host tool the user approves without running FlowKit gates |
+| Layer                     | Provided by FlowKit                                                                                         | Verified by                                                                                         | Not guaranteed against                                                                      |
+| ------------------------- | ----------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| Harness enforcement       | Run gates, approvals, modify-existing blocks, validator ordering in `run check`                             | `npm run test:e2e-quick`, harness tests in `test-harness.mjs`                                       | An agent with unrestricted shell that never calls the CLI                                   |
+| Validator detection       | Exit codes, strict mode, path checks, secret-like scans, untrusted-content rules                            | `npm run validate:oss-extraction`, `npm run test:e2e-adversarial`, CI jobs                          | Hosts that skip validators or ignore non-zero exits                                         |
+| Prompt and rule guidance  | `AGENTS.md`, `.qa-ai/rules/*.rules.md`, adapter command templates                                           | Adapter parity checks, `docs:check`, human review                                                   | Model or host behavior that ignores repository instructions                                 |
+| Host and tool enforcement | Claude hooks, opt-in Codex hooks and the optional OpenCode V2 plugin; user-approved external tool execution | Hook-contract/subprocess tests and documented setup; live-host evidence remains separately required | Disabled hooks, unsupported hosts, unrestricted shell or approved tools that bypass FlowKit |
+
+### Host-specific hooks and feedback
+
+- **Claude Code:** post-edit checks and the active-run stop gate use the configured lifecycle hooks.
+- **Codex:** `sync-adapters --adapters codex --hooks` generates optional project hooks; review and trust them in the
+  host. Existing user handlers are preserved during an explicitly forced merge.
+- **OpenCode V2:** `sync-adapters --adapters opencode --opencode-plugin` generates a local package only on opt-in.
+  Review its pinned SDK dependency before loading it. Post-operation validation provides feedback after the write
+  has happened; `experimental.idle` admits at most one verification continuation per prompt. It is not a sandbox,
+  rollback or automatic gate approval.
+
+The default OpenCode adapter still relies on explicit validation when the plugin is not enabled. Plugin checks are
+serialized per instance, isolate project/session locations, redact diagnostics and suppress stale feedback after a
+new prompt, session move or unload. This does not create a global lock across hosts or certify real-host E2E behavior.
+Protected CI and workflow approvals remain necessary for every host. See
+[agent compatibility](agent-compatibility.md), [the V2 plugin guide](opencode-v2-plugin.md) and
+[the hardening review](code-review-hardening.md) for exact contracts, tests and residual risks.
 
 ## Abuse Cases And Controls
 
@@ -122,7 +139,8 @@ Trusted Publishing, branch protection and untriaged GitHub Security alerts.
 ## Accepted RC Limitations
 
 - QA FlowKit is not a sandbox for a hostile agent or host shell.
-- Hook enforcement is host-specific; Claude hooks are stronger than hookless adapter guidance.
+- Hook behavior is host-specific and optional; Codex hooks require review/trust and OpenCode V2 idle feedback is experimental. No hook configuration is a write sandbox or real-host certification.
+- Commit-bound execution provenance is opt-in and local, not a signed attestation; SARIF serializes validator findings, not proof of execution. See [evidence setup](modernization.md#commit-bound-execution-evidence-opt-in) and [SARIF output](sarif.md).
 - External write enforcement depends on the user and host tooling honoring the recorded approval gate.
 - Private vulnerability reporting and npm Trusted Publishing require human-maintained repository/npm settings.
 - Pilot and RC evidence must not be inferred from local tests alone.

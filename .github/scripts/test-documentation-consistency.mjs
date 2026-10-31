@@ -5,6 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { execFileSync } from 'node:child_process';
 import {
   findBrokenLocalMarkdownLinks,
   findStaleEvergreenVersions,
@@ -137,6 +138,68 @@ test('security hardening docs distinguish bounded checks from sandboxing', async
   const plugin = await fs.readFile(path.join(repoRoot, 'docs/qa-ai/opencode-v2-plugin.md'), 'utf8');
   for (const phrase of ['invalidates pending idle feedback', 'serialized per plugin instance', 'not raw server errors'])
     assert.ok(plugin.includes(phrase), phrase);
+});
+
+test('OpenCode adapter docs describe default validation separately from the opt-in V2 plugin', async () => {
+  const template = await fs.readFile(path.join(repoRoot, '.qa-ai/adapters/opencode/README.md'), 'utf8');
+  assert.equal(await fs.readFile(path.join(repoRoot, '.opencode/README.md'), 'utf8'), template);
+  for (const phrase of [
+    '.qa-ai/qa-ai.config.yaml',
+    '--opencode-plugin',
+    'experimental.idle',
+    'default adapter',
+    'not a sandbox',
+    'not real-host E2E certification'
+  ]) {
+    assert.ok(template.includes(phrase), phrase);
+  }
+  assert.doesNotMatch(
+    template,
+    /Self-Validation \(Hookless Host\)|OpenCode does not support automatic settings-level hooks/
+  );
+});
+
+test('configuration and CLI references expose the provenance contract and real command flags', async () => {
+  const schema = JSON.parse(await fs.readFile(path.join(repoRoot, '.qa-ai/contracts/config.v1.schema.json'), 'utf8'));
+  const configGuide = await fs.readFile(path.join(repoRoot, 'docs/qa-ai/config-schema.md'), 'utf8');
+  assert.match(configGuide, /### `execution\.provenance`/);
+  const provenance = schema.properties.execution.properties.provenance;
+  for (const key of Object.keys(provenance.properties)) assert.ok(configGuide.includes(`| \`${key}\``), key);
+  for (const mode of provenance.properties.mode.enum) assert.ok(configGuide.includes(`\`${mode}\``), mode);
+  for (const phrase of ['off` (default)', 'maxAgeHours', '0.01', 'not signed', '--allow-missing'])
+    assert.ok(configGuide.includes(phrase), phrase);
+
+  const cli = await fs.readFile(path.join(repoRoot, 'docs/qa-ai/cli-reference.md'), 'utf8');
+  for (const [script, flags] of [
+    ['execute.mjs', ['--record-evidence', '--force', '--dry-run', '--id', '--plan']],
+    ['validate-target.mjs', ['--sarif', '--json']]
+  ]) {
+    const help = execFileSync(process.execPath, [path.join(repoRoot, '.qa-ai/scripts', script), '--help'], {
+      encoding: 'utf8',
+      timeout: 10000
+    });
+    for (const flag of flags) {
+      assert.ok(help.includes(flag), `${script}: ${flag}`);
+      assert.ok(cli.includes(flag), `CLI reference: ${flag}`);
+    }
+  }
+  for (const phrase of ['mutually exclusive', 'not proof that tests ran', 'does not write a file'])
+    assert.ok(cli.includes(phrase), phrase);
+});
+
+test('threat model includes optional Codex/OpenCode controls without claiming sandboxing or certification', async () => {
+  const model = await fs.readFile(path.join(repoRoot, 'docs/qa-ai/threat-model.md'), 'utf8');
+  for (const phrase of [
+    '--adapters codex --hooks',
+    '--opencode-plugin',
+    'experimental.idle',
+    'not a sandbox',
+    'real-host',
+    'not a signed attestation'
+  ])
+    assert.ok(model.includes(phrase), phrase);
+  assert.match(model, /\]\(opencode-v2-plugin\.md\)/);
+  assert.match(model, /\]\(sarif\.md\)/);
 });
 
 test('stale prerelease versions fail in evergreen docs but historical files stay outside the check', () => {
