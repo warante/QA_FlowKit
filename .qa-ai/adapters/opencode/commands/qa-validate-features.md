@@ -1,7 +1,6 @@
 ---
 description: Validate QA FlowKit Gherkin feature files / Validar archivos Gherkin de QA FlowKit
 argument-hint: [optional validator flags]
-allowed-tools: [view_file, list_dir, grep_search, glob, run_command]
 ---
 
 !`node .qa-ai/scripts/show-config.mjs --json`

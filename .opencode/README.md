@@ -9,7 +9,7 @@ Related docs: [main README](../../../README.md) | [agent compatibility](../../..
 | File                                    | Purpose                                                                |
 | --------------------------------------- | ---------------------------------------------------------------------- |
 | `AGENTS.md`                             | Generic behavior and safety rules                                      |
-| `qa-ai.config.yaml`                     | Project configuration                                                  |
+| `.qa-ai/qa-ai.config.yaml`              | Only runtime project configuration                                     |
 | `.qa-ai/output/qa-knowledge-summary.md` | Team QA practice summary when `knowledge.enabled` is true              |
 | `.qa-ai/output/qa-init-decisions.md`    | Approved context-based init decisions when `knowledge.enabled` is true |
 | `.qa-ai/rules/README.md` + `*.rules.md` | Mandatory workflow rules (all agents)                                  |
@@ -57,6 +57,21 @@ Use `.qa-ai/workflows/full-flow.md` for end-to-end QA delivery and keep all exte
 
 When initializing with a QA context folder, use `/qa-init --qa-context <path>` so OpenCode reads `.qa-ai/workflows/context-intake.md` before choosing defaults.
 
-## Self-Validation (Hookless Host)
+## Validation and optional OpenCode V2 plugin
 
-OpenCode does not support automatic settings-level hooks. You must manually run the appropriate validation scripts (e.g., `node .qa-ai/scripts/validate-target.mjs` or `node .qa-ai/scripts/validate-features.mjs`) after every file edit and before finishing your turn.
+The default adapter provides commands and a native skill; it does not automatically enable validation hooks.
+Without the optional plugin, run the appropriate validators after edits and before claiming completion, for example
+`node .qa-ai/scripts/validate-target.mjs` and `npx qa-flowkit run check` for an active workflow run.
+
+OpenCode V2 supports a local FlowKit plugin through explicit opt-in:
+
+```bash
+npx qa-flowkit sync-adapters --adapters opencode --opencode-plugin
+```
+
+This requires the `adapter-opencode` module in a modular installation. Review the generated
+`.opencode/plugins/qa-flowkit/` package and its pinned SDK dependency before trusting/loading it.
+The plugin provides post-operation validation feedback and at most one verification continuation per prompt through
+`experimental.idle`. Operations have already happened: it is not a sandbox, rollback or automatic gate approval.
+Validators and protected CI remain necessary. Hook-contract tests are not real-host E2E certification.
+See `docs/qa-ai/opencode-v2-plugin.md` in the source repository for compatibility, setup and remaining evidence.

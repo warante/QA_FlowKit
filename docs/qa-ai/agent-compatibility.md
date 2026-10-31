@@ -63,7 +63,8 @@ Parity rules:
 
 - **Root copies** (`.claude/`, `.opencode/`): byte-identical to `.qa-ai/adapters/<tool>/` except documented exclusions (for example `.claude/settings.json`). Enforced by `verify-adapter-parity.mjs` in CI.
 - **Claude plugin** (`plugin/`, `.claude-plugin/`): generated from the Claude adapter; skill bodies come from `.qa-ai/adapters/claude/commands/`. Enforced by `build-claude-plugin.mjs --check` in CI.
-- **Cross-adapter command metadata**: for each shared slash-command filename, the `description` frontmatter in Claude and OpenCode templates should stay identical (bilingual `English / Spanish`). `verify-adapter-support.mjs` emits a **warning** when description hashes diverge; fix by syncing the `description` field across both adapters.
+- **Cross-adapter command metadata**: descriptions and workflow bodies stay aligned; permission metadata is host-specific.
+  Claude uses native read-tool grants, while OpenCode permissions remain under the host's configuration.
 - **Support manifest**: `docs/qa-ai/adapter-support.v1.json` and the support table in this document must match adapter template directories and evidence paths. Enforced by `npm run test:adapter-support`.
 
 See also [Claude Code Plugin](claude-plugin.md) and [CONTRIBUTING.md](../../CONTRIBUTING.md) § Agent adapters.
@@ -158,7 +159,9 @@ dated run on the current release candidate.
 
 Slash commands for supported adapters (such as Claude Code and OpenCode) are defined using Markdown files in `.claude/commands/` and `.opencode/commands/`. These commands support standardized frontmatter keys for access control and invocation:
 
-- `allowed-tools`: Restricts the tools available to the agent during command execution. Read-only commands (e.g. status, help, validation) restrict tools to `[view_file, list_dir, grep_search, glob, run_command]` to prevent accidental file modifications. Modifying commands allow write/edit tools.
+- `allowed-tools`: Claude commands pre-approve only native `Read`, `Grep` and `Glob` tools. This field grants permission;
+  it does not deny other tools or turn a command into a read-only sandbox. OpenCode command templates omit this
+  Claude-specific grant; use native host permissions for enforcement. Shell and write approvals remain host-controlled.
 - `disable-model-invocation`: Set to `true` (specifically for `/qa-gate`) to prevent the AI model from initiating the command autonomously, ensuring quality gate decisions require human interaction.
 
 ### Context Injection
@@ -197,7 +200,25 @@ Host references:
 Some agent hosts support native interception mechanisms (hooks) to run verification steps automatically before or after tool executions, or at the end of a turn.
 
 - **Claude Code**: Supports native `PostToolUse` and `Stop` hooks. We automatically configure these hooks in `.claude/settings.json` to trigger post-edit validation (`post-edit-validate.mjs`) and the release stop gate (`stop-gate.mjs`). This provides deterministic interception of invalid files or pending verification checks.
-- **OpenCode and Hookless Hosts**: OpenCode and other hosts (e.g. Codex, Cline, Continue, Aider, Goose, Gemini CLI) do not currently support project-level settings hooks for intercepting edits or turn completion. In these environments, the system falls back to documented instructions. The agent must manually run the appropriate validation scripts (e.g., `node .qa-ai/scripts/validate-target.mjs`) after every file modification and before finalizing its work.
+- **Codex**: Current Codex supports project lifecycle hooks. Opt in with
+  `node .qa-ai/scripts/sync-agent-adapters.mjs --adapters codex --hooks`, then review and trust them with `/hooks`.
+  Existing hook configuration is not overwritten without `--force`; user handlers are preserved when merging.
+  The bridge translates patch paths and blocking stop decisions into the Codex protocol.
+- **OpenCode V2**: Commands and a portable skill remain the default. Opt in to the local plugin with
+  `sync-adapters --adapters opencode --opencode-plugin` for post-operation validation feedback and a bounded
+  experimental idle continuation. See [the plugin guide](opencode-v2-plugin.md) for SDK compatibility and limits.
+  Validators and protected CI gates remain necessary; this plugin is not a sandbox or real-host E2E certification.
+- **Other adapters**: Follow documented validation unless a specific native integration has been verified.
+
+Syncing the Claude, Codex or OpenCode adapter also installs the same compact `qa-flowkit` skill in
+`.claude/skills/`, `.agents/skills/` or `.opencode/skills/`, respectively. It loads only phase-specific guidance on demand.
+Existing skills are preserved unless `--force` is explicitly selected. A generated skill or simulated hook test does
+not upgrade an adapter to `host-e2e-verified`.
+
+Current integration references: [Codex skills](https://developers.openai.com/codex/skills),
+[Codex hooks](https://developers.openai.com/codex/hooks),
+[OpenCode V2 skills](https://opencode.ai/v2/docs/skills), and
+[OpenCode V2 plugins](https://opencode.ai/v2/docs/build/plugins).
 
 ## Required behavior for every agent
 

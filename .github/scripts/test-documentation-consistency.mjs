@@ -5,6 +5,8 @@ import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { execFileSync } from 'node:child_process';
+import { displayArgs, transcriptFromCapture } from './capture-onboarding.mjs';
 import {
   findBrokenLocalMarkdownLinks,
   findStaleEvergreenVersions,
@@ -14,6 +16,336 @@ import {
 } from './lib/documentation-consistency.mjs';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
+
+test('onboarding manuals use compact config and explain scenario layout rather than the pre-npm product', async () => {
+  for (const name of ['terminal-setup-and-maintenance.md', 'workflow.md', 'implementation-guide-for-codex.md']) {
+    const content = await fs.readFile(path.join(repoRoot, 'docs/qa-ai', name), 'utf8');
+    for (const phrase of ['.qa-ai/qa-ai.config.yaml', 'one-per-file', 'multiple-per-file']) {
+      assert.ok(content.includes(phrase), `${name}: ${phrase}`);
+    }
+    assert.doesNotMatch(
+      content,
+      /All seven steps|The first version is folder-copy based|must.*later migrated to an npm CLI/
+    );
+  }
+});
+
+test('capture displays quoted arguments and preserves diagnostics without inventing agent evidence', () => {
+  assert.equal(displayArgs(['--note', 'RF-101 approved']), '--note "RF-101 approved"');
+  const markdown = transcriptFromCapture({
+    sourceCommit: 'abc123',
+    node: 'v24',
+    commands: [
+      {
+        id: 'invalid',
+        command: 'qa-flowkit run check --json',
+        exitCode: 1,
+        selectedFields: true,
+        stdout: '{"ok":false,"phaseId":"gherkin","diagnostics":"Missing @manual"}',
+        stderr: ''
+      }
+    ]
+  });
+  for (const phrase of [
+    'Missing @manual',
+    'Exit code: 1',
+    'fixture replay',
+    'not the npm registry',
+    'selected actual fields'
+  ]) {
+    assert.ok(markdown.includes(phrase), phrase);
+  }
+});
+
+test('quick starts keep terminal installation separate from in-model slash commands in both languages', async () => {
+  for (const name of ['getting-started.md', 'getting-started.es.md']) {
+    const content = await fs.readFile(path.join(repoRoot, 'docs/qa-ai', name), 'utf8');
+    assert.match(content, /Node\.js 22\.18\+/);
+    for (const command of [
+      '/qa-init',
+      '/qa-init --qa-context qa-ai-knowledge',
+      '/qa-doctor',
+      '/qa-help',
+      '/qa-full-flow',
+      '/qa-status'
+    ]) {
+      assert.ok(content.includes(command), `${name}: ${command}`);
+    }
+    const shellBlocks = [...content.matchAll(/```bash\n([\s\S]*?)```/g)];
+    assert.equal(shellBlocks.length, 1, `${name}: only installation belongs in the terminal`);
+    assert.equal(shellBlocks[0][1].trim(), 'npx qa-flowkit');
+    assert.doesNotMatch(content, /node \.qa-ai\/scripts\/|npx qa-flowkit (?:doctor|run|validate-target)/);
+    assert.match(content, /terminal-setup-and-maintenance\.md/);
+  }
+  for (const [name, heading] of [
+    ['README.md', '## Five-Minute Start'],
+    ['README.es.md', '## Inicio En Cinco Minutos']
+  ]) {
+    const content = await fs.readFile(path.join(repoRoot, name), 'utf8');
+    const quickStart = content.split(heading)[1].split('## Demo')[0];
+    assert.doesNotMatch(quickStart, /node \.qa-ai\/scripts\/|npx qa-flowkit (?:doctor|run|validate-target)/);
+    assert.match(quickStart, /\/qa-init --qa-context qa-ai-knowledge/);
+  }
+});
+
+test('agent-first storyboard only installs in the terminal and uses real slash commands thereafter', async () => {
+  const data = JSON.parse(await fs.readFile(path.join(repoRoot, 'docs/qa-ai/agent-first-storyboard.v1.json'), 'utf8'));
+  assert.equal(data.kind, 'illustrated-agent-first-tutorial');
+  assert.equal(data.liveModelSession, false);
+  const record = JSON.parse(await fs.readFile(path.join(repoRoot, 'docs/qa-ai/demo.v1.json'), 'utf8'));
+  assert.equal(record.replacementTutorial.status, 'pending-review');
+  assert.equal(record.replacementTutorial.liveModelSession, false);
+  assert.equal(record.replacementTutorial.durationSeconds, data.durationSeconds);
+  assert.deepEqual(record.replacementTutorial.audioLanguages, ['es', 'en']);
+  assert.equal(
+    data.scenes.reduce((sum, scene) => sum + scene.duration, 0),
+    data.durationSeconds
+  );
+  assert.ok(data.durationSeconds <= 120);
+  assert.deepEqual(data.scenes[0].commands, ['npx qa-flowkit']);
+  for (const [index, scene] of data.scenes.entries()) {
+    assert.equal(scene.surface, index === 0 ? 'terminal' : 'model-cli');
+    for (const locale of ['es', 'en']) {
+      assert.ok(scene.title[locale] && scene.notes[locale].length && scene.narration[locale], `${scene.id}/${locale}`);
+    }
+    if (index === 0) continue;
+    for (const command of scene.commands) {
+      const name = command.split(' ')[0];
+      assert.match(name, /^\/qa-[a-z-]+$/);
+      assert.ok(await fs.stat(path.join(repoRoot, '.qa-ai/adapters/shared/commands', `${name.slice(1)}.md`)));
+    }
+  }
+});
+
+test('current tutorial distinguishes illustrated agent-first guidance from historical published media', async () => {
+  const script = await fs.readFile(path.join(repoRoot, 'docs/qa-ai/demo-script.md'), 'utf8');
+  for (const phrase of [
+    'Node.js 22.18+',
+    'illustrated tutorial',
+    '/qa-init --qa-context qa-ai-knowledge',
+    'agent-first-storyboard.v1.json'
+  ])
+    assert.ok(script.includes(phrase), phrase);
+  assert.doesNotMatch(script, /Node.js 20\+|validatedFiles/);
+  const demo = await fs.readFile(path.join(repoRoot, 'docs/qa-ai/demo.md'), 'utf8');
+  assert.match(demo, /Published media is historical/);
+  for (const [name, phrase] of [
+    ['README.md', 'published video is historical'],
+    ['README.es.md', 'vídeo publicado es histórico']
+  ]) {
+    assert.ok((await fs.readFile(path.join(repoRoot, name), 'utf8')).includes(phrase), name);
+  }
+  for (const [locale, phrase] of [
+    ['en', 'Historical'],
+    ['es', 'histórica']
+  ]) {
+    const content = JSON.parse(await fs.readFile(path.join(repoRoot, `docs/site/content.${locale}.json`), 'utf8'));
+    assert.ok(content.demo.eyebrow.includes(phrase), locale);
+  }
+  const instructions = await fs.readFile(
+    path.join(repoRoot, 'docs/qa-ai/media/regenerate-rf101-video-prompt.md'),
+    'utf8'
+  );
+  assert.match(instructions, /render-agent-first-demo\.py --storyboard/);
+  assert.doesNotMatch(instructions, /### Nuevo guion|Node.js 20\+/);
+  const renderer = await fs.readFile(path.join(repoRoot, '.github/scripts/render-agent-first-demo.py'), 'utf8');
+  for (const phrase of [
+    '--storyboard',
+    'exist_ok=False',
+    'No live model session',
+    'text overflow',
+    'Narration too long',
+    'language=spa',
+    'language=eng'
+  ])
+    assert.ok(renderer.includes(phrase), phrase);
+});
+
+test('supported runtime stays aligned across package metadata, CI and both READMEs', async () => {
+  const pkg = JSON.parse(await fs.readFile(path.join(repoRoot, 'package.json'), 'utf8'));
+  const lock = JSON.parse(await fs.readFile(path.join(repoRoot, 'package-lock.json'), 'utf8'));
+  assert.equal(pkg.engines.node, '>=22.18.0');
+  assert.equal(lock.packages[''].engines.node, pkg.engines.node);
+  for (const name of ['README.md', 'README.es.md']) {
+    assert.match(await fs.readFile(path.join(repoRoot, name), 'utf8'), /Node\.js 22\.18\+/);
+  }
+  const workflows = await fs.readdir(path.join(repoRoot, '.github/workflows'));
+  for (const name of workflows.filter((file) => file.endsWith('.yml'))) {
+    const content = await fs.readFile(path.join(repoRoot, '.github/workflows', name), 'utf8');
+    assert.doesNotMatch(content, /node-version:\s*['"]?20\b|node:\s*\[[^\]]*['"]20['"]/, name);
+  }
+  const ci = await fs.readFile(path.join(repoRoot, '.github/workflows/ci.yml'), 'utf8');
+  assert.match(ci, /node: \['22', '24'\]/);
+  assert.match(ci, /node-version: '24'/);
+});
+
+test('modernization docs distinguish guardrails and evidence from host certification', async () => {
+  const compatibility = await fs.readFile(path.join(repoRoot, 'docs/qa-ai/agent-compatibility.md'), 'utf8');
+  assert.match(compatibility, /review and trust/);
+  assert.match(compatibility, /does not deny other tools/);
+  assert.doesNotMatch(compatibility, /Codex.*do not currently support project-level settings hooks/);
+  for (const [name, link] of [
+    ['README.md', 'modernization.md'],
+    ['README.es.md', 'modernization.es.md']
+  ]) {
+    assert.ok((await fs.readFile(path.join(repoRoot, name), 'utf8')).includes(link));
+  }
+  const guide = await fs.readFile(path.join(repoRoot, 'docs/qa-ai/modernization.md'), 'utf8');
+  assert.match(guide, /execute --record-evidence/);
+  assert.match(guide, /not signed/);
+  assert.match(guide, /remain pending/);
+});
+
+test('SARIF docs describe validation outcomes separately from execution and external uploads', async () => {
+  for (const name of ['modernization.md', 'modernization.es.md']) {
+    const guide = await fs.readFile(path.join(repoRoot, 'docs/qa-ai', name), 'utf8');
+    assert.match(guide, /validate-target --sarif/);
+    assert.match(guide, /\]\(sarif\.md\)/);
+  }
+  const guide = await fs.readFile(path.join(repoRoot, 'docs/qa-ai/sarif.md'), 'utf8');
+  for (const required of ['2.1.0', 'mutually exclusive', 'Exit code `0`', 'executionSuccessful', 'does not', 'UTF-8']) {
+    assert.ok(guide.includes(required), required);
+  }
+  assert.match(guide, /No live GitHub upload/);
+});
+
+test('PR summary docs preserve committed-only scope, exact links and pending verification', async () => {
+  for (const name of ['modernization.md', 'modernization.es.md']) {
+    const guide = await fs.readFile(path.join(repoRoot, 'docs/qa-ai', name), 'utf8');
+    assert.match(guide, /pr-summary --base origin\/main/);
+    assert.match(guide, /\]\(pr-impact-summary\.md\)/);
+  }
+  const guide = await fs.readFile(path.join(repoRoot, 'docs/qa-ai/pr-impact-summary.md'), 'utf8');
+  for (const phrase of [
+    'merge-base',
+    'exact, case-sensitive',
+    'not an exhaustive test selection',
+    'excluded',
+    '--force',
+    'not assessed',
+    'not registered'
+  ]) {
+    assert.ok(guide.includes(phrase), phrase);
+  }
+});
+
+test('modular installation docs keep core validators and distinguish payload selection from package splitting', async () => {
+  const guide = await fs.readFile(path.join(repoRoot, 'docs/qa-ai/modular-installation.md'), 'utf8');
+  for (const phrase of [
+    'full framework',
+    'single complete package',
+    'All validators',
+    'automation-presets',
+    'union',
+    '--force',
+    'install-modules.json',
+    'non-pruning'
+  ]) {
+    assert.ok(guide.includes(phrase), phrase);
+  }
+  for (const name of ['modernization.md', 'modernization.es.md', 'cli-reference.md']) {
+    assert.match(await fs.readFile(path.join(repoRoot, 'docs/qa-ai', name), 'utf8'), /\]\(modular-installation\.md\)/);
+  }
+});
+
+test('runtime and OpenCode V2 docs preserve fail-closed behavior and experimental boundaries', async () => {
+  const modular = await fs.readFile(path.join(repoRoot, 'docs/qa-ai/modular-installation.md'), 'utf8');
+  for (const phrase of [
+    'runtime-automation',
+    'runtime-reporting',
+    'runtime-observability',
+    'runtime-development',
+    'Version 1',
+    'version 2',
+    'never silently skipped'
+  ]) {
+    assert.ok(modular.includes(phrase), phrase);
+  }
+  const plugin = await fs.readFile(path.join(repoRoot, 'docs/qa-ai/opencode-v2-plugin.md'), 'utf8');
+  for (const phrase of [
+    '--opencode-plugin',
+    '2.2.4',
+    'experimental.idle',
+    'already happened',
+    'one',
+    'not real-host E2E certification'
+  ]) {
+    assert.ok(plugin.includes(phrase), phrase);
+  }
+  for (const name of ['modernization.md', 'modernization.es.md', 'agent-compatibility.md', 'cli-reference.md']) {
+    assert.match(await fs.readFile(path.join(repoRoot, 'docs/qa-ai', name), 'utf8'), /\]\(opencode-v2-plugin\.md\)/);
+  }
+});
+
+test('security hardening docs distinguish bounded checks from sandboxing', async () => {
+  const extensions = await fs.readFile(path.join(repoRoot, 'docs/qa-ai/extensibility.md'), 'utf8');
+  for (const phrase of ['30-second timeout', '1 MiB', 'not a sandbox']) assert.ok(extensions.includes(phrase), phrase);
+  const plugin = await fs.readFile(path.join(repoRoot, 'docs/qa-ai/opencode-v2-plugin.md'), 'utf8');
+  for (const phrase of ['invalidates pending idle feedback', 'serialized per plugin instance', 'not raw server errors'])
+    assert.ok(plugin.includes(phrase), phrase);
+});
+
+test('OpenCode adapter docs describe default validation separately from the opt-in V2 plugin', async () => {
+  const template = await fs.readFile(path.join(repoRoot, '.qa-ai/adapters/opencode/README.md'), 'utf8');
+  assert.equal(await fs.readFile(path.join(repoRoot, '.opencode/README.md'), 'utf8'), template);
+  for (const phrase of [
+    '.qa-ai/qa-ai.config.yaml',
+    '--opencode-plugin',
+    'experimental.idle',
+    'default adapter',
+    'not a sandbox',
+    'not real-host E2E certification'
+  ]) {
+    assert.ok(template.includes(phrase), phrase);
+  }
+  assert.doesNotMatch(
+    template,
+    /Self-Validation \(Hookless Host\)|OpenCode does not support automatic settings-level hooks/
+  );
+});
+
+test('configuration and CLI references expose the provenance contract and real command flags', async () => {
+  const schema = JSON.parse(await fs.readFile(path.join(repoRoot, '.qa-ai/contracts/config.v1.schema.json'), 'utf8'));
+  const configGuide = await fs.readFile(path.join(repoRoot, 'docs/qa-ai/config-schema.md'), 'utf8');
+  assert.match(configGuide, /### `execution\.provenance`/);
+  const provenance = schema.properties.execution.properties.provenance;
+  for (const key of Object.keys(provenance.properties)) assert.ok(configGuide.includes(`| \`${key}\``), key);
+  for (const mode of provenance.properties.mode.enum) assert.ok(configGuide.includes(`\`${mode}\``), mode);
+  for (const phrase of ['off` (default)', 'maxAgeHours', '0.01', 'not signed', '--allow-missing'])
+    assert.ok(configGuide.includes(phrase), phrase);
+
+  const cli = await fs.readFile(path.join(repoRoot, 'docs/qa-ai/cli-reference.md'), 'utf8');
+  for (const [script, flags] of [
+    ['execute.mjs', ['--record-evidence', '--force', '--dry-run', '--id', '--plan']],
+    ['validate-target.mjs', ['--sarif', '--json']]
+  ]) {
+    const help = execFileSync(process.execPath, [path.join(repoRoot, '.qa-ai/scripts', script), '--help'], {
+      encoding: 'utf8',
+      timeout: 10000
+    });
+    for (const flag of flags) {
+      assert.ok(help.includes(flag), `${script}: ${flag}`);
+      assert.ok(cli.includes(flag), `CLI reference: ${flag}`);
+    }
+  }
+  for (const phrase of ['mutually exclusive', 'not proof that tests ran', 'does not write a file'])
+    assert.ok(cli.includes(phrase), phrase);
+});
+
+test('threat model includes optional Codex/OpenCode controls without claiming sandboxing or certification', async () => {
+  const model = await fs.readFile(path.join(repoRoot, 'docs/qa-ai/threat-model.md'), 'utf8');
+  for (const phrase of [
+    '--adapters codex --hooks',
+    '--opencode-plugin',
+    'experimental.idle',
+    'not a sandbox',
+    'real-host',
+    'not a signed attestation'
+  ])
+    assert.ok(model.includes(phrase), phrase);
+  assert.match(model, /\]\(opencode-v2-plugin\.md\)/);
+  assert.match(model, /\]\(sarif\.md\)/);
+});
 
 test('stale prerelease versions fail in evergreen docs but historical files stay outside the check', () => {
   const errors = findStaleEvergreenVersions(

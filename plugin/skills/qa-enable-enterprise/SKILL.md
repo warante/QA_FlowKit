@@ -1,7 +1,7 @@
 ---
 description: Enable enterprise governance on standard track / Activar gobierno enterprise sobre standard
 argument-hint: [optional note for qa-init-decisions]
-allowed-tools: [view_file, write_file, edit_file, list_dir, grep_search, glob, run_command]
+allowed-tools: Read Grep Glob
 ---
 
 !`node .qa-ai/scripts/show-config.mjs --json`

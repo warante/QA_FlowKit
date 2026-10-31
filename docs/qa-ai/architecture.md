@@ -71,7 +71,7 @@ complementary aspects of the same workflow.
 
 Supported sync adapters are `generic`, `claude`, `codex`, `opencode`, `cline`, `continue`, `aider`, `goose` and `gemini`.
 
-All scripts use native Node.js APIs and are intended for Node.js 20+.
+All scripts use native Node.js APIs and require Node.js 22.18+ (Node.js 24 recommended).
 
 Agent behavior can be customized through phase agents, specialists, shared rules and adapter templates. See [Customizing Agents](customizing-agents.md) for the recommended customization workflow and safety checklist.
 

@@ -59,9 +59,9 @@
     "terminal_code": "npx qa-flowkit\n\nopen your AI CLI and run guided setup:\n\n/qa-init\n/qa-full-flow"
   },
   "demo": {
-    "eyebrow": "Recorded RF-101 path",
+    "eyebrow": "Historical RF-101 recording",
     "title": "Watch the quick track fail, recover and pass",
-    "intro": "The two-minute demo follows one login requirement through slash-command setup, deterministic validation, an intentional missing-tag failure, correction without restart, traceability and a passing target gate. No credentials or external service writes are used.",
+    "intro": "This historical two-minute recording shows the RF-101 failure-and-correction story, not the current compact layout. Published video, audio and captions remain unchanged pending separate preview review. Follow the demo notes for current guides and real CLI transcripts; this is not live-agent certification.",
     "poster": "qa-ai/media/qa-flowkit-rf101-demo-thumbnail.png",
     "video_src": "qa-ai/media/qa-flowkit-rf101-demo.mp4",
     "captions_en": "qa-ai/media/qa-flowkit-rf101-demo.en.vtt",
@@ -76,7 +76,7 @@
     ]
   },
   "signals": [
-    { "strong": "Node.js 20+", "span": "Native CLI and portable scripts" },
+    { "strong": "Node.js 22.18+", "span": "Native CLI and portable scripts" },
     { "strong": "RC ready", "span": "Release-please and npm publishing workflow" },
     { "strong": "Agent ready", "span": "Claude Code, OpenCode, Codex Desktop and more" }
   ],
@@ -191,10 +191,10 @@
   "commands": {
     "eyebrow": "Command surface",
     "title": "CLI and agent commands",
-    "intro": "Run initial setup and validation from the terminal. Drive the QA flow from your AI coding tool with generated slash commands.",
+    "intro": "Install once from the terminal. Configure, validate and use QA FlowKit inside your model's CLI with slash commands; the agent handles internal scripts. Direct terminal commands are optional CI and troubleshooting alternatives.",
     "agent_group_title": "In your AI agent",
     "agent_group_note": "Slash commands generated under <code>.claude/commands/</code> or <code>.opencode/commands/</code> after init. Each card links to its command definition in the framework.",
-    "terminal_group_title": "In your terminal",
+    "terminal_group_title": "Terminal alternatives (installation, CI and diagnostics)",
     "note_prefix": "Full references:",
     "note_links": [
       {
@@ -296,7 +296,7 @@
     "terminal_commands": [
       {
         "code": "npx qa-flowkit",
-        "description": "Copy <code>.qa-ai/</code> into the repository. Then configure with <code>/qa-init</code> or <code>node .qa-ai/scripts/init.mjs</code>."
+        "description": "Install the framework and select your agent adapter. Then open the model's CLI and configure with <code>/qa-init</code>; stay there for the rest of the workflow."
       },
       {
         "code": "npx qa-flowkit doctor",

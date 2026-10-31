@@ -22,7 +22,15 @@
     },
     "durationSeconds": 115,
     "resolution": "1920x1080",
-    "notes": "Two-minute-or-shorter RF-101 terminal demo with English and Spanish audio tracks."
+    "notes": "Historical published RF-101 media. Current intended usage is installation then slash commands inside the model CLI; see getting-started.md and getting-started.es.md. Published assets remain unchanged pending review of the separate illustrated agent-first replacement."
+  },
+  "replacementTutorial": {
+    "status": "pending-review",
+    "kind": "illustrated-agent-first-tutorial",
+    "storyboard": "docs/qa-ai/agent-first-storyboard.v1.json",
+    "durationSeconds": 115,
+    "audioLanguages": ["es", "en"],
+    "liveModelSession": false
   },
   "humanValidation": {
     "productManagerReview": "pending",

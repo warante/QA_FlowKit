@@ -1,7 +1,7 @@
 # QA FlowKit
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Node.js 20+](https://img.shields.io/badge/node.js-20%2B-339933.svg)](package.json)
+[![Node.js 22.18+](https://img.shields.io/badge/node.js-22.18%2B-339933.svg)](package.json)
 [![Status: RC](https://img.shields.io/badge/status-RC-yellow.svg)](docs/qa-ai/stability-policy.md)
 [![CI](https://github.com/warante/QA_FlowKit/actions/workflows/ci.yml/badge.svg)](https://github.com/warante/QA_FlowKit/actions/workflows/ci.yml)
 [![npm version](https://img.shields.io/npm/v/qa-flowkit.svg)](https://www.npmjs.com/package/qa-flowkit)
@@ -9,6 +9,10 @@
 Turn AI-assisted QA work into a repeatable, reviewable repository workflow.
 
 Language: **English** | [Español](README.es.md)
+
+FlowKit complements existing test runners and coding agents: it governs traceability and evidence rather than
+replacing test generation. Native skills, optional Codex hooks and opt-in commit-bound execution evidence are
+described in [current-agent modernization](docs/qa-ai/modernization.md).
 
 QA FlowKit coordinates an AI coding agent while deterministic scripts enforce the workflow:
 
@@ -57,18 +61,11 @@ Open the repository in your AI coding CLI and run the guided setup:
 /qa-init
 ```
 
-Or configure directly from the terminal:
-
-```bash
-node .qa-ai/scripts/init.mjs
-npx qa-flowkit doctor # optional
-```
-
-Use the generated QA command surface:
+From this point, stay inside the model's CLI. Check setup and choose the next action:
 
 ```text
 /qa-help
-/qa-add-tests
+/qa-doctor
 /qa-full-flow
 ```
 
@@ -76,16 +73,24 @@ Use the generated QA command surface:
 project slash commands through generated adapters; agents without slash-command support use generated adapter
 instructions (`AGENTS.md`, `GEMINI.md`, `.codex/README.md`, etc.).
 
-During the RC line, pin reproducible setup or CI to `npx qa-flowkit@rc ...` when you need the `rc` channel explicitly.
-After the agent creates or updates QA artifacts, run `npx qa-flowkit validate-target` as the repository quality gate.
+Use `/qa-add-tests` instead of the full flow when adding one new requirement, and `/qa-status` to review results.
+For team knowledge, use `/qa-init --qa-context qa-ai-knowledge` inside the model session.
+The agent runs the underlying scripts and validators; direct terminal commands are optional alternatives for CI and troubleshooting.
+See the [agent-first quick start](docs/qa-ai/getting-started.md) or the separate
+[terminal and maintenance reference](docs/qa-ai/terminal-setup-and-maintenance.md).
+During the RC line, use `npx qa-flowkit@rc` at installation if you need that channel explicitly.
 
 ## Demo
+
+> The published video is historical and has not been regenerated for the current compact layout. Use
+> [Getting Started](docs/qa-ai/getting-started.md) and [real CLI transcripts](docs/qa-ai/terminal-transcripts.md)
+> for current commands. The replacement preview is separate and pending review.
 
 | Format                                                       | Description                                                       |
 | ------------------------------------------------------------ | ----------------------------------------------------------------- |
 | [Recorded video](docs/qa-ai/media/qa-flowkit-rf101-demo.mp4) | Two-minute RF-101 quick-track demo with English and Spanish audio |
 | [Static walkthrough](docs/qa-ai/demo.md)                     | RF-101 story, fixtures and expected E2E output                    |
-| [Recording script](docs/qa-ai/demo-script.md)                | Two-minute terminal demo script for maintainers                   |
+| [Recording script](docs/qa-ai/demo-script.md)                | Illustrated agent-first tutorial script for review                |
 | [Transcript and captions](docs/qa-ai/demo-transcript.md)     | Alt text, captions and replay fallback                            |
 | `npm run test:e2e-quick`                                     | One-command automated replay from a clean temporary target        |
 

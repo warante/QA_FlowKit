@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { validateMaestroFlowContent } from './maestro-validate.mjs';
+import { assertInstalledModule } from './module-installation.mjs';
 import { maestroFlowsPath, usesMaestro } from './mobile-automation.mjs';
 import { loadQaAiConfig, pathExists, relativeTo, resolveRepoPath } from './utils.mjs';
 import { listCollectionFiles, validateCollection } from './collection-validator.mjs';
@@ -12,6 +12,12 @@ export async function validateMaestroFlowsCollection(cwd, options = {}) {
   if (!usesMaestro(configInfo.data)) {
     return { ok: true, errors: [], warnings: [], skipped: true };
   }
+  try {
+    await assertInstalledModule(cwd, 'runtime-automation');
+  } catch (error) {
+    return { ok: false, errors: [error.message], warnings: [] };
+  }
+  const { validateMaestroFlowContent } = await import('./maestro-validate.mjs');
 
   const flowsRoot = options.path || maestroFlowsPath(configInfo.data);
   const flowsRootPath = resolveRepoPath(cwd, flowsRoot, { label: 'Maestro flows root' });

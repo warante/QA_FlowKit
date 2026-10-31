@@ -1,0 +1,11 @@
+{
+  "name": "qa-flowkit-opencode-local",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./index.mjs"
+  },
+  "dependencies": {
+    "@opencode/plugin": "2.2.4"
+  }
+}

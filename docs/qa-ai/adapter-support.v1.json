@@ -31,6 +31,7 @@
       "generatedPaths": [
         ".claude/agents/",
         ".claude/commands/",
+        ".claude/skills/qa-flowkit/SKILL.md",
         ".claude/settings/hooks.json"
       ],
       "verifiedOn": "2026-06-25",
@@ -49,7 +50,8 @@
       "level": "template-verified",
       "generatedPaths": [
         ".codex/README.md",
-        ".codex/prompts/"
+        ".codex/prompts/",
+        ".agents/skills/qa-flowkit/SKILL.md"
       ],
       "verifiedOn": "2026-06-25",
       "versionRange": "1.0.0-rc.13",
@@ -57,7 +59,7 @@
         ".qa-ai/adapters/codex/README.md",
         ".qa-ai/adapters/codex/prompts/implement-project.md"
       ],
-      "notes": "Hookless host guidance; validation is manual through documented scripts."
+      "notes": "Native skill discovery and opt-in project hooks are covered by local tests; real-host E2E evidence is still pending. Hooks must be reviewed and trusted in Codex."
     },
     {
       "id": "opencode",
@@ -65,7 +67,8 @@
       "level": "cli-smoke-verified",
       "generatedPaths": [
         ".opencode/agents/",
-        ".opencode/commands/"
+        ".opencode/commands/",
+        ".opencode/skills/qa-flowkit/SKILL.md"
       ],
       "verifiedOn": "2026-06-25",
       "versionRange": "1.0.0-rc.13",

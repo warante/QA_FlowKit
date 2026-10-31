@@ -1,154 +1,77 @@
-# RF-101 Demo Recording Script
-
-Use this script to record a **two-minute-or-shorter** terminal demo for TASK-057. The story matches
-`[demo.md](demo.md)`, `[getting-started.md](getting-started.md)` and `npm run test:e2e-quick`.
+# RF-101 Agent-First Tutorial Script
 
 ## Goal
 
-Show one requirement flowing through the quick track — generated artifacts, a deterministic validator failure, a
-correction and a passing target gate — driven entirely by framework slash commands inside OpenCode. No manual `node`
-invocations; only `npx qa-flowkit` for the initial install.
+Show the intended user journey: **install once in the terminal, then configure and work inside the model's CLI using
+slash commands**. The agent handles internal scripts, phase progression and validation. Do not teach users to drive
+`run start`, `run next`, `run check` or `node` scripts as the main path.
+
+This replacement is an **illustrated tutorial**, not a captured model session. Display user commands and guidance,
+never invented model replies or passing test output. The previous CLI fixture preview is not the product tutorial.
+Keep published media unchanged until the replacement preview is reviewed.
 
 ## Prerequisites
 
-- Node.js 20+ and a clean terminal at 1080p or higher.
-- QA FlowKit source checkout or packed CLI on the `rc` channel.
-- OpenCode installed and available in the PATH (`opencode`).
-- Empty temporary directory for the target repository.
-- Hide shell prompts that expose usernames or local paths when possible.
+- Node.js 22.18+; Node.js 24 recommended.
+- A target repository and a coding agent with a matching slash-command adapter.
+- For rendering only: external Python environment with Pillow, FFmpeg, and installed Spanish/English Windows SAPI voices.
+- No model invocation or credentials are needed to render instructional cards; this is not live-host verification.
 
 ## Recording setup
 
-1. Increase terminal font size for readability.
-2. Use a dark theme with high contrast.
-3. Clear scrollback before each scene.
-4. Keep total runtime under **120 seconds**; prefer fewer commands over exhaustive narration.
+Production storyboard, narration and durations: [agent-first-storyboard.v1.json](agent-first-storyboard.v1.json).
+It defines eight cards spanning 115 seconds, Spanish and English narration, and both caption tracks.
+The renderer checks that every shown slash command has a canonical command template.
 
-## Scene 1 — Install and guided init (0:00–0:20)
+- Keep the illustrated/non-live preview label visible throughout.
+- Only the first card shows the operating-system terminal: `npx qa-flowkit`.
+- Every subsequent command appears under “Inside the model's CLI”.
+- Describe approvals as decisions the user must make, not decisions that happened during rendering.
+- Do not show fabricated chat, JSON, validator successes or filesystem evidence.
 
-**Say:** "RF-101 is a login requirement. QA FlowKit installs in one command and guides you through init with slash commands."
+## Scene 1 — Install once (0–10 seconds)
 
-```bash
-mkdir /tmp/rf101-demo && cd /tmp/rf101-demo
-npx qa-flowkit
-```
+In the project repository, show `npx qa-flowkit`. Tell the user to select the matching agent adapter.
+This is the only terminal operation in the beginner journey.
 
-**Show:** the TUI adapter selector. Choose `opencode` or your favorite cli.
+## Scene 2 — Configure inside the model (10–42 seconds)
 
-```bash
-opencode
-```
+Open the same repository in the model's CLI. Show `/qa-init` (10–28 seconds).
+Explain the guided questions: language, templates, requirements, tools and review of proposed configuration.
 
-Inside OpenCode, run the guided initialization:
+Then show `/qa-init --qa-context qa-ai-knowledge` (28–42 seconds) as an **alternative starting form** for an existing
+local QA knowledge folder, not a mandatory second initialization. The agent summarizes context and requests approval
+for inferred defaults. Never replace this scene with the raw underlying init script.
 
-```text
-/qa-init
-```
+## Scene 3 — Check setup and choose a task (42–76 seconds)
 
-Answer the guided questions:
+Show `/qa-doctor`, then `/qa-help` (42–54 seconds), both inside the model.
+Then show `/qa-full-flow requirements/RF-101-login.md` (54–76 seconds).
+The user supplies an existing requirement file or pasted text and confirms the official RF ID. The agent guides
+intake, normalize, Gherkin design, traceability and PR preparation according to the configured track.
 
-- Interface language: `1. English`
-- Project name: `rf101-demo`
-- Gherkin language: `1. English`
-- Base template: `1. Manual only`
-- Requirements source: `1. Markdown`
-- Test management: `1. None`
-- Issue tracker: `1. None`
-- Adapters: `opencode`
+## Scene 4 — Review and validate in the conversation (76–102 seconds)
 
-**Show:** init summary with `doctor` passing, what was created, and suggested next steps.
+Show a guidance card, **not a simulated model response**, explaining review and approval (76–90 seconds).
+The agent handles internal scripts; the user stays in the conversation.
+Then show `/qa-validate-features` (90–102 seconds). Explain that issues can be discussed and corrected in-session.
+Do not pretend a failure was observed or corrected in a real session: this video illustrates the usage pattern.
+Artifact validation does not prove automated login tests were executed.
 
-Copy the public requirement from `[test/fixtures/quick-path/requirements/RF-101-login.md](../../test/fixtures/quick-path/requirements/RF-101-login.md)`
-into `requirements/RF-101-login.md`. Show the file in a second pane or editor.
+## Scene 5 — Outcome and next requirement (102–115 seconds)
 
-## Scene 2 — Full flow: analysis and artifacts (0:20–0:45)
+Show `/qa-status` and `/qa-help`. Mention `/qa-add-tests` as an alternative to the full workflow when adding tests
+for another requirement, not an extra mandatory step for the same task.
 
-**Say:** "One slash command drives the entire workflow. The agent reads the requirement, produces analysis artifacts, and runs deterministic validation at each phase."
+## Closing
 
-Inside OpenCode:
-
-```text
-/qa-full-flow
-```
-
-**Agent asks:** Where is the requirement source?
-**Answer:** `requirements/RF-101-login.md`
-
-**Agent asks:** What is the official RF ID?
-**Answer:** `RF-101`
-
-**Agent asks:** Test management project/suite?
-**Answer:** `None — quick track`
-
-**Show:** the agent producing artifacts under `.qa-ai/output/`:
-
-- `requirement-analysis.md`
-- `normalized-requirements.md`
-
-**Show:** `run check` passing in the agent's terminal output — `"ok": true`.
-
-## Scene 3 — Intentional validator failure (0:45–1:10)
-
-**Say:** "If a required Gherkin tag is missing, the gate fails and keeps the phase active. No restart needed."
-
-Before the agent generates the `.feature` file, place the invalid fixture in a second terminal or editor:
-
-Copy from `[test/fixtures/quick-path/invalid/](../../test/fixtures/quick-path/invalid/)` — a `.feature` file **without** `@manual:true`:
-
-```text
-features/functional/RF-101-TC-001-login.feature
-```
-
-When the agent reaches the Gherkin validation phase, `run check` fails.
-
-**Show:** non-zero exit and output mentioning `@manual:true` is required. The agent reports:
-
-> Validation blocked. The feature file is missing `@manual:true`. Add the tag and I'll retry.
-
-**Say:** "The run stays on the Gherkin phase. State persists."
-
-## Scene 4 — Correction, traceability and completion (1:10–1:40)
-
-**Say:** "After correction, the same run resumes without restarting."
-
-Replace the feature with the corrected fixture
-(`[test/fixtures/quick-path/expected/features/functional/RF-101-TC-001-login.feature](../../test/fixtures/quick-path/expected/features/functional/RF-101-TC-001-login.feature)`).
-
-Tell the agent: `Fixed — retry validation.` (or the agent detects the change and retries automatically).
-
-**Show:** `run check` passing — `"ok": true`.
-
-**Agent continues** the quick-track workflow:
-
-- Generates `traceability-matrix.md`
-- Generates `pr-summary.md`
-
-**Show:** run status `completed` in the agent's output.
-
-## Scene 5 — Target validation and closing (1:40–2:00)
-
-**Say:** "The repository quality gate validates the full target state."
-
-The agent runs the final gate and reports success. Optionally, the presenter can also run:
-
-```text
-/qa-status
-```
-
-**Show:** zero exit code and the final artifact tree under `.qa-ai/output/` and `features/`.
-
-## Closing (1:55–2:00)
-
-**Say:** "The entire workflow ran from OpenCode slash commands. No manual `node` invocations. Replay this path from the QA FlowKit source repository with `npm run test:e2e-quick`, or read the static walkthrough in `docs/qa-ai/demo.md`."
-
-**Do not claim:** automatic Jira/TestRail writes, guaranteed model execution or productivity guarantees.
+Link the current [English quick start](getting-started.md) and [Spanish quick start](getting-started.es.md).
+Direct scripts, CI, fixture replay and contributor checks live in the separate
+[terminal and maintenance reference](terminal-setup-and-maintenance.md).
 
 ## Replay without recording
 
-From the QA FlowKit source repository:
-
-```bash
-npm run test:e2e-quick
-```
-
-PowerShell uses the same command. Fixture root: `[test/fixtures/quick-path/](../../test/fixtures/quick-path/)`.
+Follow the quick start inside an actual model session to try the journey. To regenerate the illustrated preview,
+see [rendering instructions](media/regenerate-rf101-video-prompt.md). The deterministic `test:e2e-quick` fixture
+replay remains developer evidence only, not a recording of the slash-command journey.
+See [demo.md](demo.md) and [accessible narration](demo-transcript.md).

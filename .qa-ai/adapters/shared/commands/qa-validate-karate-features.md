@@ -1,7 +1,7 @@
 ---
 description: Validate executable Karate feature files / Validar features ejecutables de Karate
 argument-hint: [optional validator flags]
-allowed-tools: [view_file, list_dir, grep_search, glob, run_command]
+{{READ_TOOL_GRANTS}}
 ---
 
 !`node .qa-ai/scripts/show-config.mjs --json`

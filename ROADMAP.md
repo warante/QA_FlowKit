@@ -26,7 +26,7 @@ The executable implementation plan, owners, dependencies and acceptance criteria
 - End-to-end QA flow: requirement -> risk analysis -> test design -> test data -> environment readiness -> Gherkin -> traceability -> execution -> result analysis -> defect triage -> release gate -> learning loop.
 - Gherkin, traceability, test-design, sync-plan, Karate, Maestro, release-gate, risk-analysis, test-data, environment-readiness, execution, result-analysis, defect-triage, and learning-log validators.
 - Persistent local run state, approval gates, bounded validation retries and repository path isolation.
-- Linux and Windows CI on Node.js 20 and 22.
+- Linux and Windows CI on Node.js 22 and 24; Node.js 24 is the primary development runtime.
 - Golden manual target and Karate target fixtures.
 - Manual, Playwright UI+API, Karate, Maestro+Karate, and full-functional-flow public references.
 - npm package verification, release-please, CodeQL, Dependabot and secret scanning.

@@ -85,7 +85,7 @@ export function customValidatorsForPhase(config = {}, phaseId) {
 }
 
 function runCustomValidatorProcess(cwd, scriptPath, args) {
-  const result = runSubprocessScript(scriptPath, args, { cwd, env: {}, maxBuffer: 1024 * 1024 });
+  const result = runSubprocessScript(scriptPath, args, { cwd, env: {}, maxBuffer: 1024 * 1024, timeout: 30000 });
   const stdout = result.stdout;
   const stderr = result.stderr;
   const exitCode = result.exitCode;
@@ -103,7 +103,12 @@ function runCustomValidatorProcess(cwd, scriptPath, args) {
     stdout,
     stderr,
     json,
-    diagnostics: redactValidatorDiagnostics([stdout, stderr].filter(Boolean).join('\n').trim())
+    diagnostics: redactValidatorDiagnostics(
+      [stdout, stderr, result.error ? 'Custom validator could not finish (process error or timeout).' : '']
+        .filter(Boolean)
+        .join('\n')
+        .trim()
+    )
   };
 }
 
@@ -112,25 +117,35 @@ export function runCustomValidator(cwd, validator, extraArgs = ['--json']) {
   try {
     scriptPath = resolveRepoPath(cwd, validator.script, { label: `custom validator ${validator.id}` });
   } catch (error) {
+    const diagnostic = redactValidatorDiagnostics(error.message);
     return {
       validatorId: validator.id,
       custom: true,
       blocking: validator.blocking,
       ok: false,
       exitCode: 1,
-      findings: [{ message: error.message, severity: 'error' }],
-      diagnostics: error.message
+      findings: [{ message: diagnostic, severity: 'error' }],
+      diagnostics: diagnostic
     };
   }
 
   const result = runCustomValidatorProcess(cwd, scriptPath, extraArgs);
-  const parsedFindings = Array.isArray(result.json?.findings) ? result.json.findings : [];
-  const findings = parsedFindings.map((finding) => ({
-    file: finding.file || finding.path || '',
-    line: typeof finding.line === 'number' ? finding.line : undefined,
-    message: finding.message || '',
-    severity: validator.blocking ? finding.severity || 'error' : 'warning'
-  }));
+  const parsedFindings = Array.isArray(result.json?.findings)
+    ? result.json.findings.filter((finding) => finding && typeof finding === 'object' && !Array.isArray(finding))
+    : [];
+  const findings = parsedFindings.map((finding) => {
+    const file = typeof finding.file === 'string' ? finding.file : finding.path;
+    const severity = ['error', 'warning', 'info'].includes(finding.severity) ? finding.severity : 'error';
+    return {
+      file: typeof file === 'string' ? redactValidatorDiagnostics(file) : '',
+      line: Number.isSafeInteger(finding.line) && finding.line > 0 ? finding.line : undefined,
+      message:
+        typeof finding.message === 'string'
+          ? redactValidatorDiagnostics(finding.message)
+          : 'Custom validator returned a finding without a text message.',
+      severity: validator.blocking ? severity : 'warning'
+    };
+  });
   if (!result.ok && findings.length === 0) {
     findings.push({
       message: result.diagnostics || `Custom validator ${validator.id} failed.`,

@@ -71,10 +71,10 @@ abre tu CLI de IA y ejecuta la configuracion guiada:
 
       <section class="section demo-section" id="demo" aria-label="Demo grabado RF-101">
         <div class="section-heading">
-          <p class="eyebrow">Ruta RF-101 grabada</p>
+          <p class="eyebrow">Grabación histórica RF-101</p>
           <h2>Mira el quick track fallar, recuperarse y pasar</h2>
           <p>
-            El demo de dos minutos sigue un requisito de login desde la configuracion con slash commands hasta validacion determinista, un fallo intencionado por tag faltante, correccion sin reiniciar, trazabilidad y un target gate aprobado. No usa credenciales ni escrituras en servicios externos.
+            Esta grabación histórica de dos minutos muestra el fallo y la corrección RF-101, no el layout compacto actual. El vídeo, audio y subtítulos publicados siguen intactos hasta revisar un preview independiente. Consulta las notas del demo para las guías vigentes y transcripciones reales; no certifica una sesión de agente.
           </p>
         </div>
         <div class="demo-media">
@@ -100,7 +100,7 @@ abre tu CLI de IA y ejecuta la configuracion guiada:
 
       <section class="signal-strip" aria-label="Señales del proyecto">
         <div>
-          <strong>Node.js 20+</strong>
+          <strong>Node.js 22.18+</strong>
           <span>CLI nativo y scripts portables</span>
         </div>
         <div>
@@ -294,7 +294,7 @@ abre tu CLI de IA y ejecuta la configuracion guiada:
           <p class="eyebrow">Superficie de comandos</p>
           <h2>Comandos CLI y de agente</h2>
           <p>
-            Ejecuta la configuración inicial y la validación desde la terminal. Impulsa el flujo QA desde tu herramienta de IA con comandos slash generados.
+            Instala una vez desde la terminal. Configura, valida y usa QA FlowKit dentro del CLI del modelo con comandos barra; el agente gestiona los scripts internos. Los comandos directos de terminal son alternativas para CI y diagnóstico.
           </p>
         </div>
         <div class="command-groups">
@@ -460,11 +460,11 @@ abre tu CLI de IA y ejecuta la configuracion guiada:
             </div>
           </div>
           <div class="command-group">
-            <h3>En tu terminal</h3>
+            <h3>Alternativas de terminal (instalación, CI y diagnóstico)</h3>
             <div class="command-grid">
               <article class="command-card">
                 <code>npx qa-flowkit</code>
-                <p>Copia <code>.qa-ai/</code> en el repositorio. Luego configura con <code>/qa-init</code> o <code>node .qa-ai/scripts/init.mjs</code>.</p>
+                <p>Instala el framework y selecciona el adaptador de tu agente. Después abre el CLI del modelo y configura con <code>/qa-init</code>; continúa ahí para el resto del workflow.</p>
               </article>
               <article class="command-card">
                 <code>npx qa-flowkit doctor</code>

@@ -1,5 +1,5 @@
 import { isKarateUiFeaturePath, karateFeatureRoots, usesKarate } from './automation-framework.mjs';
-import { karateDuplicateIdErrors, validateKarateFeatureContent } from './karate-validate.mjs';
+import { assertInstalledModule } from './module-installation.mjs';
 import { loadQaAiConfig, relativeTo, resolveRepoPath } from './utils.mjs';
 import { listCollectionFiles, validateCollection } from './collection-validator.mjs';
 
@@ -11,6 +11,12 @@ export async function validateKarateFeatures(cwd, options = {}) {
   if (!usesKarate(configInfo.data)) {
     return { ok: true, errors: [], warnings: [], skipped: true };
   }
+  try {
+    await assertInstalledModule(cwd, 'runtime-automation');
+  } catch (error) {
+    return { ok: false, errors: [error.message], warnings: [] };
+  }
+  const { karateDuplicateIdErrors, validateKarateFeatureContent } = await import('./karate-validate.mjs');
 
   const roots = options.path ? [options.path] : karateFeatureRoots(configInfo.data);
   if (roots.length === 0) {
