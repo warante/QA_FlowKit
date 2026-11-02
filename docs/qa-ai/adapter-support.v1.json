@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "generatedAt": "2026-06-25",
-  "qaFlowKitVersion": "1.0.0-rc.13",
+  "qaFlowKitVersion": "1.0.0-rc.14",
   "supportLevels": {
     "template-verified": "Template files are present, packaged and checked for required shared workflow guidance.",
     "cli-smoke-verified": "Template verification plus automated init/sync/doctor or parity checks in local CI.",
@@ -16,7 +16,7 @@
         "AGENTS.md"
       ],
       "verifiedOn": "2026-06-25",
-      "versionRange": "1.0.0-rc.13",
+      "versionRange": "1.0.0-rc.14",
       "evidence": [
         ".qa-ai/adapters/generic/AGENTS.md",
         ".qa-ai/scripts/smoke-test.mjs",
@@ -35,7 +35,7 @@
         ".claude/settings/hooks.json"
       ],
       "verifiedOn": "2026-06-25",
-      "versionRange": "1.0.0-rc.13",
+      "versionRange": "1.0.0-rc.14",
       "evidence": [
         ".github/scripts/verify-adapter-parity.mjs",
         ".qa-ai/scripts/test-hooks.mjs",
@@ -54,7 +54,7 @@
         ".agents/skills/qa-flowkit/SKILL.md"
       ],
       "verifiedOn": "2026-06-25",
-      "versionRange": "1.0.0-rc.13",
+      "versionRange": "1.0.0-rc.14",
       "evidence": [
         ".qa-ai/adapters/codex/README.md",
         ".qa-ai/adapters/codex/prompts/implement-project.md"
@@ -71,7 +71,7 @@
         ".opencode/skills/qa-flowkit/SKILL.md"
       ],
       "verifiedOn": "2026-06-25",
-      "versionRange": "1.0.0-rc.13",
+      "versionRange": "1.0.0-rc.14",
       "evidence": [
         ".github/scripts/verify-adapter-parity.mjs",
         ".qa-ai/scripts/bootstrap-agent-adapters.mjs",
@@ -88,7 +88,7 @@
         ".cline/"
       ],
       "verifiedOn": "2026-06-25",
-      "versionRange": "1.0.0-rc.13",
+      "versionRange": "1.0.0-rc.14",
       "evidence": [
         ".qa-ai/adapters/cline/.clinerules",
         ".qa-ai/adapters/cline/.cline/README.md"
@@ -103,7 +103,7 @@
         ".continue/"
       ],
       "verifiedOn": "2026-06-25",
-      "versionRange": "1.0.0-rc.13",
+      "versionRange": "1.0.0-rc.14",
       "evidence": [
         ".qa-ai/adapters/continue/README.md",
         ".qa-ai/adapters/continue/checks/qa-feature-conventions.md"
@@ -119,7 +119,7 @@
         ".aider/"
       ],
       "verifiedOn": "2026-06-25",
-      "versionRange": "1.0.0-rc.13",
+      "versionRange": "1.0.0-rc.14",
       "evidence": [
         ".qa-ai/adapters/aider/.aider.conf.yml",
         ".qa-ai/adapters/aider/.aider/README.md"
@@ -134,7 +134,7 @@
         ".goose/recipes/qa-flowkit.yaml"
       ],
       "verifiedOn": "2026-06-25",
-      "versionRange": "1.0.0-rc.13",
+      "versionRange": "1.0.0-rc.14",
       "evidence": [
         ".qa-ai/adapters/goose/recipes/qa-flowkit.yaml"
       ],
@@ -148,7 +148,7 @@
         "GEMINI.md"
       ],
       "verifiedOn": "2026-06-25",
-      "versionRange": "1.0.0-rc.13",
+      "versionRange": "1.0.0-rc.14",
       "evidence": [
         ".qa-ai/adapters/gemini/GEMINI.md"
       ],
