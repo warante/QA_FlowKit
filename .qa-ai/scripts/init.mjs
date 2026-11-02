@@ -13,6 +13,7 @@ import { createFeatureFolders } from './lib/init/directories.mjs';
 import { generatedDocs, localizeTemplate } from './lib/init/docs.mjs';
 import { printHelp } from './lib/init/help.mjs';
 import { availablePresets, isKarateConfigured } from './lib/init/presets.mjs';
+import { readModuleInstallation, requiredRuntimeModules, assertInstalledModule } from './lib/module-installation.mjs';
 import { derivedProjectName, selectedQaContextPath } from './lib/init/project-name.mjs';
 import {
   COMPACT_CONFIG_PATH,
@@ -41,12 +42,12 @@ const withTestManagementMapping = Boolean(args['with-test-management-mapping'] |
 const withFeatureFolders = !(args['no-feature-folders'] || args.noFeatureFolders);
 const skipStructure = Boolean(args['skip-structure'] || args.skipStructure);
 const withCi = args['with-ci'] || args.withCi;
-const presetName = args.preset || 'playwright-full';
+let presetName = args.preset || 'playwright-full';
 const withKarateConfig = Boolean(args['with-karate-config'] || args.withKarateConfig || presetName === 'karate-full');
 let validatedQaContextPath = null;
 const qaAiDir = path.join(cwd, '.qa-ai');
 const presetsDir = path.join(qaAiDir, 'presets');
-const presetPath = path.join(qaAiDir, 'presets', `${presetName}.yaml`);
+let presetPath = path.join(qaAiDir, 'presets', `${presetName}.yaml`);
 
 async function main() {
   if (args.help) {
@@ -69,10 +70,17 @@ async function main() {
     console.error('Missing .qa-ai folder. Copy it into the repository root first.');
     process.exit(1);
   }
+  const installation = await readModuleInstallation(cwd);
+  if (!args.preset && installation && !installation.modules.includes('automation-presets')) {
+    presetName = 'manual-only';
+    presetPath = path.join(qaAiDir, 'presets', `${presetName}.yaml`);
+  }
 
   if (!(await pathExists(presetPath))) {
     const names = await availablePresets(presetsDir);
     console.error(`Base template not found: ${presetName}`);
+    if (installation && !installation.modules.includes('automation-presets'))
+      console.error('Add presets with: qa-flowkit update --modules automation-presets');
     console.error(`Available base templates: ${names.length > 0 ? names.join(', ') : '(none found)'}`);
     process.exit(1);
   }
@@ -148,6 +156,14 @@ async function main() {
   });
   assertNoChangeMe(configContent);
   await assertValidConfig(configContent, cwd);
+  for (const module of requiredRuntimeModules(parseSimpleYaml(configContent))) await assertInstalledModule(cwd, module);
+  if (
+    installation &&
+    !installation.modules.includes('automation-presets') &&
+    (withKarateConfig || isKarateConfigured(parseSimpleYaml(configContent)))
+  ) {
+    throw new Error('Karate scaffolding requires: qa-flowkit update --modules automation-presets');
+  }
   const writes = [];
   const manifestEntries = [];
   const configWrite = await writeFileSafe(configPath, configContent, { force });

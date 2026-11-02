@@ -5,15 +5,32 @@ import path from 'node:path';
 import { test } from 'node:test';
 import { SHARED_ADAPTER_COMMANDS } from '../../.qa-ai/scripts/lib/inventory-manifest.mjs';
 import { repoRoot } from './lib/ci-helpers.mjs';
+import { isAdapterRuntimePath } from './verify-adapter-parity.mjs';
+
+test('adapter parity excludes host runtime files but not generated guidance or unexpected commands', () => {
+  for (const file of ['node_modules', 'node_modules/tool/index.js', 'package.json', 'bun.lock', '.gitignore']) {
+    assert.equal(isAdapterRuntimePath(file), true, file);
+  }
+  for (const file of [
+    'commands/package.json',
+    'commands/unexpected.md',
+    'agents/qa.md',
+    'skills/qa-flowkit/SKILL.md'
+  ]) {
+    assert.equal(isAdapterRuntimePath(file), false, file);
+  }
+});
 
 const HOST_VARIANTS = {
   claude: {
+    READ_TOOL_GRANTS: 'allowed-tools: Read Grep Glob',
     QUESTION_TOOL: "Claude Code's interactive question tool",
     HOST_NAME: 'Claude Code',
     ADAPTER_OPTIONS: '`claude`, `claude,opencode`, `all` and `none`',
     ADAPTER_RECOMMENDATION: 'Recommend `claude,opencode` when the user wants both.'
   },
   opencode: {
+    READ_TOOL_GRANTS: '',
     QUESTION_TOOL: "OpenCode's built-in `question` tool",
     HOST_NAME: 'OpenCode',
     ADAPTER_OPTIONS: '`opencode`, `opencode,claude`, `all` and `none`',
@@ -24,6 +41,7 @@ const HOST_VARIANTS = {
 function renderTemplate(content, vars) {
   let rendered = content;
   for (const [key, value] of Object.entries(vars)) {
+    if (value === '') rendered = rendered.replaceAll(`{{${key}}}\n`, '');
     rendered = rendered.replaceAll(`{{${key}}}`, value);
   }
   return rendered;

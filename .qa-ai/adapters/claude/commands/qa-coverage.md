@@ -1,7 +1,7 @@
 ---
 description: Analyze QA functional coverage / Analizar cobertura funcional QA
 argument-hint: [RF ID, requirement source, or scope]
-allowed-tools: [view_file, list_dir, grep_search, glob, run_command]
+allowed-tools: Read Grep Glob
 ---
 
 !`node .qa-ai/scripts/show-config.mjs --json`

@@ -1,7 +1,6 @@
 ---
 description: Summarize QA AI repo status / Resumir estado del repo QA AI
 argument-hint: [optional scope]
-allowed-tools: [view_file, list_dir, grep_search, glob, run_command]
 ---
 
 !`npx qa-flowkit run status --json`

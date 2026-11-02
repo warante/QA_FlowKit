@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-07",
+  "generatedAt": "2026-10-31",
   "qaFlowKitVersion": "1.0.0-rc.13",
   "task": "TASK-057",
   "status": "recorded",
@@ -22,9 +22,28 @@
     },
     "durationSeconds": 115,
     "resolution": "1920x1080",
-    "notes": "Two-minute-or-shorter RF-101 terminal demo with English and Spanish audio tracks."
+    "kind": "illustrated-agent-first-tutorial",
+    "liveModelSession": false,
+    "audioLanguages": ["es-ES", "en-US"],
+    "defaultAudioLanguage": "es-ES",
+    "sha256": "fe8657cb957b80b19aa88c49eeac8f0fe60323245c8476e65abd8e477de4c859",
+    "attribution": "docs/qa-ai/media/ATTRIBUTION.md",
+    "notes": "User-approved bilingual illustrated tutorial: terminal installation only, then slash commands inside the model CLI. Female Castilian Sharvard and female English Kokoro narration, two embedded audio/subtitle tracks. The approved cut retains its on-screen PREVIEW label; it is not a live model recording."
+  },
+  "replacementTutorial": {
+    "status": "approved",
+    "kind": "illustrated-agent-first-tutorial",
+    "storyboard": "docs/qa-ai/agent-first-storyboard.v1.json",
+    "durationSeconds": 115,
+    "audioLanguages": ["es", "en"],
+    "voices": {
+      "es": "Piper es_ES-sharvard-medium, speaker F",
+      "en": "Kokoro af_heart, en-US"
+    },
+    "liveModelSession": false
   },
   "humanValidation": {
+    "tutorialReview": "approved_by_user",
     "productManagerReview": "pending",
     "securityReview": "pending",
     "cleanCloneRehearsal": "automated_via_e2e_quick"

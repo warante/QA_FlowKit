@@ -1,7 +1,7 @@
 ---
 description: Plan automation from existing QA tests / Planificar automatizacion desde pruebas existentes
 argument-hint: [feature path, RF ID, or test filter]
-allowed-tools: [view_file, write_file, edit_file, list_dir, grep_search, glob, run_command]
+{{READ_TOOL_GRANTS}}
 ---
 
 !`node .qa-ai/scripts/show-config.mjs --json`

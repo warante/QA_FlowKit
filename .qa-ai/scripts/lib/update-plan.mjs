@@ -5,6 +5,7 @@ import { collectLegacyConfigSignals } from './config-legacy.mjs';
 import { detectLegacyLayout } from './project-paths.mjs';
 import { formatLegacyLayoutRecommendation } from './doctor/layout-checks.mjs';
 import { loadQaAiConfig, parseSimpleYaml, pathExists } from './utils.mjs';
+import { readModuleInstallation, expandedModules, availableModuleAdapters } from './module-installation.mjs';
 
 export { collectLegacyConfigSignals } from './config-legacy.mjs';
 
@@ -39,7 +40,9 @@ async function loadDetectAdapters(cwd) {
   return detectExistingAdapters(cwd);
 }
 
-export async function buildUpdatePlan({ cwd = process.cwd(), packageRoot }) {
+export async function buildUpdatePlan({ cwd = process.cwd(), packageRoot, requestedModules }) {
+  const installation = await readModuleInstallation(cwd);
+  const modules = expandedModules(installation, requestedModules);
   const packageJson = JSON.parse(await fs.readFile(path.join(packageRoot, 'package.json'), 'utf8'));
   const configInfo = await loadQaAiConfig(cwd);
   const adaptersToSync = await loadDetectAdapters(cwd);
@@ -61,20 +64,28 @@ export async function buildUpdatePlan({ cwd = process.cwd(), packageRoot }) {
     targetPackageVersion: packageJson.version,
     action: 'update',
     preservedPaths: [...PRESERVED_FRAMEWORK_PATHS],
-    replacedPaths: [
-      '.qa-ai/ framework payload from the installed package (scripts, contracts, agents, rules, presets, templates, packaged adapters)'
-    ],
+    replacedPaths: installation
+      ? ['Selected module payloads only; locally edited files require --force; unowned files are retained.']
+      : [
+          '.qa-ai/ framework payload from the installed package (scripts, contracts, agents, rules, presets, templates, packaged adapters)'
+        ],
     userOwnedPaths: [...USER_OWNED_PATHS],
-    adaptersToSync,
+    adaptersToSync: installation
+      ? adaptersToSync.filter((name) => availableModuleAdapters(modules).includes(name))
+      : adaptersToSync,
+    installationMode: installation ? 'modular' : 'full',
+    modules,
     legacyConfigKeys,
     legacyLayoutDetected,
     dualConfigDetected,
     legacyLayoutRecommendations,
     configConflicts,
-    destructiveChanges: [
-      'Deletes obsolete files that lived only inside .qa-ai/ before the update.',
-      'Does not rewrite qa-ai.config.yaml, .qa-ai/qa-ai.config.yaml, features/, qa-ai-output/ or root adapter files unless init is run with --force.'
-    ],
+    destructiveChanges: installation
+      ? []
+      : [
+          'Deletes obsolete files that lived only inside .qa-ai/ before the update.',
+          'Does not rewrite qa-ai.config.yaml, .qa-ai/qa-ai.config.yaml, features/, qa-ai-output/ or root adapter files unless init is run with --force.'
+        ],
     rollbackGuidance: [
       'Back up qa-ai.config.yaml (or .qa-ai/qa-ai.config.yaml), .qa-ai/state/, .qa-ai/config-profiles/, features/ and qa-ai-output/ before updating.',
       'If update fails after the framework folder is removed, restore .qa-ai/state/ and .qa-ai/config-profiles/ from backup, reinstall the previous package version, and rerun update.',
@@ -87,6 +98,7 @@ export function formatUpdatePlan(plan) {
   const lines = [
     'QA FlowKit update plan (dry run)',
     `Target package version: ${plan.targetPackageVersion}`,
+    `Installation: ${plan.installationMode}; modules: ${plan.modules.join(', ')}`,
     `Oldest supported beta source: ${plan.oldestSupportedBeta}`,
     '',
     'Preserved inside the repository:',

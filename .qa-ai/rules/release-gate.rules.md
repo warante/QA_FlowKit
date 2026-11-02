@@ -19,6 +19,9 @@ Apply on the `enterprise` QA track before release or merge when `release.gatePat
 
 - List only **existing repository paths** in `evidence_paths`; do not invent files.
 - Review at minimum: `.qa-ai/output/pr-summary.md`, `.qa-ai/output/traceability-matrix.md`, sync plan when present, and recent validator output the user provides.
+- When `execution.provenance.mode` is `strict`, require a passing `execute --record-evidence` record for the current
+  commit, clean source tree, configured environment and unmodified result files within the configured age limit.
+  `--allow-missing` does not waive this policy. A provenance record is local evidence, not a signed attestation.
 
 ## Constraints
 

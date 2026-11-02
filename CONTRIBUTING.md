@@ -86,7 +86,7 @@ npm run coverage:check
 
 The initial baseline is 78.31% lines and 70.33% branches for `.qa-ai/scripts/lib/**/*.mjs`; the enforced thresholds
 are rounded down to 78% lines and 70% branches. PRs that reduce coverage below those thresholds should add focused
-tests or intentionally raise the quality bar when coverage improves. CI runs `coverage:check` on Ubuntu with Node.js 20.
+tests or intentionally raise the quality bar when coverage improves. CI runs `coverage:check` on Ubuntu with Node.js 24.
 
 ## Mutation testing
 

@@ -5,7 +5,7 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { repoRoot } from './lib/ci-helpers.mjs';
+import { repoRoot, isMain } from './lib/ci-helpers.mjs';
 const pairs = [
   {
     label: 'Claude Code',
@@ -19,6 +19,14 @@ const pairs = [
   }
 ];
 
+export function isAdapterRuntimePath(relative) {
+  return (
+    relative === 'node_modules' ||
+    relative.startsWith('node_modules/') ||
+    ['package.json', 'package-lock.json', 'bun.lock', 'bun.lockb', '.gitignore'].includes(relative)
+  );
+}
+
 async function listFiles(dir) {
   const results = [];
   async function walk(current) {
@@ -31,6 +39,7 @@ async function listFiles(dir) {
     }
     for (const entry of entries) {
       const full = path.join(current, entry.name);
+      if (isAdapterRuntimePath(path.relative(dir, full).replaceAll('\\', '/'))) continue;
       if (entry.isDirectory()) await walk(full);
       else results.push(full);
     }
@@ -58,6 +67,8 @@ async function comparePair({ label, expected, actual }) {
   const expectedFiles = await listFiles(expected);
   const actualFiles = await listFiles(actual);
   const expectedMap = await relativeFiles(expected, expectedFiles);
+  const skill = await fs.readFile(path.join(repoRoot, '.qa-ai/adapters/shared/skills/qa-flowkit/SKILL.md'));
+  expectedMap.set('skills/qa-flowkit/SKILL.md', hash(skill));
   const actualMap = await relativeFiles(actual, actualFiles);
   const errors = [];
 
@@ -148,12 +159,18 @@ async function checkClaudeCommandsFrontmatter(repoRoot) {
     if (!allowedToolsStr) {
       errors.push(`Claude command ${file} is missing allowed-tools in frontmatter`);
     } else {
-      // Parse array format [tool1, tool2]
+      // Native tool grants may use strings or arrays; these are not deny rules.
       const tools = allowedToolsStr
         .replace(/^\[|\]$/g, '')
-        .split(',')
+        .split(/[\s,]+/)
         .map((t) => t.trim())
         .filter(Boolean);
+
+      for (const tool of tools) {
+        if (!['Read', 'Grep', 'Glob'].includes(tool)) {
+          errors.push(`Claude command ${file} has an unexpected pre-approved tool: "${tool}"`);
+        }
+      }
 
       // Assertion 3: read-only commands do not allow write/edit tools
       if (readOnlyCommands.has(file)) {
@@ -197,7 +214,9 @@ async function main() {
   console.log('Adapter parity check passed (claude, opencode).');
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+if (isMain(import.meta.url)) {
+  main().catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
+}

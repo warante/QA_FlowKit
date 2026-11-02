@@ -18,6 +18,7 @@ export const CORE_LIFECYCLE_SCRIPTS = [
   '.qa-ai/scripts/qa-run.mjs',
   '.qa-ai/scripts/qa-metrics.mjs',
   '.qa-ai/scripts/export-report.mjs',
+  '.qa-ai/scripts/pr-summary.mjs',
   '.qa-ai/scripts/sync-agent-adapters.mjs',
   '.qa-ai/scripts/validate-target.mjs',
   '.qa-ai/scripts/organize-features.mjs'
@@ -102,6 +103,7 @@ export const SHARED_ADAPTER_COMMANDS = [
   'qa-coverage.md',
   'qa-doctor.md',
   'qa-enable-enterprise.md',
+  'qa-execute.md',
   'qa-full-flow.md',
   'qa-gate.md',
   'qa-help.md',

@@ -30,7 +30,7 @@ The runner:
 5. verifies the example artifacts were not overwritten;
 6. runs `doctor --strict` and `validate-target`.
 
-The same test runs in CI on Ubuntu and Windows with Node.js 20 and 22.
+The same test runs in CI on Ubuntu and Windows with Node.js 22 and 24.
 
 ## Try it manually
 

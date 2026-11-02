@@ -1,7 +1,7 @@
 ---
 description: Execute configured test commands and capture results / Ejecutar comandos de prueba configurados y capturar resultados
 argument-hint: [execution plan path, RF ID, or test filter]
-allowed-tools: [view_file, write_file, edit_file, list_dir, grep_search, glob, run_command]
+allowed-tools: Read Grep Glob
 ---
 
 !`node .qa-ai/scripts/show-config.mjs --json`

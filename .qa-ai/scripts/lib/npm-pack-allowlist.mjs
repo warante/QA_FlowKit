@@ -27,6 +27,16 @@ export const PACK_INFRASTRUCTURE = [
   '.qa-ai/scripts/lib/update-plan.mjs',
   '.qa-ai/scripts/lib/config-legacy.mjs',
   '.qa-ai/scripts/lib/cli-contract.mjs',
+  '.qa-ai/scripts/lib/execution-provenance.mjs',
+  '.qa-ai/scripts/lib/native-agent-adapters.mjs',
+  '.qa-ai/scripts/lib/sarif-report.mjs',
+  '.qa-ai/scripts/lib/pr-summary.mjs',
+  '.qa-ai/scripts/lib/module-installation.mjs',
+  '.qa-ai/scripts/lib/opencode-v2-plugin.mjs',
+  '.qa-ai/adapters/shared/opencode-v2/index.mjs',
+  '.qa-ai/adapters/shared/opencode-v2/package.json',
+  '.qa-ai/scripts/hooks/codex-hook.mjs',
+  '.qa-ai/adapters/shared/skills/qa-flowkit/SKILL.md',
   '.qa-ai/rules/untrusted-content.rules.md',
   '.qa-ai/workflows/command-interaction.md',
   '.qa-ai/adapters/opencode/commands/qa-init.md',
@@ -34,6 +44,7 @@ export const PACK_INFRASTRUCTURE = [
 ];
 
 const FORBIDDEN_PREFIXES = [
+  '.qa-ai/state/',
   '.github/',
   '.claude/',
   '.opencode/',

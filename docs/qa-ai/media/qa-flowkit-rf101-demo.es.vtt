@@ -1,43 +1,25 @@
 WEBVTT
 
-00:00:00.000 --> 00:00:06.000
-RF-101 empieza como un requisito de login y termina como evidencia QA validada.
+00:00:00.000 --> 00:00:10.000
+Instala QA FlowKit desde la terminal de tu proyecto y selecciona el adaptador de tu agente. Este es el único paso de terminal del recorrido.
 
-00:00:06.000 --> 00:00:14.000
-Instala una vez, abre OpenCode y ejecuta /qa-init para configurar.
+00:00:10.000 --> 00:00:28.000
+Ahora abre el mismo repositorio en el CLI del modelo. Escribe barra qa init. El agente te preguntará por idiomas, plantilla, fuentes y herramientas. Revisa su propuesta antes de aprobar cambios.
 
-00:00:14.000 --> 00:00:22.000
-/qa-full-flow abre una ejecucion gobernada que se reanuda por fase.
+00:00:28.000 --> 00:00:42.000
+Si tienes una carpeta con las prácticas QA del equipo, puedes iniciar con esta alternativa, también dentro del modelo. El agente resume el contexto y pide aprobación para las decisiones inferidas.
 
-00:00:22.000 --> 00:00:30.000
-El fixture publico RF-101 permanece en el repositorio destino.
+00:00:42.000 --> 00:00:54.000
+Sin salir del CLI del modelo, usa barra qa doctor para comprobar la configuración. Después, barra qa help recomienda el siguiente paso según el estado de tu repositorio.
 
-00:00:30.000 --> 00:00:38.000
-El agente escribe artefactos y el control determinista devuelve ok true.
+00:00:54.000 --> 00:01:16.000
+Para recorrer el workflow, usa barra qa full flow con tu archivo de requisitos. También puedes aportar el texto cuando el agente lo solicite. Confirma el identificador oficial RF ciento uno. El agente presentará el plan y te guiará por las fases.
 
-00:00:38.000 --> 00:00:46.000
-La aprobacion de diseno queda registrada antes de aceptar Gherkin.
+00:01:16.000 --> 00:01:30.000
+Revisa el diseño de pruebas y responde a las solicitudes de aprobación dentro de la conversación. No necesitas ejecutar manualmente los scripts internos ni avanzar las fases desde otra terminal.
 
-00:00:46.000 --> 00:00:55.000
-El fixture invalido no tiene la etiqueta obligatoria @manual:true.
+00:01:30.000 --> 00:01:42.000
+Para revisar Gherkin, usa barra qa validate features. Si hay problemas, pide al agente que los explique y corrija. Validar estos archivos no significa haber ejecutado las pruebas de login.
 
-00:00:55.000 --> 00:01:05.000
-run check sale con codigo distinto de cero y mantiene la fase Gherkin.
-
-00:01:05.000 --> 00:01:14.000
-El fixture corregido agrega @manual:true y el mismo run reintenta.
-
-00:01:14.000 --> 00:01:22.000
-El mismo control de Gherkin ahora pasa con ok true.
-
-00:01:22.000 --> 00:01:31.000
-La trazabilidad enlaza RF-101, TC-001 y el criterio de aceptacion.
-
-00:01:31.000 --> 00:01:39.000
-Se genera el resumen de PR y el estado del run pasa a completed.
-
-00:01:39.000 --> 00:01:48.000
-La validacion final pasa sin credenciales ni escrituras externas.
-
-00:01:48.000 --> 00:01:55.000
-Reproduce la misma ruta con npm run test:e2e-quick desde el repo fuente.
+00:01:42.000 --> 00:01:55.000
+Consulta barra qa status para conocer el resultado y lo pendiente. Barra qa help propone cómo continuar. Para añadir pruebas de otro requisito, usa barra qa add tests.

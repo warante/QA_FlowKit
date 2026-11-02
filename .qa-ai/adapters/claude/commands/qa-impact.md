@@ -1,7 +1,7 @@
 ---
 description: Propose affected tests from diff / Proponer pruebas afectadas por cambios
 argument-hint: [change reference / branch / commit / PR]
-allowed-tools: [view_file, list_dir, grep_search, glob, run_command]
+allowed-tools: Read Grep Glob
 ---
 
 !`node .qa-ai/scripts/show-config.mjs --json`

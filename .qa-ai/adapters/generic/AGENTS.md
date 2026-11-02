@@ -41,7 +41,7 @@ Detailed rules live under `.qa-ai/rules/`. Do not rely on this summary alone.
 
 ## Preferred implementation stack
 
-- Node.js 20+.
+- Node.js 22.18+ (Node.js 24 recommended).
 - Native Node APIs in framework scripts where possible.
 - Run validators from `.qa-ai/scripts/` after changing tests or QA artifacts.
 

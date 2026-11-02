@@ -16,7 +16,7 @@ The first increment is a deterministic control plane around the existing agents,
 - Produce minimal, phase-specific context packets.
 - Enforce phase order, local approval gates and validation loops.
 - Keep artifacts in the repository as the QA source of truth.
-- Preserve dependency-light Node.js 20+ operation and current adapters.
+- Preserve dependency-light Node.js 22.18+ operation and current adapters.
 
 ## Non-goals
 

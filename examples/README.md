@@ -19,7 +19,7 @@ The examples intentionally do not include `.qa-ai/`. Their validation runners in
 | Package source | Automation                                                  | Current policy                      |
 | -------------- | ----------------------------------------------------------- | ----------------------------------- |
 | Local tarball  | Every `validate:oss-extraction` run                         | Required for all four examples      |
-| `@rc`          | Weekly Ubuntu/Windows, Node 20/22; manual workflow dispatch | Current published adopter channel   |
+| `@rc`          | Weekly Ubuntu/Windows, Node 22/24; manual workflow dispatch | Current published adopter channel   |
 | `@beta`        | Legacy migration testing only                               | Previous `0.5.x-beta.y` line        |
 | `@latest`      | Manual workflow dispatch                                    | Scheduled only after stable `1.0.0` |
 

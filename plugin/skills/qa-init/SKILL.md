@@ -1,7 +1,7 @@
 ---
 description: Guided QA FlowKit initialization / Inicializacion guiada de QA FlowKit
 argument-hint: [optional init flags]
-allowed-tools: [view_file, write_file, edit_file, list_dir, grep_search, glob, run_command]
+allowed-tools: Read Grep Glob
 ---
 
 Before any other action or user-facing text, read and follow `.qa-ai/workflows/command-interaction.md`.

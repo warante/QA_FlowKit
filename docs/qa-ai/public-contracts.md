@@ -31,7 +31,7 @@ sync-adapters export-report help clean version run
 Experimental commands:
 
 ```text
-validate-test-coverage validate-quality-report metrics
+validate-test-coverage validate-quality-report metrics pr-summary
 ```
 
 Stable command names mean the command is intentionally public. They do not freeze every output field, wording detail
@@ -72,6 +72,7 @@ Experimental JSON output surfaces:
 
 ```text
 metrics --json
+pr-summary --json
 validate-quality-report --json
 ```
 

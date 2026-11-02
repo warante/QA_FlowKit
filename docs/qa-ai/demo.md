@@ -1,46 +1,39 @@
-# RF-101 Quick-Path Demo
+# RF-101 Agent-First Tutorial
 
-This is the recorded and reproducible demo for QA FlowKit's five-minute path. It uses no external services,
-credentials or model execution in the product workflow.
+The **user-approved bilingual illustrated tutorial** is included in this repository. It shows the intended journey:
+**terminal installation only, then slash commands inside the model's CLI**.
+It is not a captured model session and does not invent model replies or validation results. The approved cut retains
+its on-screen preview/non-live label.
 
-Machine-readable status: [`demo.v1.json`](demo.v1.json) (`recorded`).
+[![RF-101 agent-first tutorial](media/qa-flowkit-rf101-demo-thumbnail.png)](media/qa-flowkit-rf101-demo.mp4)
 
-| Asset                                                           | Purpose                                                   |
-| --------------------------------------------------------------- | --------------------------------------------------------- |
-| [Recorded MP4](media/qa-flowkit-rf101-demo.mp4)                 | Two-minute RF-101 demo with English and Spanish audio     |
-| [Animated GIF](media/qa-flowkit-rf101-demo.gif)                 | Lightweight preview focused on failure and correction     |
-| [Thumbnail](media/qa-flowkit-rf101-demo-thumbnail.png)          | Poster image for README, docs and landing pages           |
-| [English captions](media/qa-flowkit-rf101-demo.en.vtt)          | External WebVTT caption track                             |
-| [Spanish captions](media/qa-flowkit-rf101-demo.es.vtt)          | External WebVTT caption track                             |
-| [Recording script](demo-script.md)                              | Two-minute terminal capture script for maintainers        |
-| [Transcript and captions](demo-transcript.md)                   | Accessible narration, alt text and caption track          |
-| [Getting started](getting-started.md#deterministic-rf-101-demo) | Evaluator-facing walkthrough                              |
-| [`test/fixtures/quick-path/`](../../test/fixtures/quick-path/)  | Public RF-101 input, invalid feature and expected outputs |
+## Watch and choose audio
 
-## Story
+- [Bilingual MP4](media/qa-flowkit-rf101-demo.mp4): 115 seconds, 1920×1080, H.264/24 fps.
+- Two selectable female audio tracks: **Castilian Spanish** (Piper Sharvard, default) and **English** (Kokoro).
+- Two embedded subtitle tracks plus external [Spanish VTT](media/qa-flowkit-rf101-demo.es.vtt) and
+  [English VTT](media/qa-flowkit-rf101-demo.en.vtt).
+- Choose the audio language in your player's audio menu. Some browser players only expose the default track;
+  download the MP4 and use a player with audio-track selection if needed.
+- [GIF overview](media/qa-flowkit-rf101-demo.gif), [thumbnail](media/qa-flowkit-rf101-demo-thumbnail.png) and
+  [voice attribution](media/ATTRIBUTION.md).
 
-Input:
+Machine-readable status and approved video hash: [demo.v1.json](demo.v1.json).
 
-```text
-RF-101: A registered user can sign in with a valid email address and password.
-Acceptance criterion: Valid credentials open the account dashboard.
-```
+## User journey — inside the model
 
-Workflow:
+After installation, use `/qa-init` → `/qa-doctor` → `/qa-help` → `/qa-full-flow` → review → `/qa-status`.
+Use `/qa-init --qa-context qa-ai-knowledge` as a context-aware starting alternative and `/qa-add-tests` for another
+requirement. The model handles the internal scripts and phase checks; users do not drive them from another terminal.
 
-```text
-clean init
-  -> requirements intake
-  -> normalization
-  -> Gherkin validation fails because @manual is missing
-  -> feature corrected
-  -> traceability
-  -> PR summary
-  -> strict validate-target passes
-```
+Read the [English quick start](getting-started.md), [guía rápida](getting-started.es.md),
+[script](demo-script.md), [bilingual storyboard](agent-first-storyboard.v1.json) or
+[accessible transcript](demo-transcript.md).
 
-## Run it
+## Developer fixture replay — separate from the tutorial
 
+The public RF-101 fixture is a deterministic framework check, not a recording of the model or the video's user flow.
+It covers intake, normalize, a deliberate missing-`@manual` Gherkin failure, correction, traceability and PR preparation.
 From the QA FlowKit source repository:
 
 ```bash
@@ -57,27 +50,9 @@ Expected summary:
 Quick path E2E passed in <duration>ms.
 ```
 
-The runner is [`.github/scripts/run-quick-path-validation.mjs`](../../.github/scripts/run-quick-path-validation.mjs).
+Source: [fixtures](../../test/fixtures/quick-path/) and
+[runner](../../.github/scripts/run-quick-path-validation.mjs).
+The replay uses no model execution or external writes. Artifact validation is not evidence that login tests executed.
 
-Verification: `npm run test:product-demo`.
-
-## What this demonstrates
-
-- The workflow can start from a clean target repository.
-- State persists across phase commands.
-- A deterministic validator rejects invalid AI output.
-- The same phase can be corrected and resumed.
-- Final Gherkin and traceability pass the strict target gate.
-- No Jira, TestRail, network service or secret is required.
-
-## Recorded demo
-
-[![RF-101 recorded demo thumbnail](media/qa-flowkit-rf101-demo-thumbnail.png)](media/qa-flowkit-rf101-demo.mp4)
-
-The recorded MP4 is published at [`media/qa-flowkit-rf101-demo.mp4`](media/qa-flowkit-rf101-demo.mp4). It includes
-English and Spanish audio tracks plus external WebVTT captions:
-[`qa-flowkit-rf101-demo.en.vtt`](media/qa-flowkit-rf101-demo.en.vtt) and
-[`qa-flowkit-rf101-demo.es.vtt`](media/qa-flowkit-rf101-demo.es.vtt).
-
-If the recording cannot be played in a documentation viewer, run `npm run test:e2e-quick` to replay the same validated
-failure-and-correction path from the source repository.
+Verification: `npm run test:product-demo`. Future media replacements follow the
+[regeneration and approval instructions](media/regenerate-rf101-video-prompt.md).

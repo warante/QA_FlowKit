@@ -11,6 +11,7 @@ import {
   installPackTarball,
   repoRoot,
   resolvePackTarball,
+  run,
   runCli,
   runNodeScript
 } from '../../.github/scripts/lib/ci-helpers.mjs';
@@ -105,6 +106,38 @@ async function main() {
     if (!fromArtifact && packInfo) {
       validatePackFileList(packInfo.files);
     }
+    const modularTarget = path.join(tempRoot, 'modular-target');
+    await fs.mkdir(modularTarget, { recursive: true });
+    installPackTarball(modularTarget, tarball, { npmCache });
+    runCli(modularTarget, ['init', '--modules', 'core,adapter-opencode', '--no-adapters']);
+    configureFramework(modularTarget, ['--no-adapters']);
+    await assertMissing(path.join(modularTarget, '.qa-ai/adapters/claude'), 'unselected adapter payload');
+    await assertMissing(
+      path.join(modularTarget, '.qa-ai/presets/playwright-full.yaml'),
+      'unselected automation presets'
+    );
+    runCli(modularTarget, ['doctor']);
+    runCli(modularTarget, ['sync-adapters', '--adapters', 'all']);
+    await assertMissing(path.join(modularTarget, '.opencode/plugins/qa-flowkit'), 'OpenCode plugin must be opt-in');
+    runCli(modularTarget, ['sync-adapters', '--adapters', 'opencode', '--opencode-plugin']);
+    await assertExists(path.join(modularTarget, '.opencode/plugins/qa-flowkit/index.mjs'), 'opt-in V2 plugin entry');
+    await assertExists(path.join(modularTarget, '.opencode/plugins/qa-flowkit/package.json'), 'opt-in V2 SDK manifest');
+    await assertMissing(
+      path.join(modularTarget, '.qa-ai/scripts/lib/maestro-validate.mjs'),
+      'unselected runtime implementation'
+    );
+    await assertMissing(
+      path.join(modularTarget, '.qa-ai/adapters/claude'),
+      'adapter renderer must not recreate excluded modules'
+    );
+    runCli(modularTarget, ['update', '--modules', 'automation-presets', '--skip-doctor']);
+    await assertExists(
+      path.join(modularTarget, '.qa-ai/scripts/lib/maestro-validate.mjs'),
+      'preset runtime dependency'
+    );
+    await assertExists(path.join(modularTarget, '.qa-ai/presets/karate-full.yaml'), 'added automation presets');
+    await assertMissing(path.join(modularTarget, '.qa-ai/adapters/claude'), 'update preserves adapter selection');
+    runCli(modularTarget, ['doctor']);
 
     initTarget = path.join(tempRoot, 'init-target');
     await fs.mkdir(initTarget, { recursive: true });
@@ -118,6 +151,13 @@ async function main() {
     await assertExists(path.join(initTarget, DEFAULT_FEATURE_PATH), 'features directory');
     await assertExists(path.join(initTarget, QA_OUTPUT_DIR), 'output directory');
     await assertExists(path.join(initTarget, 'AGENTS.md'), 'default generic adapter');
+    runCli(initTarget, ['sync-adapters', '--adapters', 'codex', '--hooks']);
+    await assertIncludes(path.join(initTarget, '.agents/skills/qa-flowkit/SKILL.md'), 'name: qa-flowkit');
+    await assertIncludes(path.join(initTarget, '.codex/hooks.json'), 'codex-hook.mjs');
+    await assertExists(
+      path.join(initTarget, '.qa-ai/scripts/lib/execution-provenance.mjs'),
+      'execution provenance validator'
+    );
     await assertIncludes(
       path.join(initTarget, 'AGENTS.md'),
       '.qa-ai/workflows/command-interaction.md',
@@ -128,6 +168,23 @@ async function main() {
     runCli(initTarget, ['init'], { expectFailure: true });
     runCli(initTarget, ['doctor']);
     runCli(initTarget, ['validate-target', '--allow-empty', '--allow-missing', '--no-strict-doctor']);
+    const sarif = JSON.parse(
+      runCli(initTarget, ['validate-target', '--allow-empty', '--allow-missing', '--no-strict-doctor', '--sarif'])
+        .stdout
+    );
+    if (sarif.version !== '2.1.0' || sarif.runs[0].properties.validationPassed !== true) {
+      throw new Error('Installed-package SARIF validation failed.');
+    }
+    run('git', ['init', '--initial-branch=main'], { cwd: initTarget });
+    run(
+      'git',
+      ['-c', 'user.name=QA Test', '-c', 'user.email=qa@example.com', 'commit', '--allow-empty', '-m', 'fixture'],
+      { cwd: initTarget }
+    );
+    const prSummary = JSON.parse(runCli(initTarget, ['pr-summary', '--base', 'HEAD', '--json']).stdout);
+    if (!prSummary.ok || prSummary.files.length !== 0 || prSummary.verification.testsExecuted !== false) {
+      throw new Error('Installed-package PR summary failed.');
+    }
 
     const versionResult = runCli(initTarget, ['version']);
     if (!versionResult.stdout.trim()) throw new Error('qa-flowkit version produced no output.');

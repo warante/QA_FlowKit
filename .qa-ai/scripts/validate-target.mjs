@@ -7,6 +7,7 @@ import {
   validateCustomValidatorConfig
 } from './lib/custom-validators.mjs';
 import { getConfigValue, loadQaAiConfig, logHeader, parseArgs } from './lib/utils.mjs';
+import { buildSarifReport } from './lib/sarif-report.mjs';
 import {
   buildTargetValidatorSteps,
   runInProcessStep,
@@ -32,6 +33,8 @@ Options:
   --allow-pending     Pass --allow-pending to release gate validator
   --scan-secrets      Scan configured QA output and feature paths for secret-like values
   --no-scan-secrets   Skip secret scan (overrides default on --strict doctor)
+  --json              Output aggregate findings as JSON
+  --sarif             Output SARIF 2.1.0 to stdout (mutually exclusive with --json)
   --help              Show this help
 
 Runs the target-repository validation pipeline:
@@ -106,7 +109,8 @@ async function main() {
     return;
   }
 
-  const jsonMode = Boolean(args.json);
+  if (args.json && args.sarif) throw new Error('Use either --json or --sarif, not both.');
+  const jsonMode = Boolean(args.json || args.sarif);
   const cwd = process.cwd();
   if (!jsonMode) logHeader('QA AI target repository validator');
 
@@ -180,7 +184,8 @@ async function main() {
       });
     }
 
-    console.log(JSON.stringify({ ok: allOk, validators: validatorsResult }, null, 2));
+    const report = { ok: allOk, validators: validatorsResult };
+    console.log(JSON.stringify(args.sarif ? buildSarifReport(cwd, report) : report, null, 2));
     process.exit(allOk ? 0 : 1);
   }
 
@@ -239,6 +244,27 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error(error);
+  if (args.sarif && !args.json) {
+    console.log(
+      JSON.stringify(
+        buildSarifReport(
+          process.cwd(),
+          {
+            ok: false,
+            validators: [
+              {
+                name: 'runtime',
+                status: 'failed',
+                findings: [{ severity: 'error', message: error.message || String(error) }]
+              }
+            ]
+          },
+          { executionSuccessful: false }
+        ),
+        null,
+        2
+      )
+    );
+  } else console.error(error);
   process.exit(1);
 });

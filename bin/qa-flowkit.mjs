@@ -6,6 +6,14 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { cliValidatorCommandMap } from '../.qa-ai/scripts/lib/validator-registry.mjs';
 import { pathExists } from '../.qa-ai/scripts/lib/utils.mjs';
+import {
+  moduleOption,
+  readModuleInstallation,
+  expandedModules,
+  copyModuleInstallation,
+  assertInstalledModule,
+  moduleForPath
+} from '../.qa-ai/scripts/lib/module-installation.mjs';
 
 const packageRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const packagedFramework = path.join(packageRoot, '.qa-ai');
@@ -20,6 +28,7 @@ const commandMap = {
   execute: 'execute.mjs',
   'sync-adapters': 'sync-agent-adapters.mjs',
   'export-report': 'export-report.mjs',
+  'pr-summary': 'pr-summary.mjs',
   metrics: 'qa-metrics.mjs',
   help: 'qa-help.mjs',
   clean: 'clean.mjs',
@@ -37,6 +46,8 @@ Setup:
 
 Usage:
   qa-flowkit [command] [options]
+  qa-flowkit init --modules core,adapter-codex    Install selected assets (experimental; core is implicit)
+  qa-flowkit update --modules automation-presets Add modules without pruning the existing selection
 
 Commands:
   update [options]                 Upgrade .qa-ai to the installed package version
@@ -61,6 +72,7 @@ Commands:
   validate-quality-report [options] Validate the semantic Gherkin quality report
   run <subcommand>                 Resumable QA workflow run (start, status, next, check, retry, set-rf, approve, resume)
   export-report [options]          Export Gherkin-aligned test cases and execution results to Cucumber JSON, Allure, or JUnit XML
+  pr-summary [options]             Summarize committed PR scope and exact traceability links (experimental)
   metrics [options]                Compute local workflow KPIs from .qa-ai/state/runs/
   sync-adapters [options]          Re-sync agent adapter files from the packaged templates
   help [options]                   Show context-aware next-step guidance for the QA workflow
@@ -212,6 +224,7 @@ async function detectBootstrapAdapter() {
 
 async function init(args) {
   await assertPackagedFramework();
+  const modules = moduleOption(args);
   if (await frameworkIsInstalled()) {
     console.error('A .qa-ai framework folder already exists in this repository.');
     console.error('Run "qa-flowkit update" to refresh it, or remove it intentionally before running init.');
@@ -219,7 +232,8 @@ async function init(args) {
   }
 
   const mergeIntoExisting = await pathExists(targetFramework);
-  await copyPackagedFramework(targetFramework, { merge: mergeIntoExisting });
+  if (modules) await copyModuleInstallation(packagedFramework, cwd, modules, { force: hasFlag(args, 'force') });
+  else await copyPackagedFramework(targetFramework, { merge: mergeIntoExisting });
 
   console.log('');
   console.log('.qa-ai/ framework copied successfully.');
@@ -239,7 +253,8 @@ async function init(args) {
   console.log('  CLI-first:    node .qa-ai/scripts/init.mjs [options]');
   console.log('');
   console.log('Example:');
-  console.log('  node .qa-ai/scripts/init.mjs --preset playwright-full --project-name "My Project"');
+  const examplePreset = modules && !modules.includes('automation-presets') ? 'manual-only' : 'playwright-full';
+  console.log(`  node .qa-ai/scripts/init.mjs --preset ${examplePreset} --project-name "My Project"`);
   console.log('');
 }
 
@@ -263,7 +278,10 @@ async function update(args) {
 
   const planModulePath = path.join(packagedFramework, 'scripts', 'lib', 'update-plan.mjs');
   const { buildUpdatePlan, formatUpdatePlan } = await import(pathToFileURL(planModulePath).href);
-  const plan = await buildUpdatePlan({ cwd, packageRoot });
+  const requestedModules = moduleOption(args);
+  const installation = await readModuleInstallation(cwd);
+  const modules = expandedModules(installation, requestedModules);
+  const plan = await buildUpdatePlan({ cwd, packageRoot, requestedModules });
 
   if (hasFlag(args, 'dry-run')) {
     if (hasFlag(args, 'json')) {
@@ -282,29 +300,42 @@ async function update(args) {
     if (migration.status !== 0) process.exit(migration.status ?? 1);
   }
 
-  const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-flowkit-update-'));
-  const backupFramework = path.join(tempRoot, '.qa-ai');
-  try {
-    await copyIfExists(path.join(targetFramework, 'state'), path.join(backupFramework, 'state'));
-    await copyIfExists(path.join(targetFramework, 'config-profiles'), path.join(backupFramework, 'config-profiles'));
-    await backupUserQaAiContent(targetFramework, backupFramework);
+  if (installation) {
+    await copyModuleInstallation(packagedFramework, cwd, modules, {
+      installed: installation,
+      force: hasFlag(args, 'force')
+    });
+  } else {
+    const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-flowkit-update-'));
+    const backupFramework = path.join(tempRoot, '.qa-ai');
+    try {
+      await copyIfExists(path.join(targetFramework, 'state'), path.join(backupFramework, 'state'));
+      await copyIfExists(path.join(targetFramework, 'config-profiles'), path.join(backupFramework, 'config-profiles'));
+      await backupUserQaAiContent(targetFramework, backupFramework);
 
-    await fs.rm(targetFramework, { recursive: true, force: true });
-    await fs.cp(packagedFramework, targetFramework, { recursive: true, force: true });
-    await fs.rm(path.join(targetFramework, 'state', 'init-manifest.json'), { force: true });
+      await fs.rm(targetFramework, { recursive: true, force: true });
+      await fs.cp(packagedFramework, targetFramework, { recursive: true, force: true });
+      await fs.rm(path.join(targetFramework, 'state', 'init-manifest.json'), { force: true });
 
-    await restoreIfExists(path.join(backupFramework, 'state'), path.join(targetFramework, 'state'));
-    await restoreIfExists(path.join(backupFramework, 'config-profiles'), path.join(targetFramework, 'config-profiles'));
-    await restoreUserQaAiContent(backupFramework, targetFramework);
-  } finally {
-    await fs.rm(tempRoot, { recursive: true, force: true });
+      await restoreIfExists(path.join(backupFramework, 'state'), path.join(targetFramework, 'state'));
+      await restoreIfExists(
+        path.join(backupFramework, 'config-profiles'),
+        path.join(targetFramework, 'config-profiles')
+      );
+      await restoreUserQaAiContent(backupFramework, targetFramework);
+    } finally {
+      await fs.rm(tempRoot, { recursive: true, force: true });
+    }
   }
 
   console.log('Updated .qa-ai framework from the installed QA FlowKit package.');
   const packageJson = JSON.parse(await fs.readFile(path.join(packageRoot, 'package.json'), 'utf8'));
   runNodeScript('init.mjs', ['--no-adapters', '--skip-structure', '--package-version', packageJson.version]);
 
-  const adapters = await selectedExistingAdapters();
+  const { availableModuleAdapters } = await import('../.qa-ai/scripts/lib/module-installation.mjs');
+  const adapters = (await selectedExistingAdapters()).filter(
+    (name) => !installation || availableModuleAdapters(modules).includes(name)
+  );
   if (adapters.length > 0) {
     const syncArgs = ['--adapters', adapters.join(',')];
     if (hasFlag(args, 'force')) syncArgs.push('--force');
@@ -336,8 +367,8 @@ async function main() {
     return;
   }
 
-  if (!command || command === 'init') {
-    await init(args);
+  if (!command || command === 'init' || command === '--modules' || command.startsWith('--modules=')) {
+    await init(command && command !== 'init' ? [command, ...args] : args);
     return;
   }
   if (command === 'update') {
@@ -351,6 +382,7 @@ async function main() {
   }
   if (command in commandMap) {
     await assertTargetFramework(command);
+    await assertInstalledModule(cwd, moduleForPath(`scripts/${commandMap[command]}`));
     runNodeScript(commandMap[command], args);
     return;
   }

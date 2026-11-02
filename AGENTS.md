@@ -50,7 +50,7 @@ Align with `.qa-ai/rules/gherkin.rules.md` and `validate-features.mjs`:
 
 ## Preferred implementation stack
 
-- Node.js 20+ (`engines` in `package.json`).
+- Node.js 22.18+ (`engines` in `package.json`); Node.js 24 is the primary development runtime.
 - Native Node APIs where possible; runtime dependencies stay minimal (lint/format are dev-only).
 - YAML config in target repos can use the simple parser in `.qa-ai/scripts/lib/utils.mjs` (no heavy YAML dependency in the published package).
 - npm CLI entry: `bin/qa-flowkit.mjs` delegating to `.qa-ai/scripts/*.mjs`.
@@ -107,7 +107,7 @@ npm run validate:oss-extraction
 node .github/scripts/verify-npm-pack.mjs
 ```
 
-GitHub Actions ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) runs the same checks on Ubuntu and Windows x Node 20/22.
+GitHub Actions ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) runs the same checks on Ubuntu and Windows x Node 22/24.
 
 When changing validators, agents, or packaged files, update tests in `.qa-ai/scripts/test-validators.mjs` and/or `.qa-ai/scripts/smoke-npm-pack.mjs` as appropriate.
 When changing evergreen documentation or CI commands, update

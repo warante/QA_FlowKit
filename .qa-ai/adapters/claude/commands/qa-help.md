@@ -1,7 +1,7 @@
 ---
 description: QA workflow guidance — what to do next / Guía del flujo QA
 argument-hint: [optional question]
-allowed-tools: [view_file, list_dir, grep_search, glob, run_command]
+allowed-tools: Read Grep Glob
 ---
 
 !`npx qa-flowkit help --json`

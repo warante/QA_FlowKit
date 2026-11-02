@@ -1,7 +1,7 @@
 ---
 description: Evaluate Gherkin quality / Evaluar calidad Gherkin
 argument-hint: [RF ID or feature path]
-allowed-tools: [view_file, list_dir, grep_search, glob, run_command]
+{{READ_TOOL_GRANTS}}
 ---
 
 !`node .qa-ai/scripts/show-config.mjs --json`

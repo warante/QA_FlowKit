@@ -5,6 +5,7 @@
  */
 import { spawnSync } from 'node:child_process';
 import { getConfigValue, loadQaAiConfig, pathExists, readText, resolveRepoPath } from './lib/utils.mjs';
+import { beginExecutionProvenance, finishExecutionProvenance } from './lib/execution-provenance.mjs';
 
 function findCommandConfig(commands, commandId) {
   if (!Array.isArray(commands)) return null;
@@ -142,6 +143,8 @@ Options:
   --plan <path>       Override execution plan path
   --dry-run           Show plan without executing
   --id <id>           Execute only a specific command (repeatable)
+  --record-evidence   Record commit, environment, timestamps and result hashes
+  --force             Replace an existing provenance record (only with --record-evidence)
   --help              Show this help
 `);
 }
@@ -152,6 +155,8 @@ function parseArgs(argv) {
     const arg = argv[i];
     if (arg === '--json') args.json = true;
     else if (arg === '--dry-run') args.dryRun = true;
+    else if (arg === '--record-evidence') args.recordEvidence = true;
+    else if (arg === '--force') args.force = true;
     else if (arg === '--help') args.help = true;
     else if (arg === '--plan') args.planPath = argv[++i];
     else if (arg === '--id') args.commandIds.push(argv[++i]);
@@ -171,11 +176,23 @@ async function main() {
   const configInfo = await loadQaAiConfig(cwd);
   const config = configInfo.data || {};
 
+  if (args.force && !args.recordEvidence) throw new Error('--force requires --record-evidence.');
+  if (args.recordEvidence && !getConfigValue(config, 'execution.commands', []).length) {
+    throw new Error('Configure execution commands before recording evidence.');
+  }
+  const pending =
+    args.recordEvidence && !args.dryRun ? await beginExecutionProvenance(cwd, config, { force: args.force }) : null;
+
   const result = await executeCommands(config, cwd, {
     dryRun: args.dryRun,
     planPath: args.planPath,
     commandIds: args.commandIds
   });
+
+  if (pending) {
+    result.provenance = await finishExecutionProvenance(cwd, config, pending, result);
+    result.ok = result.ok && result.provenance.ok;
+  }
 
   if (args.json) {
     console.log(JSON.stringify(result, null, 2));
@@ -186,6 +203,10 @@ async function main() {
     }
     console.log(`\n${result.plan?.length || 0} command(s) configured.`);
   } else {
+    if (!result.summary) {
+      console.log(result.message);
+      return;
+    }
     console.log(
       `\nExecution results: ${result.summary.passed} passed, ${result.summary.failed} failed, ${result.summary.blocked} blocked`
     );
@@ -194,6 +215,7 @@ async function main() {
       console.log(`  [${icon}] ${r.label || r.id} (${r.durationMs}ms)`);
       if (r.error) console.log(`    Error: ${r.error}`);
     }
+    for (const error of result.provenance?.errors || []) console.log(`[FAIL] ${error}`);
   }
 
   if (!result.dryRun && !result.ok) process.exit(1);

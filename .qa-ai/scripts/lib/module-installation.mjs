@@ -1,0 +1,242 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import { createHash } from 'node:crypto';
+import { assertNoInstallLinks, getConfigValue, listFilesRecursive } from './utils.mjs';
+
+export const MODULE_RECORD = '.qa-ai/state/install-modules.json';
+export const MODULE_ADAPTERS = ['claude', 'opencode', 'codex', 'cline', 'continue', 'aider', 'goose', 'gemini'];
+export const RUNTIME_MODULES = [
+  'runtime-automation',
+  'runtime-reporting',
+  'runtime-observability',
+  'runtime-development'
+];
+export const INSTALL_MODULES = [
+  'core',
+  ...RUNTIME_MODULES,
+  'automation-presets',
+  ...MODULE_ADAPTERS.map((name) => `adapter-${name}`)
+];
+const DEPENDENCIES = {
+  'automation-presets': ['runtime-automation'],
+  'runtime-development': ['runtime-automation', 'runtime-reporting', 'runtime-observability']
+};
+
+export function normalizeModules(value) {
+  if (value === undefined || value === null) return [...INSTALL_MODULES];
+  const names = Array.isArray(value) ? value : String(value).split(',');
+  const requested = names.map((name) => String(name).trim()).filter(Boolean);
+  if (!requested.length) throw new Error('--modules requires a non-empty comma-separated list.');
+  if (requested.includes('all')) {
+    if (requested.length !== 1) throw new Error('Module all cannot be combined with other modules.');
+    return [...INSTALL_MODULES];
+  }
+  for (const name of requested)
+    if (!INSTALL_MODULES.includes(name)) throw new Error(`Unknown installation module: ${name}`);
+  const selected = new Set(['core', ...requested]);
+  for (const name of selected) for (const dependency of DEPENDENCIES[name] || []) selected.add(dependency);
+  return INSTALL_MODULES.filter((name) => selected.has(name));
+}
+
+export function moduleOption(args) {
+  let result;
+  for (let index = 0; index < args.length; index++) {
+    const arg = args[index];
+    if (arg !== '--modules' && !arg.startsWith('--modules=')) continue;
+    if (result !== undefined) throw new Error('Specify --modules only once.');
+    const value = arg === '--modules' ? args[++index] : arg.slice('--modules='.length);
+    if (!value || value.startsWith('--')) throw new Error('--modules requires a value.');
+    result = normalizeModules(value);
+  }
+  return result;
+}
+
+/** Governance stays core; optional runtime implementations have explicit ownership. */
+export function moduleForPath(relative) {
+  const file = relative.replaceAll('\\', '/').replace(/^\.qa-ai\//, '');
+  if (file.startsWith('adapters/shared/opencode-v2/')) return 'adapter-opencode';
+  if (['scripts/lib/karate-validate.mjs', 'scripts/lib/maestro-validate.mjs'].includes(file))
+    return 'runtime-automation';
+  if (
+    [
+      'scripts/export-report.mjs',
+      'scripts/pr-summary.mjs',
+      'scripts/qa-metrics.mjs',
+      'scripts/lib/pr-summary.mjs',
+      'scripts/lib/qa-metrics.mjs'
+    ].includes(file)
+  )
+    return 'runtime-reporting';
+  if (file === 'scripts/apm-intake.mjs' || file.startsWith('scripts/lib/apm-connectors/'))
+    return 'runtime-observability';
+  if (file.startsWith('scripts/test/') || /^scripts\/(?:test-[^/]+|smoke-[^/]+)\.mjs$/.test(file))
+    return 'runtime-development';
+  const adapter = file.split('/');
+  if (adapter[0] === 'adapters' && MODULE_ADAPTERS.includes(adapter[1])) return `adapter-${adapter[1]}`;
+  if (
+    (file.startsWith('presets/') && file.endsWith('.yaml') && file !== 'presets/manual-only.yaml') ||
+    file === 'templates/karate-config.template.js'
+  )
+    return 'automation-presets';
+  return 'core';
+}
+
+export function modulePathSelected(relative, modules = INSTALL_MODULES) {
+  return modules.includes(moduleForPath(relative));
+}
+
+export function availableModuleAdapters(modules = INSTALL_MODULES) {
+  return ['generic', ...MODULE_ADAPTERS.filter((name) => modules.includes(`adapter-${name}`))];
+}
+
+function payloadPath(relative) {
+  return (
+    relative &&
+    ![...relative].some((char) => char.charCodeAt(0) < 32) &&
+    !path.isAbsolute(relative) &&
+    !path.win32.isAbsolute(relative) &&
+    !relative.includes('\\') &&
+    !relative.includes(':') &&
+    !relative.split('/').some((part) => !part || part === '.' || part === '..') &&
+    !['state', 'output', 'features', 'tests', 'config-profiles'].includes(relative.split('/')[0]) &&
+    !['qa-ai.config.yaml', 'agents/specialists/active.md'].includes(relative)
+  );
+}
+
+async function safeTarget(cwd, relative) {
+  return assertNoInstallLinks(cwd, path.resolve(cwd, relative));
+}
+
+export async function readModuleInstallation(cwd) {
+  const target = await safeTarget(cwd, MODULE_RECORD);
+  let stat;
+  try {
+    stat = await fs.lstat(target);
+  } catch (error) {
+    if (error.code === 'ENOENT') return null;
+    throw error;
+  }
+  if (!stat.isFile() || stat.size > 5 * 1024 * 1024) throw new Error('Invalid module installation record.');
+  const record = JSON.parse(await fs.readFile(target, 'utf8'));
+  if (
+    !record ||
+    ![1, 2].includes(record.version) ||
+    Object.keys(record).some((key) => !['version', 'modules', 'files'].includes(key)) ||
+    !Array.isArray(record.modules) ||
+    !record.modules.includes('core') ||
+    record.modules.some((name) => !INSTALL_MODULES.includes(name)) ||
+    (record.version === 1 && record.modules.some((name) => RUNTIME_MODULES.includes(name))) ||
+    new Set(record.modules).size !== record.modules.length ||
+    !record.files ||
+    typeof record.files !== 'object' ||
+    Array.isArray(record.files) ||
+    !Object.keys(record.files).length ||
+    Object.entries(record.files).some(
+      ([file, hash]) =>
+        !payloadPath(file) ||
+        !modulePathSelected(file, record.version === 1 ? [...record.modules, ...RUNTIME_MODULES] : record.modules) ||
+        typeof hash !== 'string' ||
+        !/^[a-f0-9]{64}$/.test(hash)
+    )
+  ) {
+    throw new Error('Invalid module installation record; refusing to infer a partial installation.');
+  }
+  if (record.version === 1) return { ...record, modules: normalizeModules([...record.modules, ...RUNTIME_MODULES]) };
+  if (normalizeModules(record.modules).some((name) => !record.modules.includes(name))) {
+    throw new Error('Module installation record is missing required dependencies.');
+  }
+  return record;
+}
+
+export function expandedModules(installed, requested) {
+  const current = installed?.modules || INSTALL_MODULES;
+  return normalizeModules(requested ? [...current, ...requested] : current);
+}
+
+function digest(bytes) {
+  return createHash('sha256').update(bytes).digest('hex');
+}
+
+/** Add/refresh selected payloads without deleting unowned files. Preflight every collision before writing. */
+export async function copyModuleInstallation(sourceFramework, cwd, modules, { force = false, installed = null } = {}) {
+  const selection = normalizeModules(modules);
+  const sourceFiles = await listFilesRecursive(sourceFramework);
+  const entries = [];
+  for (const source of sourceFiles) {
+    const relative = path.relative(sourceFramework, source).replaceAll('\\', '/');
+    if (!payloadPath(relative) || !modulePathSelected(relative, selection)) continue;
+    const target = await safeTarget(cwd, `.qa-ai/${relative}`);
+    const content = await fs.readFile(source);
+    const sha256 = digest(content);
+    try {
+      const existing = digest(await fs.readFile(target));
+      if (!force && existing !== sha256 && installed?.files[relative] !== existing) {
+        throw new Error(`Local file would be overwritten: .qa-ai/${relative}. Review it or use --force explicitly.`);
+      }
+    } catch (error) {
+      if (error.code !== 'ENOENT') throw error;
+    }
+    entries.push({ relative, target, content, sha256 });
+  }
+  if (!entries.some((entry) => entry.relative === 'scripts/init.mjs'))
+    throw new Error('Packaged core module is incomplete.');
+  for (const module of selection.filter((name) => name !== 'core')) {
+    if (!entries.some((entry) => moduleForPath(entry.relative) === module))
+      throw new Error(`Packaged module is missing: ${module}`);
+  }
+  const recordPath = await safeTarget(cwd, MODULE_RECORD);
+  if (!installed && !force) {
+    let exists = false;
+    try {
+      await fs.access(recordPath);
+      exists = true;
+    } catch (error) {
+      if (error.code !== 'ENOENT') throw error;
+    }
+    if (exists) throw new Error('Module installation record already exists. Use update or explicitly approve --force.');
+  }
+  const record = {
+    version: 2,
+    modules: selection,
+    files: Object.fromEntries(entries.map((entry) => [entry.relative, entry.sha256]))
+  };
+  for (const entry of entries) {
+    await fs.mkdir(path.dirname(entry.target), { recursive: true });
+    await safeTarget(cwd, `.qa-ai/${entry.relative}`);
+    await fs.writeFile(entry.target, entry.content);
+  }
+  await fs.mkdir(path.dirname(recordPath), { recursive: true });
+  await safeTarget(cwd, MODULE_RECORD);
+  await fs.writeFile(recordPath, `${JSON.stringify(record, null, 2)}\n`);
+  return record;
+}
+
+export async function assertModuleAdapters(cwd, names) {
+  const record = await readModuleInstallation(cwd);
+  if (!record) return;
+  const available = availableModuleAdapters(record.modules);
+  for (const name of names) {
+    if (!available.includes(name))
+      throw new Error(`Adapter ${name} is not installed. Add it with qa-flowkit update --modules adapter-${name}.`);
+  }
+}
+
+export async function assertInstalledModule(cwd, module) {
+  const record = await readModuleInstallation(cwd);
+  if (record && !record.modules.includes(module)) {
+    throw new Error(`Missing module ${module}. Install it with: qa-flowkit update --modules ${module}`);
+  }
+}
+
+export function requiredRuntimeModules(config) {
+  const frameworks = ['automation.api.framework', 'automation.ui.framework', 'automation.mobile.framework'];
+  return frameworks.some((key) =>
+    ['karate', 'maestro'].includes(
+      String(getConfigValue(config, key, ''))
+        .trim()
+        .toLowerCase()
+    )
+  )
+    ? ['runtime-automation']
+    : [];
+}
