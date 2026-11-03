@@ -5,9 +5,14 @@ import {
   getRecentCommits,
   getPRData,
   buildCIMetadata
-} from './lib/ci-traceability.mjs';
-import { parseMarkdownTable, normalizeColumn } from './lib/markdown-table.mjs';
-import { functionalMatrixContent } from './lib/markdown-section.mjs';
+} from '../../.qa-ai/scripts/lib/ci-traceability.mjs';
+import {
+  parseMarkdownTable,
+  normalizeColumn,
+  splitMarkdownRow,
+  isSeparatorRow
+} from '../../.qa-ai/scripts/lib/markdown-table.mjs';
+import { functionalMatrixContent } from '../../.qa-ai/scripts/lib/markdown-section.mjs';
 import {
   getConfigValue,
   loadQaAiConfig,
@@ -16,9 +21,9 @@ import {
   resolveRepoPath,
   logHeader,
   parseArgs
-} from './lib/utils.mjs';
-import { ARTIFACT_PATHS } from './lib/artifact-paths.mjs';
-import { normalizeId } from './lib/gherkin-validate.mjs';
+} from '../../.qa-ai/scripts/lib/utils.mjs';
+import { ARTIFACT_PATHS } from '../../.qa-ai/scripts/lib/artifact-paths.mjs';
+import { normalizeId } from '../../.qa-ai/scripts/lib/gherkin-validate.mjs';
 import fs from 'node:fs/promises';
 
 const args = parseArgs(process.argv);
@@ -65,9 +70,24 @@ function parseTraceabilityMatrix(content) {
   return { rows, errors: [], header: table.header };
 }
 
-function updateMatrixWithMetadata(content, updates) {
+function updateMatrixWithMetadata(content, updates, header) {
   const lines = content.split('\n');
   const updatedLines = [...lines];
+  const missingColumns = ['Last Validated', 'Validated By'].filter(
+    (column) => !header.some((existing) => normalizeColumn(existing) === normalizeColumn(column))
+  );
+  if (missingColumns.length > 0) {
+    const functionalLines = functionalMatrixContent(content).split('\n');
+    const headerIndex = functionalLines.findIndex((line) => splitMarkdownRow(line));
+    for (let index = 0; index < functionalLines.length; index += 1) {
+      const cells = splitMarkdownRow(functionalLines[index]);
+      if (!cells) continue;
+      const added =
+        index === headerIndex ? missingColumns : missingColumns.map(() => (isSeparatorRow(cells) ? '---' : ''));
+      updatedLines[index] = `| ${[...cells, ...added].join(' | ')} |`;
+    }
+    header = [...header, ...missingColumns];
+  }
 
   for (const update of updates) {
     if (update.lineIndex >= 0 && update.lineIndex < updatedLines.length) {
@@ -75,8 +95,8 @@ function updateMatrixWithMetadata(content, updates) {
       const cells = line.split('|').map((c) => c.trim());
 
       if (cells.length > 0) {
-        const lastValidatedCol = cells.findIndex((c) => normalizeColumn(c) === 'last validated');
-        const validatedByCol = cells.findIndex((c) => normalizeColumn(c) === 'validated by');
+        const lastValidatedCol = header.findIndex((c) => normalizeColumn(c) === 'last validated') + 1;
+        const validatedByCol = header.findIndex((c) => normalizeColumn(c) === 'validated by') + 1;
 
         if (lastValidatedCol >= 0 && lastValidatedCol < cells.length) {
           cells[lastValidatedCol] = update.lastValidated || '';
@@ -123,7 +143,7 @@ async function main() {
   }
 
   const matrixContent = await readText(matrixAbsPath);
-  const { rows: matrixRows, errors: parseErrors } = parseTraceabilityMatrix(matrixContent);
+  const { rows: matrixRows, errors: parseErrors, header } = parseTraceabilityMatrix(matrixContent);
 
   if (parseErrors.length > 0) {
     if (jsonMode) {
@@ -247,7 +267,7 @@ async function main() {
     return;
   }
 
-  const updatedContent = updateMatrixWithMetadata(matrixContent, updates);
+  const updatedContent = updateMatrixWithMetadata(matrixContent, updates, header);
   const outputPath = args.output || matrixAbsPath;
   await fs.writeFile(outputPath, updatedContent, 'utf8');
 

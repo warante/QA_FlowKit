@@ -145,6 +145,28 @@ publish and [stability-policy.md](stability-policy.md) for the stable transition
 - [ ] For significant releases, update README badges or community notes if the stability label changed.
 - [ ] After stable `1.0.0` publish, complete [TASK-086 stable announcement](stable-announcement.md).
 
+### Recovering a post-publish verification failure
+
+A successful `npm publish` followed by a failed verification does not mean publication failed.
+Check the exact version and its channel before taking any action:
+
+```bash
+npm view qa-flowkit@1.0.0-rc.N version dist-tags --json
+```
+
+The RC and stable verifiers retry version and dist-tag visibility up to 20 times, with 30 seconds
+between attempts and a 15-second timeout per npm query. Diagnostics include exit status and redacted
+errors; exhausted retries still fail the job. The dependency minimum-release-age policy is unchanged.
+
+Once the package is visible, run **RC post-publish validation** (`rc-post-publish.yml`) or
+**Stable post-publish validation** (`stable-post-publish.yml`) from Actions, with the exact published
+version. These read-only workflows perform installation and migration smoke checks without publishing.
+Do not rerun the publish job or use the manual publish fallback merely to repeat verification.
+
+If a Release PR workflow says it required approval and expired, a maintainer must review and approve
+a fresh run before merging. Do not weaken repository approval policies or branch protection to avoid
+this gate. See [CI failure triage](ci-observability.md#failure-triage).
+
 ## Manual fallback
 
 Use only for emergencies or if release-please is blocked:

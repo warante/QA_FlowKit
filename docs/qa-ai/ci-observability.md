@@ -142,6 +142,18 @@ Use the first failing named step or job as the routing signal:
 - `Stable Release PR rehearsal (TASK-084)`: inspect release PR review paths, notes template links and publish workflow in `run-stable-release-pr-rehearsal.mjs`.
 - `Stable post-publish`: inspect dist-tag `latest`, pack allowlist, clean install and beta update in `run-stable-post-publish-validation.mjs`.
 - `Stable announcement (TASK-086)`: run `npm run test:stable-announcement`; after publish flip README per `stable-public-entrypoints.v1.json`.
+- `Post-publish verification`: check the exact published version and dist-tag. Registry reads retry
+  up to 20 times with 30-second intervals and a 15-second query timeout, retaining redacted errors.
+  After propagation, use `rc-post-publish.yml` or `stable-post-publish.yml` to repeat validation only;
+  do not repeat publication. See [release recovery](release-checklist.md#recovering-a-post-publish-verification-failure).
+- `Update Traceability from CI/CD`: an absent `.qa-ai/output/traceability-matrix.md` is reported as
+  not applicable, not silently fabricated. If a matrix exists, the workflow authenticates read-only
+  PR access with `GH_TOKEN` and uploads changes as `updated-traceability-matrix` for maintainer review.
+  It never commits or pushes directly to protected `main`. Malformed matrices and script failures still
+  fail the job. `npm run test:post-release-workflows` exercises the CLI and registry retry logic in `validate:core`.
+- `This workflow run required approval but was not approved before it expired`: no test or CodeQL
+  analysis ran. A maintainer must inspect and approve a fresh run; this is not a reason to disable
+  approval requirements or bypass required checks.
 
 Do not add retries unless the failure depends on a proven external service flake. Local deterministic checks should fail
 fast and keep the original logs.
