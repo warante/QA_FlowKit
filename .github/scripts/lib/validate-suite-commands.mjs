@@ -49,6 +49,7 @@ export const VALIDATE_E2E_STEPS = [
 export const VALIDATE_CORE_STEPS = [
   { type: 'npm', script: 'docs:check' },
   { type: 'npm', script: 'test:doc-consistency' },
+  { type: 'npm', script: 'test:post-release-workflows' },
   { type: 'npm', script: 'contracts:check' },
   { type: 'npm', script: 'test:compatibility-fixtures' },
   { type: 'npm', script: 'test:compatibility-fixtures:unit' },

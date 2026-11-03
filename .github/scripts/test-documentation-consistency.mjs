@@ -18,6 +18,20 @@ import {
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 
+test('release recovery documents verification-only retries and reviewed traceability artifacts', async () => {
+  const release = await fs.readFile(path.join(repoRoot, 'docs/qa-ai/release-checklist.md'), 'utf8');
+  const ci = await fs.readFile(path.join(repoRoot, 'docs/qa-ai/ci-observability.md'), 'utf8');
+  for (const name of ['rc-post-publish.yml', 'stable-post-publish.yml']) {
+    assert.ok(release.includes(name));
+    assert.ok(ci.includes(name));
+  }
+  assert.match(release, /Do not rerun the publish job/);
+  assert.match(release, /20 times/);
+  assert.match(ci, /updated-traceability-matrix/);
+  assert.match(ci, /never commits or pushes directly/);
+  assert.match(ci, /required approval but was not approved before it expired/);
+});
+
 test('onboarding manuals use compact config and explain scenario layout rather than the pre-npm product', async () => {
   for (const name of ['terminal-setup-and-maintenance.md', 'workflow.md', 'implementation-guide-for-codex.md']) {
     const content = await fs.readFile(path.join(repoRoot, 'docs/qa-ai', name), 'utf8');
