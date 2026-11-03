@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "generatedAt": "2026-10-31",
-  "qaFlowKitVersion": "1.0.0-rc.13",
+  "qaFlowKitVersion": "1.0.0-rc.14",
   "task": "TASK-057",
   "status": "recorded",
   "rfId": "RF-101",
@@ -24,7 +24,10 @@
     "resolution": "1920x1080",
     "kind": "illustrated-agent-first-tutorial",
     "liveModelSession": false,
-    "audioLanguages": ["es-ES", "en-US"],
+    "audioLanguages": [
+      "es-ES",
+      "en-US"
+    ],
     "defaultAudioLanguage": "es-ES",
     "sha256": "fe8657cb957b80b19aa88c49eeac8f0fe60323245c8476e65abd8e477de4c859",
     "attribution": "docs/qa-ai/media/ATTRIBUTION.md",
@@ -35,7 +38,10 @@
     "kind": "illustrated-agent-first-tutorial",
     "storyboard": "docs/qa-ai/agent-first-storyboard.v1.json",
     "durationSeconds": 115,
-    "audioLanguages": ["es", "en"],
+    "audioLanguages": [
+      "es",
+      "en"
+    ],
     "voices": {
       "es": "Piper es_ES-sharvard-medium, speaker F",
       "en": "Kokoro af_heart, en-US"

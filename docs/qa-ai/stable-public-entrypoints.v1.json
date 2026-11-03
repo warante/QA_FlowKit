@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "generatedAt": "2026-06-25",
-  "qaFlowKitVersion": "1.0.0-rc.13",
+  "qaFlowKitVersion": "1.0.0-rc.14",
   "task": "TASK-086",
   "lifecycle": "rc",
   "flipToStable": [

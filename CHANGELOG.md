@@ -49,6 +49,13 @@
 - Cross-platform smoke and npm-pack checks now account for generated adapters and framework-specific example paths.
 - Documentation drift and missing packaged contract files now fail validation before release.
 
+## [1.0.0-rc.14](https://github.com/warante/QA_FlowKit/compare/v1.0.0-rc.13...v1.0.0-rc.14) (2026-11-02)
+
+
+### Added
+
+* modernizar integraciones, evidencia e instalación selectiva ([#134](https://github.com/warante/QA_FlowKit/issues/134)) ([6bc3ef0](https://github.com/warante/QA_FlowKit/commit/6bc3ef09b91a3f981dfa15b853da9858057c301c))
+
 ## [1.0.0-rc.13](https://github.com/warante/QA_FlowKit/compare/v1.0.0-rc.12...v1.0.0-rc.13) (2026-09-24)
 
 
