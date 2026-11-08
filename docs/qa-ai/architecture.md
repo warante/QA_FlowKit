@@ -201,4 +201,11 @@ The framework enforces quality through test suites, code coverage thresholds, an
 
 - **Unit and Integration Tests**: Under [test-validators.mjs](file:///c:/home/github/QA_FlowKit/.qa-ai/scripts/test-validators.mjs), [test-harness.mjs](file:///c:/home/github/QA_FlowKit/.qa-ai/scripts/test-harness.mjs), and [test-cli-integration.mjs](file:///c:/home/github/QA_FlowKit/.qa-ai/scripts/test-cli-integration.mjs).
 - **Code Coverage**: Enforced at a minimum of 78% lines and 70% branches via `c8`.
-- **Mutation Testing**: Advisory StrykerJS configuration running weekly to expose assertion gaps in pure validator libraries under `.qa-ai/scripts/lib/`. The initial baseline mutation score is **41.92%**.
+- **Mutation Testing**: Weekly StrykerJS runs expose assertion gaps in five validator libraries under
+  `.qa-ai/scripts/lib/`. `mutation.yml` shards the same target set into five independent jobs. Each
+  job runs the relevant existing tests selected by `.github/scripts/lib/mutation-suites.mjs`, not the
+  entire CLI/integration suite once per mutant. The full validator suite remains in normal CI.
+  `coverageAnalysis: off` is intentional for the command runner; no unsupported per-test coverage
+  selection is claimed. Mutation scores remain diagnostic, but runner failures are no longer hidden
+  by `continue-on-error`. The historical **41.92%** baseline is not a current score and is not directly
+  comparable with the focused suites. See [mutation operation](ci-observability.md#mutation-testing).

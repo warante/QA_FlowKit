@@ -7,6 +7,7 @@ import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
+import { MUTATION_SUITES } from './lib/mutation-suites.mjs';
 import { displayArgs, transcriptFromCapture } from './capture-onboarding.mjs';
 import {
   findBrokenLocalMarkdownLinks,
@@ -17,6 +18,18 @@ import {
 } from './lib/documentation-consistency.mjs';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
+
+test('mutation docs retain target scope and distinguish bounded diagnostics from release gates', async () => {
+  const architecture = await fs.readFile(path.join(repoRoot, 'docs/qa-ai/architecture.md'), 'utf8');
+  const ci = await fs.readFile(path.join(repoRoot, 'docs/qa-ai/ci-observability.md'), 'utf8');
+  for (const target of Object.keys(MUTATION_SUITES)) assert.ok(ci.includes(target));
+  assert.match(ci, /30-minute mutation-step timeout/);
+  assert.match(ci, /35-minute job timeout/);
+  assert.match(ci, /no minimum mutation-score gate/);
+  assert.match(ci, /test:mutation-config/);
+  assert.match(architecture, /not a current score/);
+  assert.match(architecture, /full validator suite remains in normal CI/);
+});
 
 test('onboarding manuals use compact config and explain scenario layout rather than the pre-npm product', async () => {
   for (const name of ['terminal-setup-and-maintenance.md', 'workflow.md', 'implementation-guide-for-codex.md']) {

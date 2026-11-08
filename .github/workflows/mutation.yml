@@ -8,11 +8,27 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: mutation-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   mutation-testing:
     name: Stryker Mutation Testing
     runs-on: ubuntu-latest
-    continue-on-error: true
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix:
+        target:
+          - gherkin-validate
+          - test-coverage
+          - markdown-table
+          - secret-patterns
+          - injection-patterns
+    env:
+      QA_FLOWKIT_MUTATION_TARGET: ${{ matrix.target }}
 
     steps:
       - name: Checkout
@@ -27,11 +43,26 @@ jobs:
         run: npm ci --ignore-scripts
 
       - name: Run mutation testing
-        run: npm run mutation
+        timeout-minutes: 30
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p reports/mutation
+          npm run mutation -- --mutate ".qa-ai/scripts/lib/${QA_FLOWKIT_MUTATION_TARGET}.mjs" 2>&1 | tee reports/mutation/stryker.log
 
-      - name: Upload Stryker HTML Report
+      - name: Upload Stryker reports and diagnostics
+        if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: stryker-mutation-report
+          name: stryker-mutation-report-${{ matrix.target }}
           path: reports/mutation/
-          if-no-files-found: error
+          if-no-files-found: warn
+
+      - name: Mutation summary
+        if: always()
+        env:
+          MUTATION_OUTCOME: ${{ job.status }}
+        shell: bash
+        run: |
+          echo "### Mutation target: ${QA_FLOWKIT_MUTATION_TARGET}" >> "$GITHUB_STEP_SUMMARY"
+          echo "Result: ${MUTATION_OUTCOME}. Inspect the target artifact for reports and logs." >> "$GITHUB_STEP_SUMMARY"

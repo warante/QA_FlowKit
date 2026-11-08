@@ -86,6 +86,7 @@
     "coverage:threshold": "c8 report --temp-directory coverage/qa-flowkit/tmp --report-dir coverage/qa-flowkit --include \".qa-ai/scripts/lib/**/*.mjs\" --exclude \".qa-ai/scripts/lib/apm-connectors/**/*.mjs\" --reporter=text --reporter=json-summary --check-coverage --lines 78 --branches 70",
     "coverage:check": "npm run coverage:collect && npm run coverage:threshold",
     "mutation": "stryker run",
+    "test:mutation-config": "node --test .github/scripts/test-mutation-config.mjs",
     "qa:init": "node .qa-ai/scripts/init.mjs",
     "qa:config": "node .qa-ai/scripts/config.mjs",
     "qa:bootstrap": "node .qa-ai/scripts/bootstrap-agent-adapters.mjs",

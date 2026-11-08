@@ -67,4 +67,5 @@ allure-report/
 coverage/
 .nyc_output/
 .stryker-tmp/
+reports/mutation/
 .tmp-claude-plugin-check/

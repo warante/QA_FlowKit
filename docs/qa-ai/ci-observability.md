@@ -122,6 +122,36 @@ Artifact:
 example-compatibility-${{ matrix.os }}-node-${{ matrix.node }}-${{ inputs.channel || 'rc' }}
 ```
 
+## Mutation Testing
+
+Workflow: `mutation.yml` (weekly schedule or manual dispatch).
+
+The five matrix targets are `gherkin-validate`, `test-coverage`, `markdown-table`, `secret-patterns`
+and `injection-patterns`. Each target retains its entire source file under mutation and uses the
+existing focused test modules listed in `.github/scripts/lib/mutation-suites.mjs`. This is not a
+replacement for the full validator suite in normal CI, nor proof that every mutant is detected.
+
+Each job uses two Stryker workers, a 30-minute mutation-step timeout and a 35-minute job timeout.
+The per-mutant timeout uses a 1,000 ms allowance plus 1.5 times the measured initial test duration.
+Other matrix targets continue if one fails. Overlapping workflow runs are queued by ref.
+
+HTML/JSON reports and `stryker.log` are uploaded, when available, as
+`stryker-mutation-report-<target>` even after a step failure. A hard runner termination may prevent
+artifact upload; an interrupted run must not be treated as a completed mutation score. Execution
+errors fail the job; there is no minimum mutation-score gate yet.
+
+To reproduce one target from a Bash terminal:
+
+```bash
+QA_FLOWKIT_MUTATION_TARGET=gherkin-validate npm run mutation -- --mutate .qa-ai/scripts/lib/gherkin-validate.mjs
+```
+
+Without a target, `npm run mutation` runs all five files with the union of focused tests. Run
+`npm run test:mutation-config` for target/suite mapping, workflow limits and actual baseline tests.
+Do not revert to the full validator suite per mutant merely to obtain a green job or increase the
+timeout to hours without investigating. Inspect the affected target report for surviving mutants
+and assertions to improve. These scores do not certify security or release readiness.
+
 ## Failure Triage
 
 Use the first failing named step or job as the routing signal:
