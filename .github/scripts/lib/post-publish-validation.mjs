@@ -3,16 +3,16 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { setTimeout } from 'node:timers/promises';
 import { parsePackOutput, validatePackFileList } from '../../../.qa-ai/scripts/lib/npm-pack-allowlist.mjs';
-import { resolveNpmDistTag, simulateRegistryVisibilityCheck } from './npm-dist-tag.mjs';
-import { assertRcVersion, parseDistTagsJson } from './rc-version.mjs';
+import { resolveNpmDistTag } from './npm-dist-tag.mjs';
+import { assertRcVersion } from './rc-version.mjs';
+import { waitForRegistryVisibility } from './registry-visibility.mjs';
 import { assertStableVersion } from './stable-version.mjs';
 import {
   installAndConfigurePacked,
   node,
   npmCommand,
-  npmExecPath,
+  resolveNpmScriptPath,
   parseJsonStdout,
   repoRoot,
   runCli,
@@ -59,31 +59,21 @@ export function parsePostPublishArgs(argv, { versionEnvVar }) {
 }
 
 async function verifyRegistryMetadata(version, npmCache, { distTag, verifyLatestView }) {
-  const attempts = [];
-  for (let attempt = 1; attempt <= 6; attempt += 1) {
-    const result = spawnSync(
-      npmExecPath ? node : npmCommand,
-      npmExecPath
-        ? [npmExecPath, 'view', `qa-flowkit@${version}`, 'version']
-        : ['view', `qa-flowkit@${version}`, 'version'],
-      {
+  const npmScript = resolveNpmScriptPath();
+  const args = ['view', `qa-flowkit@${version}`, 'version', 'dist-tags', '--json', '--prefer-online'];
+  await waitForRegistryVisibility(version, distTag, {
+    query: () =>
+      spawnSync(npmScript ? node : npmCommand, npmScript ? [npmScript, ...args] : args, {
         encoding: 'utf8',
-        shell: process.platform === 'win32' && !npmExecPath,
+        shell: process.platform === 'win32' && !npmScript,
+        timeout: 15000,
         env: {
           ...process.env,
           npm_config_audit: 'false',
           npm_config_cache: npmCache
         }
-      }
-    );
-    const seen = String(result.stdout || '').trim();
-    attempts.push(seen);
-    if (result.status === 0 && seen === version) break;
-    await setTimeout(15000);
-  }
-
-  const visibility = simulateRegistryVisibilityCheck(attempts, version);
-  assert.equal(visibility.ok, true, `npm registry did not expose ${version}; last=${visibility.published}`);
+      })
+  });
 
   if (verifyLatestView) {
     const latestView = runNpm(['view', 'qa-flowkit@latest', 'version'], {
@@ -92,11 +82,6 @@ async function verifyRegistryMetadata(version, npmCache, { distTag, verifyLatest
     assert.equal(String(latestView.stdout || '').trim(), version, `qa-flowkit@latest must resolve to ${version}`);
   }
 
-  const tagsResult = runNpm(['view', 'qa-flowkit', 'dist-tags', '--json'], {
-    env: { npm_config_cache: npmCache }
-  });
-  const tags = parseDistTagsJson(tagsResult.stdout);
-  assert.equal(tags[distTag], version, `dist-tag ${distTag} must point to ${version}, got ${tags[distTag]}`);
   assert.equal(resolveNpmDistTag(version), distTag);
 }
 
