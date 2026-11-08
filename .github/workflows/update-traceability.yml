@@ -14,7 +14,7 @@ on:
         type: string
 
 permissions:
-  contents: write
+  contents: read
   pull-requests: read
 
 jobs:
@@ -37,48 +37,72 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Determine PR number
-        id: pr-info
+      - name: Check for repository traceability matrix
+        id: matrix
+        shell: bash
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            if [ -n "${{ inputs.pr_number }}" ]; then
-              echo "pr_number=${{ inputs.pr_number }}" >> $GITHUB_OUTPUT
-            else
-              echo "pr_number=" >> $GITHUB_OUTPUT
-            fi
+          if [ -f .qa-ai/output/traceability-matrix.md ]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
           else
-            echo "pr_number=${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
+            echo "No repository traceability matrix; nothing to update." >> "$GITHUB_STEP_SUMMARY"
           fi
 
-      - name: Update traceability matrix
+      - name: Determine PR number
+        id: pr-info
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_PR: ${{ inputs.pr_number }}
+          MERGED_PR: ${{ github.event.pull_request.number }}
         run: |
-          if [ -n "${{ steps.pr-info.outputs.pr_number }}" ]; then
-            node .github/scripts/update-traceability.mjs --pr ${{ steps.pr-info.outputs.pr_number }}
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            PR_NUMBER="$INPUT_PR"
+          else
+            PR_NUMBER="$MERGED_PR"
+          fi
+          if [[ -n "$PR_NUMBER" && ! "$PR_NUMBER" =~ ^[0-9]+$ ]]; then
+            echo "::error::PR number must be numeric"
+            exit 1
+          fi
+          echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
+
+      - name: Update traceability matrix
+        if: steps.matrix.outputs.available == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ steps.pr-info.outputs.pr_number }}
+        run: |
+          if [ -n "$PR_NUMBER" ]; then
+            node .github/scripts/update-traceability.mjs --pr "$PR_NUMBER"
           else
             node .github/scripts/update-traceability.mjs --since "1 day ago"
           fi
 
       - name: Check for changes
         id: git-check
+        if: steps.matrix.outputs.available == 'true'
         run: |
           git diff --exit-code .qa-ai/output/traceability-matrix.md || echo "changed=true" >> $GITHUB_OUTPUT
 
-      - name: Commit and push changes
+      - name: Upload updated matrix for review
         if: steps.git-check.outputs.changed == 'true'
-        run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git add .qa-ai/output/traceability-matrix.md
-          git commit -m "chore: update traceability matrix from CI/CD [skip ci]"
-          git push
+        uses: actions/upload-artifact@v7
+        with:
+          name: updated-traceability-matrix
+          path: .qa-ai/output/traceability-matrix.md
+          if-no-files-found: error
+          include-hidden-files: true
 
       - name: Create summary
         if: always()
+        env:
+          JOB_STATUS: ${{ job.status }}
         run: |
           echo "## Traceability Update Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          if [ "${{ steps.git-check.outputs.changed }}" = "true" ]; then
-            echo "✅ Traceability matrix was updated with CI/CD metadata" >> $GITHUB_STEP_SUMMARY
+          if [ "$JOB_STATUS" != "success" ]; then
+            echo "❌ Traceability update failed; inspect the failing step" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ steps.git-check.outputs.changed }}" = "true" ]; then
+            echo "✅ Updated matrix uploaded for review; main was not modified" >> $GITHUB_STEP_SUMMARY
           else
             echo "ℹ️ No changes to traceability matrix" >> $GITHUB_STEP_SUMMARY
           fi

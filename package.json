@@ -56,6 +56,7 @@
     "test:e2e-release-dry-run": "node .github/scripts/run-release-dry-run-validation.mjs",
     "test:rc-post-publish": "node .github/scripts/run-rc-post-publish-validation.mjs",
     "test:rc-post-publish:unit": "node --test .github/scripts/test-rc-post-publish.mjs",
+    "test:post-release-workflows": "node --test .github/scripts/test-post-release-workflows.mjs",
     "test:rc-soak": "node .github/scripts/verify-rc-soak-status.mjs",
     "test:rc-soak:unit": "node --test .github/scripts/test-rc-soak-status.mjs",
     "test:stable-release-approval": "node .github/scripts/verify-stable-release-approval.mjs",
