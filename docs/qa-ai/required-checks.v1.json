@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "generatedAt": "2026-10-29",
-  "qaFlowKitVersion": "1.0.0-rc.14",
+  "qaFlowKitVersion": "1.0.0-rc.15",
   "requiredBranchProtectionContexts": [
     "Validate starter",
     "Coverage",
