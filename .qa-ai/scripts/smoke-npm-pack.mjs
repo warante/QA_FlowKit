@@ -163,6 +163,35 @@ async function main() {
     if (strategyReport.readOnly !== true || strategyReport.kind !== 'advisory-test-strategy') {
       throw new Error('Packed strategy analyzer must return a read-only advisory report.');
     }
+    const reviewScript = path.join(initTarget, '.qa-ai', 'scripts', 'review-test-strategy.mjs');
+    await assertExists(reviewScript, 'supplied strategy review tool');
+    await fs.writeFile(path.join(initTarget, 'review-baseline.md'), 'Synthetic smoke baseline.');
+    await fs.writeFile(path.join(initTarget, 'review-candidate.md'), 'Synthetic smoke candidate.');
+    await fs.writeFile(
+      path.join(initTarget, 'review-plan.json'),
+      JSON.stringify({
+        version: 1,
+        kind: 'strategy-review-plan',
+        implementationContributors: ['fixture-author'],
+        cases: [
+          {
+            id: 'CASE-001',
+            rf: 'RF-101',
+            criterionIds: ['CR-RF-101-01'],
+            baseline: 'review-baseline.md',
+            candidate: 'review-candidate.md'
+          }
+        ]
+      })
+    );
+    const review = runNodeScript(reviewScript, ['--plan', 'review-plan.json', '--json'], {
+      cwd: initTarget,
+      stdio: 'pipe'
+    });
+    const reviewReport = JSON.parse(review.stdout);
+    if (reviewReport.status !== 'pending-review' || reviewReport.acceptanceGranted !== false) {
+      throw new Error('Packed review preparation must not invent reviewer evidence or grant approval.');
+    }
     await assertExists(path.join(initTarget, COMPACT_CONFIG_PATH), 'generated config');
     await assertExists(path.join(initTarget, DEFAULT_FEATURE_PATH), 'features directory');
     await assertExists(path.join(initTarget, QA_OUTPUT_DIR), 'output directory');

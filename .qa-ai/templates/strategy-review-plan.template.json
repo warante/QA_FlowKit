@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "kind": "strategy-review-plan",
+  "implementationContributors": ["IMPLEMENTATION-AUTHOR-ID"],
+  "cases": [
+    {
+      "id": "CASE-001",
+      "rf": "RF-101",
+      "criterionIds": ["CR-RF-101-01"],
+      "baseline": ".qa-ai/output/review/baseline.md",
+      "candidate": ".qa-ai/output/review/candidate.md"
+    }
+  ]
+}

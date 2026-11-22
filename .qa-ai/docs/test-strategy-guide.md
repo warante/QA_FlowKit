@@ -116,3 +116,60 @@ The index itself contains source titles and paths: review/redact it before shari
 Use bilingual fixtures and deterministic regressions during implementation. After the implementation batch,
 perform the independent semantic review and real pilots using approved consent/privacy rules.
 Development fixture results do not replace those acceptance activities or the existing stable-release gates.
+
+### Supplied comparative review evidence
+
+TASK-P3-007 also has a standalone, optional read-only tool:
+
+```bash
+node .qa-ai/scripts/review-test-strategy.mjs --plan review-plan.json --json
+node .qa-ai/scripts/review-test-strategy.mjs --plan review-plan.json --reviews review-records.json --json
+```
+
+This tool takes explicit local paths, not project configuration; it does not read a legacy root config.
+It is not a new `qa-flowkit` subcommand, workflow phase or release gate. Templates live in
+`.qa-ai/templates/strategy-review-plan.template.json` and `strategy-review-records.template.json`.
+They must be filled manually and copied only to an approved local location. No files are written by the tool.
+
+The plan names pseudonymous implementation-contributor IDs and up to 100 cases. Each case links one RF,
+Criterion IDs and distinct baseline/candidate repository-relative text paths.
+The first command hashes the plan and current artifacts and returns `pending-review` with no invented opinions.
+
+Review records bind to `planSha256`. Each record requires:
+
+- `caseId`, pseudonymous `reviewerId`, explicit boolean `independentFromImplementation`, and `reviewedAt` in ISO format
+  with timezone (for example `2026-11-22T17:00:00+01:00`, hora peninsular española);
+- `baselineSha256` and `candidateSha256` from the current packet;
+- `dimensions` with exactly `ambiguity`, `oracleCorrectness`, `duplication`, `reviewRework`, `retainedValue`;
+  each dimension has a `judgment` (`improved`, `equivalent`, `regressed`, `uncertain`) and nonempty `rationale`;
+- `decision` (`retain`, `revise`, `defer`), its `rationale`, and at least one `evidence` entry with `path` and `sha256`
+  for a separate existing review-notes file.
+
+Compute a notes-file hash without changing it:
+
+```bash
+node --input-type=module -e "import fs from 'node:fs';import {createHash} from 'node:crypto';console.log(createHash('sha256').update(fs.readFileSync('review-notes.md')).digest('hex'))"
+```
+
+Use the same algorithm for raw bytes; formatting or line-ending changes invalidate previous hashes.
+One record per reviewer/case is allowed; contributor/reviewer IDs are compared case-insensitively for independence
+and duplicate detection. Unknown case IDs, extra fields and incomplete records are input errors.
+Do not use names, email addresses, credentials or personal data. Human reviewers supply the judgments;
+the tool does not generate them, verify identities or establish whether a rationale is true.
+
+Changed plans, compared artifacts or notes produce `incomplete-evidence`. Copies of compared inputs cannot substitute
+for separate review notes. Self-review or a missing independence attestation does not satisfy independent review.
+Disagreeing eligible reviewers produce `conflicting-reviews` instead of an averaged score. `regressed` cannot be paired
+with `retain`; `uncertain` remains `deferred`. Revisions and missing cases remain visible.
+
+`recorded-retain` means supplied records are consistent, not that the software is accepted. Every report states
+`acceptanceGranted: false`, `signaturesVerified: false` and `userProductivity: not-measured`.
+Hashes are not signatures or trusted timestamps; reviewer independence is a supplied attestation requiring verification.
+Reports contain pseudonymous reviewer IDs, relative paths, hashes and decisions, not source text or rationale bodies.
+Keep the records and notes for human review rather than replacing them with the summary.
+
+Limits: 500 supplied records; 20 notes references per record; 2000 characters per rationale; 2 MiB per input and
+16 MiB total bytes read. Only `.md`, `.txt`, `.feature` and `.json` inputs inside the repository are supported;
+`.git`, `node_modules`, `references`, environment-file paths and external links are refused. Sensitive-content
+matches also refuse the input. Malformed/unsafe input exits nonzero with a redacted diagnostic; incomplete or conflicting
+review evidence is reported as data and never grants approval.

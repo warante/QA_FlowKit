@@ -78,6 +78,9 @@ test('strategy user guides preserve advisory semantics, privacy and final accept
       '--results',
       'test:strategy-analysis',
       'test:strategy-evaluation',
+      'review-test-strategy.mjs',
+      '--plan',
+      '--reviews',
       'FINAL-ACCEPTANCE.md'
     ])
       assert.ok(guide.includes(phrase), phrase);
@@ -92,6 +95,31 @@ test('strategy user guides preserve advisory semantics, privacy and final accept
     'Author names, emails and commit messages are not collected'
   ])
     assert.ok(guide.includes(phrase), phrase);
+});
+
+test('supplied strategy reviews remain hash-bound diagnostics rather than fabricated independent acceptance', async () => {
+  const guide = await fs.readFile(path.join(repoRoot, '.qa-ai/docs/test-strategy-guide.md'), 'utf8');
+  for (const phrase of [
+    'planSha256',
+    'baselineSha256',
+    'candidateSha256',
+    'oracleCorrectness',
+    'recorded-retain',
+    'acceptanceGranted: false',
+    'Hashes are not signatures',
+    'case-insensitively',
+    '16 MiB',
+    'not generate them'
+  ])
+    assert.ok(guide.includes(phrase), phrase);
+  const plan = JSON.parse(
+    await fs.readFile(path.join(repoRoot, '.qa-ai/templates/strategy-review-plan.template.json'), 'utf8')
+  );
+  assert.equal(plan.kind, 'strategy-review-plan');
+  const records = JSON.parse(
+    await fs.readFile(path.join(repoRoot, '.qa-ai/templates/strategy-review-records.template.json'), 'utf8')
+  );
+  assert.deepEqual(records.reviews, [], 'Templates must not invent reviewers or approval.');
 });
 
 test('mutation docs retain target scope and distinguish bounded diagnostics from release gates', async () => {

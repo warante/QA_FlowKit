@@ -31,3 +31,9 @@ A same-day code delivery objective does not waive the minimum soak or create hum
 Keep historical task status and human evidence unchanged until actual acceptance. Technical preparation can be
 `In validation`; neither this queue nor passing synthetic fixtures makes it `Done`.
 Refer to [the strategy implementation record](PRODUCT-STRATEGY-INCORPORATION.md#implementation-record) for local delivery.
+
+For TASK-P3-007, `review-test-strategy.mjs --plan <path> --json` prepares current comparison hashes without
+inventing reviews; `--reviews <path>` checks actual supplied records and separate notes.
+Use the [packaged guide](../.qa-ai/docs/test-strategy-guide.md#supplied-comparative-review-evidence).
+Stale inputs, self-review, uncertain conclusions and conflicting reviewers remain unresolved.
+The tool cannot verify a reviewer's identity or grant acceptance; a human must review the underlying evidence.
