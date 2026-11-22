@@ -50,6 +50,14 @@ node .qa-ai/scripts/change-impact.mjs --branch <branch-name>
 
 This script analyzes code changes and predicts affected RFs for targeted testing.
 
+## Capability navigation
+
+Use the read-only `node .qa-ai/scripts/analyze-test-strategy.mjs --json` report to discover tests grouped by their
+current Feature title. This is a derived navigation aid, not semantic matching or another source of truth.
+Review candidates as create/reuse/update proposals against canonical RF/CA mappings and current behavior.
+Keep conflicting versions and duplicate IDs visible. Never auto-merge, delete, rename or exclude tests based on a
+matching title. A renamed capability may need manual reconciliation; preserve all audit history and type folders.
+
 ## RF Dependency Graph
 
 For dependency analysis between RFs, use:

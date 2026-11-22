@@ -88,6 +88,8 @@
     "coverage:check": "npm run coverage:collect && npm run coverage:threshold",
     "mutation": "stryker run",
     "test:mutation-config": "node --test .github/scripts/test-mutation-config.mjs",
+    "test:strategy-analysis": "node --test .qa-ai/scripts/test/validators/test-strategy.mjs",
+    "test:strategy-evaluation": "node .github/scripts/evaluate-test-strategy.mjs",
     "qa:init": "node .qa-ai/scripts/init.mjs",
     "qa:config": "node .qa-ai/scripts/config.mjs",
     "qa:bootstrap": "node .qa-ai/scripts/bootstrap-agent-adapters.mjs",

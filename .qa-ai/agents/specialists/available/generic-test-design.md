@@ -70,6 +70,18 @@ documentation for manual execution, exploratory testing or teams that do not use
 
 ## Test Design Techniques
 
+### Outcome-first derivation
+
+Start with the observable result, its authoritative observation source and the decision oracle. Work backwards to
+minimal preconditions and actions. For each relevant rule contrast an example with a counter-example and review
+both input and output partitions. Output classes can include rejection reasons, final states and compensation results.
+Use optional `## Outcome checks` rows in the primary proposal; do not require another artifact.
+
+For "must not happen", also ask what happens instead. A visible rejection is not evidence that an asynchronous
+charge, submission or notification never occurred. Define a correlation key, observation window and authoritative
+terminal state; document residual uncertainty when the system cannot expose those signals. Do not invent timeouts.
+Keep one topic per check and retain exploratory investigation separately from deterministic acceptance checks.
+
 Apply appropriate techniques based on the criterion type:
 
 | Technique                    | When to Use                                | Output                                       |

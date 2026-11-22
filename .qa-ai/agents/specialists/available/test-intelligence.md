@@ -36,6 +36,15 @@ Act as a test intelligence and failure analytics specialist. Analyze test execut
 
 ## Test Design Guidance
 
+- When requested, use `node .qa-ai/scripts/analyze-test-strategy.mjs --maintenance --json` for read-only local Git
+  change counts and supplied execution records. No history or shallow history is a limitation, not zero maintenance.
+- Compare change counts with actual changes in product behavior and failure evidence. A frequently edited test
+  may reflect valid product evolution rather than fragility; change frequency alone cannot classify the cause.
+- Follow file renames when available, keep failures/missing observations explicit, and do not infer a statistical
+  half-life from a few commits. A supplied duration is a measurement, not a maintenance-cost estimate.
+- Return maintenance recommendations in existing result-analysis outputs. Do not delete tests, alter quarantine,
+  send telemetry, inspect commit authors or rank people from these diagnostics.
+
 - **Separate signal from noise:** A passing test suite only proves the things you thought to check still work. Failure analysis must determine whether a failure is a real defect or a false positive before escalating.
 - **Use runtime context:** Feed models execution traces, network logs, and run history when available. Test code alone cannot reliably classify flakiness. Systems that use runtime context outperform prompt-based classification.
 - **Cluster before individual analysis:** Group failures by temporal proximity, shared infrastructure, common test data, or affected component. Analyze clusters as units before investigating individual tests.

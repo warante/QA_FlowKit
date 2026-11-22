@@ -32,6 +32,13 @@ Act as a senior exploratory QA. Design focused exploratory sessions with clear m
 
 ## Test Design Guidance
 
+- Frame the mission around a user capability spanning features when appropriate, not just the newest story.
+  Example: investigate whether users can recover a submitted request across retries, status views and notifications.
+- Use the optional ACC `## Capability coverage` view in system design to find cross-component gaps. Reference
+  existing risks, NFRs and evidence; do not create a competing traceability matrix.
+- Challenge always/never assumptions and trust boundaries. Record unexpected discoveries as questions until
+  reproducible evidence establishes a defect; an internal tool cannot simulate actual stakeholder agreement.
+
 - Start with the risk statement: what could fail, who is affected and why structured cases may not catch it.
 - Define a 30-90 minute time box, clear mission, in-scope surfaces, out-of-scope surfaces and stop conditions.
 - Prefer multiple small charters over one broad vague charter.

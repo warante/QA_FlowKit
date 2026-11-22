@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { MUTATION_SUITES } from './lib/mutation-suites.mjs';
+import { digestExampleArtifacts } from './lib/example-artifact-digest.mjs';
 import { displayArgs, transcriptFromCapture } from './capture-onboarding.mjs';
 import {
   findBrokenLocalMarkdownLinks,
@@ -18,6 +19,80 @@ import {
 } from './lib/documentation-consistency.mjs';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
+
+test('manual example digest ignores installed strategy guide but still protects canonical artifacts and user docs', async () => {
+  const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'qa-example-digest-'));
+  try {
+    await fs.mkdir(path.join(tmp, '.qa-ai/docs'), { recursive: true });
+    await fs.mkdir(path.join(tmp, '.qa-ai/output'), { recursive: true });
+    await fs.mkdir(path.join(tmp, '.qa-ai/features/functional'), { recursive: true });
+    const output = path.join(tmp, '.qa-ai/output/normalized-requirements.md');
+    const feature = path.join(tmp, '.qa-ai/features/functional/one.feature');
+    const userDoc = path.join(tmp, '.qa-ai/docs/team-guide.md');
+    for (const file of [output, feature, userDoc]) await fs.writeFile(file, 'original');
+    const baseline = await digestExampleArtifacts(tmp);
+    await fs.writeFile(path.join(tmp, '.qa-ai/docs/test-strategy-guide.md'), 'installed framework guide');
+    assert.equal(await digestExampleArtifacts(tmp), baseline);
+    for (const file of [output, feature, userDoc]) {
+      await fs.writeFile(file, 'changed');
+      assert.notEqual(await digestExampleArtifacts(tmp), baseline);
+      await fs.writeFile(file, 'original');
+    }
+  } finally {
+    await fs.rm(tmp, { recursive: true, force: true });
+  }
+});
+
+test('strategy planning stays in existing expansion epics without claiming implementation or waiving release gates', async () => {
+  const plan = await fs.readFile(path.join(repoRoot, 'tasks/PRODUCT-STRATEGY-INCORPORATION.md'), 'utf8');
+  const snapshot = await fs.readFile(path.join(repoRoot, 'tasks/IMPLEMENTATION-STATUS.md'), 'utf8');
+  const ids = [...plan.matchAll(/^## (TASK-P(?:3|5)-\d{3}) /gm)].map((match) => match[1]);
+  assert.equal(ids.length, 8);
+  assert.equal(new Set(ids).size, 8);
+  assert.equal((plan.match(/^\*\*Status:\*\* In validation$/gm) || []).length, 8);
+  for (const id of ids) {
+    const section = plan.split(`## ${id} `)[1].split('\n## ')[0];
+    for (const field of ['**Owner:**', '**Depends on:**', '**Acceptance and tests:**', '**Documentation:**']) {
+      assert.ok(section.includes(field), `${id}: ${field}`);
+    }
+  }
+  assert.match(plan, /not new blockers for the current RC/);
+  assert.match(plan, /0\/8 tasks Done/);
+  assert.match(plan, /independent semantic evaluation/);
+  const acceptance = await fs.readFile(path.join(repoRoot, 'tasks/FINAL-ACCEPTANCE.md'), 'utf8');
+  assert.match(acceptance, /Development regressions are not postponed/);
+  assert.match(acceptance, /does not waive the minimum soak/);
+  assert.match(snapshot, /not “37% of the code implemented”/);
+  for (const name of ['ROADMAP.md', 'tasks/README.md', 'tasks/EPIC-16-pilots-and-metrics.md']) {
+    const content = await fs.readFile(path.join(repoRoot, name), 'utf8');
+    assert.ok(content.includes('PRODUCT-STRATEGY-INCORPORATION.md'), name);
+  }
+});
+
+test('strategy user guides preserve advisory semantics, privacy and final acceptance in both languages', async () => {
+  for (const language of ['', '.es']) {
+    const guide = await fs.readFile(path.join(repoRoot, `docs/qa-ai/test-strategy${language}.md`), 'utf8');
+    for (const phrase of [
+      'analyze-test-strategy.mjs',
+      '--maintenance',
+      '--results',
+      'test:strategy-analysis',
+      'test:strategy-evaluation',
+      'FINAL-ACCEPTANCE.md'
+    ])
+      assert.ok(guide.includes(phrase), phrase);
+  }
+  const guide = await fs.readFile(path.join(repoRoot, '.qa-ai/docs/test-strategy-guide.md'), 'utf8');
+  for (const phrase of [
+    'pending-decision',
+    'not semantic deduplication',
+    'not confirmed flakiness',
+    'Missing/shallow history',
+    'does not assess',
+    'Author names, emails and commit messages are not collected'
+  ])
+    assert.ok(guide.includes(phrase), phrase);
+});
 
 test('mutation docs retain target scope and distinguish bounded diagnostics from release gates', async () => {
   const architecture = await fs.readFile(path.join(repoRoot, 'docs/qa-ai/architecture.md'), 'utf8');

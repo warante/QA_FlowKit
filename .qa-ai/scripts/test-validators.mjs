@@ -32,3 +32,4 @@ import './test/validators/change-impact.mjs';
 import './test/validators/rf-dependency-graph.mjs';
 import './test/validators/ci-traceability.mjs';
 import './test/validators/apm-connectors.mjs';
+import './test/validators/test-strategy.mjs';

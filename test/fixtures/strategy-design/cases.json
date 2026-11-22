@@ -1,0 +1,123 @@
+{
+  "kind": "synthetic-structural-evaluation",
+  "cases": [
+    {
+      "id": "en-boundary-decision",
+      "language": "en",
+      "section": "contrast cases",
+      "artifact": "normalized",
+      "baseline": {
+        "Criterion ID": "CR-RF-101-01",
+        "Example": "11 items",
+        "Counter-example": "10 items",
+        "Question": "What happens at exactly 10?",
+        "Decision owner": "unknown",
+        "Decision": "pending",
+        "Status": "open"
+      },
+      "candidate": {
+        "Criterion ID": "CR-RF-101-01",
+        "Example": "11 items",
+        "Counter-example": "10 items",
+        "Question": "What happens at exactly 10?",
+        "Decision owner": "fictional product owner",
+        "Decision": "10 is ineligible according to fictional fixture rule",
+        "Status": "resolved"
+      },
+      "expectedBaselineCode": "STRATEGY_DECISION_OPEN"
+    },
+    {
+      "id": "es-limite-pendiente",
+      "language": "es",
+      "section": "contrast cases",
+      "artifact": "normalized",
+      "baseline": {
+        "Criterion ID": "CR-RF-201-01",
+        "Example": "11 elementos",
+        "Counter-example": "10 elementos",
+        "Question": "¿Qué ocurre exactamente con 10?",
+        "Decision owner": "pendiente",
+        "Decision": "pendiente",
+        "Status": "open"
+      },
+      "candidate": {
+        "Criterion ID": "CR-RF-201-01",
+        "Example": "11 elementos",
+        "Counter-example": "10 elementos",
+        "Question": "¿Qué ocurre exactamente con 10?",
+        "Decision owner": "responsable ficticio de producto",
+        "Decision": "10 queda excluido según la regla ficticia del ejemplo",
+        "Status": "resolved"
+      },
+      "expectedBaselineCode": "STRATEGY_DECISION_OPEN"
+    },
+    {
+      "id": "en-async-absence",
+      "language": "en",
+      "section": "outcome checks",
+      "artifact": "proposal",
+      "baseline": {
+        "Test ID": "TC-101",
+        "Criterion IDs": "CR-RF-101-01",
+        "Observable outcome": "No charge",
+        "Observation source": "error message",
+        "Oracle": "unknown",
+        "Input partition": "repeated request",
+        "Output partition": "rejected",
+        "Counter-example": "new request",
+        "Asynchronous": "yes",
+        "Prohibited effect": "yes",
+        "Alternative behavior": "rejection",
+        "Correlation": "unknown",
+        "Observation window": "unknown",
+        "Terminal state": "unknown"
+      },
+      "candidate": {
+        "Test ID": "TC-101",
+        "Criterion IDs": "CR-RF-101-01",
+        "Observable outcome": "Terminal rejection without capture",
+        "Observation source": "fictional ledger",
+        "Oracle": "Approved fictional ledger contract",
+        "Input partition": "repeated request",
+        "Output partition": "rejected",
+        "Counter-example": "new request",
+        "Asynchronous": "yes",
+        "Prohibited effect": "yes",
+        "Alternative behavior": "rejection",
+        "Correlation": "request ID",
+        "Observation window": "5 s in fictional contract",
+        "Terminal state": "ledger rejection"
+      },
+      "expectedBaselineCode": "STRATEGY_ASYNC_ABSENCE_UNSUPPORTED"
+    },
+    {
+      "id": "es-beneficio-no-demostrado",
+      "language": "es",
+      "section": "benefit evaluation",
+      "artifact": "system",
+      "baseline": {
+        "RF": "RF-201",
+        "User segment": "operadores",
+        "Behavior change": "menos correcciones",
+        "Baseline": "unknown",
+        "Target": "unknown",
+        "Observation method": "protocolo ficticio",
+        "Control": "influenciado",
+        "Approval": "pending",
+        "Status": "measured"
+      },
+      "candidate": {
+        "RF": "RF-201",
+        "User segment": "operadores",
+        "Behavior change": "menos correcciones",
+        "Baseline": "10 correcciones en datos ficticios",
+        "Target": "5 correcciones en datos ficticios",
+        "Observation method": "protocolo ficticio",
+        "Control": "influenciado",
+        "Approval": "approved",
+        "Status": "proposed"
+      },
+      "expectedBaselineCode": "STRATEGY_BENEFIT_UNSUPPORTED"
+    }
+  ]
+}

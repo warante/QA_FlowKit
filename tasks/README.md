@@ -13,6 +13,16 @@ Epics 13-20 remain the stabilization plan for the RC-to-`1.0.0` path. Product ex
 the product expansion section of [`ROADMAP.md`](../ROADMAP.md) with its own `EPIC-P*` identifiers; do not mix those IDs
 with the historical task ranges in this directory.
 
+The [strategy incorporation plan](PRODUCT-STRATEGY-INCORPORATION.md) schedules eight scoped additions inside
+EPIC-P3 and EPIC-P5, linked to the existing normalization, design, feasibility and result-analysis phases.
+It does not create new workflow phases or expand the stable-release gates.
+See the [implementation status snapshot](IMPLEMENTATION-STATUS.md) for recorded completion counts,
+external evidence, remaining work and documentation discrepancies.
+
+The [final acceptance queue](FINAL-ACCEPTANCE.md) records the maintainer's implementation-first scheduling:
+prepare technical work first, then independent acceptance and pilots. Development regressions and pre-merge
+CI still run with changes; release gates, required soak and human approvals remain in force.
+
 ## Planning principles
 
 - Stabilize before expanding scope.

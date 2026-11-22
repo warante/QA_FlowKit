@@ -84,6 +84,18 @@ Rules:
 - Use `None identified` only when the source has no explicit NFR statements.
 ```
 
+## Contrast-case clarification
+
+- Before approving uncertain behavior, ask a few open-ended questions tied to a Criterion ID: "What happens next?"
+  / "¿Qué ocurre después?" Avoid leading questions that already imply the answer.
+- Probe exact boundaries, contradictory rules, repeated requests and exceptions to always/never statements.
+  These are clarification prompts, not additional source requirements.
+- In the existing normalized artifact, optionally record `## Contrast cases` with columns `Criterion ID`,
+  `Example`, `Counter-example`, `Question`, `Decision owner`, `Decision`, `Status`.
+- Keep unresolved answers as `pending-decision` in the canonical criterion row. A proposed answer or agreement
+  between generated perspectives is not stakeholder approval. Record the source of the approved decision.
+- Missing owners or answers remain open questions; do not invent them or change the inferred-criteria policy.
+
 ## Splitting Rules
 
 - One assertion per criterion. If a CA says "A and B happen", split into two criteria.

@@ -39,6 +39,21 @@ Activated for contract phase `feasibility` after its declared inputs are complet
 
 ## Classification Criteria
 
+### Redesign before automation
+
+Before recommending automation of an existing manual journey, record optional `## Automation redesign` rows:
+`Test ID`, `Criterion IDs`, `Purpose`, `Redesign`, `Execution layer`, `Oracle`, `Data isolation`,
+`Synchronization`, `Retained manual exploration`, `Blocker`.
+
+Preserve the purpose, not necessarily the manual steps. Split independent business decisions, technical checks and
+human observations. Prefer the narrowest supported execution layer; UI is appropriate when the behavior itself is UI.
+Use independent reproducible data and event/state waits with bounded timeouts. Controlled clocks are proposals only
+when the configured framework and product actually support them.
+
+Keep subjective or tangential exploration manual, and list unsupported setup, interfaces or oracles as blockers.
+Do not auto-translate a long manual script or treat a redesign proposal as approval to rewrite existing tests.
+This analysis does not introduce new feasibility statuses.
+
 A test is **Automatable** when:
 
 - Steps can be translated to framework commands without ambiguity.

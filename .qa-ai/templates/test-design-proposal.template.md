@@ -13,6 +13,17 @@
 | RF  | CA / rule | Criterion IDs | Test ID | Title | Type | Technique | Evidence type | Artifact path | Expected result focus | Priority | Manual | Action |
 | --- | --------- | ------------- | ------- | ----- | ---- | --------- | ------------- | ------------- | --------------------- | -------- | ------ | ------ |
 
+<!-- Optional enrichment: omit the following table when not useful. It is advisory, not a new gate. -->
+
+## Outcome checks
+
+| Test ID | Criterion IDs | Observable outcome | Observation source | Oracle | Input partition | Output partition | Counter-example | Asynchronous | Prohibited effect | Alternative behavior | Correlation | Observation window | Terminal state |
+| ------- | ------------- | ------------------ | ------------------ | ------ | --------------- | ---------------- | --------------- | ------------ | ----------------- | -------------------- | ----------- | ------------------ | -------------- |
+
+Use `not-applicable` for synchronous-only details. Unknown oracles remain design gaps; do not invent values.
+For asynchronous absence, a visible error alone does not prove no side effect occurred.
+Use `yes`/`no` for `Asynchronous` and `Prohibited effect`; missing flags require reviewer clarification.
+
 ## Coverage obligations
 
 | RF  | Obligation | Applicable | Evidence | Rationale |

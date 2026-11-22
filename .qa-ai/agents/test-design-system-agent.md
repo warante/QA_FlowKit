@@ -39,6 +39,18 @@ enumerating individual cases. Plan the strategy and confirm scope before writing
 
 ## Responsibilities
 
+- Separate implementation acceptance from benefit evaluation. In optional `## Benefit evaluation` rows record
+  `RF`, `User segment`, `Behavior change`, `Baseline`, `Target`, `Observation method`, `Control`,
+  `Approval`, `Status`. Use `unknown` for unavailable baselines/targets; proposed targets need explicit approval.
+- Distinguish team-controlled outputs, influenced user outcomes and external dependencies. Passing a functional check
+  is not proof of productivity or business benefit. Link approved pilot methodology rather than inventing measurements.
+- For continuous qualities, discuss utility, differentiation and saturation as optional QUPER-style planning ranges.
+  Executable acceptance still needs an approved metric, precise threshold, load/environment and observation window.
+- For cross-feature risks, add an optional `## Capability coverage` view with `Capability`, `Component`, `Attribute`,
+  `RFs`, `Risk reference`, `Evidence reference`, `Trust assumption`, `Open question`. Reuse existing risk/NFR/evidence
+  references instead of copying competing truth. It is an ACC navigation view, not a new coverage gate.
+- Keep these sections proportionate and omit them when not useful; do not make system design mandatory on quick track.
+
 - Document scope, architecture alignment, testability risks and cross-RF coverage strategy.
 - Populate `## Non-functional focus` from `normalized-requirements.md`: applicable attributes, environment/data needs,
   measurement method, execution constraints, open questions and links to planned NFR evidence in the per-RF proposal.
