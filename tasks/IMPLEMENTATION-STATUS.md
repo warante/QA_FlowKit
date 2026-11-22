@@ -99,3 +99,18 @@ Independent semantic review, first-use studies, pilots and release evidence are 
 
 Update this snapshot after accepted task completion or a release decision, using new evidence rather
 than automatically advancing dates, percentages or statuses.
+
+## Implementation continuation after PR #147
+
+The baseline/counts above describe the initial planning snapshot. The initial strategy implementation is now
+merged in [PR #147](https://github.com/warante/QA_FlowKit/pull/147), source commit `665985a`.
+This does not establish independent semantic acceptance or close the eight tasks automatically.
+
+At the maintainer's request, publication is outside the active implementation scope. The next local technical
+delivery extends TASK-P3-007 with `review-test-strategy.mjs`: explicit comparison plans, byte hashes, supplied
+pseudonymous reviews, separate notes, five judgment dimensions, stale-evidence diagnostics and conflict handling.
+Preparation without reviews remains pending; no reviewer opinions, approvals or productivity results are invented.
+
+Local follow-up verification: 13 new regressions, 33 documentation tests and the full 90-step suite pass.
+The follow-up is not yet merged or validated by remote CI. Human comparative review and pilots remain in
+[FINAL-ACCEPTANCE.md](FINAL-ACCEPTANCE.md); historical Done counts are unchanged.

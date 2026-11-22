@@ -161,6 +161,11 @@ do not delete audit history. Any contract change includes schema, migration and 
 - Separate deterministic fixture checks, human quality assessment and actual end-user outcomes.
 - Preserve counterproductive examples as regressions; record retain/revise/defer decisions per enhancement.
 
+Technical follow-up: `review-test-strategy.mjs` prepares hash-bound comparison packets and validates supplied,
+pseudonymous review records across ambiguity, oracle correctness, duplication, review rework and retained value.
+It reports stale inputs, self-review, uncertainty and disagreement without inventing reviewer judgments or granting
+acceptance. Human comparative review remains pending; this tooling does not complete TASK-P3-007 by itself.
+
 **Acceptance and tests:** Publish method, sample, limitations and review evidence. Fixture improvements are
 not productivity claims; no resumed pilot, real-user endorsement or multi-agent consensus is fabricated.
 **Documentation:** evaluation report, updated strategy status and links to pilot methodology.
@@ -239,3 +244,20 @@ Local implementation verification:
   hardening; this is a diagnostic measurement, not semantic effectiveness evidence or a changed threshold.
 - Local log: `strategy-implementation-full.log` in the session's external temporary workspace (not packaged).
 - Remote CI, independent review and real pilots have not been executed for this change.
+
+### Post-merge implementation follow-up
+
+The initial strategy implementation was merged in PR #147 (`665985a`). Publication is outside the current work
+at maintainer request; implementation continues without depending on the open Release PR.
+The TASK-P3-007 follow-up adds supplied-review evidence tooling, templates and regressions in a separate change.
+It does not mark independent review, pilots or any release task Done.
+
+Local verification for the follow-up:
+
+- `npm run test:strategy-review-evidence`: 13 passing regressions, including stale hashes, self-review,
+  reviewer conflicts, uncertainty, malformed records and unsafe/sensitive input.
+- `npm run test:doc-consistency`: 33 passing tests.
+- `npm run validate:oss-extraction`: 90 passing steps, including preparation from a packed installation.
+- Source files: `.qa-ai/scripts/review-test-strategy.mjs` and `lib/strategy-review-evidence.mjs`.
+- Review opinions are supplied data; no real human review or pilot was performed by these regressions.
+- The follow-up is local and still requires review and remote CI before integration.

@@ -1,0 +1,6 @@
+{
+  "version": 1,
+  "kind": "strategy-review-records",
+  "planSha256": "<COPY-CURRENT-PLAN-SHA256>",
+  "reviews": []
+}

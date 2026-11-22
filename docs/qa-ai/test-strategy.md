@@ -26,5 +26,17 @@ The second command compares synthetic baseline/candidate tables and emits a JSON
 An intentionally incorrect but fully populated oracle demonstrates why structural completeness cannot replace review.
 Independent semantic acceptance and pilots remain at the end of the implementation-first schedule.
 
+For actual supplied comparative reviews (not synthetic judgments), use the optional packaged tool:
+
+```bash
+node .qa-ai/scripts/review-test-strategy.mjs --plan review-plan.json --json
+node .qa-ai/scripts/review-test-strategy.mjs --plan review-plan.json --reviews review-records.json --json
+```
+
+The [packaged guide](../../.qa-ai/docs/test-strategy-guide.md#supplied-comparative-review-evidence) describes templates,
+hash binding, five review dimensions, separate notes and conflict handling. Preparation stays pending without reviewers.
+`recorded-retain` summarizes supplied evidence only; `acceptanceGranted: false` and unverified identities/independence
+remain explicit. No human opinions, acceptance or productivity measurement are generated.
+
 See the [incorporation plan](../../tasks/PRODUCT-STRATEGY-INCORPORATION.md) and
 [final acceptance queue](../../tasks/FINAL-ACCEPTANCE.md).
