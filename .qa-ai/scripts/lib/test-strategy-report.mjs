@@ -3,7 +3,12 @@ import path from 'node:path';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { getConfigValue, loadQaAiConfig, resolveRepoPath } from './utils.mjs';
-import { buildCapabilityIndex, reviewStrategySections, summarizeTestObservations } from './test-strategy-analysis.mjs';
+import {
+  buildCapabilityIndex,
+  buildMaintenanceInvestigation,
+  reviewStrategySections,
+  summarizeTestObservations
+} from './test-strategy-analysis.mjs';
 
 const exec = promisify(execFile);
 const MAX_FILE_BYTES = 2 * 1024 * 1024;
@@ -122,6 +127,7 @@ export async function collectTestStrategy(cwd, { maintenance = false, results = 
   const navigation = buildCapabilityIndex(files, getConfigValue(config, 'gherkin.language', 'en'));
   const observations = results ? summarizeTestObservations(JSON.parse(await readLocal(cwd, results))) : [];
   const knownIds = new Set(navigation.capabilities.flatMap((c) => c.tests.flatMap((t) => t.testIds)));
+  const history = maintenance ? await collectMaintenance(cwd, files) : null;
   return {
     schemaVersion: 1,
     kind: 'advisory-test-strategy',
@@ -130,7 +136,10 @@ export async function collectTestStrategy(cwd, { maintenance = false, results = 
     review: reviewStrategySections(artifacts),
     navigation,
     missingArtifacts,
-    maintenance: maintenance ? await collectMaintenance(cwd, files) : null,
+    maintenance: history,
+    investigation: buildMaintenanceInvestigation(navigation, history, observations, {
+      resultsSupplied: Boolean(results)
+    }),
     observations,
     unmatchedObservationIds: observations.filter((r) => !knownIds.has(r.testId)).map((r) => r.testId),
     limitations: [

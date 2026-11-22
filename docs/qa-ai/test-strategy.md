@@ -40,3 +40,13 @@ remain explicit. No human opinions, acceptance or productivity measurement are g
 
 See the [incorporation plan](../../tasks/PRODUCT-STRATEGY-INCORPORATION.md) and
 [final acceptance queue](../../tasks/FINAL-ACCEPTANCE.md).
+
+## Maintenance investigation
+
+The existing analyzer's JSON `investigation` section links exact test IDs and capability navigation to local
+file-history counts and supplied execution summaries. Use `--maintenance --results observations.json --json`.
+Duplicate IDs remain ambiguous without attached run evidence; missing IDs, orphan runs, unavailable and
+truncated history remain explicit. Shared file counts are not summed into per-capability maintenance totals.
+`causesInferred: false` and `automaticActions: false` preserve the diagnostic boundary.
+See the [packaged guide](../../.qa-ai/docs/test-strategy-guide.md#maintenance-investigation-by-test-and-capability).
+This is technical preparation for TASK-P5-001, not completed human acceptance or a resumed pilot.

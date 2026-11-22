@@ -90,6 +90,7 @@
     "test:mutation-config": "node --test .github/scripts/test-mutation-config.mjs",
     "test:strategy-analysis": "node --test .qa-ai/scripts/test/validators/test-strategy.mjs",
     "test:strategy-review-evidence": "node --test .qa-ai/scripts/test/validators/strategy-review-evidence.mjs",
+    "test:maintenance-investigation": "node --test .qa-ai/scripts/test/validators/maintenance-investigation.mjs",
     "test:strategy-evaluation": "node .github/scripts/evaluate-test-strategy.mjs",
     "qa:init": "node .qa-ai/scripts/init.mjs",
     "qa:config": "node .qa-ai/scripts/config.mjs",

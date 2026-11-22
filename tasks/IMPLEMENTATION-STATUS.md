@@ -114,3 +114,11 @@ Preparation without reviews remains pending; no reviewer opinions, approvals or 
 Local follow-up verification: 13 new regressions, 33 documentation tests and the full 90-step suite pass.
 The follow-up is not yet merged or validated by remote CI. Human comparative review and pilots remain in
 [FINAL-ACCEPTANCE.md](FINAL-ACCEPTANCE.md); historical Done counts are unchanged.
+
+## Continuation after PR #148
+
+PR #148 merged as `e43d3d2`, after all 41 remote checks passed. Its independent semantic acceptance remains pending.
+The active technical slice is TASK-P5-001: join local file-maintenance signals and supplied execution summaries
+through exact canonical test IDs, with capability navigation, ambiguous identity handling and explicit missing-data
+states. File counts are not scenario effort; causes are not inferred and no automatic actions are authorized.
+Human acceptance, pilots and publication remain outside this technical slice; formal Done counts are unchanged.

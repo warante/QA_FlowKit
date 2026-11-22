@@ -42,3 +42,13 @@ ni independencia. No se generan opiniones humanas, aprobación ni mediciones de 
 
 Consultar el [plan de incorporación](../../tasks/PRODUCT-STRATEGY-INCORPORATION.md) y la
 [cola final de aceptación](../../tasks/FINAL-ACCEPTANCE.md).
+
+## Investigación del mantenimiento
+
+La sección JSON `investigation` del analizador existente relaciona IDs exactos de tests y capacidades con
+conteos del historial Git local y resúmenes de ejecuciones aportadas. Usa `--maintenance --results observations.json --json`.
+Los IDs duplicados quedan ambiguos y sin ejecuciones asociadas; se conservan explícitos los IDs ausentes,
+ejecuciones huérfanas e historial no disponible o truncado. Los conteos de archivos compartidos no se suman
+como totales de mantenimiento por capacidad. `causesInferred: false` y `automaticActions: false` mantienen su carácter diagnóstico.
+Consulta la [guía incluida](../../.qa-ai/docs/test-strategy-guide.md#maintenance-investigation-by-test-and-capability).
+Es preparación técnica de TASK-P5-001, no aceptación humana completada ni reanudación de pilotos.

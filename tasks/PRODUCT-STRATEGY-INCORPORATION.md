@@ -261,3 +261,20 @@ Local verification for the follow-up:
 - Source files: `.qa-ai/scripts/review-test-strategy.mjs` and `lib/strategy-review-evidence.mjs`.
 - Review opinions are supplied data; no real human review or pilot was performed by these regressions.
 - The follow-up is local and still requires review and remote CI before integration.
+
+### Maintenance investigation follow-up — TASK-P5-001
+
+PR #148 merged the supplied-review evidence tooling as `e43d3d2`; it did not complete human comparative review.
+The next technical slice joins capability/test navigation, file-history counts and supplied execution summaries
+inside the existing analyzer's `investigation` section. Duplicate IDs block automatic run association; missing,
+unavailable, shallow and truncated data remain explicit. Shared file history is never summed as scenario effort
+or capability maintenance totals. Causes require evidence and human review; no automatic actions are introduced.
+
+Development regressions cover exact joins, shared files, ambiguous IDs, orphan runs, missing inputs, shallow/truncated
+history, revision differences, Spanish labels and renamed Git files. This slice remains In validation; neither
+independent acceptance nor pilots have been performed.
+
+Local verification: `test:maintenance-investigation` (9 tests), `test:strategy-analysis` (15 tests),
+`test:doc-consistency` (34 tests), lint, formatting, documentation consistency and the full 90-step
+`validate:oss-extraction` suite pass. Packed installation checks the diagnostic boundary; npm-pack verification
+passes with 598 files. Remote CI and integration of this slice remain pending.

@@ -105,6 +105,35 @@ Maintenance reads the current repository's local Git history, following file ren
 including initial creation, not developer effort, elapsed half-life or blame. Correlate it with product changes and
 run evidence before classifying a cause. Author names, emails and commit messages are not collected.
 
+### Maintenance investigation by test and capability
+
+TASK-P5-001 adds an `investigation` section to the existing JSON report, using the same command and options.
+It joins exact canonical test IDs from capability navigation to supplied run summaries and current file-history rows.
+Capability entries list their test IDs and distinct file paths; each test entry contains its locations,
+`fileHistory`, `observation`, diagnostic `signals` and `classification: requires-review`.
+
+The join is deliberately conservative:
+
+- A duplicate ID, even in the same file, has `identity: ambiguous` and no attached `observation`.
+  Its supplied execution ID remains in `ambiguousObservationIds`; resolve the identity before interpreting results.
+- Scenarios without IDs remain in `missingTestIds`; orphan run IDs remain in `unmatchedObservationIds`.
+  No fuzzy matching, renaming or deduplication is performed.
+- `fileHistory.state` distinguishes `not-requested`, `unavailable`, `not-collected` and `observed`.
+  Unknown counts stay `null`, not zero. Shallow and truncated histories retain explicit flags.
+- Shared file counts are context, not per-scenario work. They are never summed into capability totals:
+  two scenarios in the same file can share the same four change commits without representing eight changes.
+- An absent results file differs from supplied results without a matching test.
+  Mixed outcomes at one supplied revision remain an investigation signal, not confirmed flakiness.
+
+For example, a renamed feature containing `TC-001` can retain two observed Git commits and a supplied run duration
+in the same test row, while its current path stays intact. This does not establish that either commit repaired
+the test, that its duration changed because of the rename, or that maintenance cost decreased.
+
+Every investigation keeps `causesInferred: false` and `automaticActions: false`. Product evolution, fragile test code,
+environment and data changes are possible causes to check against separate evidence, not classifications derived
+from commit counts or pass/fail patterns. There is no test deletion, quarantine, people ranking or half-life estimate.
+The output contains existing capability labels, paths and IDs; review/redact it before sharing.
+
 Limits: regular input files below 2 MiB; at most 1000 features, 5000 directories and depth 50; at most 100 maintenance
 files and 100 commits per file (truncation is explicit); Git calls have a five-second timeout; at most 10000 supplied
 execution records. Unsafe paths, external links and malformed inputs fail with a redacted error.

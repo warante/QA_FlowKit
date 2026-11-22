@@ -34,3 +34,4 @@ import './test/validators/ci-traceability.mjs';
 import './test/validators/apm-connectors.mjs';
 import './test/validators/test-strategy.mjs';
 import './test/validators/strategy-review-evidence.mjs';
+import './test/validators/maintenance-investigation.mjs';
