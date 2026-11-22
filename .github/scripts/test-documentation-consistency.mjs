@@ -97,6 +97,29 @@ test('strategy user guides preserve advisory semantics, privacy and final accept
     assert.ok(guide.includes(phrase), phrase);
 });
 
+test('maintenance investigation guides preserve ambiguity, shared-file and no-causality boundaries', async () => {
+  for (const file of [
+    '.qa-ai/docs/test-strategy-guide.md',
+    'docs/qa-ai/test-strategy.md',
+    'docs/qa-ai/test-strategy.es.md'
+  ]) {
+    const guide = await fs.readFile(path.join(repoRoot, file), 'utf8');
+    for (const phrase of ['investigation', 'causesInferred: false', 'automaticActions: false', 'TASK-P5-001']) {
+      assert.ok(guide.includes(phrase), `${file}: ${phrase}`);
+    }
+  }
+  const guide = await fs.readFile(path.join(repoRoot, '.qa-ai/docs/test-strategy-guide.md'), 'utf8');
+  for (const phrase of [
+    'ambiguousObservationIds',
+    'missingTestIds',
+    'not-collected',
+    'never summed',
+    'requires-review'
+  ]) {
+    assert.ok(guide.includes(phrase), phrase);
+  }
+});
+
 test('supplied strategy reviews remain hash-bound diagnostics rather than fabricated independent acceptance', async () => {
   const guide = await fs.readFile(path.join(repoRoot, '.qa-ai/docs/test-strategy-guide.md'), 'utf8');
   for (const phrase of [

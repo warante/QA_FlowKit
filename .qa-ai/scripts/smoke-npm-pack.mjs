@@ -163,6 +163,13 @@ async function main() {
     if (strategyReport.readOnly !== true || strategyReport.kind !== 'advisory-test-strategy') {
       throw new Error('Packed strategy analyzer must return a read-only advisory report.');
     }
+    if (
+      strategyReport.investigation?.kind !== 'maintenance-investigation' ||
+      strategyReport.investigation.causesInferred !== false ||
+      strategyReport.investigation.automaticActions !== false
+    ) {
+      throw new Error('Packed maintenance investigation must remain diagnostic without inferred causes or actions.');
+    }
     const reviewScript = path.join(initTarget, '.qa-ai', 'scripts', 'review-test-strategy.mjs');
     await assertExists(reviewScript, 'supplied strategy review tool');
     await fs.writeFile(path.join(initTarget, 'review-baseline.md'), 'Synthetic smoke baseline.');

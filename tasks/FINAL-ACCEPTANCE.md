@@ -37,3 +37,8 @@ inventing reviews; `--reviews <path>` checks actual supplied records and separat
 Use the [packaged guide](../.qa-ai/docs/test-strategy-guide.md#supplied-comparative-review-evidence).
 Stale inputs, self-review, uncertain conclusions and conflicting reviewers remain unresolved.
 The tool cannot verify a reviewer's identity or grant acceptance; a human must review the underlying evidence.
+
+For TASK-P5-001, inspect the analyzer's `investigation` section against actual file history and run evidence.
+Check duplicate IDs and shared files before interpreting maintenance signals; missing data is not zero maintenance.
+Product evolution, fragile tests, environment and data causes require separate evidence and human judgment.
+The technical join does not establish causality, statistical half-life or productivity benefits.

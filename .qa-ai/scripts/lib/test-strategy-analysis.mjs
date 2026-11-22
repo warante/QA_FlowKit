@@ -236,3 +236,91 @@ export function summarizeTestObservations(records = []) {
       };
     });
 }
+
+/** Join exact IDs for investigation only; file-level counts are not scenario effort or causal evidence. */
+export function buildMaintenanceInvestigation(navigation, maintenance, observations, { resultsSupplied = false } = {}) {
+  const locations = new Map();
+  const missingTestIds = [];
+  const history = new Map((maintenance?.files || []).map((file) => [file.path, file]));
+  const runs = new Map(observations.map((record) => [record.testId, record]));
+  const capabilities = navigation.capabilities.map((group) => {
+    const testIds = new Set();
+    const paths = new Set();
+    for (const test of group.tests) {
+      paths.add(test.path);
+      const location = { capability: group.capability, path: test.path, line: test.line };
+      if (!test.testIds.length) missingTestIds.push(location);
+      for (const testId of test.testIds) {
+        testIds.add(testId);
+        if (!locations.has(testId)) locations.set(testId, []);
+        locations.get(testId).push(location);
+      }
+    }
+    return {
+      capability: group.capability,
+      testIds: [...testIds].sort(),
+      paths: [...paths].sort()
+    };
+  });
+  const tests = [...locations.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([testId, entries]) => {
+      const ambiguous = entries.length !== 1;
+      const signals = [];
+      if (ambiguous) signals.push('TEST_ID_AMBIGUOUS');
+      const files = [...new Set(entries.map((entry) => entry.path))].sort().map((filePath) => {
+        const file = history.get(filePath);
+        let state = 'observed';
+        if (!maintenance) state = 'not-requested';
+        else if (!maintenance.available) state = 'unavailable';
+        else if (!file) state = 'not-collected';
+        else if (file.changeCommits === null) state = 'unavailable';
+        if (state !== 'observed') signals.push(`MAINTENANCE_${state.toUpperCase().replaceAll('-', '_')}`);
+        if (maintenance?.shallow) signals.push('MAINTENANCE_SHALLOW_HISTORY');
+        if (file?.limited) signals.push('MAINTENANCE_TRUNCATED_HISTORY');
+        return {
+          path: filePath,
+          state,
+          changeCommits: state === 'observed' ? file.changeCommits : null,
+          limited: file?.limited ?? null,
+          shallow: maintenance?.shallow ?? null
+        };
+      });
+      // An ambiguous ID must not silently attach execution evidence to either scenario.
+      const observation = ambiguous ? null : runs.get(testId) || null;
+      if (!resultsSupplied) signals.push('EXECUTION_OBSERVATIONS_NOT_SUPPLIED');
+      else if (!runs.has(testId)) signals.push('EXECUTION_OBSERVATIONS_MISSING');
+      if (observation?.mixedOutcomesAtSameRevision) signals.push('MIXED_OUTCOMES_SAME_SUPPLIED_REVISION');
+      return {
+        testId,
+        identity: ambiguous ? 'ambiguous' : 'unique',
+        locations: entries,
+        fileHistory: files,
+        observation,
+        signals: [...new Set(signals)].sort(),
+        classification: 'requires-review'
+      };
+    });
+  return {
+    kind: 'maintenance-investigation',
+    join: 'exact-test-id',
+    changeCountScope: 'file-including-creation-not-scenario-effort',
+    causesInferred: false,
+    automaticActions: false,
+    capabilities,
+    tests,
+    missingTestIds,
+    unmatchedObservationIds: observations
+      .filter((record) => !locations.has(record.testId))
+      .map((record) => record.testId),
+    ambiguousObservationIds: observations
+      .filter((record) => (locations.get(record.testId)?.length || 0) > 1)
+      .map((record) => record.testId),
+    limitations: [
+      'Shared file history is repeated as context, never summed into test or capability maintenance totals.',
+      'Mixed outcomes at a supplied revision are not confirmed flakiness or proof of a maintenance cause.',
+      'Product evolution, test fragility, environment and data causes require separate evidence and human review.',
+      'No test deletion, deduplication, quarantine, people ranking or statistical half-life is inferred.'
+    ]
+  };
+}
