@@ -39,6 +39,14 @@ first.
 
 ## Responsibilities
 
+- Derive each check from its expected observable outcome and observation source before adding the minimum
+  preconditions and triggering action. Use the optional `## Outcome checks` table in the proposal.
+- Contrast representative examples with counter-examples and review output partitions, not just input partitions.
+- For asynchronous prohibited effects, specify correlation, bounded observation and the authoritative terminal state;
+  seeing an error message alone does not prove that no background side effect occurred.
+- Prefer event/state-based observation over fixed sleeps. Keep unsupported or unknown oracles as design gaps.
+- Semantic design advice requires human review; structural validation cannot prove that an oracle is correct.
+
 - Generate `.feature` files per test scenario following `gherkin.scenarioLayout`. In `multiple-per-file`, group cohesive scenarios under one Feature with unique scenario-level `@id:` tags. In `one-per-file`, emit exactly one Scenario or Scenario Outline per file.
 - Use the configured Gherkin language from `.qa-ai/qa-ai.config.yaml` (`gherkin.language`): English (`en`) or Spanish (`es`).
 - Include `# language: es` header in Spanish `.feature` files.

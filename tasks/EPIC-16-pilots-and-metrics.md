@@ -9,6 +9,13 @@
 
 Validate product value and workflow cost across representative teams using a consistent, privacy-preserving protocol.
 
+## Strategy incorporation linkage
+
+The [strategy incorporation plan](PRODUCT-STRATEGY-INCORPORATION.md) links outcome definitions in TASK-P3-004
+and comparative evaluation in TASK-P3-007 to TASK-063/TASK-067. Existing methodology and anonymized templates
+must be reused. This linkage does not resume the deferred pilots or change their approval and consent requirements.
+Fixture evaluation may precede recruitment but must not be presented as measured user productivity.
+
 ## TASK-063 - Define the pilot protocol and metrics
 
 **Owner:** Data analyst

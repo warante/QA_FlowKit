@@ -32,6 +32,10 @@ export const PACK_INFRASTRUCTURE = [
   '.qa-ai/scripts/lib/sarif-report.mjs',
   '.qa-ai/scripts/lib/pr-summary.mjs',
   '.qa-ai/scripts/lib/module-installation.mjs',
+  '.qa-ai/scripts/analyze-test-strategy.mjs',
+  '.qa-ai/scripts/lib/test-strategy-analysis.mjs',
+  '.qa-ai/scripts/lib/test-strategy-report.mjs',
+  '.qa-ai/docs/test-strategy-guide.md',
   '.qa-ai/scripts/lib/opencode-v2-plugin.mjs',
   '.qa-ai/adapters/shared/opencode-v2/index.mjs',
   '.qa-ai/adapters/shared/opencode-v2/package.json',
@@ -44,6 +48,7 @@ export const PACK_INFRASTRUCTURE = [
 ];
 
 const FORBIDDEN_PREFIXES = [
+  'references/',
   '.qa-ai/state/',
   '.github/',
   '.claude/',

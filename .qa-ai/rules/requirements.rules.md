@@ -27,6 +27,10 @@ Apply during requirement intake, normalization, test design, coverage analysis a
 
 ## Traceability matrix
 
+Optional contrast cases are agent-guided clarification, not deterministic proof of correctness. Tie questions,
+examples, counter-examples and decision owners to existing Criterion IDs. Pending answers remain
+`pending-decision` in the canonical criteria; no generated answer may silently approve a requirement.
+
 - Maintain `.qa-ai/output/traceability-matrix.md` (or the path from `.qa-ai/qa-ai.config.yaml`) as the repo source of truth linking requirements to tests.
 - Use a Markdown table with columns at least covering: requirement source, RF, feature file, test management case ID, type, priority, automation status.
 - When `normalized-requirements.md` lists source NFRs, add `## Non-functional traceability` with one row per `NFR ID`.

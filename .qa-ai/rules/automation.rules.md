@@ -11,3 +11,10 @@ Apply before implementing or refactoring automated tests.
 - Create configured issue tracker task drafts for automatable tests that cannot be implemented now ([issue-tracker.rules.md](issue-tracker.rules.md)).
 - UI/E2E specifics: [ui-automation.rules.md](ui-automation.rules.md).
 - API specifics: [api-testing.rules.md](api-testing.rules.md).
+
+## Redesign before automating manual cases
+
+Preserve each case's purpose while reviewing independent setup, deterministic oracles, event/state synchronization,
+the narrowest supported execution layer and retained human exploration. Record proposals in optional
+`## Automation redesign` rows of the feasibility report. Do not translate manual UI steps mechanically, assume
+unsupported clock/data hooks or modify existing tests without approval.

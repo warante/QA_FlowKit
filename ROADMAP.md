@@ -46,6 +46,11 @@ The executable implementation plan, owners, dependencies and acceptance criteria
 
 ## Product expansion
 
+Execution details for the test-design improvements within P3/P5 are in
+[`tasks/PRODUCT-STRATEGY-INCORPORATION.md`](tasks/PRODUCT-STRATEGY-INCORPORATION.md).
+The evidence-based planning snapshot is in [`tasks/IMPLEMENTATION-STATUS.md`](tasks/IMPLEMENTATION-STATUS.md).
+These additions do not change the M1-M7 release gates or declare existing expansion epics complete.
+
 | Epic    | Scope                                      | Exit gate                                                                                                                                                                                                                                                                  |
 | ------- | ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | EPIC-P0 | Hardening and first-use experience         | A new user can run `npx qa-flowkit`, configure with `/qa-init` or `node .qa-ai/scripts/init.mjs`, and reach a valid, schema-checked, placeholder-free configuration with synced adapters and pre-created feature folders; roadmap, intake security and self-quality align. |

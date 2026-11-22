@@ -147,6 +147,22 @@ async function main() {
     configureFramework(initTarget, ['--no-adapters']);
     validateAgentGuidanceAt(initTarget);
     await assertExists(path.join(initTarget, '.qa-ai', 'scripts', 'init.mjs'), '.qa-ai framework');
+    await assertExists(
+      path.join(initTarget, '.qa-ai', 'scripts', 'analyze-test-strategy.mjs'),
+      'read-only strategy analyzer'
+    );
+    const strategy = runNodeScript(
+      path.join(initTarget, '.qa-ai', 'scripts', 'analyze-test-strategy.mjs'),
+      ['--json'],
+      {
+        cwd: initTarget,
+        stdio: 'pipe'
+      }
+    );
+    const strategyReport = JSON.parse(strategy.stdout);
+    if (strategyReport.readOnly !== true || strategyReport.kind !== 'advisory-test-strategy') {
+      throw new Error('Packed strategy analyzer must return a read-only advisory report.');
+    }
     await assertExists(path.join(initTarget, COMPACT_CONFIG_PATH), 'generated config');
     await assertExists(path.join(initTarget, DEFAULT_FEATURE_PATH), 'features directory');
     await assertExists(path.join(initTarget, QA_OUTPUT_DIR), 'output directory');

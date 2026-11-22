@@ -60,6 +60,17 @@ Apply during system-level and per-RF test design before final Gherkin generation
 - Perform a functional security review when configured. This does not replace penetration testing or establish
   OWASP compliance.
 
+## Optional strategy enrichment (agent-guided)
+
+- Use outcome-first derivation and input/output partitions in the primary proposal's `## Outcome checks`.
+- Prohibited asynchronous effects need alternative behavior, correlation, bounded observation and authoritative
+  terminal-state evidence; a UI error alone is insufficient. Unknown oracles remain gaps.
+- Use `## Benefit evaluation` and ACC `## Capability coverage` inside system design only when useful.
+  Benefit targets require approval and missing baselines remain unknown; fixture success is not measured user benefit.
+- Capability navigation is derived from current feature metadata; preserve canonical RF/CA/TC mappings and history.
+- These sections are optional and advisory. Existing artifacts remain valid without them; no new phase, type or
+  semantic strict gate is introduced. Structural checks do not prove business correctness.
+
 ## Relationship to other rules
 
 - Gherkin structure and tags: [gherkin.rules.md](gherkin.rules.md).
